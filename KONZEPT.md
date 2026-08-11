@@ -72,6 +72,24 @@ was der Nutzer im Formular sieht.
 > `fire_allowed` ist der heikelste Wert der App. Default ist **`unklar`**, nie
 > `erlaubt`. Dazu der Hinweistext aus Abschnitt 6.
 
+### Fischen
+
+| Feld | Anzeige (Auswahl) | Wert in der Datenbank |
+|------|-------------------|------------------------|
+| `fishing` | ja, mit Lizenz / nein, verboten / unklar | `mit_lizenz` `verboten` `unklar` |
+| `fish_species` | Mehrfachauswahl: Bachforelle, Saibling, Äsche, Huchen … | Liste aus 12 Arten |
+| `fishing_note` | „Wo bekommt man die Karte?" — kurzer Freitext | Text, max. 300 Zeichen |
+
+> Wie bei `fire_allowed` ist der Default **`unklar`**, und die beste Angabe
+> heißt bewusst „mit Lizenz" statt „erlaubt". In Österreich gibt es kein frei
+> befischbares Gewässer: Es braucht immer die staatliche Fischerkarte *und*
+> die Erlaubnis des Bewirtschafters. Ohne beides ist es Fischwilderei und
+> damit strafbar — nicht bloß eine Verwaltungsübertretung. Der Hinweis steht
+> deshalb direkt im Formular.
+>
+> `fishing_note` ist die praktisch wertvollste Angabe der Gruppe: Wo die Karte
+> zu bekommen ist, findet sonst jeder von vorne heraus.
+
 ### Praktisches
 
 | Feld | Anzeige (Auswahl) | Wert in der Datenbank |
@@ -85,7 +103,8 @@ was der Nutzer im Formular sieht.
 
 **Alle Attribute sind freiwillig** außer Name und Position. Ein Spot mit nur
 einem Foto und einer Koordinate ist besser als kein Spot. Das Formular darf
-niemanden zwingen, 19 Felder auszufüllen.
+niemanden zwingen, alle Felder auszufüllen — deshalb sind die Gruppen
+zugeklappt.
 
 ---
 
