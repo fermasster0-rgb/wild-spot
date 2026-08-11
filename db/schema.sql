@@ -369,6 +369,15 @@ create policy "wasserstellen lesen" on public.water_points
 -- Spots samt Sterneschnitt und Anzahl Bewertungen.
 -- security_invoker = on ist wichtig: dadurch gelten die RLS-Regeln der Tabellen
 -- auch für die View. Ohne das wäre die View ein Loch in der Absicherung.
+--
+-- ACHTUNG, FALLE: Das "s.*" unten sieht aus, als würde die View immer alle
+-- Spalten von spots zeigen. Tut sie nicht. Postgres löst das Sternchen einmal
+-- beim Anlegen auf und schreibt die Liste fest — eine Spalte, die später zu
+-- spots dazukommt, fehlt hier für immer.
+--
+-- Wer also spots eine Spalte hinzufügt, muss danach db/011-view-auffrischen.sql
+-- laufen lassen. Sonst holt die App diese Spalte ins Leere und der ganze
+-- Spot-Detail bleibt leer. Genau das ist am 2026-08-11 passiert.
 create or replace view public.spots_with_rating
 with (security_invoker = on) as
   select
