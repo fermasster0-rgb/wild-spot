@@ -287,64 +287,100 @@ function farbAusdruck(gruppe) {
 // bleibt außerdem erhalten — er trägt bei den Spots die Bewertungsfarbe.
 // ============================================================================
 
-const SYMBOL_GROESSE = 34;   // Kantenlänge in Bildpunkten, doppelt aufgelöst
+const SYMBOL_GROESSE = 40;   // Kantenlänge in Bildpunkten, doppelt aufgelöst
 
-function symbolLaden(gruppe) {
-  const vorlage = document.querySelector('.sym.' + gruppe);
+// Die Leitfarbe je Ebene. Auf der Karte trägt das Zeichen sie selbst — es
+// gibt keinen farbigen Kreis mehr darunter, der das übernehmen könnte.
+// Etwas kräftiger als in der Legende: dort steht es auf Dunkel, hier auf
+// einer hellen Karte.
+const SYMBOL_FARBE = {
+  wasser:     '#1f79bd',
+  unterstand: '#a1621f',
+  seen:       '#12a596',
+  wasserfall: '#1a5fc0',
+  spot:       '#4d9e35',
+};
+
+// Für Spots zusätzlich nach Bewertung, damit man ein Urteil auf der Karte
+// sieht, ohne den Spot zu öffnen.
+const SPOT_FARBEN = {
+  'spot':         '#4d9e35',   // noch nicht bewertet — das Grün der App
+  'spot-mittel':  '#c08a1e',
+  'spot-schwach': '#a85a2a',
+};
+
+// Das Zeichen wird zweimal übereinander gezeichnet: zuerst dick in Weiß,
+// dann dünner in seiner Farbe. Der weiße Rand darunter ist der Grund, warum
+// ein Symbol ohne Kreis auf einem Luftbild oder im Wald überhaupt lesbar
+// bleibt — ohne ihn verschwindet ein blauer Strich im blauen Bach.
+function symbolLaden(name, quelleKlasse, farbe) {
+  const vorlage = document.querySelector('.sym.' + (quelleKlasse || name));
   if (!vorlage) return;
 
-  const svg = vorlage.cloneNode(true);
-  svg.removeAttribute('class');
-  svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-  svg.setAttribute('width', SYMBOL_GROESSE);
-  svg.setAttribute('height', SYMBOL_GROESSE);
+  const inhalt = vorlage.innerHTML;
+  const gefuellt = (quelleKlasse || name) === 'wasser';   // der Tropfen ist eine Fläche
 
-  // Das Aussehen steht in der Legende im Stylesheet und wird beim Klonen
-  // nicht mitkopiert — hier also ausdrücklich setzen.
-  const gefuellt = gruppe === 'wasser';        // der Tropfen ist eine Fläche
-  svg.setAttribute('fill', gefuellt ? '#ffffff' : 'none');
-  svg.setAttribute('stroke', gefuellt ? 'none' : '#ffffff');
-  svg.setAttribute('stroke-width', '2.4');     // kräftiger als in der Legende,
-  svg.setAttribute('stroke-linecap', 'round'); // damit es klein noch trägt
-  svg.setAttribute('stroke-linejoin', 'round');
+  const svg =
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" ` +
+    `width="${SYMBOL_GROESSE}" height="${SYMBOL_GROESSE}">` +
+      // Unterlage: derselbe Umriss, nur dick und weiß. Kräftig genug, dass
+      // das Zeichen auch auf einer bunten Wanderkarte noch heraussticht —
+      // es hat keinen farbigen Kreis mehr, der ihm Gewicht gibt.
+      `<g fill="${gefuellt ? '#ffffff' : 'none'}" stroke="#ffffff" stroke-width="6.5" ` +
+      `stroke-linecap="round" stroke-linejoin="round">${inhalt}</g>` +
+      // Darüber das eigentliche Zeichen.
+      `<g fill="${gefuellt ? farbe : 'none'}" stroke="${gefuellt ? 'none' : farbe}" ` +
+      `stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">${inhalt}</g>` +
+    `</svg>`;
 
   const bild = new Image(SYMBOL_GROESSE, SYMBOL_GROESSE);
   bild.onload = () => {
-    if (!karte.hasImage('sym-' + gruppe)) {
-      // pixelRatio 2 heißt: das Bild ist doppelt so fein wie seine Anzeige.
-      // Auf einem Handybildschirm bleibt es dadurch scharf.
-      karte.addImage('sym-' + gruppe, bild, { pixelRatio: 2 });
-    }
+    // pixelRatio 2 heißt: das Bild ist doppelt so fein wie seine Anzeige.
+    // Auf einem Handybildschirm bleibt es dadurch scharf.
+    if (!karte.hasImage('sym-' + name)) karte.addImage('sym-' + name, bild, { pixelRatio: 2 });
   };
-  bild.src = 'data:image/svg+xml;charset=utf-8,'
-    + encodeURIComponent(new XMLSerializer().serializeToString(svg));
+  bild.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
 }
 
-// Ab wann das Symbol im Punkt erscheint. Darunter ist der Punkt zu klein —
-// ein Zelt in einem 5-Pixel-Kreis wäre nur ein Fleck. Es wird eingeblendet,
-// nicht hart geschaltet, damit der Wechsel nicht springt.
-const SYMBOL_AB = 11.5;
+// Bei den Spots hängt das Zeichen von der Bewertung ab, sonst ist es fest.
+function symbolAusdruck(gruppe) {
+  if (gruppe !== 'spot') return 'sym-' + gruppe;
+
+  return ['case',
+    ['==', ['get', 'rating_count'], 0], 'sym-spot',
+    ['<', ['get', 'avg_stars'], 2.5], 'sym-spot-schwach',
+    ['<', ['get', 'avg_stars'], 4], 'sym-spot-mittel',
+    'sym-spot',
+  ];
+}
 
 // gruppe bestimmt, welches Zeichen genommen wird; quelle, an welchen Punkten
 // es hängt. Bei den Spots heißen die beiden unterschiedlich ("spot" ist das
 // Zelt, "spots" die Datenquelle) — deshalb sind es zwei Angaben.
 function symbolLayer(gruppe, quelle) {
   const q = quelle || gruppe;
+  const gross = gruppe === 'spot';   // Spots sind das Wichtigste auf der Karte
+
   return {
     id: q + '-symbol',
     type: 'symbol',
     source: q,
     filter: ['!', ['has', 'point_count']],
     layout: {
-      'icon-image': 'sym-' + gruppe,
-      'icon-size': ['interpolate', ['linear'], ['zoom'], 12, 0.42, 16, 0.62],
+      'icon-image': symbolAusdruck(gruppe),
+      // Von der Übersicht bis ganz nah durchgehend sichtbar, nur kleiner.
+      // Bei Zoom 5 liegt ganz Österreich im Bild — dort wären volle Symbole
+      // ein Teppich, aber ganz verschwinden sollen sie auch nicht.
+      'icon-size': ['interpolate', ['linear'], ['zoom'],
+        5,  gross ? 0.36 : 0.28,
+        9,  gross ? 0.52 : 0.44,
+        13, gross ? 0.72 : 0.62,
+        16, gross ? 0.86 : 0.74,
+      ],
       // Ohne diese beiden lässt MapLibre Symbole weg, sobald sie sich
       // berühren — in den Alpen wäre dann die Hälfte unsichtbar.
       'icon-allow-overlap': true,
       'icon-ignore-placement': true,
-    },
-    paint: {
-      'icon-opacity': ['interpolate', ['linear'], ['zoom'], SYMBOL_AB, 0, SYMBOL_AB + 1, 1],
     },
   };
 }
@@ -378,70 +414,22 @@ karte.on('load', () => {
       },
     }, 'maske');
 
-    karte.addLayer({
-      id: gruppe + '-punkt',
-      type: 'circle',
-      source: gruppe,
-      filter: ['!', ['has', 'point_count']],
-      paint: {
-        'circle-color': farbAusdruck(gruppe),
-        // Bergseen und Wasserfälle sind schon in der Übersicht da und dürfen
-        // auffallen — aber erst beim Hineinzoomen groß werden. In der
-        // Österreich-Ansicht wären 3.000 dicke Punkte ein Teppich, unter dem
-        // das Land verschwindet.
-        //
-        // Ab Zoom 12 werden sie deutlich größer: dort erscheint das Symbol
-        // darin, und dafür braucht es Platz.
-        'circle-radius': WEITSICHT_EBENEN.includes(gruppe)
-          ? ['interpolate', ['linear'], ['zoom'], 5, 2.2, 8, 5, 12, 10, 16, 13]
-          : ['interpolate', ['linear'], ['zoom'], 11, 4, 12, 10, 16, 13],
-        'circle-stroke-width': WEITSICHT_EBENEN.includes(gruppe)
-          ? ['interpolate', ['linear'], ['zoom'], 5, 0.6, 9, 2]
-          : 1.5,
-        'circle-stroke-color': 'rgba(255,255,255,0.85)',
-      },
-    }, 'maske');
-
-    // Das Symbol im Punkt — dasselbe Zeichen wie in der Legende.
+    // Die Punkte sind das Zeichen selbst — kein Kreis mehr darunter. Das
+    // hält die Karte ruhiger, weil nichts doppelt gezeichnet wird, und man
+    // erkennt schon von weitem, was da liegt.
     karte.addLayer(symbolLayer(gruppe), 'maske');
   }
 
-  // Die Spots liegen über allem anderen — sie sind der Kern der App.
-  // Ein Ring außen herum, damit sie sich von den OSM-Punkten abheben, und
-  // die Füllung nach Sterneschnitt eingefärbt: je besser bewertet, desto
-  // kräftiger das Grün. Ohne Bewertung bleibt der Spot grau.
-  karte.addLayer({
-    id: 'spots-punkt',
-    type: 'circle',
-    source: 'spots',
-    paint: {
-      // Ein Spot ohne Bewertung bekommt das Grün der App — nicht Grau. Neu
-      // eingetragen ist der Normalfall, und wer gerade einen Platz beigesteuert
-      // hat, soll ihn auf der Karte nicht als blassen Fleck wiederfinden.
-      //
-      // Sobald bewertet wird, zeigt die Farbe das Urteil: von braun über gelb
-      // zu kräftigem Grün.
-      'circle-color': [
-        'case',
-        ['==', ['get', 'rating_count'], 0], '#7bb661',
-        ['interpolate', ['linear'], ['get', 'avg_stars'],
-          1, '#b8763a',
-          3, '#c9b247',
-          5, '#5fbf4a'],
-      ],
-      'circle-radius': ['interpolate', ['linear'], ['zoom'], 8, 6, 12, 11, 16, 14],
-      'circle-stroke-width': 2.5,
-      'circle-stroke-color': '#ffffff',
-    },
-  });
-
-  // Das Zelt im Spot. Der Punkt darunter behält seine Farbe — die zeigt die
-  // Bewertung, und die ist bei einem Spot die wichtigste Information.
+  // Die Spots liegen über allem anderen — sie sind der Kern der App. Ihr
+  // Zelt ist etwas größer als die übrigen Zeichen und trägt die Farbe der
+  // Bewertung: grün wenn gut oder noch nicht bewertet, gelb bei mittelmäßig,
+  // braun bei schwach.
   karte.addLayer(symbolLayer('spot', 'spots'));
 
-  // Die Symbole selbst werden aus der Legende gebaut. Das geht erst hier:
-  // vorher steht der Kartenstil noch nicht, und addImage bräuchte ihn.
-  for (const gruppe of [...OSM_EBENEN, 'spot']) symbolLaden(gruppe);
+  // Die Zeichen werden aus der Legende gebaut. Das geht erst hier: vorher
+  // steht der Kartenstil noch nicht, und addImage bräuchte ihn.
+  for (const gruppe of OSM_EBENEN) symbolLaden(gruppe, gruppe, SYMBOL_FARBE[gruppe]);
+  for (const [name, farbe] of Object.entries(SPOT_FARBEN)) symbolLaden(name, 'spot', farbe);
 
   // Die eigene Position: erst der Genauigkeitskreis, dann der Punkt darauf.
   karte.addSource('ich', { type: 'geojson', data: leer() });
@@ -947,7 +935,7 @@ auth.beiWechsel.push((nutzer) => {
 // ============================================================================
 
 for (const gruppe of OSM_EBENEN) {
-  karte.on('click', gruppe + '-punkt', (e) => {
+  karte.on('click', gruppe + '-symbol', (e) => {
     const f = e.features[0];
     const art = ARTEN[f.properties.kind] || { label: f.properties.kind };
     const [lng, lat] = f.geometry.coordinates;
@@ -973,7 +961,7 @@ for (const gruppe of OSM_EBENEN) {
     karte.easeTo({ center: e.lngLat, zoom: Math.min(karte.getZoom() + 2.5, 19) });
   });
 
-  for (const suffix of ['-punkt', '-cluster']) {
+  for (const suffix of ['-symbol', '-cluster']) {
     karte.on('mouseenter', gruppe + suffix, () => karte.getCanvas().style.cursor = 'pointer');
     karte.on('mouseleave', gruppe + suffix, () => karte.getCanvas().style.cursor = '');
   }
@@ -985,7 +973,7 @@ function escapeHtml(s) {
 
 // Ein Spot bekommt kein Popup, sondern die Leiste rechts: dort ist Platz für
 // alle Angaben, die Bewertungen und die Kommentare (siehe spot-detail.js).
-karte.on('click', 'spots-punkt', (e) => {
+karte.on('click', 'spots-symbol', (e) => {
   const p = e.features[0].properties;
   const [lng, lat] = e.features[0].geometry.coordinates;
 
@@ -994,8 +982,8 @@ karte.on('click', 'spots-punkt', (e) => {
   }
 });
 
-karte.on('mouseenter', 'spots-punkt', () => karte.getCanvas().style.cursor = 'pointer');
-karte.on('mouseleave', 'spots-punkt', () => karte.getCanvas().style.cursor = '');
+karte.on('mouseenter', 'spots-symbol', () => karte.getCanvas().style.cursor = 'pointer');
+karte.on('mouseleave', 'spots-symbol', () => karte.getCanvas().style.cursor = '');
 
 function sterne(schnitt) {
   const voll = Math.round(Number(schnitt) || 0);
