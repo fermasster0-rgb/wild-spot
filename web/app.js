@@ -303,10 +303,15 @@ const SYMBOL_FARBE = {
 
 // Für Spots zusätzlich nach Bewertung, damit man ein Urteil auf der Karte
 // sieht, ohne den Spot zu öffnen.
+//
+// Das Grün ist bewusst kräftiger und kälter als das der App-Oberfläche: Die
+// Karte selbst ist voller Grün — Wald, Wiese, Almen — und zwar in gedämpften,
+// gelblichen Tönen. Ein Spot in ähnlichem Grün verschwindet darin. Dieses
+// hier ist so gesättigt, wie Landschaft nie ist, und sticht dadurch heraus.
 const SPOT_FARBEN = {
-  'spot':         '#4d9e35',   // noch nicht bewertet — das Grün der App
-  'spot-mittel':  '#c08a1e',
-  'spot-schwach': '#a85a2a',
+  'spot':         '#00a63c',   // noch nicht bewertet oder gut
+  'spot-mittel':  '#e09a12',
+  'spot-schwach': '#cc5a28',
 };
 
 // Das Zeichen wird zweimal übereinander gezeichnet: zuerst dick in Weiß,
@@ -314,11 +319,19 @@ const SPOT_FARBEN = {
 // ein Symbol ohne Kreis auf einem Luftbild oder im Wald überhaupt lesbar
 // bleibt — ohne ihn verschwindet ein blauer Strich im blauen Bach.
 function symbolLaden(name, quelleKlasse, farbe) {
-  const vorlage = document.querySelector('.sym.' + (quelleKlasse || name));
+  const klasse = quelleKlasse || name;
+  const vorlage = document.querySelector('.sym.' + klasse);
   if (!vorlage) return;
 
   const inhalt = vorlage.innerHTML;
-  const gefuellt = (quelleKlasse || name) === 'wasser';   // der Tropfen ist eine Fläche
+  const gefuellt = klasse === 'wasser';   // der Tropfen ist eine Fläche
+
+  // Spots bekommen mehr Weiß um sich herum und einen kräftigeren Strich. Sie
+  // sind das Wichtigste auf der Karte und liegen oft mitten im Wald — genau
+  // dort, wo ein grünes Zeichen sonst untergeht.
+  const spot = klasse === 'spot';
+  const halo = spot ? 8 : 6.5;
+  const strich = spot ? 3.1 : 2.6;
 
   const svg =
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" ` +
@@ -326,11 +339,11 @@ function symbolLaden(name, quelleKlasse, farbe) {
       // Unterlage: derselbe Umriss, nur dick und weiß. Kräftig genug, dass
       // das Zeichen auch auf einer bunten Wanderkarte noch heraussticht —
       // es hat keinen farbigen Kreis mehr, der ihm Gewicht gibt.
-      `<g fill="${gefuellt ? '#ffffff' : 'none'}" stroke="#ffffff" stroke-width="6.5" ` +
+      `<g fill="${gefuellt ? '#ffffff' : 'none'}" stroke="#ffffff" stroke-width="${halo}" ` +
       `stroke-linecap="round" stroke-linejoin="round">${inhalt}</g>` +
       // Darüber das eigentliche Zeichen.
       `<g fill="${gefuellt ? farbe : 'none'}" stroke="${gefuellt ? 'none' : farbe}" ` +
-      `stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">${inhalt}</g>` +
+      `stroke-width="${strich}" stroke-linecap="round" stroke-linejoin="round">${inhalt}</g>` +
     `</svg>`;
 
   const bild = new Image(SYMBOL_GROESSE, SYMBOL_GROESSE);
@@ -371,11 +384,13 @@ function symbolLayer(gruppe, quelle) {
       // Von der Übersicht bis ganz nah durchgehend sichtbar, nur kleiner.
       // Bei Zoom 5 liegt ganz Österreich im Bild — dort wären volle Symbole
       // ein Teppich, aber ganz verschwinden sollen sie auch nicht.
+      // Spots sind durchgehend deutlich größer als die OSM-Zeichen. Sie sind
+      // der Grund, warum es die App gibt — ein Trinkbrunnen ist Beiwerk.
       'icon-size': ['interpolate', ['linear'], ['zoom'],
-        5,  gross ? 0.36 : 0.28,
-        9,  gross ? 0.52 : 0.44,
-        13, gross ? 0.72 : 0.62,
-        16, gross ? 0.86 : 0.74,
+        5,  gross ? 0.50 : 0.28,
+        9,  gross ? 0.70 : 0.44,
+        13, gross ? 0.95 : 0.62,
+        16, gross ? 1.15 : 0.74,
       ],
       // Ohne diese beiden lässt MapLibre Symbole weg, sobald sie sich
       // berühren — in den Alpen wäre dann die Hälfte unsichtbar.
