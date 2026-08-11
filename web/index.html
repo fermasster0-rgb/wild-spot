@@ -1325,6 +1325,36 @@ body.detail-offen .unten { right: 404px; }
 .schnitt .sterne { font-size: 15px; letter-spacing: 1px; }
 .schnitt .anzahl { font-size: 12px; color: var(--text-weak); }
 
+/* Hinkommen: zwei Kacheln nebeneinander, Auto und zu Fuß. Gleich groß, weil
+   keiner der beiden Wege der wichtigere ist — welcher zählt, hängt am Spot. */
+.hinweg {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 9px;
+}
+.weg-knopf {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 11px;
+  border: 1px solid var(--rand);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text);
+  text-decoration: none;
+  font-size: 13.5px;
+  font-weight: 500;
+  line-height: 1.25;
+}
+.weg-knopf:hover {
+  background: rgba(255, 255, 255, 0.13);
+  border-color: rgba(255, 255, 255, 0.24);
+}
+.weg-knopf .sym { font-size: 18px; line-height: 1; }
+.weg-knopf .was { display: flex; flex-direction: column; gap: 2px; }
+.weg-knopf small { color: var(--text-weak); font-size: 11px; font-weight: 400; }
+
 /* Die eigenen fünf Sterne zum Anklicken. */
 .meine-sterne {
   display: flex;

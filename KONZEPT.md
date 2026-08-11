@@ -265,9 +265,26 @@ diese Entscheidung keine Arbeit verloren.
       unter „Dein Spot". Löschen fragt vorher nach und räumt die Bilddateien
       im Speicher mit weg; Bewertungen und Kommentare erledigt die Datenbank.
 
+- [x] **Hinkommen** — im Spot-Detail zwei Knöpfe: „Anfahrt" öffnet Google Maps
+      mit gesetztem Ziel, „Wanderweg" den Tourenplaner von Komoot an dieser
+      Stelle. Dazu „Koordinaten kopieren" an einer Stelle, an der man es auch
+      findet.
+
+      Bewusst nur Links, keine Routen auf unserer eigenen Karte: Googles
+      Bedingungen verbieten es, eine Google-Route auf einer fremden Karte
+      (basemap.at) zu zeichnen, und Komoot hat für Außenstehende gar keine
+      offene Schnittstelle — nur Partnerverträge mit Geräteherstellern.
+
 **Als Nächstes**
 
 - [ ] Ins Web stellen (GitHub Pages), damit die Karte auch unterwegs läuft,
       ohne dass der PC daheim laufen muss
+- [ ] **Eigene Wanderroute auf der Karte** — Parkplatz als zweite Koordinate
+      speichern, dann die Route Parkplatz → Spot über einen Routendienst auf
+      OpenStreetMap-Basis rechnen (OpenRouteService, Profil `foot-hiking`:
+      gratis, 2.500 Abfragen am Tag, keine Kreditkarte). Das liefert Linie,
+      Gehzeit und Höhenmeter — genau das, was Komoot auch rechnet, denn dessen
+      Grundlage sind dieselben OSM-Daten. Damit wird `hike_minutes` gemessen
+      statt geschätzt.
 - [ ] *(kein Muss)* In ein paar Monaten den Import wiederholen, dann sind die
       OSM-Daten wieder aktuell: `node scripts/import-water.mjs`
