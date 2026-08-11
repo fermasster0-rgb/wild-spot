@@ -157,7 +157,7 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-detailKoord.onclick = async () => {
+async function koordinatenKopieren() {
   if (!offenerSpot) return;
   const text = `${offenerSpot.lat.toFixed(5)}, ${offenerSpot.lng.toFixed(5)}`;
   try {
@@ -167,7 +167,9 @@ detailKoord.onclick = async () => {
     status('Kopieren hat nicht geklappt — der Browser erlaubt es hier nicht.',
            { warnung: true, dauer: 3000 });
   }
-};
+}
+
+detailKoord.onclick = koordinatenKopieren;
 
 // ============================================================================
 // 3. ÖFFNEN
@@ -340,6 +342,12 @@ function zeichnen(spot, kommentare, meineSterne, fotos = []) {
   }
   teile.push('</div>');
 
+  // ---------------------------------------------------------- Hinkommen -----
+  // Direkt unter der Bewertung: Ist der Spot gut? — und gleich danach: Wie
+  // komme ich hin?
+  teile.push('<h3>Hinkommen</h3>');
+  teile.push(hinkommenHtml(offenerSpot.lat, offenerSpot.lng));
+
   // -------------------------------------------------------- Beschreibung -----
   if (spot.description) {
     teile.push('<h3>Beschreibung</h3>');
@@ -479,6 +487,46 @@ function zeichnen(spot, kommentare, meineSterne, fotos = []) {
   verdrahten(spot, meineSterne, fotos.length, meiner);
 }
 
+// Die zwei Wege zum Spot. Sie beantworten zwei verschiedene Fragen: Google
+// Maps bringt einen mit dem Auto samt Verkehrslage bis zum Ausgangspunkt,
+// Komoot plant von dort den Weg zu Fuß über markierte Wanderwege.
+//
+// Beides sind bewusst nur Links, die die jeweilige App öffnen — und nicht
+// Routen, die hier auf der Karte gezeichnet werden:
+//
+//   · Googles Nutzungsbedingungen verbieten es, eine Google-Route auf einer
+//     fremden Karte darzustellen. Unsere Karte kommt von basemap.at.
+//   · Komoot hat für Außenstehende gar keine offene Schnittstelle, nur
+//     Partnerverträge mit Geräteherstellern.
+//
+// Ein Link ist dagegen bei beiden ausdrücklich vorgesehen, kostet nichts und
+// braucht keinen Schlüssel. Eine eigene Wanderroute direkt auf dieser Karte
+// ist trotzdem möglich — dafür braucht es einen Routendienst auf
+// OpenStreetMap-Basis (siehe KONZEPT.md, Abschnitt 9).
+function hinkommenHtml(lat, lng) {
+  const ziel = `${lat.toFixed(6)},${lng.toFixed(6)}`;
+
+  // Das offizielle Adressmuster von Google Maps. Am Handy öffnet sich damit
+  // die App, am Rechner die Webseite — in beiden Fällen mit gesetztem Ziel.
+  const google = 'https://www.google.com/maps/dir/?api=1' +
+                 `&destination=${encodeURIComponent(ziel)}&travelmode=driving`;
+
+  // Komoots Tourenplaner, auf diese Stelle der Karte zentriert.
+  const komoot = `https://www.komoot.com/plan/@${ziel},14z`;
+
+  return (
+    '<div class="hinweg">' +
+    `<a class="weg-knopf" href="${google}" target="_blank" rel="noopener">` +
+    '<span class="sym">🚗</span><span class="was">Anfahrt<small>Google Maps</small></span></a>' +
+    `<a class="weg-knopf" href="${komoot}" target="_blank" rel="noopener">` +
+    '<span class="sym">🥾</span><span class="was">Wanderweg<small>Komoot</small></span></a>' +
+    '</div>' +
+    '<p class="detail-leer">Das Ziel ist der Spot selbst — mit dem Auto kommt ' +
+    'man je nach Lage nur in die Nähe. ' +
+    '<button type="button" class="detail-flach" id="koord-kopieren">Koordinaten kopieren</button></p>'
+  );
+}
+
 function kommentarHtml(k) {
   const nutzer = window.WILDCAMP_AUTH.nutzer;
   const name = k.profiles && k.profiles.username ? k.profiles.username : 'Jemand';
@@ -538,6 +586,11 @@ function verdrahten(spot, meineSterne, anzahlFotos, meiner) {
     document.getElementById('loeschen-nein').onclick = () => { frage.hidden = true; };
     document.getElementById('loeschen-ja').onclick = () => spotLoeschen(spot.id, spot.name);
   }
+
+  // Der Kopierknopf unter „Hinkommen" — dieselbe Handlung wie ein Klick auf
+  // die Koordinaten im Kopf, aber dort findet sie niemand von selbst.
+  const koordKnopf = document.getElementById('koord-kopieren');
+  if (koordKnopf) koordKnopf.onclick = koordinatenKopieren;
 
   // Für Besucher ohne Konto: der Weg zur Anmeldung.
   for (const b of detailKoerper.querySelectorAll('[data-anmelden]')) {
