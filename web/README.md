@@ -35,8 +35,11 @@ Die Wasserstellen und Unterkünfte erscheinen erst, wenn du **nah genug
 herangezoomt** hast. Das ist Absicht: bei ganz Österreich wären es
 zehntausende Punkte auf einmal.
 
-**Bergseen sind die Ausnahme** — die siehst du schon in der Übersicht. Es gibt
-nur ein paar hundert im Land, und meistens sucht man genau nach so einem.
+**Bergseen und Wasserfälle sind die Ausnahme** — die siehst du schon in der
+Übersicht. Von beiden gibt es nur ein paar tausend im Land, und meistens sucht
+man genau nach so einem: Sie sind nicht nur Wasser, sondern ein Grund,
+überhaupt dort hinzugehen.
+
 Als Bergsee zählt jeder See über 900 m; darunter liegen die großen bekannten
 (Wörthersee, Attersee, Neusiedler See), die hier niemanden interessieren.
 Die Höhe steht im Popup.

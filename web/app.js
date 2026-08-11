@@ -75,6 +75,14 @@ const ARTEN = {
   // Platz weit und breit — und ein anderer Grund hinzugehen als ein Brunnen.
   mountain_lake:    { label: 'Bergsee',               gruppe: 'seen',       farbe: '#38e1d0' },
 
+  // Wasserfälle aus demselben Grund: verlässliches Wasser und ein Ziel für
+  // sich. Zwischen 16.000 Trinkbrunnen würden die 1.777 untergehen.
+  //
+  // Das Blau ist bewusst kräftig und nicht türkis: Bergseen und Wasserfälle
+  // liegen beide schon in der Übersicht auf der Karte, oft nebeneinander.
+  // Zwei ähnliche Türkistöne wären bei 3 Pixeln nicht auseinanderzuhalten.
+  waterfall:        { label: 'Wasserfall',            gruppe: 'wasserfall', farbe: '#1f6fd0' },
+
   // Unterkünfte und Unterstände
   alpine_hut:       { label: 'Berghütte',            gruppe: 'unterstand', farbe: '#e0a860' },
   wilderness_hut:   { label: 'Selbstversorgerhütte', gruppe: 'unterstand', farbe: '#a86a2a' },
@@ -83,6 +91,22 @@ const ARTEN = {
   camp_site:        { label: 'Campingplatz',         gruppe: 'unterstand', farbe: '#b07030' },
   backcountry_camp: { label: 'Trekking-/Biwakplatz', gruppe: 'unterstand', farbe: '#f0c070' },
 };
+
+// Die Ebenen aus OpenStreetMap. Jede hat eine eigene Datenquelle, damit die
+// Schalter oben unabhängig voneinander funktionieren. Die Reihenfolge hier
+// bestimmt auch, welche Punkte auf der Karte oben liegen — Ziele wie Seen und
+// Wasserfälle über den Trinkbrunnen.
+const OSM_EBENEN = ['wasser', 'unterstand', 'seen', 'wasserfall'];
+
+// Diese beiden sind schon in der Österreich-Übersicht zu sehen. Sie sind
+// selten (1.417 Seen, 1.777 Wasserfälle) und man sucht gezielt nach ihnen —
+// anders als bei 16.000 Trinkbrunnen, die erst beim Hineinzoomen erscheinen.
+const WEITSICHT_EBENEN = ['seen', 'wasserfall'];
+
+// Dieselben Ebenen, als Arten für die Datenbankabfrage.
+const WEITSICHT_ARTEN = Object.entries(ARTEN)
+  .filter(([, a]) => WEITSICHT_EBENEN.includes(a.gruppe))
+  .map(([kind]) => kind);
 
 // Ab diesem Zoom werden Punkte geladen. Weiter draußen wären es zu viele,
 // und man könnte sie ohnehin nicht auseinanderhalten.
@@ -184,14 +208,15 @@ sources['maske'] = {
 // Zwei getrennte Datenquellen, damit die beiden Schalter oben unabhängig
 // voneinander funktionieren. cluster fasst dicht beieinanderliegende Punkte
 // zusammen — sonst wäre Wien ein einziger blauer Fleck.
-for (const gruppe of ['wasser', 'unterstand', 'seen']) {
+for (const gruppe of OSM_EBENEN) {
   sources[gruppe] = {
     type: 'geojson',
     data: { type: 'FeatureCollection', features: [] },
-    // Bergseen werden nie zusammengefasst: es gibt nur ein paar hundert im
-    // ganzen Land, und jeder einzelne ist ein möglicher Grund hinzugehen.
+    // Bergseen und Wasserfälle werden nie zusammengefasst: es gibt nur ein
+    // paar tausend im ganzen Land, und jeder einzelne ist ein möglicher Grund
+    // hinzugehen. Zu einer Blase mit "37" verschmolzen wäre genau das weg.
     // Bei 16.000 Trinkbrunnen ist das anders.
-    cluster: gruppe !== 'seen',
+    cluster: !WEITSICHT_EBENEN.includes(gruppe),
     clusterRadius: 45,
     clusterMaxZoom: 13,
   };
@@ -258,7 +283,7 @@ karte.on('load', () => {
   //
   // Die Spots und die eigene Position bleiben dagegen oben — sie sollen
   // immer sichtbar sein.
-  for (const gruppe of ['wasser', 'unterstand', 'seen']) {
+  for (const gruppe of OSM_EBENEN) {
     // Cluster: je mehr Punkte, desto größer. Bewusst ohne Zahl darin —
     // das würde eine Schriftart von einem fremden Server brauchen.
     karte.addLayer({
@@ -267,7 +292,10 @@ karte.on('load', () => {
       source: gruppe,
       filter: ['has', 'point_count'],
       paint: {
-        'circle-color': { wasser: '#2f7fb8', unterstand: '#a86a2a', seen: '#1f9e93' }[gruppe],
+        'circle-color': {
+          wasser: '#2f7fb8', unterstand: '#a86a2a',
+          seen: '#1f9e93', wasserfall: '#3f9fb8',
+        }[gruppe],
         'circle-opacity': 0.75,
         'circle-radius': ['step', ['get', 'point_count'], 13, 10, 17, 50, 22, 200, 28],
         'circle-stroke-width': 2,
@@ -282,14 +310,14 @@ karte.on('load', () => {
       filter: ['!', ['has', 'point_count']],
       paint: {
         'circle-color': farbAusdruck(gruppe),
-        // Bergseen sind schon in der Übersicht da und dürfen auffallen — aber
-        // erst beim Hineinzoomen groß werden. In der Österreich-Ansicht wären
-        // 1.400 dicke Punkte ein türkiser Teppich, unter dem das Land
-        // verschwindet.
-        'circle-radius': gruppe === 'seen'
+        // Bergseen und Wasserfälle sind schon in der Übersicht da und dürfen
+        // auffallen — aber erst beim Hineinzoomen groß werden. In der
+        // Österreich-Ansicht wären 3.000 dicke Punkte ein Teppich, unter dem
+        // das Land verschwindet.
+        'circle-radius': WEITSICHT_EBENEN.includes(gruppe)
           ? ['interpolate', ['linear'], ['zoom'], 5, 2.2, 8, 5, 16, 11]
           : ['interpolate', ['linear'], ['zoom'], 11, 4, 16, 8],
-        'circle-stroke-width': gruppe === 'seen'
+        'circle-stroke-width': WEITSICHT_EBENEN.includes(gruppe)
           ? ['interpolate', ['linear'], ['zoom'], 5, 0.6, 9, 2]
           : 1.5,
         'circle-stroke-color': 'rgba(255,255,255,0.85)',
@@ -562,7 +590,7 @@ document.addEventListener('keydown', (e) => {
 // 6. DATENEBENEN AN UND AUS
 // ============================================================================
 
-const ebenen = { wasser: true, unterstand: false, seen: true, spots: true };
+const ebenen = { wasser: true, unterstand: false, seen: true, wasserfall: true, spots: true };
 
 function ebenenAnwenden() {
   if (!karte.isStyleLoaded() && !karte.getLayer('wasser-punkt')) return;
@@ -576,7 +604,7 @@ function ebenenAnwenden() {
   }
 }
 
-for (const gruppe of ['wasser', 'unterstand', 'seen', 'spots']) {
+for (const gruppe of [...OSM_EBENEN, 'spots']) {
   const knopf = document.getElementById('knopf-' + gruppe);
   knopf.onclick = () => {
     ebenen[gruppe] = !ebenen[gruppe];
@@ -605,9 +633,10 @@ function bboxEnthaelt(gross, klein) {
     gross[2] >= klein[2] && gross[3] >= klein[3];
 }
 
-// Es gibt rund 1.400 Bergseen, aber 17.000 Trinkbrunnen. Die Seen sind
-// deshalb von Anfang an da — auch in der Österreich-Übersicht, wo man ja
-// gerade nach ihnen sucht. Alles andere kommt erst beim Hineinzoomen.
+// Es gibt rund 1.400 Bergseen und 1.800 Wasserfälle, aber 17.000
+// Trinkbrunnen. Die beiden ersten sind deshalb von Anfang an da — auch in der
+// Österreich-Übersicht, wo man ja gerade nach ihnen sucht. Alles andere kommt
+// erst beim Hineinzoomen.
 //
 // Früher stand hier zusätzlich eine untere Zoom-Schwelle, damit in der
 // Weltansicht nicht das ganze Land abgefragt wird. Die ist weggefallen:
@@ -616,7 +645,7 @@ function bboxEnthaelt(gross, klein) {
 // angerichtet — auf einem 390 Pixel breiten Handy landet der Zoom, bei dem
 // Österreich genau hineinpasst, bei 4,9999. Damit blieb die Ebene leer,
 // obwohl die Karte fertig eingepasst war.
-const NUR_SEEN = ['mountain_lake'];
+// (Die Liste der Arten dafür steht oben als WEITSICHT_ARTEN.)
 
 let letzterModus = null;   // 'alles' oder 'nur-seen' — Wechsel erzwingt Neuladen
 
@@ -688,11 +717,15 @@ async function punkteLaden() {
   const lade = [sicht[0] - dx, sicht[1] - dy, sicht[2] + dx, sicht[3] + dy];
 
   laeuft = true;
-  status(modus === 'nur-seen' ? 'Bergseen werden geladen …' : 'Karte wird geladen …');
+  status(modus === 'nur-seen'
+    ? 'Bergseen und Wasserfälle werden geladen …'
+    : 'Karte wird geladen …');
 
   try {
-    const zeilen = await punkteAbfragen(lade, modus === 'nur-seen' ? NUR_SEEN : null);
-    const nach = { wasser: [], unterstand: [], seen: [] };
+    const zeilen = await punkteAbfragen(lade, modus === 'nur-seen' ? WEITSICHT_ARTEN : null);
+
+    // Für jede Ebene ein leerer Topf, in den die Punkte einsortiert werden.
+    const nach = Object.fromEntries(OSM_EBENEN.map((g) => [g, []]));
 
     for (const z of zeilen) {
       const art = ARTEN[z.kind];
@@ -708,23 +741,30 @@ async function punkteLaden() {
       });
     }
 
-    for (const gruppe of ['wasser', 'unterstand', 'seen']) {
+    for (const gruppe of OSM_EBENEN) {
       karte.getSource(gruppe).setData({ type: 'FeatureCollection', features: nach[gruppe] });
     }
 
     letzteBbox = lade;
     letzterModus = modus;
 
+    // Wie die Ebenen in der Meldung heißen sollen, in dieser Reihenfolge.
+    const NAMEN = {
+      seen: 'Bergseen', wasserfall: 'Wasserfälle',
+      wasser: 'Wasserstellen', unterstand: 'Unterkünfte',
+    };
+
+    const teile = [];
+    for (const gruppe of ['seen', 'wasserfall', 'wasser', 'unterstand']) {
+      if (nach[gruppe].length) teile.push(`${nach[gruppe].length} ${NAMEN[gruppe]}`);
+    }
+
     if (modus === 'nur-seen') {
-      status(nach.seen.length
-        ? `${nach.seen.length} Bergseen. Näher heranzoomen für Wasser und Unterkünfte.`
+      status(teile.length
+        ? teile.join(' und ') + '. Näher heranzoomen für Wasser und Unterkünfte.'
         : 'Näher heranzoomen, dann erscheinen Wasserstellen und Unterkünfte.',
         { dauer: 2500 });
     } else {
-      const teile = [];
-      if (nach.wasser.length)     teile.push(`${nach.wasser.length} Wasserstellen`);
-      if (nach.seen.length)       teile.push(`${nach.seen.length} Bergseen`);
-      if (nach.unterstand.length) teile.push(`${nach.unterstand.length} Unterkünfte`);
       status(teile.length
         ? teile.join(', ') + ' in diesem Ausschnitt.'
         : 'In diesem Ausschnitt ist nichts eingetragen.', { dauer: 2500 });
@@ -811,7 +851,7 @@ auth.beiWechsel.push((nutzer) => {
 // 8. POPUP BEIM ANTIPPEN
 // ============================================================================
 
-for (const gruppe of ['wasser', 'unterstand', 'seen']) {
+for (const gruppe of OSM_EBENEN) {
   karte.on('click', gruppe + '-punkt', (e) => {
     const f = e.features[0];
     const art = ARTEN[f.properties.kind] || { label: f.properties.kind };

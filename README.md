@@ -6,9 +6,9 @@ Eine Karte für Wildcampspots in Österreich. Wer einen guten Platz gefunden
 hat, trägt ihn ein — mit Fotos, Bewertung und dem, was zählt: Wasser in der
 Nähe, Untergrund, Wind, Handyempfang, Gehzeit.
 
-Dazu liegen **62.000 Wasserstellen und Unterkünfte** aus OpenStreetMap auf der
-Karte: Quellen, Trinkbrunnen, Berghütten, Biwakschachteln, Trekkingplätze —
-und 1.417 Bergseen.
+Dazu liegen **64.000 Punkte** aus OpenStreetMap auf der Karte: Quellen,
+Trinkbrunnen, Berghütten, Biwakschachteln, Trekkingplätze — dazu 1.417
+Bergseen und 1.777 Wasserfälle.
 
 **Ansehen kann jeder.** Ein Konto braucht es erst zum Mitmachen.
 
@@ -38,7 +38,7 @@ Nach etwa einer Minute ist die Seite oben aktuell.
 |--------|--------|
 | `web/` | Die App: Karte, Spots, Fotos, Anmeldung |
 | `db/` | Datenbankschema und die Migrationen, nummeriert |
-| `scripts/` | Einmal-Skripte: Wasserstellen, Bergseen und Landesgrenze aus OpenStreetMap holen |
+| `scripts/` | Einmal-Skripte: Wasserstellen, Bergseen, Wasserfälle und Landesgrenze aus OpenStreetMap holen |
 | `KONZEPT.md` | Was die App können soll, und was schon geht |
 
 ## Technik
