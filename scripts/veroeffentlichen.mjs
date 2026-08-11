@@ -6,7 +6,7 @@
 //     node scripts/veroeffentlichen.mjs "Fotos beim Anlegen erlauben"
 //
 // Ohne Text nimmt es einen Standardsatz mit Datum. Danach ist die Seite unter
-// https://fermasster0-rgb.github.io/wildcamp-at/ aktuell — meistens nach etwa
+// https://fermasster0-rgb.github.io/wild-spot/ aktuell — meistens nach etwa
 // einer Minute, manchmal nach zwei.
 //
 // ----------------------------------------------------------------------------
@@ -79,7 +79,7 @@ try {
 
   console.log('\n============================================================');
   console.log('  Fertig.');
-  console.log('  https://fermasster0-rgb.github.io/wildcamp-at/');
+  console.log('  https://fermasster0-rgb.github.io/wild-spot/');
   console.log('');
   console.log('  GitHub braucht meist eine Minute, bis die Änderung');
   console.log('  wirklich draußen ist. Am Handy danach einmal neu laden.');

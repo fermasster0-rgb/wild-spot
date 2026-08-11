@@ -1,4 +1,4 @@
-# wildcamp-at — Konzept
+# Wild Spot — Konzept
 
 Eine App für Wildcampen-Spots in Österreich. Nutzer legen Plätze an, bewerten sie
 und sehen auf der Karte, wo Wasser ist.

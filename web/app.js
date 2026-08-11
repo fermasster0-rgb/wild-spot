@@ -1,5 +1,5 @@
 // ============================================================================
-// wildcamp-at — die Karte
+// Wild Spot — die Karte
 //
 // Was diese Datei macht, in vier Sätzen:
 //   1. Sie zeigt Österreich mit vier umschaltbaren Kartenhintergründen.
@@ -673,7 +673,37 @@ document.addEventListener('keydown', (e) => {
 // 6. DATENEBENEN AN UND AUS
 // ============================================================================
 
-const ebenen = { wasser: true, unterstand: false, seen: true, wasserfall: true, spots: true };
+// Welche Ebenen an sind. Das Gerät merkt sich die Einstellung: wer die
+// Trinkbrunnen abgeschaltet hat, will sie beim nächsten Öffnen nicht wieder
+// vor sich haben. Beim allerersten Start setzt die Einführung sie anhand der
+// Frage "Wonach suchst du?".
+const EBENEN_SCHLUESSEL = 'wildspot-ebenen';
+
+const EBENEN_STANDARD = {
+  wasser: true, unterstand: false, seen: true, wasserfall: true, spots: true,
+};
+
+const ebenen = (() => {
+  try {
+    const gemerkt = JSON.parse(localStorage.getItem(EBENEN_SCHLUESSEL) || 'null');
+    // Nur bekannte Namen übernehmen — sonst bliebe eine Ebene, die es später
+    // nicht mehr gibt, für immer im Speicher stehen.
+    if (gemerkt) {
+      const sauber = { ...EBENEN_STANDARD };
+      for (const k of Object.keys(EBENEN_STANDARD)) {
+        if (typeof gemerkt[k] === 'boolean') sauber[k] = gemerkt[k];
+      }
+      return sauber;
+    }
+  } catch { /* kaputter Eintrag — dann eben die Voreinstellung */ }
+  return { ...EBENEN_STANDARD };
+})();
+
+function ebenenMerken() {
+  try {
+    localStorage.setItem(EBENEN_SCHLUESSEL, JSON.stringify(ebenen));
+  } catch { /* privater Modus, kein Speicher — nicht schlimm */ }
+}
 
 function ebenenAnwenden() {
   if (!karte.isStyleLoaded() && !karte.getLayer('wasser-punkt')) return;
@@ -689,10 +719,15 @@ function ebenenAnwenden() {
 
 for (const gruppe of [...OSM_EBENEN, 'spots']) {
   const knopf = document.getElementById('knopf-' + gruppe);
+  // Den Schalter auf den gemerkten Stand bringen — das HTML kennt nur die
+  // Voreinstellung.
+  knopf.setAttribute('aria-pressed', String(ebenen[gruppe]));
+
   knopf.onclick = () => {
     ebenen[gruppe] = !ebenen[gruppe];
     knopf.setAttribute('aria-pressed', String(ebenen[gruppe]));
     ebenenAnwenden();
+    ebenenMerken();
     if (!ebenen[gruppe]) return;
     if (gruppe === 'spots') spotsLaden(); else punkteLaden();
   };

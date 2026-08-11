@@ -1,6 +1,6 @@
-# wildcamp.at
+# Wild Spot
 
-**→ [fermasster0-rgb.github.io/wildcamp-at](https://fermasster0-rgb.github.io/wildcamp-at/)**
+**→ [fermasster0-rgb.github.io/wild-spot](https://fermasster0-rgb.github.io/wild-spot/)**
 
 Eine Karte für Wildcampspots in Österreich. Wer einen guten Platz gefunden
 hat, trägt ihn ein — mit Fotos, Bewertung und dem, was zählt: Wasser in der
