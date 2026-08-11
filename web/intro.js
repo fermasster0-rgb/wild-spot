@@ -310,7 +310,7 @@ function ebenenAusAntworten() {
   }
 
   ebenenAnwenden();
-  ebenenMerken();     // damit die Wahl auch beim nächsten Öffnen noch gilt
+
   punkteLaden();
 }
 
