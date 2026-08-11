@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>wildcamp.at — Karte</title>
+
+<!-- MapLibre: die Kartenbibliothek. Frei, ohne Lizenzkosten, ohne API-Schlüssel. -->
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.6.0/dist/maplibre-gl.css">
+
+<style>
+/* ==========================================================================
+   Grundgerüst
+   ========================================================================== */
+:root {
+  --bg:        #12140f;
+  --panel:     rgba(20, 23, 17, 0.92);
+  --rand:      rgba(255, 255, 255, 0.14);
+  --text:      #f2f4ee;
+  --text-weak: #a8b09c;
+  --gruen:     #7bb661;   /* Akzent: Wiese */
+  --blau:      #4aa3df;   /* Wasser */
+  --braun:     #c98a3f;   /* Unterstand / Hütte */
+
+  /* Sagt dem Browser, dass die Seite dunkel ist. Damit werden Rollbalken,
+     das Kalendersymbol im Datumsfeld und der Datumswähler selbst dunkel
+     gezeichnet — sonst leuchten sie weiß aus der Seite heraus. */
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-text-size-adjust: 100%;
+  overscroll-behavior: none;   /* kein Pull-to-Refresh beim Kartenziehen */
+}
+
+#karte { position: absolute; inset: 0; }
+
+/* ==========================================================================
+   Die zwei Ecken oben
+
+   Früher standen hier acht Textknöpfe nebeneinander und nahmen am Handy zwei
+   Zeilen ein. Jetzt liegt in jeder oberen Ecke ein runder Knopf, der eine
+   Tafel aufklappt. Die Karte bekommt ihren Platz zurück.
+   ========================================================================== */
+.ecke {
+  position: absolute;
+  top: max(12px, env(safe-area-inset-top));
+  z-index: 30;
+}
+.ecke.links  { left: 12px; }
+.ecke.rechts { right: 12px; }
+
+.werkzeug {
+  position: relative;
+  width: 44px; height: 44px;
+  border-radius: 13px;
+  border: 1px solid var(--rand);
+  background: var(--panel);
+  backdrop-filter: blur(12px);
+  color: var(--text);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  transition: background 0.15s, border-color 0.15s;
+}
+.werkzeug:hover { background: rgba(255, 255, 255, 0.13); }
+.werkzeug[aria-expanded="true"] {
+  background: var(--gruen);
+  border-color: var(--gruen);
+  color: #10140c;
+}
+.werkzeug svg {
+  width: 21px; height: 21px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Der grüne Punkt am Zahnrad: angemeldet. Ein Wort weniger auf der Karte. */
+.ampel {
+  position: absolute;
+  top: -2px; right: -2px;
+  width: 11px; height: 11px;
+  border-radius: 50%;
+  background: var(--gruen);
+  border: 2px solid #12140f;
+}
+.ampel[hidden] { display: none; }
+
+/* --------------------------------------------------------------- Tafeln --- */
+.tafel {
+  position: absolute;
+  top: calc(100% + 8px);
+  width: 284px;
+  max-width: calc(100vw - 24px);
+  max-height: calc(100vh - 90px);
+  overflow-y: auto;
+  background: #191d14;
+  border: 1px solid var(--rand);
+  border-radius: 14px;
+  padding: 14px;
+  box-shadow: 0 14px 44px rgba(0, 0, 0, 0.6);
+}
+.tafel[hidden] { display: none; }
+.ecke.links  .tafel { left: 0; }
+.ecke.rechts .tafel { right: 0; }
+
+.tafel h3 {
+  margin: 16px 0 9px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-weak);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+.tafel h3:first-child { margin-top: 0; }
+
+.tafel-text {
+  margin: 0 0 11px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-weak);
+}
+
+.tafel-fuss {
+  margin: 12px 0 0;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--text-weak);
+}
+.tafel-fuss a { color: var(--text-weak); }
+
+.tafel-haupt, .tafel-zweit {
+  width: 100%;
+  padding: 10px;
+  border-radius: 9px;
+  font: inherit;
+  font-size: 13.5px;
+  cursor: pointer;
+}
+.tafel-haupt {
+  border: 0;
+  background: var(--gruen);
+  color: #10140c;
+  font-weight: 600;
+}
+.tafel-haupt:hover { filter: brightness(1.08); }
+.tafel-zweit {
+  border: 1px solid var(--rand);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text);
+}
+.tafel-zweit:hover { background: rgba(255, 255, 255, 0.13); }
+
+.kontozeile {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+  padding: 7px 0;
+  font-size: 13px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  margin-bottom: 2px;
+}
+.kontozeile span { color: var(--text-weak); flex-shrink: 0; }
+.kontozeile b {
+  font-weight: 600;
+  text-align: right;
+  word-break: break-all;
+  font-size: 12.5px;
+}
+#konto-an .tafel-zweit { margin-top: 11px; }
+
+/* ------------------------------------------------------ Kartenstil-Wahl ---
+   Vier echte Kartenausschnitte statt vier Wörter. Bei einer Karte will man
+   sehen, was man wählt — "Gelände" sagt weniger als ein Blick auf das Relief.
+   Gezeigt wird immer dieselbe Stelle in den Hohen Tauern.
+   -------------------------------------------------------------------------- */
+.stile {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+}
+
+.stil {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+  font: inherit;
+}
+.stil img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.25s;
+}
+.stil:hover img { transform: scale(1.06); }
+.stil span {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  padding: 14px 7px 5px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #fff;
+  text-align: left;
+  /* Kräftig genug, damit der Name auch auf einem hellen Luftbild oder auf
+     grüner Wiese noch steht. */
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.5) 45%, rgba(0, 0, 0, 0.88));
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+}
+.stil[aria-pressed="true"] { border-color: var(--gruen); }
+.stil[aria-pressed="true"] span { color: #b8e8a0; }
+
+/* ---------------------------------------------------------- Ebenenwahl --- */
+.schalter { display: flex; flex-direction: column; }
+
+.schalter button {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 9px 2px;
+  border: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 13.5px;
+  text-align: left;
+  cursor: pointer;
+}
+.schalter button:last-child { border-bottom: 0; }
+.schalter .name { flex: 1; }
+
+/* Der Kippschalter. Grau heißt aus, grün heißt an — mehr Erklärung braucht
+   es nicht, und es sagt dasselbe wie ein Häkchen, nur schneller. */
+.pille {
+  position: relative;
+  width: 36px; height: 21px;
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.16);
+  flex-shrink: 0;
+  transition: background 0.18s;
+}
+.pille::after {
+  content: "";
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 15px; height: 15px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.18s;
+}
+.schalter button[aria-pressed="true"] .pille { background: var(--gruen); }
+.schalter button[aria-pressed="true"] .pille::after { transform: translateX(15px); }
+
+/* Der Farbpunkt zeigt, wie die Ebene auf der Karte aussieht. */
+.punkt {
+  display: inline-block;
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.punkt.wasser     { background: var(--blau); }
+.punkt.unterstand { background: var(--braun); }
+.punkt.spot       { background: var(--gruen); }
+.punkt.seen       { background: #38e1d0; }
+
+/* ==========================================================================
+   Alles Untere in einer Spalte: Statusmeldung, Positionsknopf, Fußzeile.
+   Gestapelt statt einzeln positioniert — so kann sich auf einem schmalen
+   Handybildschirm nichts überlappen, egal wie lang eine Meldung wird.
+   ========================================================================== */
+.unten {
+  position: absolute;
+  left: 12px; right: 12px;
+  bottom: max(12px, env(safe-area-inset-bottom));
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;   /* Karte bleibt in den Lücken bedienbar */
+}
+.unten > * { pointer-events: auto; }
+
+.knopf-zeile {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+}
+.knopf-zeile > * { pointer-events: auto; }
+
+/* Der Knopf zum Anlegen eines Spots — die wichtigste Handlung der App,
+   deshalb als einziger in Grün. */
+.breit {
+  border: 0;
+  border-radius: 24px;
+  background: var(--gruen);
+  color: #10140c;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 12px 18px;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.breit:hover { filter: brightness(1.08); }
+.breit .plus { font-size: 18px; line-height: 1; margin-top: -2px; }
+
+.rund {
+  width: 46px; height: 46px;
+  border-radius: 50%;
+  border: 1px solid var(--rand);
+  background: var(--panel);
+  backdrop-filter: blur(12px);
+  color: var(--text);
+  font-size: 20px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  transition: background 0.15s;
+}
+.rund:hover { background: rgba(255, 255, 255, 0.12); }
+.rund:disabled { opacity: 0.5; cursor: progress; }
+
+/* ==========================================================================
+   Fußzeile — Koordinaten der Kartenmitte, Zoom, Attribution
+   ========================================================================== */
+.fuss {
+  background: var(--panel);
+  border: 1px solid var(--rand);
+  border-radius: 11px;
+  backdrop-filter: blur(12px);
+  padding: 8px 12px;
+  font-size: 12px;
+  color: var(--text-weak);
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+.fuss .mitte {
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  cursor: pointer;
+}
+.fuss .quelle { text-align: right; line-height: 1.35; font-size: 11px; }
+.fuss a { color: var(--text-weak); }
+
+/* Fadenkreuz in der Kartenmitte — zeigt, worauf sich die Koordinaten beziehen.
+   Später ist das der Punkt, an dem ein neuer Spot angelegt wird. */
+.fadenkreuz {
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+  pointer-events: none;
+  width: 26px; height: 26px;
+  opacity: 0.75;
+}
+.fadenkreuz::before, .fadenkreuz::after {
+  content: "";
+  position: absolute;
+  background: #fff;
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.9);
+}
+.fadenkreuz::before { left: 50%; top: 0; width: 1px; height: 100%; margin-left: -0.5px; }
+.fadenkreuz::after  { top: 50%; left: 0; height: 1px; width: 100%; margin-top: -0.5px; }
+
+/* ==========================================================================
+   Statusmeldung (lädt / Fehler / Hinweis)
+   ========================================================================== */
+.status {
+  align-self: center;
+  max-width: 520px;
+  background: var(--panel);
+  border: 1px solid var(--rand);
+  border-radius: 10px;
+  backdrop-filter: blur(12px);
+  padding: 9px 14px;
+  font-size: 13px;
+  line-height: 1.45;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  display: none;
+}
+.status.sichtbar { display: block; }
+.status.warnung  { border-color: rgba(230, 170, 60, 0.55); }
+.status code {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+/* ==========================================================================
+   Rechtshinweis beim ersten Start (muss einmal weggeklickt werden)
+   ========================================================================== */
+.hinweis-hg {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  background: rgba(8, 10, 6, 0.8);
+  backdrop-filter: blur(4px);
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+.hinweis-hg[hidden] { display: none; }
+
+.hinweis {
+  max-width: 460px;
+  background: #191d14;
+  border: 1px solid var(--rand);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+}
+.hinweis h2 { margin: 0 0 12px; font-size: 18px; }
+.hinweis p  { margin: 0 0 12px; font-size: 14px; line-height: 1.6; color: #d6dbcd; }
+.hinweis strong { color: var(--text); }
+.hinweis button {
+  width: 100%;
+  margin-top: 8px;
+  padding: 12px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--gruen);
+  color: #10140c;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   Anmeldefenster
+   ========================================================================== */
+.login-hg {
+  position: absolute;
+  inset: 0;
+  z-index: 60;
+  background: rgba(8, 10, 6, 0.8);
+  backdrop-filter: blur(4px);
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+.login-hg[hidden] { display: none; }
+
+.login-box {
+  position: relative;
+  width: 100%;
+  max-width: 380px;
+  background: #191d14;
+  border: 1px solid var(--rand);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+}
+.login-box h2 { margin: 0 0 4px; font-size: 19px; }
+.login-box .unter { margin: 0 0 18px; font-size: 13px; color: var(--text-weak); line-height: 1.5; }
+
+.login-box label {
+  display: block;
+  font-size: 12px;
+  color: var(--text-weak);
+  margin: 0 0 5px;
+}
+.login-box input {
+  width: 100%;
+  padding: 11px 12px;
+  margin-bottom: 13px;
+  border: 1px solid var(--rand);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text);
+  font: inherit;
+  font-size: 15px;   /* unter 16px zoomt iOS beim Antippen hinein */
+}
+.login-box input:focus {
+  outline: none;
+  border-color: var(--gruen);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.login-box .haupt {
+  width: 100%;
+  padding: 12px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--gruen);
+  color: #10140c;
+  font: inherit;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+}
+.login-box .haupt:disabled { opacity: 0.6; cursor: progress; }
+
+.login-box .flach {
+  width: 100%;
+  margin-top: 12px;
+  padding: 8px;
+  border: 0;
+  background: transparent;
+  color: var(--text-weak);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.login-box .flach:hover { color: var(--text); }
+
+#login-google {
+  width: 100%;
+  margin-top: 12px;
+  padding: 11px;
+  border: 1px solid var(--rand);
+  border-radius: 10px;
+  background: #fff;
+  color: #1f1f1f;
+  font: inherit;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+}
+#login-google[hidden] { display: none; }
+#login-google svg { width: 17px; height: 17px; }
+
+.trenner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 15px 0 3px;
+  color: var(--text-weak);
+  font-size: 11px;
+}
+.trenner::before, .trenner::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--rand);
+}
+/* Muss nach der display:flex-Regel stehen, sonst gewinnt die und das
+   hidden-Attribut bliebe wirkungslos. */
+.trenner[hidden] { display: none; }
+
+.login-meldung {
+  display: none;
+  margin: 0 0 14px;
+  padding: 10px 12px;
+  border-radius: 9px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.login-meldung.sichtbar { display: block; }
+.login-meldung.info   { background: rgba(123, 182, 97, 0.14); color: #cbe4bb; }
+.login-meldung.fehler { background: rgba(226, 106, 90, 0.16); color: #f0bcb3; }
+
+/* ==========================================================================
+   Spot anlegen — nutzt das Aussehen des Anmeldefensters weiter
+   ========================================================================== */
+.spot-box {
+  max-width: 480px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+}
+.spot-box textarea {
+  width: 100%;
+  padding: 11px 12px;
+  margin-bottom: 13px;
+  border: 1px solid var(--rand);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text);
+  font: inherit;
+  font-size: 15px;
+  resize: vertical;
+}
+.spot-box textarea:focus, .spot-box select:focus {
+  outline: none;
+  border-color: var(--gruen);
+}
+.spot-box select {
+  width: 100%;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  border: 1px solid var(--rand);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text);
+  font: inherit;
+  font-size: 15px;
+}
+.spot-box select option { background: #191d14; color: var(--text); }
+.pflicht { color: var(--gruen); }
+
+.hinweis-klein {
+  margin: 12px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-weak);
+}
+
+/* Die Attributgruppen sind zugeklappt — niemand soll 19 Felder vor sich
+   sehen und die Lust verlieren. */
+.spot-box details {
+  border: 1px solid var(--rand);
+  border-radius: 10px;
+  margin-bottom: 9px;
+  overflow: hidden;
+}
+.spot-box summary {
+  padding: 11px 13px;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.04);
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.spot-box summary::-webkit-details-marker { display: none; }
+.spot-box summary::after { content: "▾"; color: var(--text-weak); font-size: 12px; }
+.spot-box details[open] summary::after { content: "▴"; }
+.spot-box details > div { padding: 13px 13px 2px; }
+
+.spot-box .kaestchen {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 13px;
+}
+.spot-box .kaestchen label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 7px 11px;
+  border: 1px solid var(--rand);
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--text);
+  cursor: pointer;
+}
+.spot-box .kaestchen input { width: auto; margin: 0; }
+
+.feld-hinweis {
+  margin: -8px 0 13px;
+  font-size: 12px;
+  color: var(--text-weak);
+  line-height: 1.45;
+}
+.feld-hinweis.warn { color: #e0b070; }
+
+#login-schliessen, #spot-schliessen {
+  position: absolute;
+  top: 12px; right: 12px;
+  width: 30px; height: 30px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-weak);
+  font-size: 17px;
+  line-height: 1;
+  cursor: pointer;
+}
+#login-schliessen:hover, #spot-schliessen:hover { background: rgba(255, 255, 255, 0.16); color: var(--text); }
+
+/* ==========================================================================
+   Spot-Detail — die Seitenleiste rechts
+
+   Bewusst kein Fenster über der ganzen Karte: man will beim Lesen weiter
+   sehen, wo der Spot liegt. Am Handy wird daraus unten ein Blatt, das
+   hochgeschoben wird — dort ist seitlich kein Platz.
+   ========================================================================== */
+.detail {
+  position: absolute;
+  top: 66px;
+  right: 12px;
+  bottom: 12px;
+  width: 380px;
+  z-index: 20;
+  background: var(--panel);
+  border: 1px solid var(--rand);
+  border-radius: 14px;
+  backdrop-filter: blur(14px);
+  box-shadow: 0 12px 44px rgba(0, 0, 0, 0.55);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.detail[hidden] { display: none; }
+
+/* Solange die Leiste offen ist, weicht alles Untere nach links aus —
+   sonst läge der Knopf „Spot hier anlegen" darunter. */
+body.detail-offen .unten { right: 404px; }
+
+.detail-kopf {
+  padding: 16px 44px 12px 16px;
+  border-bottom: 1px solid var(--rand);
+  flex-shrink: 0;
+}
+.detail-kopf h2 {
+  margin: 0 0 6px;
+  font-size: 18px;
+  line-height: 1.3;
+  word-break: break-word;
+}
+.detail-kopf .koord {
+  font-size: 12px;
+  color: var(--text-weak);
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+.detail-kopf .koord:hover { color: var(--text); }
+
+#detail-zu {
+  position: absolute;
+  top: 12px; right: 12px;
+  width: 30px; height: 30px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-weak);
+  font-size: 17px;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 1;
+}
+#detail-zu:hover { background: rgba(255, 255, 255, 0.16); color: var(--text); }
+
+/* Der scrollende Teil. Alles Lange landet hier drin. */
+.detail-koerper {
+  overflow-y: auto;
+  padding: 14px 16px 18px;
+  flex: 1;
+  -webkit-overflow-scrolling: touch;
+}
+
+.detail-koerper h3 {
+  margin: 20px 0 9px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-weak);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.detail-koerper h3:first-child { margin-top: 0; }
+
+.detail-text {
+  margin: 0 0 4px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #d6dbcd;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Die Attribute: ein Emoji, das Merkmal, der Wert. Zwei Spalten, damit die
+   Werte untereinander stehen und man die Zeile überfliegen kann. */
+.merkmale { display: flex; flex-direction: column; gap: 1px; }
+.merkmal {
+  display: grid;
+  grid-template-columns: 22px 1fr auto;
+  gap: 8px;
+  align-items: baseline;
+  padding: 7px 0;
+  font-size: 13.5px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+.merkmal:last-child { border-bottom: 0; }
+.merkmal .sym { font-size: 14px; line-height: 1.2; }
+.merkmal .was { color: var(--text-weak); }
+.merkmal .wert { color: var(--text); text-align: right; font-weight: 500; }
+.merkmal .wert.warn { color: #e0b070; }
+.merkmal .wert.gut  { color: var(--gruen); }
+
+/* ---------------------------------------------------------------- Fotos ---
+   Das erste Bild groß, die weiteren als Reihe darunter. Ein Foto sagt über
+   einen Zeltplatz mehr als jede Merkmalsliste — deshalb steht es ganz oben.
+   -------------------------------------------------------------------------- */
+.galerie {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+  margin-bottom: 14px;
+}
+/* Das erste Bild bekommt die volle Breite. */
+.galerie .foto-feld:first-child { grid-column: 1 / -1; }
+.galerie .foto-feld:first-child .foto { aspect-ratio: 3 / 2; }
+
+.foto-feld { position: relative; }
+
+.foto {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.05);
+  cursor: zoom-in;
+}
+.foto img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.25s;
+}
+.foto:hover img { transform: scale(1.04); }
+
+.foto-weg {
+  position: absolute;
+  top: 5px; right: 5px;
+  width: 24px; height: 24px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(10, 12, 8, 0.75);
+  color: #fff;
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s, background 0.15s;
+}
+.foto-feld:hover .foto-weg { opacity: 1; }
+.foto-weg:hover { background: rgba(200, 70, 50, 0.9); }
+/* Auf dem Handy gibt es kein Darüberfahren — dort immer sichtbar. */
+@media (hover: none) {
+  .foto-weg { opacity: 0.85; }
+}
+
+/* Ein Bild bildschirmfüllend. */
+.foto-gross {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: rgba(6, 8, 5, 0.94);
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  cursor: zoom-out;
+}
+.foto-gross img {
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 10px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+}
+
+/* Der zweitwichtigste Knopf: vorhanden, aber nicht so laut wie das Grün. */
+.zweit {
+  width: 100%;
+  padding: 11px;
+  border: 1px solid var(--rand);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-bottom: 8px;
+}
+.zweit:hover { background: rgba(255, 255, 255, 0.14); }
+.zweit:disabled { opacity: 0.55; cursor: progress; }
+
+/* Der Sterneschnitt ganz oben — die eine Zahl, die man zuerst sucht. */
+.schnitt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 13px;
+  border: 1px solid var(--rand);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  margin-bottom: 4px;
+}
+.schnitt .zahl { font-size: 22px; font-weight: 600; line-height: 1; }
+.schnitt .sterne { font-size: 15px; letter-spacing: 1px; }
+.schnitt .anzahl { font-size: 12px; color: var(--text-weak); }
+
+/* Die eigenen fünf Sterne zum Anklicken. */
+.meine-sterne {
+  display: flex;
+  gap: 3px;
+  margin: 0 0 8px;
+}
+.meine-sterne button {
+  border: 0;
+  background: transparent;
+  color: #5a614f;
+  font-size: 27px;
+  line-height: 1;
+  padding: 2px 1px;
+  cursor: pointer;
+  transition: transform 0.1s, color 0.12s;
+}
+.meine-sterne button:hover { transform: scale(1.15); }
+.meine-sterne button.an { color: #e8c34a; }
+.meine-sterne:hover button { color: #5a614f; }
+.meine-sterne:hover button.bis-hier { color: #e8c34a; }
+
+/* Ein Kommentar. Das Besuchsdatum steht bewusst prominent — ohne das ist
+   „Bach war trocken" wertlos. */
+.kommentar {
+  padding: 11px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+.kommentar:first-of-type { border-top: 0; padding-top: 4px; }
+.kommentar .zeile {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  margin-bottom: 5px;
+  font-size: 12px;
+  flex-wrap: wrap;
+}
+.kommentar .wer { color: var(--gruen); font-weight: 600; font-size: 13px; }
+.kommentar .wann { color: var(--text-weak); }
+.kommentar .body {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: #d6dbcd;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.kommentar .weg {
+  margin-left: auto;
+  border: 0;
+  background: transparent;
+  color: var(--text-weak);
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+.kommentar .weg:hover { color: #e0907a; }
+
+/* Das Formular für einen neuen Kommentar. */
+.detail-koerper textarea,
+.detail-koerper input[type="date"] {
+  width: 100%;
+  padding: 10px 11px;
+  margin-bottom: 9px;
+  border: 1px solid var(--rand);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text);
+  font: inherit;
+  font-size: 15px;   /* unter 16px zoomt iOS beim Antippen hinein */
+  resize: vertical;
+}
+.detail-koerper textarea:focus,
+.detail-koerper input[type="date"]:focus {
+  outline: none;
+  border-color: var(--gruen);
+}
+.detail-koerper label {
+  display: block;
+  font-size: 12px;
+  color: var(--text-weak);
+  margin: 0 0 5px;
+}
+.detail-koerper .haupt {
+  width: 100%;
+  padding: 11px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--gruen);
+  color: #10140c;
+  font: inherit;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+}
+.detail-koerper .haupt:disabled { opacity: 0.6; cursor: progress; }
+
+/* Löschen. Rot, aber nicht als volle Fläche — der Knopf soll auffindbar sein,
+   ohne dass die Hand über ihm zittert. Erst die Rückfrage darunter wird
+   deutlich. */
+.gefahr {
+  width: 100%;
+  padding: 10px;
+  margin-top: 8px;
+  border: 1px solid rgba(226, 106, 90, 0.45);
+  border-radius: 10px;
+  background: transparent;
+  color: #e8907a;
+  font: inherit;
+  font-size: 13.5px;
+  cursor: pointer;
+}
+.gefahr:hover { background: rgba(226, 106, 90, 0.14); }
+.gefahr:disabled { opacity: 0.55; cursor: progress; }
+
+.loeschfrage {
+  margin-top: 10px;
+  padding: 12px 13px;
+  border: 1px solid rgba(226, 106, 90, 0.4);
+  border-radius: 10px;
+  background: rgba(226, 106, 90, 0.09);
+}
+.loeschfrage[hidden] { display: none; }
+.loeschfrage p {
+  margin: 0 0 8px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #f0c4ba;
+}
+.loeschfrage p:last-of-type { margin-bottom: 12px; }
+.loeschfrage b { color: var(--text); }
+
+.loeschfrage-knoepfe { display: flex; gap: 8px; }
+.loeschfrage-knoepfe button { margin-top: 0; flex: 1; }
+/* Hier ist die Warnung angekommen — jetzt darf der Knopf deutlich sein. */
+.loeschfrage-knoepfe .gefahr {
+  background: #b8503c;
+  border-color: #b8503c;
+  color: #fff;
+  font-weight: 600;
+}
+.loeschfrage-knoepfe .gefahr:hover { background: #cc5a44; }
+
+.detail-leer {
+  font-size: 13px;
+  color: var(--text-weak);
+  line-height: 1.55;
+  margin: 0;
+}
+.detail-leer b { color: var(--text); }
+
+/* Ein Textknopf mitten im Fließtext ("zurücknehmen"). */
+.detail-flach {
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  padding: 0;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.detail-flach:hover { color: var(--text); }
+
+/* Die Meldung im Panel — gleiche Sprache wie im Anmeldefenster. */
+.detail-meldung {
+  display: none;
+  margin: 0 0 12px;
+  padding: 9px 11px;
+  border-radius: 9px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.detail-meldung.sichtbar { display: block; }
+.detail-meldung.info   { background: rgba(123, 182, 97, 0.14); color: #cbe4bb; }
+.detail-meldung.fehler { background: rgba(226, 106, 90, 0.16); color: #f0bcb3; }
+
+/* ==========================================================================
+   Popup auf einer Wasserstelle
+   ========================================================================== */
+.maplibregl-popup-content {
+  background: #191d14;
+  color: var(--text);
+  border: 1px solid var(--rand);
+  border-radius: 10px;
+  padding: 11px 13px;
+  font-size: 13px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+}
+.maplibregl-popup-tip { border-top-color: #191d14 !important; border-bottom-color: #191d14 !important; }
+.maplibregl-popup-content b { display: block; margin-bottom: 3px; font-size: 14px; }
+.maplibregl-popup-content .meta { color: var(--text-weak); font-size: 12px; }
+.maplibregl-popup-content a { color: var(--blau); }
+.maplibregl-popup-close-button { color: var(--text-weak); font-size: 18px; padding-right: 4px; }
+
+/* ==========================================================================
+   Schmale Bildschirme — Handy hochkant
+   ========================================================================== */
+@media (max-width: 520px) {
+  .fuss { flex-direction: column; align-items: flex-start; gap: 4px; }
+  .fuss .quelle { text-align: left; }
+  /* Fürs Antippen mit dem Daumen. */
+  .rund { width: 52px; height: 52px; }
+  .werkzeug { width: 48px; height: 48px; }
+  .werkzeug svg { width: 23px; height: 23px; }
+  .schalter button { padding: 11px 2px; }
+}
+
+/* Ab hier ist seitlich kein Platz mehr: das Detail wird zum Blatt von unten.
+   Die Grenze liegt höher als 520px, weil 380px Leiste plus Karte darunter
+   sonst zu eng wird. */
+@media (max-width: 760px) {
+  .detail {
+    top: auto;
+    left: 0; right: 0;
+    bottom: 0;
+    width: auto;
+    max-height: 76vh;
+    border-radius: 16px 16px 0 0;
+    border-bottom: 0;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  /* Auf dem Handy liegt das Blatt über der unteren Leiste — die wird
+     stattdessen ausgeblendet, solange das Detail offen ist. */
+  body.detail-offen .unten { display: none; }
+}
+</style>
+</head>
+
+<body>
+
+<div id="karte"></div>
+<div class="fadenkreuz"></div>
+
+<!-- Oben nur zwei Knöpfe, einer je Ecke. Die Karte ist der Inhalt — alles
+     Werkzeug bleibt eingeklappt, bis man es braucht. -->
+
+<div class="ecke links">
+  <button class="werkzeug" id="knopf-ebenen" aria-expanded="false" title="Karte und Ebenen">
+    <!-- Drei gestapelte Blätter: das übliche Zeichen für Kartenebenen -->
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12 3 2.5 8 12 13l9.5-5L12 3Z"/>
+      <path d="M2.5 12.5 12 17.5l9.5-5"/>
+      <path d="M2.5 16.5 12 21.5l9.5-5"/>
+    </svg>
+  </button>
+
+  <div class="tafel" id="tafel-ebenen" hidden>
+    <h3>Karte</h3>
+    <div class="stile" id="grund-knoepfe"></div>
+
+    <h3>Was du siehst</h3>
+    <div class="schalter">
+      <button id="knopf-seen" aria-pressed="true">
+        <i class="punkt seen"></i><span class="name">Bergseen</span><i class="pille"></i>
+      </button>
+      <button id="knopf-wasser" aria-pressed="true">
+        <i class="punkt wasser"></i><span class="name">Wasserstellen</span><i class="pille"></i>
+      </button>
+      <button id="knopf-unterstand" aria-pressed="false">
+        <i class="punkt unterstand"></i><span class="name">Unterkünfte</span><i class="pille"></i>
+      </button>
+      <button id="knopf-spots" aria-pressed="true">
+        <i class="punkt spot"></i><span class="name">Spots</span><i class="pille"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="ecke rechts">
+  <button class="werkzeug" id="knopf-einstellungen" aria-expanded="false" title="Einstellungen">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="3.2"/>
+      <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.56V21a2 2 0 1 1-4 0v-.09A1.7 1.7 0 0 0 9 19.4a1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.56-1.03H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1.03-1.56V3a2 2 0 1 1 4 0v.09A1.7 1.7 0 0 0 15 4.6a1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.4 9v.01a1.7 1.7 0 0 0 1.56 1.02H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.51 1Z"/>
+    </svg>
+    <!-- Leuchtet grün, sobald jemand angemeldet ist -->
+    <i class="ampel" id="konto-ampel" hidden></i>
+  </button>
+
+  <div class="tafel" id="tafel-einstellungen" hidden>
+    <h3>Konto</h3>
+
+    <div id="konto-aus">
+      <p class="tafel-text">
+        Ansehen geht ohne Konto. Zum Anlegen, Bewerten, Kommentieren und für
+        eigene Fotos brauchst du eins.
+      </p>
+      <button class="tafel-haupt" id="knopf-anmelden">Anmelden oder Konto anlegen</button>
+    </div>
+
+    <div id="konto-an" hidden>
+      <div class="kontozeile">
+        <span>Name</span><b id="konto-username">–</b>
+      </div>
+      <div class="kontozeile">
+        <span>E-Mail</span><b id="konto-name">–</b>
+      </div>
+      <button class="tafel-zweit" id="knopf-abmelden">Abmelden</button>
+    </div>
+
+    <h3>Rechtliches</h3>
+    <button class="tafel-zweit" id="knopf-hinweis-nochmal">Hinweis zum Wildcampen</button>
+    <p class="tafel-fuss">
+      Karte © <a href="https://basemap.at" target="_blank" rel="noopener">basemap.at</a><br>
+      Daten © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap-Mitwirkende</a>
+    </p>
+  </div>
+</div>
+
+<div class="unten">
+  <div class="status" id="status"></div>
+
+  <div class="knopf-zeile">
+    <button class="breit" id="knopf-spot-anlegen">
+      <span class="plus">+</span> Spot hier anlegen
+    </button>
+    <button class="rund" id="knopf-position" title="Meine Position">➤</button>
+  </div>
+
+  <!-- Knapp gehalten: die Koordinaten sind das, was man hier wirklich braucht.
+       Die vollständige Quellenangabe steht in der Einstellungen-Tafel. -->
+  <div class="fuss">
+    <span class="mitte" id="mitte" title="Anklicken zum Kopieren">–</span>
+    <span class="quelle">
+      © <a href="https://basemap.at" target="_blank" rel="noopener">basemap.at</a>,
+      <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>
+    </span>
+  </div>
+</div>
+
+<!-- Spot-Detail: Merkmale, Bewertungen, Kommentare (KONZEPT.md, Screen 2 und 4).
+     Der Inhalt wird von spot-detail.js gebaut, sobald ein Spot angetippt wird. -->
+<aside class="detail" id="detail" hidden>
+  <button id="detail-zu" title="Schließen">×</button>
+  <div class="detail-kopf">
+    <h2 id="detail-name">–</h2>
+    <span class="koord" id="detail-koord" title="Anklicken zum Kopieren"></span>
+  </div>
+  <div class="detail-koerper" id="detail-koerper"></div>
+</aside>
+
+<!-- Einmaliger Rechtshinweis (KONZEPT.md, Abschnitt 6) -->
+<div class="hinweis-hg" id="hinweis-hg" hidden>
+  <div class="hinweis">
+    <h2>Kurz, bevor es losgeht</h2>
+    <p>
+      Wildcampen ist in Österreich <strong>Ländersache</strong> und in weiten Teilen
+      verboten oder genehmigungspflichtig. Auf fremdem Grund brauchst du die
+      Erlaubnis des Eigentümers.
+    </p>
+    <p>
+      Alle Angaben in dieser App sind <strong>Angaben von Nutzern</strong> und keine
+      Rechtsauskunft. Auch „erlaubt" bei einem Spot ändert daran nichts.
+      Jeder ist selbst verantwortlich.
+    </p>
+    <p>
+      Feuer nur, wo es ausdrücklich erlaubt ist — und nie bei Waldbrandgefahr.
+      Nichts dalassen außer plattem Gras.
+    </p>
+    <button id="hinweis-ok">Verstanden</button>
+  </div>
+</div>
+
+<!-- Neuen Spot anlegen -->
+<div class="login-hg" id="spot-hg" hidden>
+  <div class="login-box spot-box">
+    <button id="spot-schliessen" title="Schließen">×</button>
+
+    <h2 id="spot-titel">Neuer Spot</h2>
+    <p class="unter" id="spot-position">–</p>
+
+    <div class="login-meldung" id="spot-meldung"></div>
+
+    <form id="spot-form">
+      <label for="spot-name">Name des Platzes <span class="pflicht">*</span></label>
+      <input type="text" id="spot-name" maxlength="80" required
+             placeholder="z. B. Wiese über dem Wasserfall">
+
+      <label for="spot-beschreibung">Beschreibung</label>
+      <textarea id="spot-beschreibung" rows="3" maxlength="2000"
+                placeholder="Wie kommt man hin, was ist besonders?"></textarea>
+
+      <!-- Die Attributgruppen baut spot-form.js hier hinein -->
+      <div id="spot-gruppen"></div>
+
+      <button type="submit" class="haupt" id="spot-speichern">Spot speichern</button>
+      <p class="hinweis-klein">
+        Nur der Name ist Pflicht. Alles andere kannst du später ergänzen —
+        ein Spot mit Koordinate ist besser als kein Spot.
+      </p>
+    </form>
+  </div>
+</div>
+
+<!-- Anmeldefenster -->
+<div class="login-hg" id="login-hg" hidden>
+  <div class="login-box">
+    <button id="login-schliessen" title="Schließen">×</button>
+
+    <h2 id="login-titel">Anmelden</h2>
+    <p class="unter">
+      Die Karte mit Wasser und Unterkünften siehst du auch ohne Konto.
+      Für eigene Spots, Bewertungen und Kommentare brauchst du eins.
+    </p>
+
+    <div class="login-meldung" id="login-meldung"></div>
+
+    <form id="login-form">
+      <label for="login-mail">E-Mail</label>
+      <input type="email" id="login-mail" autocomplete="email" required>
+
+      <label for="login-passwort">Passwort</label>
+      <input type="password" id="login-passwort" autocomplete="current-password" required>
+
+      <button type="submit" class="haupt" id="login-absenden">Anmelden</button>
+    </form>
+
+    <button class="flach" id="login-wechsel">Noch kein Konto? Eins anlegen</button>
+
+    <div class="trenner" id="login-trenner" hidden>oder</div>
+
+    <button id="login-google" hidden>
+      <svg viewBox="0 0 48 48" aria-hidden="true">
+        <path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.6l6.7-6.7C35.6 2.6 30.2 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.8 6.1C12.3 13.2 17.7 9.5 24 9.5z"/>
+        <path fill="#4285F4" d="M46.1 24.6c0-1.6-.1-3.1-.4-4.6H24v9.1h12.4c-.5 2.9-2.2 5.3-4.7 7l7.6 5.9c4.4-4.1 6.8-10.1 6.8-17.4z"/>
+        <path fill="#FBBC05" d="M10.4 28.7c-.5-1.4-.8-2.9-.8-4.7s.3-3.3.8-4.7l-7.8-6.1C.9 16.4 0 20.1 0 24s.9 7.6 2.6 10.8l7.8-6.1z"/>
+        <path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.6-5.9c-2.1 1.4-4.8 2.3-8.3 2.3-6.3 0-11.7-3.7-13.6-9.9l-7.8 6.1C6.5 42.6 14.6 48 24 48z"/>
+      </svg>
+      Mit Google anmelden
+    </button>
+  </div>
+</div>
+
+<script src="https://unpkg.com/maplibre-gl@5.6.0/dist/maplibre-gl.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.0/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<script src="auth.js"></script>
+<script src="app.js"></script>
+<script src="spot-form.js"></script>
+<!-- Nach spot-form.js, weil das Detail dessen Feldliste GRUPPEN mitbenutzt. -->
+<script src="spot-detail.js"></script>
+
+</body>
+</html>
