@@ -270,17 +270,32 @@ html, body {
 .schalter button[aria-pressed="true"] .pille { background: var(--gruen); }
 .schalter button[aria-pressed="true"] .pille::after { transform: translateX(15px); }
 
-/* Der Farbpunkt zeigt, wie die Ebene auf der Karte aussieht. */
-.punkt {
-  display: inline-block;
-  width: 9px; height: 9px;
-  border-radius: 50%;
+/* Das Zeichen vor jeder Ebene, in der Farbe ihrer Punkte auf der Karte.
+   Ein Zelt sagt schneller "Spots" als ein grüner Punkt es je könnte. */
+.sym {
+  width: 19px; height: 19px;
   flex-shrink: 0;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
-.punkt.wasser     { background: var(--blau); }
-.punkt.unterstand { background: var(--braun); }
-.punkt.spot       { background: var(--gruen); }
-.punkt.seen       { background: #38e1d0; }
+.sym.spot       { color: var(--gruen); }
+.sym.seen       { color: #38e1d0; }
+.sym.wasserfall { color: #4f97e8; }   /* heller als auf der Karte, sonst
+                                         verschwindet es im dunklen Panel */
+.sym.wasser     { color: var(--blau); }
+.sym.unterstand { color: var(--braun); }
+
+/* Der Tropfen ist als einzige Form gefüllt — als Umriss wirkt er bei
+   19 Pixeln wie ein Ballon. */
+.sym.wasser { fill: currentColor; stroke: none; }
+
+/* Ausgeschaltete Ebenen werden grau: man sieht auf einen Blick, was aktiv
+   ist, ohne den Schalter rechts lesen zu müssen. */
+.schalter button[aria-pressed="false"] .sym { color: var(--text-weak); opacity: 0.65; }
+.schalter button[aria-pressed="false"] .name { color: var(--text-weak); }
 
 /* ==========================================================================
    Alles Untere in einer Spalte: Statusmeldung, Positionsknopf, Fußzeile.
@@ -1163,17 +1178,56 @@ body.detail-offen .unten { right: 404px; }
 
     <h3>Was du siehst</h3>
     <div class="schalter">
-      <button id="knopf-seen" aria-pressed="true">
-        <i class="punkt seen"></i><span class="name">Bergseen</span><i class="pille"></i>
-      </button>
-      <button id="knopf-wasser" aria-pressed="true">
-        <i class="punkt wasser"></i><span class="name">Wasserstellen</span><i class="pille"></i>
-      </button>
-      <button id="knopf-unterstand" aria-pressed="false">
-        <i class="punkt unterstand"></i><span class="name">Unterkünfte</span><i class="pille"></i>
-      </button>
       <button id="knopf-spots" aria-pressed="true">
-        <i class="punkt spot"></i><span class="name">Spots</span><i class="pille"></i>
+        <!-- Zelt: die Spots sind der Kern der App, deshalb stehen sie oben -->
+        <svg class="sym spot" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 3 3 20h18L12 3Z"/>
+          <path d="M12 3v17"/>
+          <path d="m8.4 20 3.6-6 3.6 6"/>
+        </svg>
+        <span class="name">Spots</span><i class="pille"></i>
+      </button>
+
+      <button id="knopf-seen" aria-pressed="true">
+        <!-- Bergsee: Gipfel über zwei Wasserlinien -->
+        <svg class="sym seen" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="m2 12 5-7 3.5 4.5L14 5l8 7"/>
+          <path d="M2 16.2c1.7 0 1.7 1.6 3.3 1.6s1.7-1.6 3.3-1.6 1.7 1.6 3.4 1.6 1.7-1.6 3.3-1.6 1.7 1.6 3.4 1.6 1.7-1.6 3.3-1.6"/>
+          <path d="M2 20.4c1.7 0 1.7 1.6 3.3 1.6s1.7-1.6 3.3-1.6 1.7 1.6 3.4 1.6 1.7-1.6 3.3-1.6 1.7 1.6 3.4 1.6 1.7-1.6 3.3-1.6"/>
+        </svg>
+        <span class="name">Bergseen</span><i class="pille"></i>
+      </button>
+
+      <button id="knopf-wasserfall" aria-pressed="true">
+        <!-- Wasserfall von der Seite: die schmale Kante oben, drei Strähnen,
+             die im Fallen ausschwingen, unten das breite Becken. Gerade
+             Striche sahen aus wie ein Tisch — Wasser fällt nicht gerade. -->
+        <svg class="sym wasserfall" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M6.5 4h11"/>
+          <path d="M8 4c0 3.2-1.2 4-1.2 6.4S8 12.6 8 15.2"/>
+          <path d="M12 4c0 3.6.9 4.4.9 6.8s-.9 3.2-.9 5.8"/>
+          <path d="M16 4c0 3.2 1.2 4 1.2 6.4S16 12.6 16 15.2"/>
+          <path d="M2 18.8c1.7 0 1.7 1.6 3.3 1.6s1.7-1.6 3.3-1.6 1.7 1.6 3.4 1.6 1.7-1.6 3.3-1.6 1.7 1.6 3.4 1.6 1.7-1.6 3.3-1.6"/>
+        </svg>
+        <span class="name">Wasserfälle</span><i class="pille"></i>
+      </button>
+
+      <button id="knopf-wasser" aria-pressed="true">
+        <!-- Wassertropfen -->
+        <svg class="sym wasser" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 2.8s6.5 6.7 6.5 11.2a6.5 6.5 0 0 1-13 0C5.5 9.5 12 2.8 12 2.8Z"/>
+        </svg>
+        <span class="name">Wasserstellen</span><i class="pille"></i>
+      </button>
+
+      <button id="knopf-unterstand" aria-pressed="false">
+        <!-- Hütte: Satteldach mit Tür -->
+        <svg class="sym unterstand" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M3 11.5 12 4l9 7.5"/>
+          <path d="M5 10.5V20h14v-9.5"/>
+          <path d="M10 20v-5h4v5"/>
+        </svg>
+        <span class="name">Unterkünfte</span><i class="pille"></i>
       </button>
     </div>
   </div>
