@@ -1,5 +1,7 @@
 # wildcamp.at
 
+**→ [fermasster0-rgb.github.io/wildcamp-at](https://fermasster0-rgb.github.io/wildcamp-at/)**
+
 Eine Karte für Wildcampspots in Österreich. Wer einen guten Platz gefunden
 hat, trägt ihn ein — mit Fotos, Bewertung und dem, was zählt: Wasser in der
 Nähe, Untergrund, Wind, Handyempfang, Gehzeit.
@@ -20,6 +22,15 @@ node web/server.mjs
 
 Dann `http://localhost:5173` im Browser öffnen. Alles Weitere steht in
 [`web/README.md`](web/README.md).
+
+## Änderungen ins Netz stellen
+
+```
+node scripts/veroeffentlichen.mjs
+```
+
+Sichert alles, schickt es zu GitHub und veröffentlicht den `web/`-Ordner.
+Nach etwa einer Minute ist die Seite oben aktuell.
 
 ## Was wo liegt
 
