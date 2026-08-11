@@ -48,11 +48,20 @@ Dicht beieinanderliegende Punkte werden zu einem größeren Kreis
 zusammengefasst — draufklicken zoomt hinein, bis sie auseinanderfallen.
 Bergseen, Wasserfälle und Spots nie: die sind zu selten dafür.
 
-**Ab Zoom 12 tragen die Punkte ihr Zeichen** — dasselbe wie in der Legende:
-Zelt, Berge, Wasserfall, Tropfen, Hütte. Weiter draußen bleiben es einfache
-Punkte, dort wäre für ein Zeichen kein Platz. Die Symbole werden nicht doppelt
-gezeichnet, sondern aus der Legende ausgelesen und weiß eingefärbt — sie
-können also gar nicht auseinanderlaufen.
+**Auf der Karte stehen dieselben Zeichen wie in der Legende** — Zelt, Berge,
+Wasserfall, Tropfen, Hütte, durchgehend von der Österreich-Übersicht bis ganz
+nah, nur unterschiedlich groß. Es gibt keinen Kreis darunter: das Zeichen
+selbst trägt die Farbe.
+
+Damit es auf jedem Untergrund lesbar bleibt, wird jedes zweimal übereinander
+gezeichnet — zuerst dick in Weiß, dann dünner in seiner Farbe. Ohne diesen
+weißen Rand verschwindet ein blaues Zeichen im blauen Bach.
+
+Die Symbole werden nicht doppelt gepflegt, sondern beim Start aus der Legende
+im HTML ausgelesen und umgefärbt. Sie können also gar nicht auseinanderlaufen.
+
+Bei den **Spots** zeigt die Farbe des Zeltes die Bewertung: grün (gut oder noch
+nicht bewertet), gelb (mittelmäßig), braun (schwach).
 
 **Spots** sind etwas anderes: die kommen nicht aus OpenStreetMap, sondern von
 euch. Sie werden nie zusammengefasst, und ihre Farbe zeigt die Bewertung —
