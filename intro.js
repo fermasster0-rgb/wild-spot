@@ -34,8 +34,8 @@ const SCHRITTE = [
     art: 'text',
     zeichen: true,
     titel: 'Wild&nbsp;Spot',
-    text: 'Die Karte für Plätze, an denen man in Österreich wirklich schlafen kann. ' +
-          'Gefunden von Leuten, die dort waren.',
+    text: 'Die Karte für Plätze, an denen man in Österreich wirklich ' +
+          'übernachten kann — eingetragen von Leuten, die dort waren.',
     knopf: 'Los geht\'s',
   },
 
@@ -43,11 +43,14 @@ const SCHRITTE = [
     art: 'wahl',
     id: 'erfahrung',
     titel: 'Warst du schon mal wildcampen?',
-    text: 'Nur damit wir wissen, wie viel wir erklären sollen.',
+    // Diese Antwort ändert nichts an der App, und das darf der Text nicht
+    // anders behaupten. Vorher stand hier "damit wir wissen, wie viel wir
+    // erklären sollen" — erklärt wird aber nichts Unterschiedliches.
+    text: 'Nur aus Neugier — die Karte sieht für alle gleich aus.',
     optionen: [
       { wert: 'nie',    emoji: '🌱', text: 'Noch nie — will ich aber' },
       { wert: 'paar',   emoji: '⛺', text: 'Ein paar Mal' },
-      { wert: 'oft',    emoji: '🏔️', text: 'Oft, ich kenn mich aus' },
+      { wert: 'oft',    emoji: '🏔️', text: 'Oft — ich kenne mich aus' },
     ],
   },
 
@@ -55,7 +58,7 @@ const SCHRITTE = [
     art: 'mehr',
     id: 'suche',
     titel: 'Wonach suchst du?',
-    text: 'Mehrfach antippen geht. Danach steht die Karte gleich richtig.',
+    text: 'Mehreres geht. Die Karte stellt sich danach darauf ein.',
     optionen: [
       { wert: 'seen',       emoji: '🏔️', text: 'Bergseen' },
       { wert: 'wasserfall', emoji: '💦', text: 'Wasserfälle' },
@@ -68,8 +71,8 @@ const SCHRITTE = [
     art: 'wahl',
     id: 'angeln',
     titel: 'Angelst du?',
-    text: 'Bei Spots am Wasser steht dabei, was drin schwimmt und wo es die ' +
-          'Lizenz gibt.',
+    text: 'Bei Spots am Wasser kannst du eintragen, welche Fische es gibt ' +
+          'und wo man die Lizenz bekommt.',
     optionen: [
       { wert: 'ja',       emoji: '🎣', text: 'Ja, Rute ist immer dabei' },
       { wert: 'manchmal', emoji: '🐟', text: 'Ab und zu' },
@@ -79,7 +82,7 @@ const SCHRITTE = [
 
   {
     art: 'regeln',
-    titel: 'Kurz das Wichtigste',
+    titel: 'Kurz das Wichtigste vorweg',
     regeln: [
       { emoji: '⚖️', text: 'Wildcampen ist in Österreich <b>Ländersache</b> und vielerorts ' +
                            'verboten. Auf fremdem Grund brauchst du die Erlaubnis des Eigentümers.' },
@@ -95,7 +98,9 @@ const SCHRITTE = [
 
   {
     art: 'ende',
-    titel: 'Fertig',
+    // Nicht "Fertig": man ist es ja noch nicht, hier steht die letzte
+    // Entscheidung an.
+    titel: 'Das war\'s schon',
     text: 'Mit einem Konto kannst du <strong>eigene Spots anlegen</strong>, ' +
           'Fotos hochladen, bewerten und kommentieren. Zum Anschauen brauchst ' +
           'du keins.',
