@@ -46,6 +46,13 @@ Die Höhe steht im Popup.
 
 Dicht beieinanderliegende Punkte werden zu einem größeren Kreis
 zusammengefasst — draufklicken zoomt hinein, bis sie auseinanderfallen.
+Bergseen, Wasserfälle und Spots nie: die sind zu selten dafür.
+
+**Ab Zoom 12 tragen die Punkte ihr Zeichen** — dasselbe wie in der Legende:
+Zelt, Berge, Wasserfall, Tropfen, Hütte. Weiter draußen bleiben es einfache
+Punkte, dort wäre für ein Zeichen kein Platz. Die Symbole werden nicht doppelt
+gezeichnet, sondern aus der Legende ausgelesen und weiß eingefärbt — sie
+können also gar nicht auseinanderlaufen.
 
 **Spots** sind etwas anderes: die kommen nicht aus OpenStreetMap, sondern von
 euch. Sie werden nie zusammengefasst, und ihre Farbe zeigt die Bewertung —
