@@ -36,6 +36,11 @@ const GRUNDKARTEN = [
     url: 'https://mapsneu.wien.gv.at/basemap/bmapgelaende/grau/google3857/{z}/{y}/{x}.jpeg',
     maxzoom: 19,
     beschriftung: true,
+    // Diese Kacheln sind deckend und stehen als helles Rechteck über die
+    // Grenze hinaus — hier braucht es die Maske. Das Ausland ist dadurch
+    // beim Hineinzoomen dunkel. Anders geht es nicht: ein Luftbild lässt
+    // sich nicht entlang einer Landesgrenze abschneiden.
+    maske: true,
   },
   {
     id: 'ortho',
@@ -45,6 +50,7 @@ const GRUNDKARTEN = [
     url: 'https://mapsneu.wien.gv.at/basemap/bmaporthofoto30cm/normal/google3857/{z}/{y}/{x}.jpeg',
     maxzoom: 19,
     beschriftung: true,
+    maske: true,
   },
   {
     id: 'topo',
@@ -115,6 +121,16 @@ const ZOOM_SCHWELLE = 11;
 // Österreich: West, Süd, Ost, Nord
 const OESTERREICH = [9.5, 46.3, 17.2, 49.1];
 
+// So weit darf man hinaus. Die Spots liegen vorerst alle in Österreich, aber
+// die Karte darum herum zu sehen hilft beim Einordnen — und wenn das Projekt
+// später über die Grenze wächst, muss hier nichts mehr geändert werden.
+const EUROPA = [-13, 33, 43, 71];
+
+// Ab diesem Zoom übernimmt basemap.at mit den guten österreichischen Karten.
+// Darunter liegt die weltweite Karte, sonst wäre außerhalb Österreichs
+// nichts als eine dunkle Fläche.
+const AT_KARTE_AB = 7.4;
+
 const cfg = window.WILDCAMP_CONFIG || {};
 
 // ============================================================================
@@ -165,8 +181,34 @@ for (const g of GRUNDKARTEN) {
     type: 'raster',
     source: 'grund-' + g.id,
     layout: { visibility: g.id === 'standard' ? 'visible' : 'none' },
+    // Weit draußen ausgeblendet: dort ist die Europakarte dran. basemap.at
+    // liefert außerhalb Österreichs teils weiße Kacheln, die als Rechteck
+    // über dem Kontinent lägen — so verschwinden sie einfach.
+    paint: {
+      'raster-opacity': ['interpolate', ['linear'], ['zoom'],
+        AT_KARTE_AB - 0.4, 0, AT_KARTE_AB + 0.8, 1],
+    },
   });
 }
+
+// Die Karte für alles außerhalb Österreichs. CARTO stellt sie öffentlich
+// bereit, gebaut aus OpenStreetMap-Daten — dieselbe Quelle wie die
+// Wasserstellen, nur als fertige Kacheln.
+//
+// Sie liegt ganz unten und ist immer da. Beim Hineinzoomen legt sich
+// basemap.at darüber, weil dessen österreichische Karten deutlich besser
+// sind: Relief, Luftbild in 30 cm, amtliche Wege.
+sources['welt'] = {
+  type: 'raster',
+  tiles: [
+    'https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+    'https://b.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+    'https://c.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+  ],
+  tileSize: 256,
+  maxzoom: 19,
+  attribution: '© OpenStreetMap-Mitwirkende, © CARTO',
+};
 
 // Geländeschummerung und Luftbild haben von Haus aus keine Ortsnamen — auf
 // einem grauen Relief weiß man dann nicht, wo man ist. basemap.at liefert
@@ -239,16 +281,28 @@ const karte = new maplibregl.Map({
     // wo basemap.at aufhört — also außerhalb Österreichs.
     layers: [
       { id: 'hintergrund', type: 'background', paint: { 'background-color': '#141812' } },
+      // Zuunterst Europa, darüber die österreichischen Karten.
+      { id: 'welt', type: 'raster', source: 'welt' },
       ...rasterLayers,
       // Direkt über den Grundkarten, aber unter allen Datenpunkten: die
       // Wasserstellen und Spots sollen ja nicht verdeckt werden. Die Farbe
       // ist dieselbe wie beim Hintergrund darunter, damit man die Kante
       // zwischen beiden nirgends sieht.
+      // Sie erscheint zusammen mit den österreichischen Karten und
+      // verschwindet mit ihnen. In der Europa-Ansicht wäre sie fehl am
+      // Platz — dort soll man ja gerade den Kontinent sehen.
       {
         id: 'maske',
         type: 'fill',
         source: 'maske',
-        paint: { 'fill-color': '#141812', 'fill-antialias': true },
+        // Beim Start ist "Standard" gewählt — dort ist sie nicht nötig.
+        layout: { visibility: 'none' },
+        paint: {
+          'fill-color': '#141812',
+          'fill-antialias': true,
+          'fill-opacity': ['interpolate', ['linear'], ['zoom'],
+            AT_KARTE_AB - 0.4, 0, AT_KARTE_AB + 0.8, 1],
+        },
       },
     ],
   },
@@ -517,42 +571,53 @@ function leer() {
 // ============================================================================
 
 const AT_ECKEN = [[OESTERREICH[0], OESTERREICH[1]], [OESTERREICH[2], OESTERREICH[3]]];
-
-// Der Saum rundherum, in Grad. Knapp gehalten: er ist nur dafür da, dass ein
-// Grenzort wie Bregenz nicht am äußersten Bildrand klebt.
-const SAUM_LNG = 0.35;
-const SAUM_LAT = 0.25;
+const EU_ECKEN = [[EUROPA[0], EUROPA[1]], [EUROPA[2], EUROPA[3]]];
 
 function begrenzungSetzen() {
   // Alte Fesseln lösen, sonst kann die Karte beim Einpassen nicht frei
   // arbeiten und das Ergebnis wäre von der vorigen Grenze verfälscht.
   karte.setMaxBounds(null);
-  karte.setMinZoom(3);
+  karte.setMinZoom(2);
 
-  karte.fitBounds(AT_ECKEN, { padding: 20, animate: false });
+  // Wie weit muss man heraus, damit Europa ins Bild passt? Das ist die
+  // Grenze nach außen.
+  karte.fitBounds(EU_ECKEN, { padding: 10, animate: false });
+  const europaZoom = karte.getZoom();
 
-  // Ein Hauch Spielraum nach unten, sonst fühlt sich die Karte am Anschlag
-  // wie eingerastet an und ruckelt beim Zoomen mit zwei Fingern.
-  karte.setMinZoom(karte.getZoom() - 0.15);
-
+  // Die Fläche, die man bei diesem Zoom sieht, wird zur erlaubten. Sie MUSS
+  // so bestimmt werden und nicht als festes Rechteck: gibt man MapLibre
+  // Grenzen, die kleiner sind als der Bildschirm, zoomt es hinein statt zu
+  // zentrieren — auf einem hohen Handy bliebe von Europa ein Streifen übrig.
   const b = karte.getBounds();
   const dx = (b.getEast() - b.getWest()) * 0.02;
   const dy = (b.getNorth() - b.getSouth()) * 0.02;
+
+  // Ein Hauch Spielraum, sonst fühlt sich die Karte am Anschlag wie
+  // eingerastet an und ruckelt beim Zoomen mit zwei Fingern.
+  karte.setMinZoom(europaZoom - 0.15);
 
   karte.setMaxBounds([
     [b.getWest() - dx, b.getSouth() - dy],
     [b.getEast() + dx, b.getNorth() + dy],
   ]);
+
+  // Die Startansicht bleibt Österreich — dort liegen die Spots. Europa ist
+  // da, wenn man es sehen will, drängt sich aber nicht auf.
+  karte.fitBounds(AT_ECKEN, { padding: 20, animate: false });
 }
 
-// Die Mitte zurückholen, sobald sie das Land verlässt. Läuft bei jeder
-// Bewegung mit — dadurch fühlt es sich wie ein Anschlag an und nicht wie ein
+// Die Mitte zurückholen, sobald sie Europa verlässt. Läuft bei jeder Bewegung
+// mit — dadurch fühlt es sich wie ein Anschlag an und nicht wie ein
 // Zurückspringen hinterher.
+//
+// Nötig ist das, weil die erlaubte Fläche oben aus der Bildschirmgröße
+// gerechnet wird und dabei nach oben und unten großzügiger ausfällt als
+// Europa. Ohne diese zweite Fessel käme man beim Hineinzoomen bis Grönland.
 function mitteHalten() {
   const c = karte.getCenter();
 
-  const lng = Math.min(Math.max(c.lng, OESTERREICH[0] - SAUM_LNG), OESTERREICH[2] + SAUM_LNG);
-  const lat = Math.min(Math.max(c.lat, OESTERREICH[1] - SAUM_LAT), OESTERREICH[3] + SAUM_LAT);
+  const lng = Math.min(Math.max(c.lng, EUROPA[0]), EUROPA[2]);
+  const lat = Math.min(Math.max(c.lat, EUROPA[1]), EUROPA[3]);
 
   // Nur eingreifen, wenn es wirklich nötig ist. Sonst würde jede Bewegung
   // ein neues Setzen auslösen und die Karte zittern.
@@ -633,6 +698,13 @@ for (const g of GRUNDKARTEN) {
     }
     // Beschriftung nur dort, wo der Hintergrund selbst keine hat.
     karte.setLayoutProperty('beschriftung', 'visibility', g.beschriftung ? 'visible' : 'none');
+
+    // Die Maske nur dort, wo sie gebraucht wird. Bei "Standard" sind die
+    // Kacheln außerhalb Österreichs durchsichtig und bei "Wandern" deckt
+    // OpenTopoMap ohnehin ganz Europa ab — dort würde die Maske nur den
+    // Kontinent verstecken, den man gerade sehen will.
+    karte.setLayoutProperty('maske', 'visibility', g.maske ? 'visible' : 'none');
+
     for (const btn of grundKnoepfe.children) {
       btn.setAttribute('aria-pressed', String(btn === b));
     }
