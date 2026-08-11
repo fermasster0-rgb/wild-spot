@@ -16,7 +16,29 @@ const cfgAuth = window.WILDCAMP_CONFIG || {};
 
 // supabase-js kommt als fertiges Paket vom CDN und liegt unter window.supabase.
 // createClient daraus, sonst überschreiben wir das Paket mit unserem Client.
-const sb = window.supabase.createClient(cfgAuth.supabaseUrl, cfgAuth.supabaseAnonKey);
+//
+// Die drei Angaben sorgen dafür, dass man angemeldet bleibt — auf dem Handy
+// wochenlang, auch nach dem Schließen der App:
+//
+//   persistSession   legt die Sitzung im Speicher des Browsers ab. Ohne das
+//                    wäre man nach jedem Neuladen wieder draußen.
+//   autoRefreshToken erneuert den Zugang im Hintergrund, bevor er abläuft.
+//                    Ohne das wäre nach einer Stunde Schluss.
+//   storageKey       ein eigener Name, damit die Sitzung erhalten bleibt,
+//                    falls unter derselben Adresse einmal etwas anderes läuft.
+//
+// Zwei davon sind ohnehin die Voreinstellung — sie stehen hier ausdrücklich,
+// weil "man bleibt angemeldet" eine Zusage an die Nutzer ist und nicht von
+// einer Voreinstellung abhängen soll, die sich in einer neuen Fassung der
+// Bibliothek ändern könnte.
+const sb = window.supabase.createClient(cfgAuth.supabaseUrl, cfgAuth.supabaseAnonKey, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
+    storageKey: 'wildspot-anmeldung',
+  },
+});
 
 // Damit die Karte auf An- und Abmelden reagieren kann.
 window.WILDCAMP_AUTH = {

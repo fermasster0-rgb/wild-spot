@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>wildcamp.at — Karte</title>
+<title>Wild Spot — Wildcampen in Österreich</title>
 
 <!-- MapLibre: die Kartenbibliothek. Frei, ohne Lizenzkosten, ohne API-Schlüssel. -->
 <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.6.0/dist/maplibre-gl.css">
@@ -428,6 +428,251 @@ html, body {
   padding: 1px 5px;
   border-radius: 4px;
   font-size: 12px;
+}
+
+/* ==========================================================================
+   Die Einführung beim allerersten Start
+
+   Sie läuft genau einmal pro Gerät. Danach geht es direkt zur Karte — wer die
+   App zum zweiten Mal öffnet, will nicht wieder begrüßt werden.
+
+   Aufbau: eine Bühne, auf der immer nur ein Schritt steht, und unten ein
+   Balken, der mit jedem Schritt voller wird.
+   ========================================================================== */
+.intro {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.intro[hidden] { display: none; }
+
+/* Ein ruhiger Schimmer im Hintergrund, der langsam wandert. Gibt dem
+   dunklen Bild Tiefe, ohne von der Frage abzulenken. */
+.intro::before {
+  content: "";
+  position: absolute;
+  width: 130vmax; height: 130vmax;
+  left: 50%; top: 50%;
+  background: radial-gradient(circle at 50% 50%,
+              rgba(123, 182, 97, 0.16) 0%,
+              rgba(56, 225, 208, 0.07) 35%,
+              transparent 62%);
+  animation: schimmer 22s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes schimmer {
+  0%   { transform: translate(-50%, -46%) scale(1); }
+  50%  { transform: translate(-52%, -54%) scale(1.14); }
+  100% { transform: translate(-50%, -46%) scale(1); }
+}
+
+.intro-buehne {
+  position: relative;
+  flex: 1;
+  display: grid;
+  place-items: center;
+  padding: 28px 22px 8px;
+  overflow-y: auto;
+}
+
+.intro-schritt {
+  width: 100%;
+  max-width: 440px;
+  text-align: center;
+}
+/* Der Wechsel: der alte Schritt geht nach links weg, der neue kommt von
+   rechts herein. */
+.intro-schritt.geht {
+  animation: raus 0.26s ease-in forwards;
+}
+.intro-schritt.kommt > * {
+  animation: rein 0.42s cubic-bezier(0.2, 0.8, 0.3, 1) backwards;
+}
+/* Die Teile eines Schritts kommen kurz nacheinander — das wirkt lebendig,
+   ohne dass man auf eine Animation wartet. */
+.intro-schritt.kommt > *:nth-child(1) { animation-delay: 0.02s; }
+.intro-schritt.kommt > *:nth-child(2) { animation-delay: 0.09s; }
+.intro-schritt.kommt > *:nth-child(3) { animation-delay: 0.16s; }
+.intro-schritt.kommt > *:nth-child(4) { animation-delay: 0.22s; }
+
+@keyframes rein {
+  from { opacity: 0; transform: translateX(26px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes raus {
+  from { opacity: 1; transform: none; }
+  to   { opacity: 0; transform: translateX(-26px); }
+}
+
+.intro h1 {
+  margin: 0 0 10px;
+  font-size: 30px;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+.intro h2 {
+  margin: 0 0 8px;
+  font-size: 22px;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+.intro p {
+  margin: 0 0 20px;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--text-weak);
+}
+.intro p strong { color: var(--text); font-weight: 600; }
+
+/* Das Zelt zeichnet sich beim Start selbst — der einzige große Auftritt der
+   App, und er dauert keine zwei Sekunden. */
+.intro-zeichen {
+  width: 92px; height: 92px;
+  margin: 0 auto 22px;
+  display: block;
+  fill: none;
+  stroke: var(--gruen);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.intro-zeichen path {
+  stroke-dasharray: 90;
+  stroke-dashoffset: 90;
+  animation: zeichnen 1.1s ease-out forwards;
+}
+.intro-zeichen path:nth-child(2) { animation-delay: 0.4s; }
+.intro-zeichen path:nth-child(3) { animation-delay: 0.65s; }
+@keyframes zeichnen { to { stroke-dashoffset: 0; } }
+
+/* Die Antwortkarten. Groß genug für den Daumen, ruhig genug zum Lesen. */
+.intro-wahl {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin-bottom: 4px;
+}
+.intro-wahl button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 15px 16px;
+  border: 1.5px solid var(--rand);
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.045);
+  color: var(--text);
+  font: inherit;
+  font-size: 15px;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, transform 0.12s;
+}
+.intro-wahl button:hover { background: rgba(255, 255, 255, 0.09); }
+.intro-wahl button:active { transform: scale(0.985); }
+.intro-wahl button[aria-pressed="true"] {
+  border-color: var(--gruen);
+  background: rgba(123, 182, 97, 0.14);
+}
+.intro-wahl .emoji { font-size: 21px; line-height: 1; flex-shrink: 0; }
+.intro-wahl .haken {
+  margin-left: auto;
+  color: var(--gruen);
+  font-size: 17px;
+  opacity: 0;
+  transform: scale(0.6);
+  transition: opacity 0.15s, transform 0.15s;
+}
+.intro-wahl button[aria-pressed="true"] .haken { opacity: 1; transform: none; }
+
+/* Der Rechtshinweis als eigener Schritt — links ausgerichtet, weil man ihn
+   liest und nicht überfliegt. */
+.intro-regeln {
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.intro-regel {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 13px 14px;
+  border: 1px solid var(--rand);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.035);
+}
+.intro-regel .emoji { font-size: 19px; line-height: 1.3; flex-shrink: 0; }
+.intro-regel p { margin: 0; font-size: 13.5px; line-height: 1.55; }
+.intro-regel b { color: var(--text); }
+
+/* ------------------------------------------------------------- Fußzeile --- */
+.intro-fuss {
+  position: relative;
+  flex-shrink: 0;
+  padding: 14px 22px max(18px, env(safe-area-inset-bottom));
+}
+.intro-fuss-inner { max-width: 440px; margin: 0 auto; }
+
+.intro-balken {
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+.intro-fortschritt {
+  height: 100%;
+  width: 0;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--gruen), #38e1d0);
+  transition: width 0.45s cubic-bezier(0.3, 0.9, 0.3, 1);
+}
+
+.intro-knoepfe { display: flex; flex-direction: column; gap: 9px; }
+
+.intro-haupt {
+  width: 100%;
+  padding: 15px;
+  border: 0;
+  border-radius: 13px;
+  background: var(--gruen);
+  color: #10140c;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter 0.15s, opacity 0.2s;
+}
+.intro-haupt:hover { filter: brightness(1.07); }
+.intro-haupt:disabled { opacity: 0.35; cursor: default; }
+.intro-haupt[hidden] { display: none; }
+
+.intro-flach {
+  width: 100%;
+  padding: 11px;
+  border: 0;
+  background: transparent;
+  color: var(--text-weak);
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+.intro-flach:hover { color: var(--text); }
+.intro-flach[hidden] { display: none; }
+
+/* Wer Bewegung im System abgestellt hat, bekommt keine. */
+@media (prefers-reduced-motion: reduce) {
+  .intro::before { animation: none; }
+  .intro-schritt.kommt > *,
+  .intro-schritt.geht,
+  .intro-zeichen path { animation: none; stroke-dashoffset: 0; opacity: 1; }
+  .intro-fortschritt { transition: none; }
 }
 
 /* ==========================================================================
@@ -1172,6 +1417,21 @@ body.detail-offen .unten { right: 404px; }
 <div id="karte"></div>
 <div class="fadenkreuz"></div>
 
+<!-- Einführung beim allerersten Start. Der Inhalt wird von intro.js gebaut;
+     versteckt bleibt sie, wenn das Gerät sie schon einmal gesehen hat. -->
+<div class="intro" id="intro" hidden>
+  <div class="intro-buehne"><div id="intro-schritt"></div></div>
+  <div class="intro-fuss">
+    <div class="intro-fuss-inner">
+      <div class="intro-balken"><div class="intro-fortschritt" id="intro-fortschritt"></div></div>
+      <div class="intro-knoepfe">
+        <button class="intro-haupt" id="intro-weiter">Los geht's</button>
+        <button class="intro-flach" id="intro-ueberspringen" hidden>Überspringen</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Oben nur zwei Knöpfe, einer je Ecke. Die Karte ist der Inhalt — alles
      Werkzeug bleibt eingeklappt, bis man es braucht. -->
 
@@ -1418,6 +1678,9 @@ body.detail-offen .unten { right: 404px; }
 <script src="spot-form.js"></script>
 <!-- Nach spot-form.js, weil das Detail dessen Feldliste GRUPPEN mitbenutzt. -->
 <script src="spot-detail.js"></script>
+<!-- Zuletzt: die Einführung stellt am Ende die Ebenen der Karte ein und
+     braucht dafür alles andere. -->
+<script src="intro.js"></script>
 
 </body>
 </html>

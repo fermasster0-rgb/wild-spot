@@ -1,4 +1,4 @@
-# Die Karte starten
+# Wild Spot — die Karte starten
 
 ## In zwei Zeilen
 
