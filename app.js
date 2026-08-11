@@ -760,43 +760,29 @@ document.addEventListener('keydown', (e) => {
 // 6. DATENEBENEN AN UND AUS
 // ============================================================================
 
-// Welche Ebenen an sind. Das Gerät merkt sich die Einstellung: wer die
-// Trinkbrunnen abgeschaltet hat, will sie beim nächsten Öffnen nicht wieder
-// vor sich haben. Beim allerersten Start setzt die Einführung sie anhand der
-// Frage "Wonach suchst du?".
-const EBENEN_SCHLUESSEL = 'wildspot-ebenen';
-
-const EBENEN_STANDARD = {
-  wasser: true, unterstand: false, seen: true, wasserfall: true, spots: true,
+// Welche Ebenen an sind. Beim Öffnen ist immer nur "Spots" eingeschaltet —
+// die Karte startet aufgeräumt, und man holt sich dazu, was man gerade
+// braucht. Mit allen fünf Ebenen an ist Österreich ein Punkteteppich, unter
+// dem die Spots verschwinden, und die sind der Grund für die App.
+//
+// Bewusst wird der Stand NICHT über das Schließen hinaus gemerkt: "beim
+// Start nur Spots" ist eine Zusage, die sonst nur beim allerersten Mal
+// stimmen würde. Innerhalb einer Sitzung bleibt natürlich alles so, wie man
+// es eingestellt hat.
+const ebenen = {
+  wasser: false, unterstand: false, seen: false, wasserfall: false, spots: true,
 };
 
-const ebenen = (() => {
-  try {
-    const gemerkt = JSON.parse(localStorage.getItem(EBENEN_SCHLUESSEL) || 'null');
-    // Nur bekannte Namen übernehmen — sonst bliebe eine Ebene, die es später
-    // nicht mehr gibt, für immer im Speicher stehen.
-    if (gemerkt) {
-      const sauber = { ...EBENEN_STANDARD };
-      for (const k of Object.keys(EBENEN_STANDARD)) {
-        if (typeof gemerkt[k] === 'boolean') sauber[k] = gemerkt[k];
-      }
-      return sauber;
-    }
-  } catch { /* kaputter Eintrag — dann eben die Voreinstellung */ }
-  return { ...EBENEN_STANDARD };
-})();
-
-function ebenenMerken() {
-  try {
-    localStorage.setItem(EBENEN_SCHLUESSEL, JSON.stringify(ebenen));
-  } catch { /* privater Modus, kein Speicher — nicht schlimm */ }
-}
-
 function ebenenAnwenden() {
-  if (!karte.isStyleLoaded() && !karte.getLayer('wasser-punkt')) return;
+  // Erst wenn die Ebenen überhaupt existieren. Hier stand vorher eine Abfrage
+  // auf "wasser-punkt" — diese Ebene ist beim Umstieg auf Symbole
+  // weggefallen, und dadurch brach die Funktion jedes Mal ab: die Karte
+  // zeigte alles an, egal was eingestellt war.
+  if (!karte.getLayer('wasser-symbol')) return;
+
   for (const [gruppe, an] of Object.entries(ebenen)) {
     const v = an ? 'visible' : 'none';
-    for (const suffix of ['-punkt', '-cluster', '-symbol']) {
+    for (const suffix of ['-cluster', '-symbol']) {
       if (karte.getLayer(gruppe + suffix)) {
         karte.setLayoutProperty(gruppe + suffix, 'visibility', v);
       }
@@ -814,7 +800,6 @@ for (const gruppe of [...OSM_EBENEN, 'spots']) {
     ebenen[gruppe] = !ebenen[gruppe];
     knopf.setAttribute('aria-pressed', String(ebenen[gruppe]));
     ebenenAnwenden();
-    ebenenMerken();
     if (!ebenen[gruppe]) return;
     if (gruppe === 'spots') spotsLaden(); else punkteLaden();
   };
