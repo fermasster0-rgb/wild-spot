@@ -19,7 +19,8 @@
 // 1. DIE FELDER
 //
 // typ 'auswahl' → Klappliste, 'janein' → Ja/Nein/keine Angabe,
-// 'zahl' → Zahlenfeld, 'mehrfach' → Kästchen zum Ankreuzen
+// 'zahl' → Zahlenfeld, 'mehrfach' → Kästchen zum Ankreuzen,
+// 'text' → einzeilige Eingabe
 // ============================================================================
 
 const GRUPPEN = [
@@ -77,6 +78,35 @@ const GRUPPEN = [
     ],
   },
   {
+    titel: 'Fischen',
+    felder: [
+      { name: 'fishing', label: 'Kann man hier fischen?', typ: 'auswahl', werte: [
+        ['mit_lizenz', 'ja, mit Lizenz'],
+        ['verboten', 'nein, verboten'],
+        ['unklar', 'unklar'],
+      ], standard: 'unklar',
+        hinweis: 'In Österreich gibt es kein frei befischbares Gewässer. Du brauchst ' +
+                 'immer die staatliche Fischerkarte UND die Erlaubnis des ' +
+                 'Bewirtschafters. Ohne beides ist es Fischwilderei — ' +
+                 'strafbar, nicht bloß eine Verwaltungsstrafe.',
+        hinweisArt: 'warn' },
+
+      { name: 'fish_species', label: 'Was schwimmt drin?', typ: 'mehrfach', werte: [
+        ['bachforelle', 'Bachforelle'], ['regenbogenforelle', 'Regenbogenforelle'],
+        ['seeforelle', 'Seeforelle'], ['saibling', 'Saibling'],
+        ['aesche', 'Äsche'], ['huchen', 'Huchen'],
+        ['renke', 'Renke'], ['hecht', 'Hecht'],
+        ['barsch', 'Barsch'], ['karpfen', 'Karpfen'],
+        ['schleie', 'Schleie'], ['aitel', 'Aitel'],
+      ]},
+
+      { name: 'fishing_note', label: 'Wo bekommt man die Karte?', typ: 'text', max: 300,
+        platzhalter: 'z. B. Tageskarte im Gasthof am Seeufer, 25 €',
+        hinweis: 'Die nützlichste Angabe für alle nach dir — ohne sie sucht ' +
+                 'jeder von vorne.' },
+    ],
+  },
+  {
     titel: 'Praktisches',
     felder: [
       { name: 'access', label: 'Anreise', typ: 'auswahl', werte: [
@@ -107,6 +137,17 @@ const GRUPPEN = [
 // ============================================================================
 // 2. DIE FELDER BAUEN
 // ============================================================================
+
+// Alle Felder, die genau einen Wert tragen — Klapplisten, Zahlen, Textzeilen.
+// Sie werden überall gleich behandelt: einsammeln, füllen, leeren.
+const EINZELFELDER =
+  'select[data-feld], input[data-feld][type="number"], input[data-feld][type="text"]';
+
+// Die Felder mit Kästchen zum Ankreuzen, aus der Liste oben gelesen.
+const MEHRFACH_FELDER = GRUPPEN
+  .flatMap((g) => g.felder)
+  .filter((f) => f.typ === 'mehrfach')
+  .map((f) => f.name);
 
 const spotHg         = document.getElementById('spot-hg');
 const spotForm       = document.getElementById('spot-form');
@@ -158,6 +199,15 @@ for (const gruppe of GRUPPEN) {
       i.min = feld.min;
       i.max = feld.max;
       i.inputMode = 'numeric';
+      inhalt.appendChild(i);
+
+    } else if (feld.typ === 'text') {
+      const i = document.createElement('input');
+      i.type = 'text';
+      i.id = 'f-' + feld.name;
+      i.dataset.feld = feld.name;
+      if (feld.max) i.maxLength = feld.max;
+      if (feld.platzhalter) i.placeholder = feld.platzhalter;
       inhalt.appendChild(i);
 
     } else {
@@ -267,16 +317,18 @@ function spotBearbeiten(spot, lat, lng) {
   spotName.value = spot.name || '';
   spotBeschreib.value = spot.description || '';
 
-  // Klapplisten und Zahlenfelder aus dem Spot füllen.
-  for (const el of spotForm.querySelectorAll('select[data-feld], input[data-feld][type="number"]')) {
+  // Klapplisten, Zahlen und Textzeilen aus dem Spot füllen.
+  for (const el of spotForm.querySelectorAll(EINZELFELDER)) {
     const wert = spot[el.dataset.feld];
     el.value = (wert === null || wert === undefined) ? '' : String(wert);
   }
 
-  // Die Jahreszeiten sind eine Liste.
-  const jahreszeiten = Array.isArray(spot.season) ? spot.season : [];
-  for (const el of spotForm.querySelectorAll('input[type="checkbox"][data-feld="season"]')) {
-    el.checked = jahreszeiten.includes(el.value);
+  // Die Mehrfachauswahlen sind Listen — Jahreszeiten, Fischarten.
+  for (const feld of MEHRFACH_FELDER) {
+    const liste = Array.isArray(spot[feld]) ? spot[feld] : [];
+    for (const el of spotForm.querySelectorAll(`input[type="checkbox"][data-feld="${feld}"]`)) {
+      el.checked = liste.includes(el.value);
+    }
   }
 
   // Gruppen aufklappen, in denen etwas steht — sonst sucht man seine eigenen
@@ -413,10 +465,10 @@ spotForm.onsubmit = async (e) => {
   spot.description = spotBeschreib.value.trim() || (aendern ? null : undefined);
   if (spot.description === undefined) delete spot.description;
 
-  for (const el of spotForm.querySelectorAll('select[data-feld], input[data-feld][type="number"]')) {
-    const wert = el.value;
+  for (const el of spotForm.querySelectorAll(EINZELFELDER)) {
+    const wert = el.value.trim();
 
-    if (wert === '' || wert == null) {
+    if (wert === '') {
       if (aendern) spot[el.dataset.feld] = null;
       continue;
     }
@@ -426,11 +478,17 @@ spotForm.onsubmit = async (e) => {
     else                                     spot[el.dataset.feld] = wert;
   }
 
-  // Die Jahreszeiten als Liste.
-  const jahreszeiten = [...spotForm.querySelectorAll('input[type="checkbox"][data-feld="season"]')]
-    .filter((i) => i.checked).map((i) => i.value);
-  if (jahreszeiten.length) spot.season = jahreszeiten;
-  else if (aendern)        spot.season = null;
+  // Alle Mehrfachauswahlen als Listen — Jahreszeiten, Fischarten, und was
+  // später dazukommt. Die Felder werden aus GRUPPEN gelesen, damit eine neue
+  // Auswahl dort automatisch mitgespeichert wird.
+  for (const feld of MEHRFACH_FELDER) {
+    const gewaehlt = [...spotForm.querySelectorAll(
+      `input[type="checkbox"][data-feld="${feld}"]`)]
+      .filter((i) => i.checked).map((i) => i.value);
+
+    if (gewaehlt.length) spot[feld] = gewaehlt;
+    else if (aendern)    spot[feld] = null;
+  }
 
   spotSpeichern.disabled = true;
   spotMeldungSetzen(aendern ? 'Änderungen werden gespeichert …' : 'Wird gespeichert …');
@@ -466,11 +524,10 @@ spotForm.onsubmit = async (e) => {
 function spotFormularLeeren() {
   spotName.value = '';
   spotBeschreib.value = '';
-  for (const el of spotForm.querySelectorAll('select[data-feld]')) {
-    const feld = [].concat(...GRUPPEN.map((g) => g.felder)).find((f) => f.name === el.dataset.feld);
+  for (const el of spotForm.querySelectorAll(EINZELFELDER)) {
+    const feld = GRUPPEN.flatMap((g) => g.felder).find((f) => f.name === el.dataset.feld);
     el.value = feld && feld.standard ? feld.standard : '';
   }
-  for (const el of spotForm.querySelectorAll('input[type="number"][data-feld]')) el.value = '';
   for (const el of spotForm.querySelectorAll('input[type="checkbox"]')) el.checked = false;
   for (const d of spotForm.querySelectorAll('details')) d.open = false;
 }

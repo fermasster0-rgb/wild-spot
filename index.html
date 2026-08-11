@@ -815,6 +815,19 @@ body.detail-offen .unten { right: 404px; }
 .merkmal .sym { font-size: 14px; line-height: 1.2; }
 .merkmal .was { color: var(--text-weak); }
 .merkmal .wert { color: var(--text); text-align: right; font-weight: 500; }
+
+/* Lange Werte — eine Reihe Fischarten, ein Hinweis zur Fischerkarte — stehen
+   unter dem Merkmal statt daneben. */
+.merkmal.lang {
+  grid-template-columns: 22px 1fr;
+  row-gap: 3px;
+}
+.merkmal.lang .wert {
+  grid-column: 2;
+  text-align: left;
+  line-height: 1.5;
+  word-break: break-word;
+}
 .merkmal .wert.warn { color: #e0b070; }
 .merkmal .wert.gut  { color: var(--gruen); }
 

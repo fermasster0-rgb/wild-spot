@@ -88,6 +88,16 @@ const ANZEIGE = [
     ],
   },
   {
+    titel: 'Fischen',
+    felder: [
+      { name: 'fishing', sym: '🎣', label: 'Fischen',
+        ton: (v) => (v === 'verboten' ? 'warn' : v === 'mit_lizenz' ? 'gut' : null) },
+      { name: 'fish_species', sym: '🐟', label: 'Fischarten',
+        wert: (v) => v.map((s) => auswahlText('fish_species', s)).join(', ') },
+      { name: 'fishing_note', sym: '🎟️', label: 'Karte', wert: (v) => v },
+    ],
+  },
+  {
     titel: 'Praktisches',
     felder: [
       { name: 'access', sym: '🚶', label: 'Anreise' },
@@ -352,8 +362,13 @@ function zeichnen(spot, kommentare, meineSterne, fotos = []) {
       const text = feld.wert ? feld.wert(roh) : auswahlText(feld.name, roh);
       const ton = feld.ton ? feld.ton(roh) : null;
 
+      // Kurze Werte stehen rechts in derselben Zeile. Lange — eine Liste von
+      // Fischarten, ein Hinweis wie "Tageskarte im Gasthof am Seeufer" —
+      // rutschen darunter, sonst quetschen sie das Merkmal an den Rand.
+      const lang = text.length > 26;
+
       zeilen.push(
-        '<div class="merkmal">' +
+        `<div class="merkmal${lang ? ' lang' : ''}">` +
         `<span class="sym">${feld.sym}</span>` +
         `<span class="was">${feld.label}</span>` +
         `<span class="wert${ton ? ' ' + ton : ''}">${escapeHtml(text)}</span>` +
