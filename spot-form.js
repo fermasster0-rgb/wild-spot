@@ -1,0 +1,498 @@
+// ============================================================================
+// Einen Spot anlegen
+//
+// Die Position ist immer die Kartenmitte — das Fadenkreuz. Wer den Spot
+// woanders haben will, schiebt vorher die Karte.
+//
+// Die Felder unten sind 1:1 die Liste aus KONZEPT.md, Abschnitt 3. Sie stehen
+// hier als Daten, nicht als HTML: eine neue Auswahlmöglichkeit ist damit eine
+// Zeile hier plus eine Zeile im CHECK der Datenbank — sonst nichts.
+//
+// Alles außer dem Namen ist freiwillig. Leere Felder werden gar nicht erst
+// mitgeschickt, damit in der Datenbank NULL steht und nicht ein erfundener
+// Wert.
+// ============================================================================
+
+'use strict';
+
+// ============================================================================
+// 1. DIE FELDER
+//
+// typ 'auswahl' → Klappliste, 'janein' → Ja/Nein/keine Angabe,
+// 'zahl' → Zahlenfeld, 'mehrfach' → Kästchen zum Ankreuzen
+// ============================================================================
+
+const GRUPPEN = [
+  {
+    titel: 'Wasser',
+    felder: [
+      { name: 'water_nearby', label: 'Wasser in der Nähe?', typ: 'janein' },
+      { name: 'water_type', label: 'Was für Wasser?', typ: 'auswahl', werte: [
+        ['bach', 'Bach'], ['quelle', 'Quelle'], ['see', 'See'],
+        ['brunnen', 'Brunnen'], ['huette', 'Hütte'], ['keins', 'keins'],
+      ]},
+      { name: 'water_distance_m', label: 'Entfernung in Metern (geschätzt)',
+        typ: 'zahl', min: 0, max: 20000 },
+      { name: 'water_reliable', label: 'Wie verlässlich?', typ: 'auswahl', werte: [
+        ['ganzjaehrig', 'ganzjährig'], ['fruehjahr_sommer', 'nur Frühjahr–Sommer'],
+        ['unsicher', 'unsicher'],
+      ]},
+    ],
+  },
+  {
+    titel: 'Lage',
+    felder: [
+      { name: 'elevation_m', label: 'Seehöhe in Metern', typ: 'zahl', min: 0, max: 4000,
+        hinweis: 'Wird automatisch vorgeschlagen — du kannst ihn überschreiben.' },
+      { name: 'above_treeline', label: 'Über der Baumgrenze?', typ: 'janein' },
+      { name: 'has_lake', label: 'See direkt am Spot?', typ: 'janein' },
+      { name: 'ground_type', label: 'Untergrund', typ: 'auswahl', werte: [
+        ['wiese', 'Wiese'], ['schotter', 'Schotter'], ['waldboden', 'Waldboden'],
+        ['fels', 'Fels'], ['moor', 'Moor'],
+      ]},
+      { name: 'flat_tent_spots', label: 'Platz für wie viele Zelte?', typ: 'auswahl', werte: [
+        ['1', '1 Zelt'], ['2-3', '2–3 Zelte'], ['4+', '4 und mehr'],
+      ]},
+      { name: 'exposure', label: 'Wind', typ: 'auswahl', werte: [
+        ['geschuetzt', 'windgeschützt'], ['halb', 'halb geschützt'], ['exponiert', 'exponiert'],
+      ]},
+    ],
+  },
+  {
+    titel: 'Ressourcen',
+    felder: [
+      { name: 'firewood_available', label: 'Brennholz', typ: 'auswahl', werte: [
+        ['viel', 'viel'], ['etwas', 'etwas'], ['keins', 'keins'],
+      ]},
+      { name: 'fire_allowed', label: 'Feuer', typ: 'auswahl', werte: [
+        ['unklar', 'unklar'], ['erlaubt', 'erlaubt'], ['verboten', 'verboten'],
+      ], standard: 'unklar',
+        hinweis: 'Feuer ist in Österreich im Wald grundsätzlich verboten. ' +
+                 'Bei Waldbrandgefahr gilt das überall — im Zweifel: kein Feuer.',
+        hinweisArt: 'warn' },
+      { name: 'shelter_nearby', label: 'Unterstand in der Nähe', typ: 'auswahl', werte: [
+        ['biwakschachtel', 'Biwakschachtel'], ['huette', 'Hütte'],
+        ['felsueberhang', 'Felsüberhang'], ['nichts', 'nichts'],
+      ]},
+    ],
+  },
+  {
+    titel: 'Praktisches',
+    felder: [
+      { name: 'access', label: 'Anreise', typ: 'auswahl', werte: [
+        ['auto', 'Auto direkt hin'], ['kurze_wanderung', 'kurze Wanderung'],
+        ['lange_wanderung', 'lange Wanderung'],
+      ]},
+      { name: 'hike_minutes', label: 'Gehzeit in Minuten', typ: 'zahl', min: 0, max: 1440 },
+      { name: 'mobile_signal', label: 'Handyempfang', typ: 'auswahl', werte: [
+        ['gut', 'gut'], ['schwach', 'schwach'], ['keiner', 'keiner'],
+      ]},
+      { name: 'discreet', label: 'Einsehbarkeit', typ: 'auswahl', werte: [
+        ['sehr', 'sehr diskret'], ['mittel', 'mittel'], ['einsehbar', 'einsehbar'],
+      ]},
+      { name: 'legal_status', label: 'Rechtlicher Status', typ: 'auswahl', werte: [
+        ['unklar', 'unklar'], ['erlaubt', 'erlaubt'], ['geduldet', 'geduldet'],
+        ['verboten', 'verboten'],
+      ], standard: 'unklar',
+        hinweis: 'Das ist deine Einschätzung, keine Rechtsauskunft. ' +
+                 'Im Zweifel bleibt es bei „unklar".' },
+      { name: 'season', label: 'Wann geht das?', typ: 'mehrfach', werte: [
+        ['fruehling', 'Frühling'], ['sommer', 'Sommer'],
+        ['herbst', 'Herbst'], ['winter', 'Winter'],
+      ]},
+    ],
+  },
+];
+
+// ============================================================================
+// 2. DIE FELDER BAUEN
+// ============================================================================
+
+const spotHg         = document.getElementById('spot-hg');
+const spotForm       = document.getElementById('spot-form');
+const spotGruppen    = document.getElementById('spot-gruppen');
+const spotPosition   = document.getElementById('spot-position');
+const spotMeldung    = document.getElementById('spot-meldung');
+const spotSpeichern  = document.getElementById('spot-speichern');
+const spotName       = document.getElementById('spot-name');
+const spotBeschreib  = document.getElementById('spot-beschreibung');
+const spotTitel      = document.getElementById('spot-titel');
+const knopfAnlegen   = document.getElementById('knopf-spot-anlegen');
+
+for (const gruppe of GRUPPEN) {
+  const details = document.createElement('details');
+  const summary = document.createElement('summary');
+  summary.textContent = gruppe.titel;
+  details.appendChild(summary);
+
+  const inhalt = document.createElement('div');
+
+  for (const feld of gruppe.felder) {
+    const label = document.createElement('label');
+    label.textContent = feld.label;
+    label.htmlFor = 'f-' + feld.name;
+    inhalt.appendChild(label);
+
+    if (feld.typ === 'mehrfach') {
+      // Kästchen zum Ankreuzen, mehrere gleichzeitig möglich.
+      label.removeAttribute('for');
+      const box = document.createElement('div');
+      box.className = 'kaestchen';
+      for (const [wert, text] of feld.werte) {
+        const l = document.createElement('label');
+        const i = document.createElement('input');
+        i.type = 'checkbox';
+        i.value = wert;
+        i.dataset.feld = feld.name;
+        l.appendChild(i);
+        l.appendChild(document.createTextNode(text));
+        box.appendChild(l);
+      }
+      inhalt.appendChild(box);
+
+    } else if (feld.typ === 'zahl') {
+      const i = document.createElement('input');
+      i.type = 'number';
+      i.id = 'f-' + feld.name;
+      i.dataset.feld = feld.name;
+      i.min = feld.min;
+      i.max = feld.max;
+      i.inputMode = 'numeric';
+      inhalt.appendChild(i);
+
+    } else {
+      // Klappliste. Der erste Eintrag ist immer "keine Angabe" — nur so kann
+      // man ein Feld bewusst leer lassen.
+      const s = document.createElement('select');
+      s.id = 'f-' + feld.name;
+      s.dataset.feld = feld.name;
+
+      const leer = document.createElement('option');
+      leer.value = '';
+      leer.textContent = 'keine Angabe';
+      s.appendChild(leer);
+
+      const werte = feld.typ === 'janein'
+        ? [['true', 'Ja'], ['false', 'Nein']]
+        : feld.werte;
+
+      for (const [wert, text] of werte) {
+        const o = document.createElement('option');
+        o.value = wert;
+        o.textContent = text;
+        s.appendChild(o);
+      }
+      if (feld.standard) s.value = feld.standard;
+      inhalt.appendChild(s);
+    }
+
+    if (feld.hinweis) {
+      const p = document.createElement('p');
+      p.className = 'feld-hinweis' + (feld.hinweisArt === 'warn' ? ' warn' : '');
+      p.textContent = feld.hinweis;
+      p.id = 'hinweis-' + feld.name;
+      inhalt.appendChild(p);
+    }
+  }
+
+  details.appendChild(inhalt);
+  spotGruppen.appendChild(details);
+}
+
+// ============================================================================
+// 3. FENSTER ÖFFNEN UND SCHLIESSEN
+// ============================================================================
+
+let spotKoordinaten = null;   // { lat, lng } — festgehalten beim Öffnen
+
+// Ist eine ID gesetzt, wird ein bestehender Spot bearbeitet statt ein neuer
+// angelegt. Dasselbe Formular, nur ein anderes Ziel beim Speichern.
+let bearbeiteId = null;
+
+function spotMeldungSetzen(text, art = 'info') {
+  spotMeldung.textContent = text || '';
+  spotMeldung.className = 'login-meldung' + (text ? ' sichtbar ' + art : '');
+}
+
+knopfAnlegen.onclick = () => {
+  // Ohne Konto geht es nicht weiter — die Datenbank hängt jeden Spot an einen
+  // Nutzer. Statt einer Fehlermeldung gleich das Anmeldefenster.
+  if (!window.WILDCAMP_AUTH.nutzer) {
+    window.WILDCAMP_AUTH.anmeldenZeigen();
+    return;
+  }
+
+  const c = karte.getCenter();
+
+  bearbeiteId = null;
+  spotTitel.textContent = 'Neuer Spot';
+  spotSpeichern.textContent = 'Spot speichern';
+  spotFormularLeeren();
+  spotPosition.textContent =
+    `Position: ${c.lat.toFixed(5)}, ${c.lng.toFixed(5)} — das Fadenkreuz auf der Karte.`;
+
+  spotKoordinaten = { lat: c.lat, lng: c.lng };
+  spotMeldungSetzen('');
+  spotHg.hidden = false;
+  spotName.focus();
+
+  hoeheVorschlagen(c.lat, c.lng);
+};
+
+// ============================================================================
+// 3b. EINEN BESTEHENDEN SPOT BEARBEITEN
+//
+// Aufgerufen aus der Detail-Leiste. Die Werte kommen von dort mit — der Spot
+// ist zum Anzeigen ohnehin schon geladen, ein zweites Mal holen wäre unnötig.
+//
+// Die Position bleibt, wie sie ist: Sie wurde einmal am Fadenkreuz gesetzt,
+// und ein Spot, der beim Bearbeiten heimlich zur aktuellen Kartenmitte
+// wandert, wäre die unangenehmste Überraschung, die diese App bieten könnte.
+// ============================================================================
+
+function spotBearbeiten(spot, lat, lng) {
+  if (!window.WILDCAMP_AUTH.nutzer) {
+    window.WILDCAMP_AUTH.anmeldenZeigen();
+    return;
+  }
+
+  bearbeiteId = spot.id;
+  spotTitel.textContent = 'Spot bearbeiten';
+  spotSpeichern.textContent = 'Änderungen speichern';
+  spotPosition.textContent =
+    `Position: ${lat.toFixed(5)}, ${lng.toFixed(5)} — bleibt unverändert.`;
+  spotKoordinaten = null;   // beim Bearbeiten wird die Position nicht angefasst
+
+  spotFormularLeeren();
+  spotName.value = spot.name || '';
+  spotBeschreib.value = spot.description || '';
+
+  // Klapplisten und Zahlenfelder aus dem Spot füllen.
+  for (const el of spotForm.querySelectorAll('select[data-feld], input[data-feld][type="number"]')) {
+    const wert = spot[el.dataset.feld];
+    el.value = (wert === null || wert === undefined) ? '' : String(wert);
+  }
+
+  // Die Jahreszeiten sind eine Liste.
+  const jahreszeiten = Array.isArray(spot.season) ? spot.season : [];
+  for (const el of spotForm.querySelectorAll('input[type="checkbox"][data-feld="season"]')) {
+    el.checked = jahreszeiten.includes(el.value);
+  }
+
+  // Gruppen aufklappen, in denen etwas steht — sonst sucht man seine eigenen
+  // Angaben hinter vier zugeklappten Überschriften.
+  for (const d of spotForm.querySelectorAll('details')) {
+    const gefuellt = [...d.querySelectorAll('select[data-feld], input[data-feld]')]
+      .some((el) => (el.type === 'checkbox' ? el.checked : el.value !== ''));
+    d.open = gefuellt;
+  }
+
+  // Beim Bearbeiten keine Seehöhe nachschlagen: der eingetragene Wert ist die
+  // Angabe des Nutzers und darf nicht stillschweigend überschrieben werden.
+  const hinweis = document.getElementById('hinweis-elevation_m');
+  if (hinweis) {
+    hinweis.textContent = 'Beim Anlegen automatisch ermittelt — du kannst ihn ändern.';
+    hinweis.classList.remove('warn');
+  }
+
+  spotMeldungSetzen('');
+  spotHg.hidden = false;
+  spotName.focus();
+}
+window.spotBearbeiten = spotBearbeiten;
+
+// Beim Schließen endet auch der Bearbeiten-Modus. Ohne das könnte ein danach
+// angelegter "neuer" Spot in Wahrheit den zuletzt bearbeiteten überschreiben.
+function spotFensterSchliessen() {
+  spotHg.hidden = true;
+  bearbeiteId = null;
+}
+
+document.getElementById('spot-schliessen').onclick = spotFensterSchliessen;
+spotHg.onclick = (e) => { if (e.target === spotHg) spotFensterSchliessen(); };
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && !spotHg.hidden) spotFensterSchliessen();
+});
+
+// Der Knopf heißt anders, je nachdem ob jemand angemeldet ist.
+function spotKnopfAnpassen(nutzer) {
+  knopfAnlegen.innerHTML = nutzer
+    ? '<span class="plus">+</span> Spot hier anlegen'
+    : '<span class="plus">+</span> Spot anlegen — anmelden';
+}
+window.spotKnopfAnpassen = spotKnopfAnpassen;
+
+// Falls die Anmeldung schon durch war, bevor diese Datei geladen wurde.
+spotKnopfAnpassen(window.WILDCAMP_AUTH.nutzer);
+
+// ============================================================================
+// 4. SEEHÖHE AUTOMATISCH VORSCHLAGEN
+//
+// Kleiner Aufwand, fühlt sich magisch an (KONZEPT.md, Abschnitt 5). Klappt es
+// nicht, bleibt das Feld einfach leer — es ist ja freiwillig.
+// ============================================================================
+
+async function hoeheVorschlagen(lat, lng) {
+  const feld = document.getElementById('f-elevation_m');
+  const hinweis = document.getElementById('hinweis-elevation_m');
+  if (!feld) return;
+
+  feld.value = '';
+  hinweis.textContent = 'Seehöhe wird geholt …';
+  hinweis.classList.remove('warn');
+
+  try {
+    // Open-Meteo liefert die Höhe aus dem Copernicus-Geländemodell, ohne
+    // Anmeldung und mit erlaubtem Zugriff aus dem Browser. Andere
+    // Höhendienste blocken Anfragen von Webseiten.
+    const res = await fetch(
+      `https://api.open-meteo.com/v1/elevation?latitude=${lat.toFixed(6)}&longitude=${lng.toFixed(6)}`,
+      { signal: AbortSignal.timeout(8000) }
+    );
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+
+    const json = await res.json();
+    const meter = json?.elevation?.[0];
+    if (meter == null) throw new Error('keine Höhe geliefert');
+
+    const gerundet = Math.round(meter);
+    feld.value = gerundet;
+
+    if (gerundet > 1800) {
+      // Über etwa 1.800 m liegt in Österreich meist schon die Baumgrenze.
+      const baum = document.getElementById('f-above_treeline');
+      if (baum && !baum.value) baum.value = 'true';
+      hinweis.textContent =
+        `${gerundet} m — vermutlich über der Baumgrenze. Ist unten schon gesetzt, ` +
+        'korrigier es, falls es nicht stimmt.';
+      hinweis.classList.add('warn');
+    } else {
+      hinweis.textContent = `${gerundet} m automatisch ermittelt — überschreibbar.`;
+    }
+  } catch {
+    hinweis.textContent = 'Seehöhe konnte nicht automatisch ermittelt werden — ' +
+                          'kannst du von Hand eintragen.';
+  }
+}
+
+// ============================================================================
+// 5. SPEICHERN
+// ============================================================================
+
+spotForm.onsubmit = async (e) => {
+  e.preventDefault();
+
+  const nutzer = window.WILDCAMP_AUTH.nutzer;
+  const aendern = !!bearbeiteId;
+  if (!nutzer) return;
+  if (!aendern && !spotKoordinaten) return;
+
+  const name = spotName.value.trim();
+  if (name.length < 3) {
+    spotMeldungSetzen('Der Name braucht mindestens 3 Zeichen.', 'fehler');
+    return;
+  }
+
+  const spot = { name };
+
+  // Beim Anlegen kommen Ersteller und Position dazu. Beim Bearbeiten bleiben
+  // beide unangetastet — die Position gehört zum Spot, nicht zur Kartenmitte
+  // von gerade eben.
+  if (!aendern) {
+    spot.created_by = nutzer.id;
+    // Position als WKT — das ist die Schreibweise, die PostGIS direkt
+    // versteht. Reihenfolge: erst Länge, dann Breite.
+    spot.location = `SRID=4326;POINT(${spotKoordinaten.lng} ${spotKoordinaten.lat})`;
+  }
+
+  // Beim Bearbeiten muss jedes Feld mitgeschickt werden, auch die leeren:
+  // Wer eine Angabe wieder auf "keine Angabe" stellt, will sie loswerden.
+  // Beim Anlegen bleiben leere Felder dagegen weg, damit in der Datenbank
+  // NULL steht statt eines erfundenen Werts. Das Ergebnis ist dasselbe,
+  // aber nur so lässt sich eine Angabe auch wieder entfernen.
+  spot.description = spotBeschreib.value.trim() || (aendern ? null : undefined);
+  if (spot.description === undefined) delete spot.description;
+
+  for (const el of spotForm.querySelectorAll('select[data-feld], input[data-feld][type="number"]')) {
+    const wert = el.value;
+
+    if (wert === '' || wert == null) {
+      if (aendern) spot[el.dataset.feld] = null;
+      continue;
+    }
+
+    if (wert === 'true' || wert === 'false') spot[el.dataset.feld] = (wert === 'true');
+    else if (el.type === 'number')           spot[el.dataset.feld] = Number(wert);
+    else                                     spot[el.dataset.feld] = wert;
+  }
+
+  // Die Jahreszeiten als Liste.
+  const jahreszeiten = [...spotForm.querySelectorAll('input[type="checkbox"][data-feld="season"]')]
+    .filter((i) => i.checked).map((i) => i.value);
+  if (jahreszeiten.length) spot.season = jahreszeiten;
+  else if (aendern)        spot.season = null;
+
+  spotSpeichern.disabled = true;
+  spotMeldungSetzen(aendern ? 'Änderungen werden gespeichert …' : 'Wird gespeichert …');
+
+  try {
+    const client = window.WILDCAMP_AUTH.client;
+
+    const { error } = aendern
+      ? await client.from('spots').update(spot).eq('id', bearbeiteId)
+      : await client.from('spots').insert(spot);
+    if (error) throw error;
+
+    const geaendert = bearbeiteId;
+    spotHg.hidden = true;
+    spotMeldungSetzen('');
+    bearbeiteId = null;
+    spotFormularLeeren();
+    status(aendern ? `Spot „${name}" geändert.` : `Spot „${name}" gespeichert.`, { dauer: 4000 });
+    spotsLaden();
+
+    // Die Detail-Leiste zeigt sonst weiter den alten Stand.
+    if (aendern && typeof window.spotDetailAktualisieren === 'function') {
+      window.spotDetailAktualisieren(geaendert, name);
+    }
+
+  } catch (err) {
+    spotMeldungSetzen(spotFehlerText(err), 'fehler');
+  } finally {
+    spotSpeichern.disabled = false;
+  }
+};
+
+function spotFormularLeeren() {
+  spotName.value = '';
+  spotBeschreib.value = '';
+  for (const el of spotForm.querySelectorAll('select[data-feld]')) {
+    const feld = [].concat(...GRUPPEN.map((g) => g.felder)).find((f) => f.name === el.dataset.feld);
+    el.value = feld && feld.standard ? feld.standard : '';
+  }
+  for (const el of spotForm.querySelectorAll('input[type="number"][data-feld]')) el.value = '';
+  for (const el of spotForm.querySelectorAll('input[type="checkbox"]')) el.checked = false;
+  for (const d of spotForm.querySelectorAll('details')) d.open = false;
+}
+
+function spotFehlerText(err) {
+  const m = (err && err.message ? err.message : String(err)).toLowerCase();
+
+  if (m.includes('row-level security') || m.includes('violates row-level')) {
+    return 'Die Datenbank hat das abgelehnt. Melde dich einmal ab und wieder an.';
+  }
+  if (m.includes('spots_name_check')) {
+    return 'Der Name muss zwischen 3 und 80 Zeichen lang sein.';
+  }
+  if (m.includes('violates check constraint')) {
+    return 'Eine der Angaben passt nicht zu den erlaubten Werten. ' +
+           'Technische Meldung: ' + err.message;
+  }
+  if (m.includes('foreign key') && m.includes('created_by')) {
+    return 'Zu deinem Konto fehlt noch ein Profil. Melde dich einmal ab und wieder an.';
+  }
+  if (m.includes('failed to fetch') || m.includes('network')) {
+    return 'Keine Verbindung zum Server. Internet prüfen.';
+  }
+  return err && err.message ? err.message : 'Unbekannter Fehler.';
+}
