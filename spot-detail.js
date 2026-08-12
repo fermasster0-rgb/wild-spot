@@ -738,6 +738,44 @@ async function verkleinern(datei) {
   return blob;
 }
 
+// Ein einzelnes Bild verkleinern, ablegen und eintragen. Steht für sich,
+// damit auch das Anlegen-Formular es benutzen kann: Wer einen Spot aus einem
+// Foto anlegt, soll das Bild nicht danach noch einmal aussuchen müssen.
+async function einFotoHochladen(spotId, datei, platz) {
+  const auth = window.WILDCAMP_AUTH;
+
+  if (!datei.type.startsWith('image/')) {
+    throw new Error(`„${datei.name}" ist kein Bild.`);
+  }
+
+  const klein = await verkleinern(datei);
+
+  // Pfad nach der Konvention aus schema.sql: eigene Nutzer-ID zuerst.
+  // Genau darauf baut die Regel auf, die fremde Ordner verbietet.
+  const pfad = `${auth.nutzer.id}/${spotId}/${crypto.randomUUID()}.jpg`;
+
+  const hoch = await auth.client.storage
+    .from('spot-photos')
+    .upload(pfad, klein, { contentType: 'image/jpeg', upsert: false });
+  if (hoch.error) throw hoch.error;
+
+  // Erst wenn die Datei liegt, kommt der Eintrag in die Tabelle. Anders
+  // herum stünde bei einem Abbruch ein Eintrag ohne Bild dahinter.
+  const { error } = await auth.client.from('spot_photos').insert({
+    spot_id: spotId,
+    uploaded_by: auth.nutzer.id,
+    storage_path: pfad,
+    sort_order: platz,
+  });
+  if (error) {
+    // Der Eintrag ging schief — dann soll auch die Datei nicht liegen
+    // bleiben, sonst sammelt sich unsichtbarer Müll im Speicher an.
+    await auth.client.storage.from('spot-photos').remove([pfad]).catch(() => {});
+    throw error;
+  }
+}
+window.einFotoHochladen = einFotoHochladen;
+
 async function fotosHochladen(spotId, dateien, schonDa) {
   const auth = window.WILDCAMP_AUTH;
   if (!auth.nutzer) { auth.anmeldenZeigen(); return; }
@@ -755,35 +793,7 @@ async function fotosHochladen(spotId, dateien, schonDa) {
         ? `Bild ${fertig} von ${dateien.length} wird hochgeladen …`
         : 'Bild wird hochgeladen …';
 
-      if (!datei.type.startsWith('image/')) {
-        throw new Error(`„${datei.name}" ist kein Bild.`);
-      }
-
-      const klein = await verkleinern(datei);
-
-      // Pfad nach der Konvention aus schema.sql: eigene Nutzer-ID zuerst.
-      // Genau darauf baut die Regel auf, die fremde Ordner verbietet.
-      const pfad = `${auth.nutzer.id}/${spotId}/${crypto.randomUUID()}.jpg`;
-
-      const hoch = await auth.client.storage
-        .from('spot-photos')
-        .upload(pfad, klein, { contentType: 'image/jpeg', upsert: false });
-      if (hoch.error) throw hoch.error;
-
-      // Erst wenn die Datei liegt, kommt der Eintrag in die Tabelle. Anders
-      // herum stünde bei einem Abbruch ein Eintrag ohne Bild dahinter.
-      const { error } = await auth.client.from('spot_photos').insert({
-        spot_id: spotId,
-        uploaded_by: auth.nutzer.id,
-        storage_path: pfad,
-        sort_order: schonDa + fertig,
-      });
-      if (error) {
-        // Der Eintrag ging schief — dann soll auch die Datei nicht liegen
-        // bleiben, sonst sammelt sich unsichtbarer Müll im Speicher an.
-        await auth.client.storage.from('spot-photos').remove([pfad]).catch(() => {});
-        throw error;
-      }
+      await einFotoHochladen(spotId, datei, schonDa + fertig);
     }
 
     status(dateien.length > 1 ? `${dateien.length} Fotos hinzugefügt.` : 'Foto hinzugefügt.',

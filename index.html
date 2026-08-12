@@ -1030,6 +1030,21 @@ html, body {
   color: var(--text-weak);
 }
 
+/* Den Ort aus einem Foto übernehmen. Steht vor allen Feldern, weil es der
+   bequemste Weg ist, einen Spot anzulegen — wer gerade zurückkommt, hat das
+   Bild schon in der Hand. */
+.aus-foto {
+  margin: 0 0 16px;
+  padding: 13px;
+  border: 1px dashed var(--rand);
+  border-radius: 11px;
+}
+.aus-foto .zweit { margin-bottom: 0; }
+.aus-foto .hinweis-klein { margin-top: 9px; }
+.aus-foto .hinweis-klein.gut  { color: var(--gruen); }
+.aus-foto .hinweis-klein.warn { color: #e0b070; }
+.aus-foto[hidden] { display: none; }
+
 /* Die Attributgruppen sind zugeklappt — niemand soll 19 Felder vor sich
    sehen und die Lust verlieren. */
 .spot-box details {
@@ -1802,6 +1817,21 @@ body.detail-offen .unten { right: 404px; }
     <h2 id="spot-titel">Neuer Spot</h2>
     <p class="unter" id="spot-position">–</p>
 
+    <!-- Den Ort aus einem Handyfoto übernehmen. Beim Bearbeiten eines
+         bestehenden Spots wird das ausgeblendet — dort bleibt die Position
+         unangetastet. -->
+    <div class="aus-foto" id="aus-foto">
+      <input type="file" id="ort-foto-datei" accept="image/*" hidden>
+      <button type="button" class="zweit" id="ort-foto-knopf">
+        📍 Ort aus einem Foto übernehmen
+      </button>
+      <p class="hinweis-klein" id="ort-foto-stand">
+        Fast jedes Handyfoto weiß, wo es aufgenommen wurde. Das Bild bleibt
+        dabei auf deinem Gerät — und wird gleich als erstes Foto des Spots
+        gespeichert.
+      </p>
+    </div>
+
     <div class="login-meldung" id="spot-meldung"></div>
 
     <form id="spot-form">
@@ -1869,6 +1899,7 @@ body.detail-offen .unten { right: 404px; }
 <script src="config.js"></script>
 <script src="auth.js"></script>
 <script src="app.js"></script>
+<script src="foto-ort.js"></script>
 <script src="spot-form.js"></script>
 <!-- Nach spot-form.js, weil das Detail dessen Feldliste GRUPPEN mitbenutzt. -->
 <script src="spot-detail.js"></script>
