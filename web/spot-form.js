@@ -68,8 +68,9 @@ const GRUPPEN = [
       { name: 'fire_allowed', label: 'Feuer', typ: 'auswahl', werte: [
         ['unklar', 'unklar'], ['erlaubt', 'erlaubt'], ['verboten', 'verboten'],
       ], standard: 'unklar',
-        hinweis: 'Feuer ist in Österreich im Wald grundsätzlich verboten. ' +
-                 'Bei Waldbrandgefahr gilt das überall — im Zweifel: kein Feuer.',
+        hinweis: 'Feuer ist in Österreich im Wald grundsätzlich verboten, und in ' +
+                 'den meisten Ländern Europas ebenso. Bei Waldbrandgefahr gilt ' +
+                 'das überall — im Zweifel: kein Feuer.',
         hinweisArt: 'warn' },
       { name: 'shelter_nearby', label: 'Unterstand in der Nähe', typ: 'auswahl', werte: [
         ['biwakschachtel', 'Biwakschachtel'], ['huette', 'Hütte'],
@@ -88,7 +89,8 @@ const GRUPPEN = [
         hinweis: 'In Österreich gibt es kein frei befischbares Gewässer. Du brauchst ' +
                  'immer die staatliche Fischerkarte UND die Erlaubnis des ' +
                  'Bewirtschafters. Ohne beides ist es Fischwilderei — ' +
-                 'strafbar, nicht bloß eine Verwaltungsstrafe.',
+                 'strafbar, nicht bloß eine Verwaltungsstrafe. Im Ausland ' +
+                 'gelten eigene Regeln, oft ähnlich streng.',
         hinweisArt: 'warn' },
 
       { name: 'fish_species', label: 'Was schwimmt drin?', typ: 'mehrfach', werte: [
@@ -473,9 +475,11 @@ ortFotoDatei.onchange = async () => {
   spotPosition.textContent =
     `Position: ${ort.lat.toFixed(5)}, ${ort.lng.toFixed(5)} — aus dem Foto übernommen.`;
 
-  // Ein Foto aus dem Italienurlaub soll nicht wortlos einen Spot bei Rom
-  // anlegen. Der Rahmen ist derselbe, den auch die Karte benutzt (app.js).
-  const [westen, sueden, osten, norden] = OESTERREICH;
+  // Ein Foto vom Familienurlaub in Thailand soll nicht wortlos einen Spot in
+  // Bangkok anlegen. Gewarnt wird aber erst außerhalb EUROPAS, nicht mehr
+  // außerhalb Österreichs: Spots dürfen in ganz Europa stehen, und ein Foto
+  // aus den Dolomiten ist kein Versehen, sondern der Normalfall.
+  const [westen, sueden, osten, norden] = EUROPA;
   const drin = ort.lat >= sueden && ort.lat <= norden &&
                ort.lng >= westen && ort.lng <= osten;
 
@@ -491,7 +495,7 @@ ortFotoDatei.onchange = async () => {
   } else {
     ortFotoStandSetzen(
       `Ort gefunden: ${ort.lat.toFixed(5)}, ${ort.lng.toFixed(5)} — der liegt ` +
-      'außerhalb Österreichs. Stimmt das Foto? Sonst wähl ein anderes.',
+      'außerhalb Europas. Stimmt das Foto? Sonst wähl ein anderes.',
       'warn'
     );
   }

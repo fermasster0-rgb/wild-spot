@@ -23,11 +23,17 @@ const sucheEingabe  = document.getElementById('suche-eingabe');
 const sucheTreffer  = document.getElementById('suche-treffer');
 const sucheLeeren   = document.getElementById('suche-leeren');
 
-// Photon gehört zu Komoot und darf frei benutzt werden. Die Suche wird auf
-// Österreich und ein Stück Umland begrenzt — ein Treffer in Portugal hilft
-// hier niemandem.
+// Photon gehört zu Komoot und darf frei benutzt werden.
+//
+// Der Suchbereich ist Europa, nicht mehr nur Österreich: Spots lassen sich
+// überall in Europa setzen, also muss man auch überall hinsuchen können.
+// Damit die heimischen Treffer trotzdem zuerst kommen, wird zusätzlich ein
+// Schwerpunkt mitgegeben (lat/lon unten) — Photon gewichtet Treffer in der
+// Nähe dieses Punktes höher. Ohne den stünde bei "Gösting" womöglich ein
+// Weiler in Finnland vor dem Grazer Bezirk.
 const PHOTON = 'https://photon.komoot.io/api/';
-const PHOTON_BBOX = '9.0,46.0,17.7,49.4';
+const PHOTON_BBOX = '-13.0,33.0,43.0,71.0';
+const PHOTON_SCHWERPUNKT = { lat: 47.6, lon: 13.3 };   // Mitte Österreichs
 
 // Erst ab zwei Zeichen suchen: bei einem einzelnen Buchstaben kämen tausende
 // Treffer, von denen keiner der gemeinte ist.
@@ -120,7 +126,8 @@ async function punkteSuchen(q) {
 async function orteSuchen(q) {
   try {
     const res = await fetch(
-      `${PHOTON}?q=${encodeURIComponent(q)}&lang=de&limit=4&bbox=${PHOTON_BBOX}`,
+      `${PHOTON}?q=${encodeURIComponent(q)}&lang=de&limit=5&bbox=${PHOTON_BBOX}`
+      + `&lat=${PHOTON_SCHWERPUNKT.lat}&lon=${PHOTON_SCHWERPUNKT.lon}`,
       { signal: AbortSignal.timeout(4000) }
     );
     if (!res.ok) return [];
