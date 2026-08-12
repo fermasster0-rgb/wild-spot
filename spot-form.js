@@ -533,13 +533,27 @@ async function hoeheVorschlagen(lat, lng) {
     const gerundet = Math.round(meter);
     feld.value = gerundet;
 
-    if (gerundet > 1800) {
-      // Über etwa 1.800 m liegt in Österreich meist schon die Baumgrenze.
+    // Die Baumgrenze liegt in den Alpen zwischen 1.800 und 2.200 m — in den
+    // Niederen Tauern bilden Zirbenwälder die Waldgrenze, und die reicht gut
+    // über 1.800 m hinauf. Die frühere Schwelle von 1.800 m war deshalb die
+    // Untergrenze der Spanne, nicht die Grenze selbst, und hat "über der
+    // Baumgrenze" zu oft vorgeschlagen.
+    //
+    // Das ist keine Kleinigkeit: In der Steiermark hängt am "oberhalb der
+    // Baumgrenze" die Frage, ob Zelten dort überhaupt erlaubt ist.
+    // Ab 2.000 m wird deshalb vorgeschlagen, dazwischen nur gefragt.
+    if (gerundet >= 2000) {
       const baum = document.getElementById('f-above_treeline');
       if (baum && !baum.value) baum.value = 'true';
       hinweis.textContent =
         `${gerundet} m — vermutlich über der Baumgrenze. Ist unten schon gesetzt, ` +
         'korrigier es, falls es nicht stimmt.';
+      hinweis.classList.add('warn');
+    } else if (gerundet >= 1800) {
+      hinweis.textContent =
+        `${gerundet} m — hier verläuft je nach Gebirge die Baumgrenze. ` +
+        'Standen dort noch Zirben oder Latschen? Dann trag unten "unter der ' +
+        'Baumgrenze" ein.';
       hinweis.classList.add('warn');
     } else {
       hinweis.textContent = `${gerundet} m automatisch ermittelt — überschreibbar.`;

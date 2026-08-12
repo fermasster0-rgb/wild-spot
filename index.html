@@ -1675,6 +1675,89 @@ body.detail-offen .unten { right: 404px; }
 }
 
 /* ==========================================================================
+   Bedingungen am Spot — Wetter und Sonnenzeiten
+   ========================================================================== */
+
+.wetter { margin-bottom: 4px; }
+
+.wetter-laedt {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--text-weak);
+}
+
+/* Die kommende Nacht steht bewusst groß und allein oben: Sie ist die
+   Entscheidung, die man vor der Abfahrt trifft. */
+.wetter-nacht {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  background: rgba(74, 163, 223, 0.1);
+  border: 1px solid rgba(74, 163, 223, 0.28);
+  border-radius: 11px;
+  padding: 10px 12px;
+  margin-bottom: 9px;
+}
+.wetter-nacht b {
+  font-size: 24px;
+  line-height: 1;
+  color: var(--blau);
+  font-variant-numeric: tabular-nums;
+}
+.wetter-nacht span {
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: var(--text-weak);
+}
+/* Bei Frostgefahr wechselt der Block die Farbe — das ist die Nacht, in der
+   ein Sommerschlafsack nicht reicht. */
+.wetter-nacht.frostig {
+  background: rgba(232, 194, 106, 0.1);
+  border-color: rgba(232, 194, 106, 0.34);
+}
+.wetter-nacht.frostig b { color: #e8c26a; }
+
+.wetter-tage {
+  border: 1px solid var(--rand);
+  border-radius: 11px;
+  overflow: hidden;
+}
+.wetter-tag {
+  display: grid;
+  grid-template-columns: 4.6em 1.6em 3.4em 1fr;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 11px;
+  font-size: 12.5px;
+}
+.wetter-tag + .wetter-tag { border-top: 1px solid var(--rand); }
+.wt-tag  { color: var(--text-weak); }
+.wt-bild { font-size: 15px; text-align: center; }
+.wt-temp { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.wt-temp b { font-weight: 600; }
+.wt-temp i { font-style: normal; color: var(--text-weak); margin-left: 3px; }
+.wt-rest { color: var(--text-weak); text-align: right; font-size: 11.5px; }
+
+.wetter-sonne {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--text-weak);
+  padding: 9px 2px 0;
+}
+.wetter-sonne b { color: var(--text); font-variant-numeric: tabular-nums; }
+
+.wetter-quelle {
+  margin: 7px 0 0;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--text-weak);
+  opacity: 0.8;
+}
+
+/* ==========================================================================
    Admin-Fenster
    Ein eigener Bildschirm über der Karte — hier wird verwaltet, nicht
    gewandert. Deshalb bewusst nüchtern: Listen, Zahlen, klare Knöpfe.
@@ -2237,6 +2320,7 @@ body.detail-offen .unten { right: 404px; }
 <script src="foto-ort.js"></script>
 <script src="spot-form.js"></script>
 <!-- Nach spot-form.js, weil das Detail dessen Feldliste GRUPPEN mitbenutzt. -->
+<script src="wetter.js"></script>
 <script src="spot-detail.js"></script>
 <!-- Die Suche greift auf die Karte, die Ebenen und die Spot-Leiste zu. -->
 <script src="suche.js"></script>

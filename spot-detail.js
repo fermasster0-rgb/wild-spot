@@ -348,6 +348,14 @@ function zeichnen(spot, kommentare, meineSterne, fotos = []) {
   teile.push('<h3>Hinkommen</h3>');
   teile.push(hinkommenHtml(offenerSpot.lat, offenerSpot.lng));
 
+  // ------------------------------------------------------- Bedingungen -----
+  // Gleich nach dem Hinkommen: Wie kalt wird die Nacht, regnet es, wann wird
+  // es dunkel. Der Block erscheint sofort leer und füllt sich nach — die
+  // Detailansicht soll nicht auf einen fremden Server warten.
+  if (typeof window.wetterPlatzhalter === 'function') {
+    teile.push(window.wetterPlatzhalter());
+  }
+
   // -------------------------------------------------------- Beschreibung -----
   if (spot.description) {
     teile.push('<h3>Beschreibung</h3>');
@@ -485,6 +493,13 @@ function zeichnen(spot, kommentare, meineSterne, fotos = []) {
   detailKoerper.innerHTML = teile.join('');
 
   verdrahten(spot, meineSterne, fotos.length, meiner);
+
+  // Erst jetzt, wo der Platzhalter im Dokument steht, die Vorhersage holen.
+  // Die Seehöhe kommt mit, damit das Wettermodell auf die richtige Höhe
+  // rechnet (Wirkung ist klein, siehe wetter.js).
+  if (typeof window.wetterLaden === 'function' && offenerSpot) {
+    window.wetterLaden(offenerSpot.lat, offenerSpot.lng, Number(spot.elevation_m));
+  }
 }
 
 // Die zwei Wege zum Spot. Sie beantworten zwei verschiedene Fragen: Google
