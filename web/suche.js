@@ -200,7 +200,11 @@ function eintrag(gruppe, name, zusatz, ziel) {
     : ortZeichen();
 
   return (
-    `<button type="button" data-ziel='${escapeHtml(JSON.stringify(ziel))}'>` +
+    // Doppelte Anführungszeichen als Begrenzer, nicht einfache. escapeHtml
+    // ersetzt beide Sorten — aber wenn hier einmal etwas ohne escapeHtml
+    // hineingerät, ist der Schaden mit " kleiner, weil JSON.stringify seine
+    // eigenen " ohnehin maskiert.
+    `<button type="button" data-ziel="${escapeHtml(JSON.stringify(ziel))}">` +
     zeichen +
     `<span class="wo"><b>${escapeHtml(name)}</b><small>${escapeHtml(zusatz)}</small></span>` +
     '</button>'

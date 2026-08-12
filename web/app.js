@@ -1134,8 +1134,21 @@ for (const gruppe of OSM_EBENEN) {
   }
 }
 
+// Macht Nutzertext für HTML unschädlich. Wird von allen Teilen der App
+// verwendet, sobald etwas in innerHTML landet — Spot-Namen, Beschreibungen,
+// Kommentare.
+//
+// Das einfache Anführungszeichen MUSS mit in die Liste. Vorher fehlte es, und
+// das war eine echte Lücke: In suche.js wird ein Attribut mit einfachen
+// Anführungszeichen begrenzt (data-ziel='…'). Ein Spot mit einem ' im Namen
+// konnte daraus ausbrechen und eigene Attribute anhängen — etwa
+// onmouseover='…'. Damit hätte jeder, der einen Spot anlegen darf, fremden
+// Besuchern Code unterschieben können, Admins eingeschlossen.
+// Nachgewiesen und behoben am 2026-08-12.
 function escapeHtml(s) {
-  return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  return String(s).replace(/[&<>"']/g, (c) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+  }[c]));
 }
 
 // Ein Spot bekommt kein Popup, sondern die Leiste rechts: dort ist Platz für
