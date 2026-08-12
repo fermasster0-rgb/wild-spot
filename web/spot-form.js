@@ -380,6 +380,7 @@ function spotFensterSchliessen() {
 }
 
 document.getElementById('spot-schliessen').onclick = spotFensterSchliessen;
+document.getElementById('spot-abbrechen').onclick  = spotFensterSchliessen;
 spotHg.onclick = (e) => { if (e.target === spotHg) spotFensterSchliessen(); };
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' && !spotHg.hidden) spotFensterSchliessen();
