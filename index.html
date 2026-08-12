@@ -1675,6 +1675,92 @@ body.detail-offen .unten { right: 404px; }
 }
 
 /* ==========================================================================
+   Der Start — das Zelt fällt in den Wald
+
+   Läuft nur beim echten Kaltstart. Wer die App bloß in den Hintergrund
+   schiebt und zurückholt, lädt das Dokument nicht neu — dann passiert hier
+   auch nichts. Genau das ist gewollt: Eine Animation, die man zehnmal am Tag
+   sieht, ist eine Bremse, keine Begrüßung.
+
+   Alles inline und ganz oben im Dokument, damit nichts flackert: Läge es in
+   einer eigenen Datei, sähe man erst kurz die nackte Seite.
+   ========================================================================== */
+
+#start {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: var(--bg);
+  display: grid;
+  place-items: center;
+  /* Am Schluss weggeblendet — der Wechsel zur Karte soll ein Übergang sein,
+     kein Schnitt. */
+  animation: start-weg 260ms ease-in 1080ms forwards;
+}
+/* overflow sichtbar, damit das Zelt schon zu sehen ist, während es noch über
+   der Zeichenfläche hängt. Ohne das würde es an der Oberkante abgeschnitten
+   und wirkte, als schöbe es sich herein statt zu fallen. Der Hintergrund ist
+   überall derselbe, also fällt der Rahmen ohnehin nicht auf. */
+#start svg { width: min(62vw, 260px); height: auto; overflow: visible; }
+
+/* Der Wald steht schon, wenn das Zelt kommt — er blendet nur sanft auf. */
+#start .wald {
+  opacity: 0;
+  animation: start-wald 420ms ease-out 60ms forwards;
+}
+
+/* Das Zelt fällt. cubic-bezier mit steilem Ende = Schwerkraft: oben langsam,
+   unten schnell. Danach ein kurzes Setzen, als würde der Boden nachgeben. */
+#start .zelt {
+  transform: translateY(-95px);
+  opacity: 0;
+  /* Der Bezugspunkt liegt unten in der Mitte des Zelts, dort wo es den Boden
+     berührt. Ohne das würde das Stauchen um den Nullpunkt der Zeichenfläche
+     rechnen — das Zelt würde beim Aufsetzen springen statt einzufedern. */
+  transform-box: view-box;
+  transform-origin: 120px 106px;
+  animation:
+    start-fall 500ms cubic-bezier(0.55, 0, 0.85, 0.45) 180ms forwards,
+    start-setzen 260ms ease-out 680ms;
+}
+
+/* Der Aufschlag: ein kurzer Ring am Boden, der aufgeht und verschwindet. */
+#start .staub {
+  opacity: 0;
+  transform-box: view-box;
+  transform-origin: 120px 106px;
+  animation: start-staub 420ms ease-out 660ms;
+}
+
+@keyframes start-wald  { to { opacity: 0.5; } }
+@keyframes start-fall  { to { transform: translateY(0); opacity: 1; } }
+@keyframes start-weg   { to { opacity: 0; visibility: hidden; } }
+
+/* Nur ganz leicht stauchen — mehr sieht nach Gummi aus, nicht nach Zelt. */
+@keyframes start-setzen {
+  0%   { transform: translateY(0)   scaleY(1);    }
+  35%  { transform: translateY(2px) scaleY(0.94); }
+  100% { transform: translateY(0)   scaleY(1);    }
+}
+
+@keyframes start-staub {
+  0%   { opacity: 0.75; transform: scale(0.3); }
+  100% { opacity: 0;    transform: scale(1.6); }
+}
+
+/* Wer im System "Bewegung reduzieren" eingestellt hat, bekommt keine
+   Animation, sondern nur einen kurzen ruhigen Moment. */
+@media (prefers-reduced-motion: reduce) {
+  #start .wald, #start .zelt, #start .staub {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+  #start .wald { opacity: 0.5; }
+  #start { animation: start-weg 200ms ease-in 420ms forwards; }
+}
+
+/* ==========================================================================
    Bedingungen am Spot — Wetter und Sonnenzeiten
    ========================================================================== */
 
@@ -1998,6 +2084,66 @@ body.detail-offen .unten { right: 404px; }
 </head>
 
 <body>
+
+<!-- ==========================================================================
+     Der Start. Steht bewusst als Erstes im Dokument: So ist er sofort da,
+     noch bevor Karte und Skripte geladen sind.
+
+     Gezeichnet ist alles im selben Strich wie das App-Symbol — dieselbe
+     Farbe, dieselbe Strichstärke, dieselben runden Enden. Die Tannen sind
+     nur Zickzack-Linien: Ein Wald muss hier nicht botanisch stimmen, er muss
+     in einer Sekunde als Wald zu erkennen sein.
+
+     Entfernt wird das Ganze von dem kleinen Skript am Ende der Seite.
+     ========================================================================== -->
+<div id="start" aria-hidden="true">
+  <svg viewBox="0 0 240 130" fill="none" stroke="#7bb661" stroke-width="1.7"
+       stroke-linecap="round" stroke-linejoin="round">
+
+    <!-- Eine Tanne, einmal gezeichnet und sechsmal benutzt. -->
+    <defs>
+      <g id="tanne">
+        <path d="M0 20 6 8l6 12"/>
+        <path d="M2 13 6 4l4 9"/>
+        <path d="M6 20v4"/>
+      </g>
+    </defs>
+
+    <g class="wald">
+      <!-- Der Boden. Leicht wellig, damit es nach Gelände aussieht und nicht
+           nach Tisch. -->
+      <path d="M8 106q34-5 62 0t70 1q36-4 92 2"/>
+
+      <!-- Links und rechts je drei Tannen, verschieden groß und leicht
+           versetzt. Die Lücke in der Mitte ist der Platz fürs Zelt. -->
+      <use href="#tanne" transform="translate(14,82) scale(1.05)"/>
+      <use href="#tanne" transform="translate(38,76) scale(1.3)"/>
+      <use href="#tanne" transform="translate(64,84) scale(0.92)"/>
+      <use href="#tanne" transform="translate(158,84) scale(0.98)"/>
+      <use href="#tanne" transform="translate(182,74) scale(1.35)"/>
+      <use href="#tanne" transform="translate(210,80) scale(1.12)"/>
+    </g>
+
+    <!-- Der Aufschlag am Boden, genau unter dem Zelt. -->
+    <ellipse class="staub" cx="120" cy="106" rx="26" ry="5"/>
+
+    <!-- Das Zelt: exakt die Pfade des App-Symbols, nur größer gerechnet.
+         Bei scale(2.4) liegt die Grundlinie (y=20) genau auf dem Boden.
+
+         Zwei Gruppen, und das ist kein Zufall: Ein transform aus dem CSS
+         ERSETZT das transform-Attribut, es kommt nicht dazu. Stünden Fall und
+         Positionierung an derselben Gruppe, würde die Animation Maßstab und
+         Position wegwerfen — das Zelt landete winzig in der Ecke. Deshalb
+         außen die Bewegung (CSS), innen die Platzierung (Attribut). -->
+    <g class="zelt">
+      <g transform="translate(91.2,58) scale(2.4)">
+        <path d="M12 3 3 20h18L12 3Z"/>
+        <path d="M12 3v11"/>
+        <path d="m8.4 20 3.6-6 3.6 6"/>
+      </g>
+    </g>
+  </svg>
+</div>
 
 <div id="karte"></div>
 <div class="fadenkreuz"></div>
@@ -2352,6 +2498,26 @@ body.detail-offen .unten { right: 404px; }
 
 <script src="offline.js"></script>
 <script src="admin.js"></script>
+
+<!-- Räumt den Start weg, sobald er durch ist.
+     Das Ausblenden erledigt schon die CSS-Animation (mit "forwards", also
+     bleibt es unsichtbar). Hier wird das Element zusätzlich aus dem Dokument
+     genommen, damit es keine Klicks mehr abfängt.
+
+     Bewusst ohne Abhängigkeit von einem Ereignis: Wenn die Animation gar
+     nicht läuft — abgeschaltete Bewegung, alter Browser —, greift trotzdem
+     der Zeitgeber. Der Start darf unter keinen Umständen hängen bleiben. -->
+<script>
+  (() => {
+    const start = document.getElementById('start');
+    if (!start) return;
+    const weg = () => start.remove();
+    start.addEventListener('animationend', (e) => {
+      if (e.animationName === 'start-weg') weg();
+    });
+    setTimeout(weg, 2000);
+  })();
+</script>
 
 </body>
 </html>
