@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Das App-Symbol: dasselbe Zelt wie in der Legende und auf der Karte.
+       Ein Symbol, das man in der App wiedererkennt, ist mehr wert als ein
+       schöneres, das für sich allein steht.
+
+       Ein Unterschied zur Karte: Dort läuft die Mittelstange bis zum Boden
+       durch. Bei 24 Pixeln fällt das nicht auf, als großes Symbol kreuzt sie
+       den Eingang und das Ganze sieht aus wie ein Pfeil. Hier endet sie
+       deshalb an der Spitze des Eingangs. -->
+  <defs>
+    <linearGradient id="grund" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#1e2718"/>
+      <stop offset="100%" stop-color="#10130d"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="512" height="512" fill="url(#grund)"/>
+
+  <!-- Aus dem 24er-Raster der App gerechnet: Faktor 14,5, dazu Rand ringsum -->
+  <g transform="translate(82,80) scale(14.5)"
+     fill="none" stroke="#7bb661" stroke-width="1.7"
+     stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 3 3 20h18L12 3Z"/>
+    <path d="M12 3v11"/>
+    <path d="m8.4 20 3.6-6 3.6 6"/>
+  </g>
+</svg>

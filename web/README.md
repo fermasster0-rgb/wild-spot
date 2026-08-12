@@ -223,26 +223,29 @@ Geräte müssen im selben WLAN sein** — das Handy also nicht über mobile Date
 
 Damit du nicht jedes Mal die Adresse tippen musst:
 
-- **Android (Chrome):** Menü ⋮ → *Zum Startbildschirm hinzufügen*
+- **Android (Chrome):** In den Einstellungen (Zahnrad) steht der Knopf
+  *App installieren*. Alternativ: Menü ⋮ → *App installieren*
 - **iPhone (Safari):** Teilen-Symbol → *Zum Home-Bildschirm*
 
-Danach startet sie wie eine App, ohne Adresszeile.
+Danach startet sie wie eine App: eigenes Zelt-Symbol, Vollbild ohne
+Adresszeile — und sie öffnet sich auch ohne Empfang.
 
 ### Was am Handy zu beachten ist
 
 - Der **PC muss laufen** und der Server offen sein. Schließt du das Fenster
   oder drückst `Strg` + `C`, ist die Seite am Handy sofort tot.
-- **Unterwegs geht es nicht** — nur im eigenen WLAN. Dafür muss die App ins
-  Netz (GitHub Pages, steht auf der Liste in `KONZEPT.md`).
+- **Unterwegs geht es über diese Adresse nicht** — nur im eigenen WLAN. Dafür
+  gibt es die App im Netz: https://fermasster0-rgb.github.io/wild-spot/
+  Der Weg hierüber ist nur zum Ausprobieren neuer Änderungen da.
 - Der **Positionsknopf ➤ funktioniert am Handy nicht**, weil die Adresse
   `http://192.168.…` und nicht `https` ist. Browser geben den Standort nur
   auf `localhost` oder über eine gesicherte Verbindung frei. Alles andere —
   Karte, Spots, Fotos, Bewerten, Kommentieren — läuft normal.
 
-> **Der Grund, warum das alles noch umständlich ist:** Die App liegt auf
-> deinem PC. Sobald sie einmal im Netz steht, tippst du nur noch eine feste
-> Adresse ein — überall, ohne Server, ohne WLAN-Bedingung, und der
-> Positionsknopf geht dann auch.
+> **Der Grund, warum das hier umständlich ist:** Diese Anleitung beschreibt die
+> App auf deinem PC — dafür braucht es Server, WLAN und die IP-Adresse. Im
+> Alltag tippst du stattdessen die feste Adresse oben ein oder öffnest die
+> installierte App vom Startbildschirm.
 
 ---
 
@@ -263,9 +266,39 @@ oder `https`. Eine direkt geöffnete Datei zählt für sie nicht dazu — der
 | `auth.js` | Anmelden, Registrieren, Abmelden |
 | `spot-form.js` | Das Formular zum Anlegen eines Spots |
 | `spot-detail.js` | Die Leiste rechts: Angaben, Bewertungen, Kommentare |
+| `suche.js` | Die Suchleiste über Spots, OSM-Punkte und Orte |
+| `foto-ort.js` | Liest die Koordinaten aus einem Handyfoto (EXIF) |
+| `intro.js` | Die Einführung beim allerersten Start |
+| `offline.js` | Meldet den Service Worker an, Installieren-Knopf, Funkloch-Hinweis |
+| `sw.js` | Der Service Worker: hält App, Kacheln und Fotos offline |
+| `manifest.webmanifest` | Macht die Seite installierbar (Name, Symbol, Vollbild) |
 | `config.js` | Die Zugangsdaten — das Einzige, was du anfassen musst |
 | `server.mjs` | Der kleine Webserver zum Ausprobieren |
 | `oesterreich-maske.geojson` | Der Landesumriss, damit die Karte an der Grenze endet |
+
+---
+
+## Offline: was geht und was nicht
+
+Seit `sw.js` dabei ist, hält das Handy die App fest:
+
+- **Die App startet ohne Netz.** Auch im Flugmodus, auch am Berg.
+- **Kartenkacheln bleiben liegen**, sobald sie einmal geladen wurden. Deshalb
+  gilt: *Die Tour vorher zu Hause einmal auf der Karte abfahren* — dann ist
+  das Gebiet unterwegs da.
+- **Spots werden mitgeschrieben.** Ohne Netz erscheinen die zuletzt geladenen.
+  Sie liegen in `localStorage`, weil die Datenbank sie über einen `rpc`-Aufruf
+  liefert und der Browser schreibende Aufrufe nicht aufheben darf.
+- **Was nicht geht:** ein Gebiet im Voraus herunterladen, und alles Schreibende
+  (anlegen, bewerten, kommentieren, Fotos) — das braucht Empfang.
+
+In den Einstellungen (Zahnrad) steht unter *Karte offline*, wie viel gespeichert
+ist, und dort lässt es sich auch wieder leeren.
+
+> **Wenn am Handy eine alte Fassung klebt:** Die Nummer in `sw.js` (`VERSION`)
+> setzt `scripts/veroeffentlichen.mjs` bei jedem Veröffentlichen neu. Kommt die
+> Änderung trotzdem nicht an, hilft: App schließen und neu öffnen — beim
+> Starten wird ein Hinweis *„Neue Fassung da"* eingeblendet.
 
 ### Warum außerhalb Österreichs alles schwarz ist
 

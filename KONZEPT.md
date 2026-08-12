@@ -291,10 +291,31 @@ diese Entscheidung keine Arbeit verloren.
       Nebenbei: Weil jedes Bild vor dem Hochladen im Browser verkleinert wird,
       trägt das gespeicherte Foto die Koordinaten *nicht* mehr in sich.
 
+- [x] **Ins Web gestellt** (GitHub Pages) — die Karte läuft unterwegs, ohne
+      dass der PC daheim läuft: https://fermasster0-rgb.github.io/wild-spot/
+      Veröffentlicht wird mit `node scripts/veroeffentlichen.mjs "…"`.
+
+- [x] **Installierbar und offline-fähig** (`web/manifest.webmanifest`,
+      `web/sw.js`, `web/offline.js`) — die Seite lässt sich als App auf den
+      Startbildschirm legen: eigenes Symbol, Vollbild ohne Adresszeile.
+
+      Offline gilt für drei Dinge: die App selbst startet ohne Netz, die
+      **Kartenkacheln bleiben liegen**, sobald man sie einmal gesehen hat, und
+      die **Spots werden am Gerät mitgeschrieben** — letzteres muss über
+      `localStorage` laufen, weil der Kartendienst sie über einen `rpc`-Aufruf
+      liefert und der Browser schreibende Aufrufe nicht aufheben darf.
+
+      Bewusste Grenze: Ein Gebiet lässt sich **nicht im Voraus** herunterladen.
+      Der Speicher füllt sich nur durchs Anschauen — wer die Tour vorher zu
+      Hause abfährt, hat sie am Berg. Vorausladen wäre ein eigener Schritt und
+      würde bei basemap.at auch die Frage nach der erlaubten Menge aufwerfen.
+
+      Die Fassungsnummer in `sw.js` setzt das Veröffentlichungsskript selbst.
+      Ohne das würde am Handy ewig die alte Fassung kleben — die klassische
+      Falle bei Apps, die offline können.
+
 **Als Nächstes**
 
-- [ ] Ins Web stellen (GitHub Pages), damit die Karte auch unterwegs läuft,
-      ohne dass der PC daheim laufen muss
 - [ ] **Eigene Wanderroute auf der Karte** — Parkplatz als zweite Koordinate
       speichern, dann die Route Parkplatz → Spot über einen Routendienst auf
       OpenStreetMap-Basis rechnen (OpenRouteService, Profil `foot-hiking`:

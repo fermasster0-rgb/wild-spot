@@ -22,7 +22,8 @@
 // ============================================================================
 
 import { execSync } from 'node:child_process';
-import { resolve, dirname } from 'node:path';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { resolve, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -40,7 +41,35 @@ function schritt(text) {
   console.log(`\n→ ${text}`);
 }
 
+// ----------------------------------------------------------------------------
+// Die Fassung im Service Worker hochzählen.
+//
+// Seit die App offline kann, hält das Handy die Dateien fest. Ohne neue Nummer
+// in sw.js bliebe dort ewig die alte Fassung kleben — die klassische Falle bei
+// Apps, die offline können. Deshalb macht das Skript es, nicht der Mensch.
+// ----------------------------------------------------------------------------
+function fassungHochzaehlen() {
+  const pfad = join(projectRoot, 'web', 'sw.js');
+  const inhalt = readFileSync(pfad, 'utf8');
+
+  const jetzt = new Date();
+  const stempel = jetzt.toISOString().slice(0, 16).replace(/[:T]/g, '-');
+  const neu = inhalt.replace(/const VERSION = '[^']*';/,
+                             `const VERSION = '${stempel}';`);
+
+  if (neu === inhalt) return null;   // Zeile nicht gefunden: still weitermachen
+  writeFileSync(pfad, neu);
+  return stempel;
+}
+
 try {
+  // ------------------------------------------------------------- 0. Fassung --
+  const fassung = fassungHochzaehlen();
+  if (fassung) {
+    schritt(`Neue Fassung für die App: ${fassung}`);
+    console.log('  Handys holen sich die Dateien damit frisch');
+  }
+
   // --------------------------------------------------------------- 1. Stand --
   const offen = git('status --porcelain', { still: true });
 
