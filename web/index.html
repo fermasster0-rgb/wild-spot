@@ -2,7 +2,12 @@
 <html lang="de">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- Gezoomt wird ausschließlich die Karte, und die zoomt sich selbst.
+     Ohne "user-scalable=no" zieht ein zweiter Finger die ganze Seite auseinander:
+     Danach steht alles schief, die Knöpfe liegen woanders und man trifft beim
+     Tippen das Falsche. maximum-scale=1 hält iOS zusätzlich davon ab, beim
+     Antippen eines Eingabefelds von selbst hineinzuzoomen. -->
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Wild Spot — Wildcampen in Österreich und Europa</title>
 
 <!-- Aus der Website wird eine App: Das Manifest sagt dem Handy, wie sie heißt,
@@ -54,6 +59,39 @@ html, body {
 }
 
 #karte { position: absolute; inset: 0; }
+
+/* ==========================================================================
+   Was sich bewegen darf und was nicht
+
+   Die Karte ist das Einzige, das man schieben und zoomen kann — das erledigt
+   sie selbst über ihre eigenen Gesten. Alles andere sind Bedienflächen: dort
+   darf man höchstens eine Liste nach unten schieben, sonst nichts. "pan-y"
+   sagt dem Browser genau das — kein Zoomen mit zwei Fingern, kein Zoomen per
+   Doppeltipp, kein Verrutschen nach links und rechts.
+
+   Wichtig: Diese Regeln stehen bewusst NICHT auf html oder body. Eine solche
+   Regel schränkt auch alles darunter ein — die Karte könnte dann selbst nicht
+   mehr zoomen.
+   ========================================================================== */
+.ecke,
+.suche,
+.unten,
+.detail,
+.login-hg,
+.hinweis-hg,
+.foto-gross,
+.intro,
+#start,
+.kein-netz,
+.neue-fassung,
+.admin-kopf,
+.admin-inhalt {
+  touch-action: pan-y;
+}
+
+/* Die Reiter in der Verwaltung sind der einzige Ort, an dem seitliches
+   Schieben gewollt ist — sie passen am Handy nicht nebeneinander. */
+.admin-reiter { touch-action: pan-x; }
 
 /* ==========================================================================
    Die zwei Ecken oben
@@ -190,6 +228,7 @@ html, body {
   max-height: min(60vh, 420px);
   max-height: min(60dvh, 420px);
   overflow-y: auto;
+  overflow-x: hidden;   /* siehe .detail-koerper */
   overscroll-behavior: contain;
   background: #191d14;
   border: 1px solid var(--rand);
@@ -266,6 +305,7 @@ html, body {
   max-height: calc(100vh - 90px - env(safe-area-inset-top));
   max-height: calc(100dvh - 90px - env(safe-area-inset-top));
   overflow-y: auto;
+  overflow-x: hidden;   /* siehe .detail-koerper */
   overscroll-behavior: contain;
   background: #191d14;
   border: 1px solid var(--rand);
@@ -923,6 +963,7 @@ html, body {
      und das Fenster stünde sonst oben und unten hinaus. */
   max-height: 100%;
   overflow-y: auto;
+  overflow-x: hidden;   /* siehe .detail-koerper */
   overscroll-behavior: contain;
   background: #191d14;
   border: 1px solid var(--rand);
@@ -1232,6 +1273,12 @@ body.detail-offen .unten { right: 404px; }
 /* Der scrollende Teil. Alles Lange landet hier drin. */
 .detail-koerper {
   overflow-y: auto;
+  /* Muss ausdrücklich dastehen: sobald eine Richtung scrollt, macht der
+     Browser die andere von selbst auch scrollbar. Dann ließen sich die
+     Angaben zum Spot seitlich wegschieben. */
+  overflow-x: hidden;
+  /* Am Ende der Liste soll die Karte darunter nicht mitwandern. */
+  overscroll-behavior: contain;
   padding: 14px 16px 18px;
   flex: 1;
   -webkit-overflow-scrolling: touch;
@@ -2025,6 +2072,8 @@ body.detail-offen .unten { right: 404px; }
 .admin-inhalt {
   flex: 1 1 auto;
   overflow-y: auto;
+  overflow-x: hidden;         /* siehe .detail-koerper */
+  overscroll-behavior: contain;
   /* Unten dasselbe Spiel wie oben: auf Geräten mit Wischbalken statt
      Home-Knopf läge die letzte Zeile sonst unter dem Balken. */
   padding:
@@ -2642,6 +2691,24 @@ body.detail-offen .unten { right: 404px; }
       if (e.animationName === 'start-weg') weg();
     });
     setTimeout(weg, 2000);
+  })();
+</script>
+
+<!-- Der Riegel gegen das Zoomen der Seite.
+
+     Safari auf dem iPhone übergeht die Angabe im Kopf des Dokuments, solange
+     die Seite im Browser läuft — dort hilft nur, die Zwei-Finger-Geste selbst
+     abzufangen. Für die Karte ist das kein Verlust: Sie zoomt über ihre
+     eigenen Berührungspunkte weiter, nicht über die Zoom-Geste des Browsers.
+
+     Den doppelten Tipp regelt schon "touch-action" im Stil weiter oben —
+     ihn hier zusätzlich abzufangen würde jeden zweiten schnellen Tipp auf
+     einen Knopf verschlucken. -->
+<script>
+  (() => {
+    for (const geste of ['gesturestart', 'gesturechange', 'gestureend']) {
+      document.addEventListener(geste, (e) => e.preventDefault(), { passive: false });
+    }
   })();
 </script>
 
