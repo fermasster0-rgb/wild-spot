@@ -5,6 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Wild Spot — Wildcampen in Österreich</title>
 
+<!-- Aus der Website wird eine App: Das Manifest sagt dem Handy, wie sie heißt,
+     welches Symbol sie trägt und dass sie ohne Adresszeile im Vollbild läuft.
+     Zusammen mit sw.js macht das die Installation möglich. -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#12140f">
+
+<!-- Das iPhone kennt das Manifest nur halb und braucht seine eigenen Angaben. -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Wild Spot">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png" sizes="192x192">
+
 <!-- MapLibre: die Kartenbibliothek. Frei, ohne Lizenzkosten, ohne API-Schlüssel. -->
 <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.6.0/dist/maplibre-gl.css">
 
@@ -1603,6 +1616,63 @@ body.detail-offen .unten { right: 404px; }
      stattdessen ausgeblendet, solange das Detail offen ist. */
   body.detail-offen .unten { display: none; }
 }
+
+/* ==========================================================================
+   Die App-Hinweise: kein Netz, neue Fassung
+
+   Beide sitzen oben in der Mitte, knapp unter der Suchleiste — der Platz
+   darüber gehört ihr. Schmal und mittig, damit sie auffallen, ohne die Karte
+   zuzudecken.
+   ========================================================================== */
+.kein-netz, .neue-fassung {
+  position: fixed;
+  top: calc(max(12px, env(safe-area-inset-top)) + 56px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 60;
+
+  max-width: min(78vw, 420px);
+  padding: 8px 15px;
+  border-radius: 999px;
+  border: 1px solid var(--rand);
+
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.3;
+  text-align: center;
+
+  background: var(--panel);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+}
+
+/* Kein Netz ist eine Feststellung, kein Fehler: gedämpft, nicht rot. */
+.kein-netz {
+  color: var(--text-weak);
+  pointer-events: none;   /* nie im Weg beim Kartenziehen */
+}
+
+/* Die neue Fassung ist dagegen zum Antippen da und darf danach aussehen. */
+.neue-fassung {
+  color: var(--text);
+  border-color: rgba(123, 182, 97, 0.55);
+  cursor: pointer;
+}
+.neue-fassung:hover { border-color: var(--gruen); }
+
+/* Die Anleitung fürs iPhone in den Einstellungen. */
+#install-anleitung {
+  margin: 8px 0 0;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--text-weak);
+}
+#speicher-text {
+  margin: 0 0 9px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--text-weak);
+}
 </style>
 </head>
 
@@ -1743,6 +1813,30 @@ body.detail-offen .unten { right: 404px; }
       </div>
       <button class="tafel-zweit" id="knopf-abmelden">Abmelden</button>
     </div>
+
+    <!-- Die Installation bietet Android zwar von selbst an, aber versteckt im
+         Browsermenü; am iPhone geht sie nur von Hand. Beides findet niemand,
+         dem es keiner sagt — deshalb steht es hier. Der Bereich zeigt sich
+         nur, wenn er etwas zu sagen hat (offline.js). -->
+    <div id="app-installieren" hidden>
+      <h3>App am Startbildschirm</h3>
+      <button class="tafel-haupt" id="knopf-installieren" hidden>App installieren</button>
+      <p class="tafel-text" id="install-anleitung" hidden>
+        Am iPhone geht das über Safari: unten auf <strong>Teilen</strong> tippen,
+        dann <strong>Zum Home-Bildschirm</strong>. Danach startet Wild Spot im
+        Vollbild und ohne Adresszeile.
+      </p>
+    </div>
+
+    <h3>Karte offline</h3>
+    <p class="tafel-text" id="speicher-text">–</p>
+    <p class="tafel-text">
+      Was du auf der Karte anschaust, bleibt am Gerät. Am Berg ohne Empfang
+      siehst du deshalb genau die Gebiete wieder, über die du schon gefahren
+      bist — <strong>fahr die Tour vorher zu Hause einmal ab</strong>, dann ist
+      sie unterwegs da.
+    </p>
+    <button class="tafel-zweit" id="knopf-speicher-leeren">Kartenspeicher leeren</button>
 
     <h3>Rechtliches</h3>
     <button class="tafel-zweit" id="knopf-hinweis-nochmal">Hinweis zum Wildcampen</button>
@@ -1908,6 +2002,8 @@ body.detail-offen .unten { right: 404px; }
 <!-- Zuletzt: die Einführung stellt am Ende die Ebenen der Karte ein und
      braucht dafür alles andere. -->
 <script src="intro.js"></script>
+<!-- Macht aus der Seite eine App: Service Worker, Installieren, Funkloch. -->
+<script src="offline.js"></script>
 
 </body>
 </html>

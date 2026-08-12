@@ -991,6 +991,43 @@ karte.on('moveend', () => {
 const auth = window.WILDCAMP_AUTH;
 let spotsLaeuft = false;
 
+// ----------------------------------------------------------------------------
+// Die Spots für unterwegs mitnehmen
+//
+// Der Service Worker hebt Kartenkacheln auf, aber nicht die Spots: Die werden
+// über einen Aufruf geholt, der technisch als "schreibend" gilt (rpc), und den
+// darf der Browser nicht aufheben. Ohne das hier wäre am Berg zwar die Karte
+// da, aber keine einzige Fahne darauf — also genau das, was fehlt.
+//
+// Deshalb bleibt jeder einmal geladene Spot hier liegen, nach Nummer vereinigt.
+// Neuere Angaben überschreiben ältere.
+// ----------------------------------------------------------------------------
+const SPOT_SPEICHER = 'wildspot-spots-offline';
+const SPOT_SPEICHER_MAX = 2000;
+
+function spotsMerken(features) {
+  try {
+    const bekannt = new Map(spotsAusSpeicher().map((f) => [f.properties.id, f]));
+    for (const f of features) bekannt.set(f.properties.id, f);
+
+    // Wird es zu viel, fliegt das Älteste zuerst raus.
+    let alle = [...bekannt.values()];
+    if (alle.length > SPOT_SPEICHER_MAX) alle = alle.slice(-SPOT_SPEICHER_MAX);
+
+    localStorage.setItem(SPOT_SPEICHER, JSON.stringify(alle));
+  } catch { /* voller Speicher ist kein Grund, die App anzuhalten */ }
+}
+
+function spotsAusSpeicher() {
+  try {
+    const roh = localStorage.getItem(SPOT_SPEICHER);
+    const alle = roh ? JSON.parse(roh) : [];
+    return Array.isArray(alle) ? alle : [];
+  } catch {
+    return [];
+  }
+}
+
 async function spotsLaden() {
   if (!karte.getSource('spots')) return;
   if (spotsLaeuft) return;
@@ -1005,25 +1042,44 @@ async function spotsLaden() {
     });
     if (error) throw error;
 
-    karte.getSource('spots').setData({
-      type: 'FeatureCollection',
-      features: (data || []).map((s) => ({
-        type: 'Feature',
-        geometry: { type: 'Point', coordinates: [s.lng, s.lat] },
-        properties: {
-          id: s.id,
-          name: s.name,
-          avg_stars: Number(s.avg_stars) || 0,
-          rating_count: Number(s.rating_count) || 0,
-          water_nearby: s.water_nearby,
-          above_treeline: s.above_treeline,
-          elevation_m: s.elevation_m,
-        },
-      })),
-    });
+    const features = (data || []).map((s) => ({
+      type: 'Feature',
+      geometry: { type: 'Point', coordinates: [s.lng, s.lat] },
+      properties: {
+        id: s.id,
+        name: s.name,
+        avg_stars: Number(s.avg_stars) || 0,
+        rating_count: Number(s.rating_count) || 0,
+        water_nearby: s.water_nearby,
+        above_treeline: s.above_treeline,
+        elevation_m: s.elevation_m,
+      },
+    }));
+
+    karte.getSource('spots').setData({ type: 'FeatureCollection', features });
+    spotsMerken(features);
   } catch (err) {
-    status('Spots konnten nicht geladen werden.<br><span class="meta">' +
-           String(err.message) + '</span>', { warnung: true, dauer: 6000 });
+    // Kein Netz: die vom letzten Mal zeigen. Eine Karte mit den Spots von
+    // gestern ist am Berg unendlich viel mehr wert als eine leere.
+    const gemerkt = spotsAusSpeicher();
+
+    if (gemerkt.length) {
+      karte.getSource('spots').setData({
+        type: 'FeatureCollection', features: gemerkt,
+      });
+      // Der Balken "Kein Netz" steht schon oben (offline.js) — hier genügt
+      // eine kurze Erklärung, warum trotzdem Spots zu sehen sind.
+      if (!navigator.onLine) {
+        status('Spots vom letzten Mal — ohne Netz kann nichts nachgeladen werden.',
+               { dauer: 5000 });
+      } else {
+        status('Spots konnten nicht geladen werden.<br><span class="meta">' +
+               String(err.message) + '</span>', { warnung: true, dauer: 6000 });
+      }
+    } else {
+      status('Spots konnten nicht geladen werden.<br><span class="meta">' +
+             String(err.message) + '</span>', { warnung: true, dauer: 6000 });
+    }
   } finally {
     spotsLaeuft = false;
   }
