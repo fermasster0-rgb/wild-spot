@@ -159,6 +159,10 @@ const spotName       = document.getElementById('spot-name');
 const spotBeschreib  = document.getElementById('spot-beschreibung');
 const spotTitel      = document.getElementById('spot-titel');
 const knopfAnlegen   = document.getElementById('knopf-spot-anlegen');
+const ausFotoKasten  = document.getElementById('aus-foto');
+const ortFotoKnopf   = document.getElementById('ort-foto-knopf');
+const ortFotoDatei   = document.getElementById('ort-foto-datei');
+const ortFotoStand   = document.getElementById('ort-foto-stand');
 
 for (const gruppe of GRUPPEN) {
   const details = document.createElement('details');
@@ -259,6 +263,11 @@ let spotKoordinaten = null;   // { lat, lng } — festgehalten beim Öffnen
 // angelegt. Dasselbe Formular, nur ein anderes Ziel beim Speichern.
 let bearbeiteId = null;
 
+// Das Foto, aus dem die Position kam. Es wird nach dem Speichern gleich als
+// erstes Bild des Spots abgelegt — wer es schon ausgesucht hat, soll es nicht
+// hinterher noch einmal suchen müssen.
+let fotoVomOrt = null;
+
 function spotMeldungSetzen(text, art = 'info') {
   spotMeldung.textContent = text || '';
   spotMeldung.className = 'login-meldung' + (text ? ' sichtbar ' + art : '');
@@ -278,6 +287,8 @@ knopfAnlegen.onclick = () => {
   spotTitel.textContent = 'Neuer Spot';
   spotSpeichern.textContent = 'Spot speichern';
   spotFormularLeeren();
+  ortAusFotoZuruecksetzen();
+  ausFotoKasten.hidden = false;
   spotPosition.textContent =
     `Position: ${c.lat.toFixed(5)}, ${c.lng.toFixed(5)} — das Fadenkreuz auf der Karte.`;
 
@@ -312,6 +323,11 @@ function spotBearbeiten(spot, lat, lng) {
   spotPosition.textContent =
     `Position: ${lat.toFixed(5)}, ${lng.toFixed(5)} — bleibt unverändert.`;
   spotKoordinaten = null;   // beim Bearbeiten wird die Position nicht angefasst
+
+  // Der Weg über das Foto setzt eine Position — beim Bearbeiten gibt es
+  // deshalb nichts zu holen, und der Kasten verschwindet.
+  ortAusFotoZuruecksetzen();
+  ausFotoKasten.hidden = true;
 
   spotFormularLeeren();
   spotName.value = spot.name || '';
@@ -358,6 +374,7 @@ window.spotBearbeiten = spotBearbeiten;
 function spotFensterSchliessen() {
   spotHg.hidden = true;
   bearbeiteId = null;
+  fotoVomOrt = null;   // sonst hinge das Bild am nächsten Spot
 }
 
 document.getElementById('spot-schliessen').onclick = spotFensterSchliessen;
@@ -376,6 +393,112 @@ window.spotKnopfAnpassen = spotKnopfAnpassen;
 
 // Falls die Anmeldung schon durch war, bevor diese Datei geladen wurde.
 spotKnopfAnpassen(window.WILDCAMP_AUTH.nutzer);
+
+// ============================================================================
+// 3c. DEN ORT AUS EINEM FOTO ÜBERNEHMEN
+//
+// Der bequemste Weg, einen Spot anzulegen: Man kommt zurück, hat das Bild vom
+// Zeltplatz im Handy — und die Kamera hat die Koordinaten längst hineingelegt.
+// Statt die Karte mühsam an die richtige Stelle zu schieben, sucht man das
+// Foto aus, und alles Weitere passiert von selbst.
+//
+// Das Bild wird dabei nicht hochgeladen, sondern nur im Browser gelesen
+// (siehe foto-ort.js). Erst wenn der Spot gespeichert ist, wandert es mit.
+// ============================================================================
+
+function ortFotoStandSetzen(text, art = '') {
+  ortFotoStand.textContent = text;
+  ortFotoStand.className = 'hinweis-klein' + (art ? ' ' + art : '');
+}
+
+// Der Knopf sagt immer, was er gerade tut: Solange kein Bild angenommen wurde,
+// lädt er zum ersten ein — danach bietet er den Wechsel an.
+function ortFotoKnopfBeschriften() {
+  ortFotoKnopf.textContent = fotoVomOrt
+    ? '📍 Anderes Foto wählen'
+    : '📍 Ort aus einem Foto übernehmen';
+}
+
+function ortAusFotoZuruecksetzen() {
+  fotoVomOrt = null;
+  ortFotoDatei.value = '';
+  ortFotoKnopf.disabled = false;
+  ortFotoKnopfBeschriften();
+  ortFotoStandSetzen(
+    'Fast jedes Handyfoto weiß, wo es aufgenommen wurde. Das Bild bleibt ' +
+    'dabei auf deinem Gerät — und wird gleich als erstes Foto des Spots ' +
+    'gespeichert.'
+  );
+}
+
+ortFotoKnopf.onclick = () => ortFotoDatei.click();
+
+ortFotoDatei.onchange = async () => {
+  const datei = ortFotoDatei.files[0];
+  if (!datei) return;
+
+  ortFotoKnopf.disabled = true;
+  ortFotoStandSetzen('Bild wird gelesen …');
+
+  const ort = await window.ortAusFoto(datei);
+
+  if (!ort) {
+    // Häufigster Grund: Der Ortungsdienst war beim Fotografieren aus, oder das
+    // Bild ging vorher durch WhatsApp — das entfernt die Koordinaten.
+    //
+    // Wichtig: Ein Bild ohne Ort wirft nichts um. Wer vorher schon ein
+    // brauchbares Foto gewählt hatte, behält dessen Position und Bild — sonst
+    // würde ein Fehlgriff die halbe Eingabe löschen.
+    ortFotoDatei.value = '';
+    ortFotoKnopf.disabled = false;
+    ortFotoKnopfBeschriften();
+    ortFotoStandSetzen(
+      'In diesem Bild steckt kein Ort. Das passiert, wenn beim Fotografieren ' +
+      'die Ortung aus war oder das Bild über WhatsApp verschickt wurde. ' +
+      (fotoVomOrt
+        ? 'Es bleibt beim vorher gewählten Foto.'
+        : 'Schieb die Karte einfach von Hand an die richtige Stelle.'),
+      'warn'
+    );
+    return;
+  }
+
+  // Position übernehmen und die Karte mitnehmen, damit man sieht, wohin es
+  // geht. Das Fenster bleibt offen — es liegt ja über der Karte.
+  spotKoordinaten = { lat: ort.lat, lng: ort.lng };
+  fotoVomOrt = datei;
+
+  karte.flyTo({ center: [ort.lng, ort.lat], zoom: Math.max(karte.getZoom(), 14), duration: 900 });
+
+  spotPosition.textContent =
+    `Position: ${ort.lat.toFixed(5)}, ${ort.lng.toFixed(5)} — aus dem Foto übernommen.`;
+
+  // Ein Foto aus dem Italienurlaub soll nicht wortlos einen Spot bei Rom
+  // anlegen. Der Rahmen ist derselbe, den auch die Karte benutzt (app.js).
+  const [westen, sueden, osten, norden] = OESTERREICH;
+  const drin = ort.lat >= sueden && ort.lat <= norden &&
+               ort.lng >= westen && ort.lng <= osten;
+
+  ortFotoKnopfBeschriften();
+  ortFotoKnopf.disabled = false;
+
+  if (drin) {
+    ortFotoStandSetzen(
+      `Ort gefunden: ${ort.lat.toFixed(5)}, ${ort.lng.toFixed(5)}. ` +
+      'Das Bild wird beim Speichern gleich mit abgelegt.',
+      'gut'
+    );
+  } else {
+    ortFotoStandSetzen(
+      `Ort gefunden: ${ort.lat.toFixed(5)}, ${ort.lng.toFixed(5)} — der liegt ` +
+      'außerhalb Österreichs. Stimmt das Foto? Sonst wähl ein anderes.',
+      'warn'
+    );
+  }
+
+  // Die Seehöhe gehört zur neuen Position, nicht zur alten Kartenmitte.
+  hoeheVorschlagen(ort.lat, ort.lng);
+};
 
 // ============================================================================
 // 4. SEEHÖHE AUTOMATISCH VORSCHLAGEN
@@ -496,17 +619,41 @@ spotForm.onsubmit = async (e) => {
   try {
     const client = window.WILDCAMP_AUTH.client;
 
-    const { error } = aendern
+    // Beim Anlegen kommt die neue ID zurück — sie wird gebraucht, falls noch
+    // ein Foto mitgespeichert werden soll.
+    const { data, error } = aendern
       ? await client.from('spots').update(spot).eq('id', bearbeiteId)
-      : await client.from('spots').insert(spot);
+      : await client.from('spots').insert(spot).select('id').single();
     if (error) throw error;
+
+    // Das Foto, aus dem die Position kam, gleich als erstes Bild ablegen.
+    // Geht das schief, ist der Spot trotzdem gespeichert — deshalb nur eine
+    // Meldung und kein Abbruch. Das Bild lässt sich in der Detail-Leiste
+    // jederzeit nachreichen.
+    let fotoFehlte = false;
+    if (!aendern && fotoVomOrt && data && data.id) {
+      spotMeldungSetzen('Spot gespeichert — das Foto wird noch abgelegt …');
+      try {
+        await window.einFotoHochladen(data.id, fotoVomOrt, 1);
+      } catch {
+        fotoFehlte = true;
+      }
+    }
 
     const geaendert = bearbeiteId;
     spotHg.hidden = true;
     spotMeldungSetzen('');
     bearbeiteId = null;
     spotFormularLeeren();
-    status(aendern ? `Spot „${name}" geändert.` : `Spot „${name}" gespeichert.`, { dauer: 4000 });
+    ortAusFotoZuruecksetzen();
+
+    status(
+      aendern      ? `Spot „${name}" geändert.`
+      : fotoFehlte ? `Spot „${name}" gespeichert — das Foto ging nicht durch, ` +
+                     'du kannst es beim Spot nachreichen.'
+                   : `Spot „${name}" gespeichert.`,
+      { dauer: fotoFehlte ? 6000 : 4000, warnung: fotoFehlte }
+    );
     spotsLaden();
 
     // Die Detail-Leiste zeigt sonst weiter den alten Stand.

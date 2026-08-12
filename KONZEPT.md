@@ -275,6 +275,22 @@ diese Entscheidung keine Arbeit verloren.
       (basemap.at) zu zeichnen, und Komoot hat für Außenstehende gar keine
       offene Schnittstelle — nur Partnerverträge mit Geräteherstellern.
 
+- [x] **Ort aus dem Foto lesen** (`web/foto-ort.js`) — beim Anlegen ein
+      Handyfoto auswählen, und die Position steht. Die Karte fliegt hin, die
+      Seehöhe wird für den neuen Punkt geholt, und das Bild wird beim Speichern
+      gleich als erstes Foto des Spots abgelegt.
+
+      Der EXIF-Block wird von Hand gelesen statt mit einer Bibliothek: Von den
+      hundert Angaben darin braucht die App vier (Breite, Länge und die zwei
+      Himmelsrichtungen). Das Bild verlässt das Gerät dabei nicht.
+
+      Zwei Dinge sind bewusst so gebaut: Ein Bild ohne Ortsangabe wirft nichts
+      um — eine vorher übernommene Position bleibt stehen. Und ein Foto von
+      außerhalb Österreichs wird übernommen, aber mit einem Hinweis versehen.
+
+      Nebenbei: Weil jedes Bild vor dem Hochladen im Browser verkleinert wird,
+      trägt das gespeicherte Foto die Koordinaten *nicht* mehr in sich.
+
 **Als Nächstes**
 
 - [ ] Ins Web stellen (GitHub Pages), damit die Karte auch unterwegs läuft,

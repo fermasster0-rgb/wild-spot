@@ -37,6 +37,7 @@ Nach etwa einer Minute ist die Seite oben aktuell.
 | Ordner | Inhalt |
 |--------|--------|
 | `web/` | Die App: Karte, Spots, Fotos, Anmeldung |
+| `web/foto-ort.js` | Liest den Aufnahmeort aus einem Handyfoto (EXIF) |
 | `db/` | Datenbankschema und die Migrationen, nummeriert |
 | `scripts/` | Einmal-Skripte: Wasserstellen, Bergseen, Wasserfälle und Landesgrenze aus OpenStreetMap holen |
 | `KONZEPT.md` | Was die App können soll, und was schon geht |
