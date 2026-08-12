@@ -1673,6 +1673,244 @@ body.detail-offen .unten { right: 404px; }
   line-height: 1.5;
   color: var(--text-weak);
 }
+
+/* ==========================================================================
+   Admin-Fenster
+   Ein eigener Bildschirm über der Karte — hier wird verwaltet, nicht
+   gewandert. Deshalb bewusst nüchtern: Listen, Zahlen, klare Knöpfe.
+   ========================================================================== */
+
+#admin-hg {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+}
+#admin-hg[hidden] { display: none; }
+
+.admin-kopf {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--rand);
+  flex: 0 0 auto;
+}
+.admin-kopf h2 {
+  margin: 0;
+  font-size: 16px;
+  letter-spacing: 0.02em;
+}
+.admin-kopf .abzeichen {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--bg);
+  background: var(--gruen);
+  border-radius: 5px;
+  padding: 3px 7px;
+}
+.admin-kopf .luecke { flex: 1; }
+.admin-zu {
+  background: none;
+  border: 1px solid var(--rand);
+  color: var(--text);
+  border-radius: 9px;
+  width: 34px;
+  height: 34px;
+  font-size: 18px;
+  cursor: pointer;
+  line-height: 1;
+}
+.admin-zu:hover { background: rgba(255, 255, 255, 0.07); }
+
+.admin-reiter {
+  display: flex;
+  gap: 4px;
+  padding: 10px 16px 0;
+  border-bottom: 1px solid var(--rand);
+  overflow-x: auto;
+  flex: 0 0 auto;
+}
+.admin-reiter button {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-weak);
+  font: inherit;
+  font-size: 13px;
+  padding: 8px 11px 9px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.admin-reiter button:hover { color: var(--text); }
+.admin-reiter button[aria-selected="true"] {
+  color: var(--text);
+  border-bottom-color: var(--gruen);
+  font-weight: 600;
+}
+
+.admin-inhalt {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 14px 16px 40px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.admin-suche {
+  width: 100%;
+  box-sizing: border-box;
+  background: #191d14;
+  border: 1px solid var(--rand);
+  border-radius: 10px;
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+  padding: 9px 11px;
+  margin-bottom: 12px;
+}
+.admin-suche:focus { outline: none; border-color: var(--gruen); }
+
+/* Die Zahlenkacheln */
+.admin-kacheln {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
+  gap: 9px;
+  margin-bottom: 20px;
+}
+.admin-kachel {
+  background: #191d14;
+  border: 1px solid var(--rand);
+  border-radius: 12px;
+  padding: 12px 13px;
+}
+.admin-kachel b {
+  display: block;
+  font-size: 25px;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.admin-kachel span {
+  font-size: 11.5px;
+  color: var(--text-weak);
+}
+
+/* Eine Zeile in einer Liste — Spot, Kommentar, Nutzer */
+.admin-zeile {
+  border: 1px solid var(--rand);
+  border-radius: 12px;
+  padding: 11px 12px;
+  margin-bottom: 8px;
+  background: #191d14;
+}
+.admin-zeile .titel {
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 3px;
+  word-break: break-word;
+}
+.admin-zeile .unter {
+  font-size: 12px;
+  color: var(--text-weak);
+  line-height: 1.5;
+  word-break: break-word;
+}
+.admin-zeile .knoepfe {
+  display: flex;
+  gap: 6px;
+  margin-top: 9px;
+  flex-wrap: wrap;
+}
+.admin-zeile button {
+  background: none;
+  border: 1px solid var(--rand);
+  color: var(--text);
+  border-radius: 8px;
+  font: inherit;
+  font-size: 12px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+.admin-zeile button:hover { background: rgba(255, 255, 255, 0.07); }
+.admin-zeile button.admin-gefahr { color: #ff9b8a; border-color: rgba(255, 120, 100, 0.42); }
+.admin-zeile button.admin-gefahr:hover { background: rgba(255, 100, 80, 0.14); }
+
+/* Wird beim Löschen an die Zeile geheftet: erst bestätigen, dann weg. */
+.admin-zeile.fragt { border-color: rgba(255, 120, 100, 0.5); }
+
+.admin-marke {
+  display: inline-block;
+  font-size: 10.5px;
+  border: 1px solid var(--rand);
+  border-radius: 5px;
+  padding: 1px 5px;
+  margin-right: 4px;
+  color: var(--text-weak);
+}
+.admin-marke.gruen { color: var(--gruen); border-color: rgba(123, 182, 97, 0.45); }
+.admin-marke.warn  { color: #e8c26a; border-color: rgba(232, 194, 106, 0.4); }
+
+.admin-leer {
+  color: var(--text-weak);
+  font-size: 13px;
+  text-align: center;
+  padding: 32px 10px;
+  line-height: 1.6;
+}
+
+.admin-meldung {
+  font-size: 12.5px;
+  border-radius: 9px;
+  padding: 9px 11px;
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+.admin-meldung.ok   { background: rgba(123, 182, 97, 0.14); color: var(--gruen); }
+.admin-meldung.fehl { background: rgba(255, 100, 80, 0.14); color: #ff9b8a; }
+
+/* Fotostreifen im Foto-Reiter */
+.admin-fotos {
+  display: flex;
+  gap: 6px;
+  margin-top: 9px;
+  flex-wrap: wrap;
+}
+.admin-fotos figure {
+  margin: 0;
+  position: relative;
+  width: 88px;
+}
+.admin-fotos img {
+  width: 88px;
+  height: 66px;
+  object-fit: cover;
+  border-radius: 7px;
+  display: block;
+  background: #0d0f0a;
+}
+.admin-fotos button {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 21px;
+  height: 21px;
+  padding: 0;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.72);
+  font-size: 12px;
+  line-height: 1;
+}
+
+/* Der Knopf im Einstellungsmenü, der hierher führt */
+#knopf-admin {
+  background: none;
+  border: 1px solid rgba(123, 182, 97, 0.45);
+  color: var(--gruen);
+}
+#knopf-admin:hover { background: rgba(123, 182, 97, 0.12); }
 </style>
 </head>
 
@@ -1811,6 +2049,9 @@ body.detail-offen .unten { right: 404px; }
       <div class="kontozeile">
         <span>E-Mail</span><b id="konto-name">–</b>
       </div>
+      <!-- Nur für Admins. Das Verstecken ist reine Übersichtlichkeit — was
+           jemand wirklich darf, entscheidet die Datenbank (Migration 013). -->
+      <button class="tafel-zweit" id="knopf-admin" hidden>Verwaltung öffnen</button>
       <button class="tafel-zweit" id="knopf-abmelden">Abmelden</button>
     </div>
 
@@ -2003,7 +2244,30 @@ body.detail-offen .unten { right: 404px; }
      braucht dafür alles andere. -->
 <script src="intro.js"></script>
 <!-- Macht aus der Seite eine App: Service Worker, Installieren, Funkloch. -->
+<!-- ==========================================================================
+     Das Admin-Fenster. Liegt leer im Dokument und wird von admin.js gefüllt,
+     sobald es geöffnet wird — wer kein Admin ist, lädt dadurch auch nichts.
+     ========================================================================== -->
+<div id="admin-hg" hidden>
+  <div class="admin-kopf">
+    <h2>Verwaltung</h2>
+    <span class="abzeichen">Admin</span>
+    <span class="luecke"></span>
+    <button class="admin-zu" id="admin-schliessen" aria-label="Verwaltung schließen">×</button>
+  </div>
+
+  <div class="admin-reiter" role="tablist">
+    <button role="tab" data-reiter="spots"      aria-selected="true">Spots</button>
+    <button role="tab" data-reiter="fotos"      aria-selected="false">Fotos</button>
+    <button role="tab" data-reiter="kommentare" aria-selected="false">Kommentare</button>
+    <button role="tab" data-reiter="nutzer"     aria-selected="false">Nutzer &amp; Zahlen</button>
+  </div>
+
+  <div class="admin-inhalt" id="admin-inhalt"></div>
+</div>
+
 <script src="offline.js"></script>
+<script src="admin.js"></script>
 
 </body>
 </html>

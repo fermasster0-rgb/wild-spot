@@ -267,11 +267,12 @@ knopfAnmelden.onclick = () => {
 
 sb.auth.onAuthStateChange(async (ereignis, session) => {
   if (session && session.user) {
-    const username = await profilnameHolen(session.user);
+    const { username, istAdmin } = await profilHolen(session.user);
     window.WILDCAMP_AUTH.nutzer = {
       id: session.user.id,
       email: session.user.email,
       username,
+      istAdmin,
     };
     kontoUsername.textContent = username;
     kontoName.textContent = session.user.email;
@@ -287,20 +288,25 @@ sb.auth.onAuthStateChange(async (ereignis, session) => {
   wechselMelden();
 });
 
-// Den Anzeigenamen aus der Tabelle profiles holen. Die legt ein Trigger in der
-// Datenbank automatisch an, sobald sich jemand registriert.
-async function profilnameHolen(user) {
+// Den Anzeigenamen und die Rolle aus der Tabelle profiles holen. Das Profil
+// legt ein Trigger in der Datenbank automatisch an, sobald sich jemand
+// registriert.
+//
+// istAdmin steuert hier nur, ob der Admin-Bereich angezeigt wird. Ob jemand
+// wirklich etwas darf, entscheidet allein die Datenbank (Migration 013) —
+// diese Zeile zu fälschen bringt niemandem zusätzliche Rechte.
+async function profilHolen(user) {
   const { data, error } = await sb
     .from('profiles')
-    .select('username')
+    .select('username, is_admin')
     .eq('id', user.id)
     .maybeSingle();
 
   if (error || !data) {
     // Kein Profil gefunden — als Notnagel der Teil vor dem @.
-    return (user.email || 'Konto').split('@')[0];
+    return { username: (user.email || 'Konto').split('@')[0], istAdmin: false };
   }
-  return data.username;
+  return { username: data.username, istAdmin: data.is_admin === true };
 }
 
 // Die Karte kann hierüber das Anmeldefenster öffnen, etwa wenn jemand ohne

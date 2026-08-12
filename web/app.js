@@ -319,6 +319,10 @@ const karte = new maplibregl.Map({
 karte.dragRotate.disable();
 karte.touchZoomRotate.disableRotation();
 
+// Damit die Verwaltung (admin.js) von einer Liste aus zu einem Spot springen
+// kann. Bewusst nur die Karte selbst, keine internen Hilfsfunktionen.
+window.WILDCAMP_KARTE = karte;
+
 // Farbe je nach Art. "match" ist die Wenn-Dann-Liste von MapLibre.
 function farbAusdruck(gruppe) {
   const paare = [];
