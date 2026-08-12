@@ -34,8 +34,9 @@ const SCHRITTE = [
     art: 'text',
     zeichen: true,
     titel: 'Wild&nbsp;Spot',
-    text: 'Die Karte für Plätze, an denen man in Österreich wirklich ' +
-          'übernachten kann — eingetragen von Leuten, die dort waren.',
+    text: 'Die Karte für Plätze, an denen man wirklich übernachten kann — ' +
+          'eingetragen von Leuten, die dort waren. Zu Hause in Österreich, ' +
+          'Spots gehen in ganz Europa.',
     knopf: 'Los geht\'s',
   },
 
@@ -86,6 +87,9 @@ const SCHRITTE = [
     regeln: [
       { emoji: '⚖️', text: 'Wildcampen ist in Österreich <b>Ländersache</b> und vielerorts ' +
                            'verboten. Auf fremdem Grund brauchst du die Erlaubnis des Eigentümers.' },
+      { emoji: '🌍', text: 'Spots gehen in <b>ganz Europa</b> — aber jedes Land hat eigene ' +
+                           'Regeln. In Skandinavien erlaubt, in Kroatien teuer verboten. ' +
+                           'Vorher nachlesen.' },
       { emoji: '🔥', text: 'Feuer nur, wo es <b>ausdrücklich erlaubt</b> ist — und nie bei ' +
                            'Waldbrandgefahr.' },
       { emoji: '🌿', text: 'Nichts dalassen außer plattem Gras. Alles, was du hochträgst, ' +

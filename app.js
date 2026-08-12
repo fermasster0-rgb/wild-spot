@@ -695,26 +695,112 @@ for (const g of GRUNDKARTEN) {
   name.textContent = g.label;
   b.appendChild(name);
 
-  b.onclick = () => {
-    aktiveGrundkarte = g.id;
-    for (const x of GRUNDKARTEN) {
-      karte.setLayoutProperty('grund-' + x.id, 'visibility', x.id === g.id ? 'visible' : 'none');
-    }
-    // Beschriftung nur dort, wo der Hintergrund selbst keine hat.
-    karte.setLayoutProperty('beschriftung', 'visibility', g.beschriftung ? 'visible' : 'none');
-
-    // Die Maske nur dort, wo sie gebraucht wird. Bei "Standard" sind die
-    // Kacheln außerhalb Österreichs durchsichtig und bei "Wandern" deckt
-    // OpenTopoMap ohnehin ganz Europa ab — dort würde die Maske nur den
-    // Kontinent verstecken, den man gerade sehen will.
-    karte.setLayoutProperty('maske', 'visibility', g.maske ? 'visible' : 'none');
-
-    for (const btn of grundKnoepfe.children) {
-      btn.setAttribute('aria-pressed', String(btn === b));
-    }
-  };
+  b.dataset.grund = g.id;
+  b.onclick = () => grundkarteSetzen(g.id);
   grundKnoepfe.appendChild(b);
 }
+
+// Den Kartenstil umschalten. Ausgelagert, weil nicht nur der Knopf das tut:
+// Beim Verlassen Österreichs schaltet die Karte selbst um (siehe unten).
+function grundkarteSetzen(id) {
+  const g = GRUNDKARTEN.find((x) => x.id === id);
+  if (!g) return;
+  aktiveGrundkarte = g.id;
+
+  for (const x of GRUNDKARTEN) {
+    karte.setLayoutProperty('grund-' + x.id, 'visibility', x.id === g.id ? 'visible' : 'none');
+  }
+  // Beschriftung nur dort, wo der Hintergrund selbst keine hat.
+  karte.setLayoutProperty('beschriftung', 'visibility', g.beschriftung ? 'visible' : 'none');
+
+  // Die Maske nur dort, wo sie gebraucht wird. Bei "Standard" sind die
+  // Kacheln außerhalb Österreichs durchsichtig und bei "Wandern" deckt
+  // OpenTopoMap ohnehin ganz Europa ab — dort würde die Maske nur den
+  // Kontinent verstecken, den man gerade sehen will.
+  karte.setLayoutProperty('maske', 'visibility', g.maske ? 'visible' : 'none');
+
+  for (const btn of grundKnoepfe.children) {
+    btn.setAttribute('aria-pressed', String(btn.dataset.grund === g.id));
+  }
+}
+
+// ----------------------------------------------------------------------------
+// Außerhalb Österreichs auf die Wanderkarte wechseln
+//
+// Spots lassen sich in ganz Europa setzen. Drei der vier Kartenstile kommen
+// aber von basemap.at und enden an der Staatsgrenze — bei Gelände und
+// Satellit liegt außerhalb die Maske, also eine dunkle Fläche. Wer dort einen
+// Spot eintragen will, sähe schlicht nichts.
+//
+// Deshalb schaltet die Karte selbst auf "Wandern" (OpenTopoMap), sobald die
+// Mitte Österreich verlässt. Zurück schaltet sie NICHT von allein: Wer sich
+// bewusst für einen Stil entscheidet, soll ihn behalten, und ein Hin und Her
+// an der Grenze wäre unerträglich.
+// ----------------------------------------------------------------------------
+
+// Liegt die Kartenmitte außerhalb Österreichs?
+//
+// Zwei Wege, die beide nicht taugen, und der dritte, der es tut:
+//
+//   1. Das Rechteck OESTERREICH — viel zu grob. Der Triglav in Slowenien
+//      liegt auf 46,38° und damit mitten in diesem Rechteck, obwohl er
+//      hundert Kilometer hinter der Grenze steht.
+//
+//   2. Die gezeichnete Maske abfragen (queryRenderedFeatures). Klingt
+//      elegant, ist aber unzuverlässig: Die Maske ist ein Polygon über die
+//      halbe Welt, und die Abfrage findet es nur dort, wo gerade
+//      Geometrie in der Kachel liegt. In Norwegen traf sie, in Slowenien
+//      nicht — ausprobiert und verworfen.
+//
+//   3. Selbst rechnen. Die Grenze liegt ohnehin schon als Datei vor: In
+//      oesterreich-maske.geojson ist Ring 0 das Weltrechteck, alles danach
+//      sind die Löcher — und die Löcher SIND Österreich, mitsamt Exklave.
+//      Ein Strahlentest gegen diese Ringe ist exakt und kostet nichts.
+// ----------------------------------------------------------------------------
+
+let atRinge = null;
+
+fetch('oesterreich-maske.geojson')
+  .then((r) => r.json())
+  .then((g) => {
+    const geo = g.geometry ?? g.features?.[0]?.geometry;
+    atRinge = geo.coordinates.slice(1);     // ohne das Weltrechteck
+  })
+  .catch(() => { atRinge = null; });
+
+// Strahlentest: Wie oft kreuzt ein Strahl nach rechts den Rand? Ungerade
+// heißt innen. Das Standardverfahren, in acht Zeilen.
+function punktImRing(lng, lat, ring) {
+  let drin = false;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const [xi, yi] = ring[i];
+    const [xj, yj] = ring[j];
+    if ((yi > lat) !== (yj > lat)
+        && lng < ((xj - xi) * (lat - yi)) / (yj - yi) + xi) {
+      drin = !drin;
+    }
+  }
+  return drin;
+}
+
+function mitteAusserhalbOesterreichs() {
+  // Solange die Grenze nicht geladen ist, lieber nichts umschalten.
+  if (!atRinge) return false;
+  const c = karte.getCenter();
+  return !atRinge.some((ring) => punktImRing(c.lng, c.lat, ring));
+}
+
+function grundkarteNachLageAnpassen() {
+  const g = GRUNDKARTEN.find((x) => x.id === aktiveGrundkarte);
+  if (!g?.maske) return;            // Standard und Wandern zeigen überall etwas
+  if (!mitteAusserhalbOesterreichs()) return;
+
+  grundkarteSetzen('topo');
+  status('Außerhalb Österreichs auf <b>Wandern</b> gewechselt — '
+    + 'Gelände und Satellit gibt es nur fürs Inland.', { dauer: 5000 });
+}
+
+karte.on('moveend', grundkarteNachLageAnpassen);
 
 // ============================================================================
 // 5b. DIE ZWEI TAFELN OBEN
