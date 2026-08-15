@@ -2568,12 +2568,18 @@ body.parkplatz-modus .knopf-zeile { display: none; }
      90 Pixel hoch — fast ein Neuntel des Bildschirms, und das auf einer Seite,
      auf der es um Fotos geht.
 
-     34 Pixel braucht es aber nur, wenn unten etwas zum Antippen sitzt. Hier
-     steht ganz unten bloß ein Wort, und ein Wort darf näher an den Balken.
-     Deshalb werden 18 Pixel abgezogen. Im Browser meldet das Handy null —
-     dann bleibt es bei null, und es wird kein Platz verschenkt. */
-  --tab-inhalt: 50px;
-  --tab-luft: max(0px, calc(env(safe-area-inset-bottom) - 18px));
+     34 Pixel braucht es aber nur, wenn unten etwas zum ANTIPPEN sitzt. Hier
+     steht ganz unten bloß ein Wort, und ein Wort darf bis an den Balken
+     heranreichen — der ist eine dünne Linie und kein Bedienelement.
+
+     Deshalb wird der Wert nicht abgezogen, sondern gedeckelt: höchstens
+     8 Pixel, egal was das Handy meldet. Alles darüber war genau der leere
+     Streifen unter den Wörtern, der die Leiste aufgebläht hat.
+
+     Im Browser meldet das Handy null — dann bleibt es bei null, und es wird
+     kein einziger Pixel verschenkt. */
+  --tab-inhalt: 48px;
+  --tab-luft: min(8px, env(safe-area-inset-bottom));
   --tab-h: calc(var(--tab-inhalt) + var(--tab-luft));
 }
 
@@ -2690,10 +2696,10 @@ body.parkplatz-modus .knopf-zeile { display: none; }
 .tab::before {
   content: "";
   position: absolute;
-  top: 4px;
+  top: 3px;
   left: 50%;
   width: 54px;
-  height: 27px;
+  height: 26px;
   margin-left: -27px;
   border-radius: 999px;
   background: var(--gruen);
