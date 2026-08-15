@@ -155,6 +155,9 @@ const detailKoerper = document.getElementById('detail-koerper');
 let offenerSpot = null;   // { id, lat, lng }
 
 function detailSchliessen() {
+  // Ein halb weggewischtes Blatt darf nicht verschoben stehen bleiben —
+  // sonst käme der nächste Spot schief herein.
+  wischZuruecksetzen();
   detailEl.hidden = true;
   document.body.classList.remove('detail-offen');
   offenerSpot = null;
@@ -184,6 +187,138 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
+// ============================================================================
+// 2b. NACH UNTEN WISCHEN SCHLIESST DAS BLATT
+//
+// Am Handy ist das Detail ein Blatt von unten. Dort erwartet man, dass man es
+// wegwischen kann, statt das kleine × oben rechts treffen zu müssen. Am
+// Rechner ist es eine Leiste rechts — da gibt es nichts wegzuwischen, deshalb
+// gilt das alles nur unterhalb von 760 Pixeln Breite (dieselbe Grenze wie im
+// Stylesheet, an der aus der Leiste das Blatt wird).
+//
+// Zwei Stellen dürfen ziehen:
+//   • Greifbalken und Kopf — immer, das ist der offensichtliche Griff.
+//   • der Inhalt darunter — aber nur, wenn er schon ganz oben steht. Sonst
+//     wäre jeder Versuch, nach oben zurückzuscrollen, ein Schließen.
+// ============================================================================
+
+const BLATT_BREITE = window.matchMedia('(max-width: 760px)');
+
+const WISCH_START    = 8;    // Pixel, bis feststeht: ziehen oder doch scrollen
+const WISCH_SCHWELLE = 100;  // so weit unten losgelassen → zu
+const WISCH_TEMPO    = 0.55; // px pro ms — ein kurzer Schnipser genügt auch
+
+let wischStartY = 0, wischStartX = 0, wischStartZeit = 0;
+let wischWeg    = 0;      // wie weit das Blatt gerade unten steht
+let wischAktiv  = false;  // der Finger zieht das Blatt gerade
+let wischPruef  = false;  // noch unklar, ob gezogen oder gescrollt wird
+let wischGezogen = false; // gerade gezogen → der folgende Klick zählt nicht
+let wischSchliesst = false;
+
+function wischZuruecksetzen() {
+  detailEl.classList.remove('wischt', 'wischt-zurueck', 'wischt-zu');
+  detailEl.style.transform = '';
+  wischAktiv = false;
+  wischPruef = false;
+  wischSchliesst = false;
+  wischGezogen = false;
+  wischWeg = 0;
+}
+
+// Das Blatt nach unten hinausgleiten lassen und danach richtig schließen.
+function detailWegwischen() {
+  if (wischSchliesst) return;
+  wischSchliesst = true;
+  detailEl.classList.remove('wischt');
+  detailEl.classList.add('wischt-zu');
+  detailEl.style.transform = 'translateY(100%)';
+
+  let erledigt = false;
+  const fertig = () => {
+    if (erledigt) return;
+    erledigt = true;
+    detailEl.removeEventListener('transitionend', fertig);
+    detailSchliessen();
+  };
+  detailEl.addEventListener('transitionend', fertig);
+  // Falls die Animation gar nicht läuft (reduzierte Bewegung, Tab im
+  // Hintergrund), darf das Blatt nicht offen hängen bleiben.
+  setTimeout(fertig, 320);
+}
+
+detailEl.addEventListener('touchstart', (e) => {
+  if (detailEl.hidden || wischSchliesst) return;
+  if (!BLATT_BREITE.matches || e.touches.length !== 1) return;
+
+  // In Textfeldern und Auswahllisten hat der Finger etwas anderes zu tun.
+  if (e.target.closest('textarea, input, select, a[href]')) return;
+
+  // Aus dem Inhalt heraus nur, wenn er schon ganz oben steht.
+  const imKopf = !!e.target.closest('.detail-kopf, .detail-griff');
+  if (!imKopf && detailKoerper.scrollTop > 0) return;
+
+  wischStartY = e.touches[0].clientY;
+  wischStartX = e.touches[0].clientX;
+  wischStartZeit = Date.now();
+  wischWeg = 0;
+  wischPruef = true;
+  wischGezogen = false;
+}, { passive: true });
+
+detailEl.addEventListener('touchmove', (e) => {
+  if (!wischPruef && !wischAktiv) return;
+
+  const dy = e.touches[0].clientY - wischStartY;
+  const dx = e.touches[0].clientX - wischStartX;
+
+  if (wischPruef) {
+    if (Math.abs(dy) < WISCH_START && Math.abs(dx) < WISCH_START) return;
+    // Nach oben oder quer: das ist Lesen, nicht Schließen.
+    if (dy <= 0 || Math.abs(dx) > Math.abs(dy)) { wischPruef = false; return; }
+    wischPruef = false;
+    wischAktiv = true;
+    detailEl.classList.add('wischt');
+  }
+
+  // Solange gezogen wird, darf der Inhalt nicht mitscrollen.
+  e.preventDefault();
+  wischWeg = Math.max(0, dy - WISCH_START);
+  detailEl.style.transform = `translateY(${wischWeg}px)`;
+}, { passive: false });
+
+function wischLoslassen() {
+  if (!wischAktiv) { wischPruef = false; return; }
+  wischAktiv = false;
+  wischGezogen = wischWeg > 4;
+  // Die Sperre gilt nur für den Klick, den der Browser gleich nach dem
+  // Loslassen nachschiebt — danach muss wieder alles anklickbar sein.
+  if (wischGezogen) setTimeout(() => { wischGezogen = false; }, 400);
+
+  const tempo = wischWeg / Math.max(1, Date.now() - wischStartZeit);
+  if (wischWeg > WISCH_SCHWELLE || tempo > WISCH_TEMPO) {
+    detailWegwischen();
+    return;
+  }
+
+  // Zu wenig — das Blatt schnappt an seinen Platz zurück.
+  detailEl.classList.remove('wischt');
+  detailEl.classList.add('wischt-zurueck');
+  detailEl.style.transform = '';
+  wischWeg = 0;
+  setTimeout(() => detailEl.classList.remove('wischt-zurueck'), 240);
+}
+
+detailEl.addEventListener('touchend', wischLoslassen);
+detailEl.addEventListener('touchcancel', wischLoslassen);
+
+// Ein Zug, der auf einem Knopf endet, darf diesen nicht auch noch drücken.
+detailEl.addEventListener('click', (e) => {
+  if (!wischGezogen) return;
+  wischGezogen = false;
+  e.preventDefault();
+  e.stopPropagation();
+}, true);
+
 async function koordinatenKopieren() {
   if (!offenerSpot) return;
   const text = `${offenerSpot.lat.toFixed(5)}, ${offenerSpot.lng.toFixed(5)}`;
@@ -208,6 +343,7 @@ async function spotDetailOeffnen(id, name, lat, lng) {
   detailName.textContent = name;
   detailKoord.textContent = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
   detailKoerper.innerHTML = '<p class="detail-leer">Wird geladen …</p>';
+  wischZuruecksetzen();   // ein vorher angeschobenes Blatt sitzt wieder gerade
   detailEl.hidden = false;
   document.body.classList.add('detail-offen');
   detailKoerper.scrollTop = 0;
