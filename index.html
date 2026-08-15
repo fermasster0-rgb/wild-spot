@@ -1502,6 +1502,10 @@ body.detail-offen .unten { right: 404px; }
 /* Drei Knöpfe statt zwei — die Überschrift braucht entsprechend mehr Luft. */
 .detail-kopf { padding-right: 118px; }
 
+/* Der Greifbalken. Am Rechner ist das Detail eine Leiste rechts, die man
+   nicht wegwischt — dort bleibt er unsichtbar (siehe Handy-Abschnitt). */
+.detail-griff { display: none; }
+
 /* „Auf der Karte anzeigen" — steht ganz oben im Blatt, wenn dieses nicht
    ohnehin über der Karte liegt. Bewusst in der Hauptfarbe: Von hier aus ist
    es die naheliegendste nächste Handlung, alles andere im Blatt ist Lesen. */
@@ -2009,6 +2013,35 @@ body.detail-offen .unten { right: 404px; }
   /* Auf dem Handy liegt das Blatt über der unteren Leiste — die wird
      stattdessen ausgeblendet, solange das Detail offen ist. */
   body.detail-offen .unten { display: none; }
+
+  /* Der Greifbalken oben in der Mitte. Er ist der sichtbare Hinweis darauf,
+     dass sich das Blatt nach unten wegwischen lässt — genau so, wie man es
+     von jeder anderen App am Handy kennt. */
+  .detail-griff {
+    display: block;
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 4px;
+    border-radius: 999px;
+    background: var(--t3);
+    z-index: 2;
+  }
+  /* Der Kopf rückt ein Stück nach unten, damit der Balken nicht in der
+     Überschrift klebt. */
+  .detail-kopf { padding-top: 20px; }
+  /* Balken und Kopf gehören dem Wischen, nicht dem Scrollen: Sonst deutet
+     der Browser die Bewegung nach unten selbst und die Geste kommt hier
+     gar nicht erst an. */
+  .detail-griff, .detail-kopf { touch-action: none; }
+
+  /* Solange der Finger liegt, folgt das Blatt ohne Verzögerung. Erst beim
+     Loslassen darf es weich zurückschnappen oder hinausgleiten. */
+  .detail.wischt { transition: none; }
+  .detail.wischt-zurueck { transition: transform 0.22s cubic-bezier(0.2, 0.8, 0.3, 1); }
+  .detail.wischt-zu { transition: transform 0.2s ease-in; }
 }
 
 /* ==========================================================================
@@ -4785,6 +4818,9 @@ body.bereich-offen.detail-offen::after {
           aria-pressed="false" hidden>
     <svg viewBox="0 0 24 24"><path d="M12 20s-7-4.5-7-9.2A4 4 0 0112 8.4 4 4 0 0119 10.8c0 4.7-7 9.2-7 9.2z"/></svg>
   </button>
+  <!-- Der Greifbalken. Nur am Handy zu sehen, wo das Detail ein Blatt von
+       unten ist: Er zeigt, dass man das Blatt nach unten wegwischen kann. -->
+  <div class="detail-griff" id="detail-griff" aria-hidden="true"></div>
   <div class="detail-kopf">
     <h2 id="detail-name">–</h2>
     <span class="koord" id="detail-koord" title="Anklicken zum Kopieren"></span>
