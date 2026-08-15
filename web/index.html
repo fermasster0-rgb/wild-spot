@@ -3180,6 +3180,94 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   mask: var(--schloss) center / contain no-repeat;
 }
 
+/* --------------------------------------------------- Die Chips über der Karte
+
+   Dieselben Filter wie auf der Entdecken-Seite, nur an einem Ort, an dem
+   ringsum die Karte liegt: Deshalb sind sie hier aus Glas und nicht aus
+   Fläche — alles über der Karte gehört zur selben Familie von Werkzeugen
+   (Suchfeld, Zahnrad, Standortknopf).
+
+   Die Reihe läuft über die ganze Breite und wird seitlich geschoben. Sie
+   nimmt nur ihre eigene Höhe ein: Rechts und links daneben bleibt die Karte
+   anfassbar, sonst wäre ein Streifen quer über dem Bild tot. */
+.karten-chips {
+  position: absolute;
+  top: calc(max(12px, env(safe-area-inset-top)) + 52px);
+  left: 0; right: 0;
+  z-index: 24;
+
+  display: flex;
+  gap: 7px;
+  padding: 2px max(12px, env(safe-area-inset-right)) 2px max(12px, env(safe-area-inset-left));
+  overflow-x: auto;
+  scrollbar-width: none;
+  /* Seitliches Schieben gehört hier der Reihe, alles andere der Karte. */
+  touch-action: pan-x;
+  /* Der Behälter selbst fängt keine Tipper ab — nur die Chips darin. */
+  pointer-events: none;
+}
+.karten-chips::-webkit-scrollbar { display: none; }
+.karten-chips:empty { display: none; }
+
+.karten-chips .chip {
+  pointer-events: auto;
+  flex: 0 0 auto;
+  padding: 7px 12px;
+  font-size: 12.5px;
+  border-color: var(--glas-rand);
+  background: var(--glas);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+  box-shadow: 0 4px 20px var(--sch1);
+}
+.karten-chips .chip[aria-pressed="true"] {
+  background: var(--gruen);
+  border-color: var(--gruen);
+  color: var(--auf-akzent);
+}
+
+/* ------------------------------------------- Die Treffer auf Entdecken
+
+   Zwei nebeneinander. Eine Kachel pro Zeile wäre eine Bilderstrecke, drei
+   wären Briefmarken — bei zweien erkennt man den Platz auf dem Foto und
+   sieht trotzdem, dass es eine Liste ist. */
+.raster {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  align-items: start;
+}
+/* Die Kachel ist für die schiebbaren Reihen 252 Pixel breit. Im Raster
+   bestimmt die Spalte die Breite, sonst ragt sie heraus. */
+.raster .spotkarte { width: auto; }
+/* Auf einem breiten Bildschirm werden aus zwei Spalten sonst zwei Plakate. */
+@media (min-width: 720px) {
+  .raster { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+}
+
+/* Überschrift und der Knopf zur Karte in einer Zeile. */
+.treffer-kopf {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.treffer-kopf .chip { flex: 0 0 auto; }
+
+/* Kein Treffer: eine Erklärung statt einer leeren Fläche. */
+.treffer-leer {
+  margin: 0;
+  padding: 22px 18px;
+  border: 1px dashed var(--rand);
+  border-radius: 16px;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--text-weak);
+  text-align: center;
+}
+.treffer-leer b { color: var(--text); }
+
 /* ==========================================================================
    Das Suchfeld auf der Entdecken-Seite
 
@@ -3965,6 +4053,7 @@ body.parkplatz-modus .knopf-zeile { display: none; }
    allerdings eine höhere Ebene als die Bereiche — siehe direkt darunter. */
 body.bereich-offen .ecke,
 body.bereich-offen .suche,
+body.bereich-offen .karten-chips,
 body.bereich-offen .unten,
 body.bereich-offen .fadenkreuz,
 body.bereich-offen #filter-hinweis,
@@ -4714,6 +4803,12 @@ body.bereich-offen.detail-offen::after {
   <div class="suche-treffer" id="suche-treffer" hidden></div>
 </div>
 
+<!-- Dieselben Filter wie auf der Entdecken-Seite, nur hier über der Karte.
+     Der Unterschied ist die Wirkung: Auf Entdecken kommt eine Liste heraus,
+     hier bleiben nur die passenden Punkte auf der Karte stehen — und die
+     bleiben es auch, während man weiterschiebt. -->
+<div class="karten-chips" id="karte-chips"></div>
+
 <div class="ecke rechts">
   <button class="werkzeug" id="knopf-einstellungen" aria-expanded="false" title="Einstellungen">
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -5012,11 +5107,33 @@ body.bereich-offen.detail-offen::after {
 
   <div id="entdecken-spots">
 
-  <!-- Die Filterchips. Sie schicken zur Karte und stellen dort ein, was
-       gefragt war — deshalb stehen sie ganz oben. -->
+  <!-- Die Filterchips. Sie werfen niemand mehr auf die Karte: Wer hier tippt,
+       bleibt hier und bekommt die Treffer gleich darunter als Kacheln. Wer
+       sie lieber auf der Karte sehen will, hat dieselben Chips auch dort. -->
   <div class="block">
     <div class="reihe" id="entdecken-chips"></div>
   </div>
+
+  <!-- Die Treffer zum gesetzten Filter. Steht direkt unter den Chips, damit
+       man nach dem Tippen nicht suchen muss, was sich geändert hat. -->
+  <div class="block" id="entdecken-treffer-block" hidden>
+    <div class="rand treffer-kopf">
+      <div>
+        <h2 class="abschnitt-titel" id="entdecken-treffer-titel">Treffer</h2>
+        <p class="abschnitt-unter" id="entdecken-treffer-unter">Wird gesucht …</p>
+      </div>
+      <button class="chip" id="entdecken-treffer-karte" type="button">
+        <span class="emoji">🗺️</span>Auf der Karte
+      </button>
+    </div>
+    <div class="rand raster" id="entdecken-treffer"></div>
+  </div>
+
+  <!-- Alles Übrige der Seite. Es liegt in einem gemeinsamen Kasten, damit es
+       sich mit einem Griff wegblenden lässt, sobald gefiltert wird — wer
+       einen Filter setzt, will die Treffer sehen und nicht daran vorbei
+       scrollen. -->
+  <div id="entdecken-standard">
 
   <!-- Der Spot, der heute oben steht. -->
   <div class="block" id="entdecken-held-block">
@@ -5190,6 +5307,7 @@ body.bereich-offen.detail-offen::after {
     Wild Spot lebt davon, dass Leute ihre Plätze eintragen. Kennst du einen?
     Auf der Karte auf <b>+ Spot hier anlegen</b> tippen.
   </p>
+  </div><!-- Ende #entdecken-standard -->
   </div><!-- Ende #entdecken-spots -->
 
   <!-- Der Knopf zum Schreiben schwebt über dem Feed. Er ist die einzige
