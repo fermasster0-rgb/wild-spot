@@ -292,7 +292,10 @@
         (Number(s.avg_stars) || 0).toLocaleString('de-AT', {
           minimumFractionDigits: 1, maximumFractionDigits: 1 })}</b></span>`);
     }
-    if (Number.isFinite(Number(s.entfernung_km))) {
+    // Die Prüfung auf null muss ausdrücklich dastehen: Number(null) ist 0 und
+    // nicht NaN. Ohne sie stünde bei jedem Spot ohne Standortbezug „0 km" —
+    // also überall dort, wo gar keine Entfernung gerechnet wurde.
+    if (s.entfernung_km != null && Number.isFinite(Number(s.entfernung_km))) {
       teile.push(`<span>📍 <b>${Number(s.entfernung_km).toLocaleString('de-AT')} km</b></span>`);
     }
 
@@ -602,7 +605,8 @@
       for (const s of data) reihe.appendChild(kachel(s));
 
       const unter = $('entdecken-nah-unter');
-      if (unter && data[0] && Number.isFinite(Number(data[0].entfernung_km))) {
+      if (unter && data[0] && data[0].entfernung_km != null &&
+          Number.isFinite(Number(data[0].entfernung_km))) {
         unter.textContent =
           `Der nächste liegt ${Number(data[0].entfernung_km).toLocaleString('de-AT')} km entfernt`;
       }
