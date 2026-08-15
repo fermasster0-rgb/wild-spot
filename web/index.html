@@ -68,6 +68,13 @@
   --panel:       rgba(255, 255, 255, 0.93);   /* schwebt über der Karte */
   --rand:        rgba(28, 26, 24, 0.13);
 
+  /* Milchglas. Alles, was über etwas anderem schwebt und es durchscheinen
+     lässt: die Leiste unten, die Knöpfe auf der Karte, das Suchfeld.
+     Bewusst als eigener Wert und nicht als --panel mit weniger Deckkraft —
+     unter Glas liegt immer ein Bild, unter einem Panel meistens nichts. */
+  --glas:      rgba(252, 251, 248, 0.72);
+  --glas-rand: rgba(28, 26, 24, 0.09);
+
   /* Schrift */
   --text:      #1c1a18;   /* warmes Schwarz, kein reines #000 */
   --text-lese: #33302c;   /* Fließtext: eine Spur weicher */
@@ -136,6 +143,9 @@ html[data-thema="nacht"] {
   --flaeche-tief:#0d0f0a;
   --panel:       rgba(20, 23, 17, 0.92);
   --rand:        rgba(255, 255, 255, 0.14);
+
+  --glas:      rgba(22, 26, 18, 0.72);
+  --glas-rand: rgba(255, 255, 255, 0.11);
 
   --text:      #f2f4ee;
   --text-lese: #d6dbcd;
@@ -256,10 +266,11 @@ html, body {
 .werkzeug {
   position: relative;
   width: 44px; height: 44px;
-  border-radius: 13px;
-  border: 1px solid var(--rand);
-  background: var(--panel);
-  backdrop-filter: blur(12px);
+  border-radius: 17px;
+  border: 1px solid var(--glas-rand);
+  background: var(--glas);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
   color: var(--text);
   cursor: pointer;
   display: grid;
@@ -316,12 +327,13 @@ html, body {
   display: flex;
   align-items: center;
   gap: 7px;
-  height: 36px;
-  padding: 0 10px;
-  border: 1px solid var(--rand);
-  border-radius: 11px;
-  background: var(--panel);
-  backdrop-filter: blur(12px);
+  height: 38px;
+  padding: 0 13px;
+  border: 1px solid var(--glas-rand);
+  border-radius: 999px;
+  background: var(--glas);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
   box-shadow: 0 4px 20px var(--sch1);
   transition: border-color 0.15s;
 }
@@ -375,7 +387,7 @@ html, body {
   overscroll-behavior: contain;
   background: var(--flaeche);
   border: 1px solid var(--rand);
-  border-radius: 14px;
+  border-radius: 18px;
   padding: 6px;
   box-shadow: 0 14px 44px var(--sch2);
 }
@@ -398,7 +410,7 @@ html, body {
   width: 100%;
   padding: 9px 9px;
   border: 0;
-  border-radius: 9px;
+  border-radius: 12px;
   background: transparent;
   color: var(--text);
   font: inherit;
@@ -452,7 +464,7 @@ html, body {
   overscroll-behavior: contain;
   background: var(--flaeche);
   border: 1px solid var(--rand);
-  border-radius: 14px;
+  border-radius: 18px;
   padding: 14px;
   box-shadow: 0 14px 44px var(--sch2);
 }
@@ -488,7 +500,7 @@ html, body {
 .tafel-haupt, .tafel-zweit {
   width: 100%;
   padding: 10px;
-  border-radius: 9px;
+  border-radius: 12px;
   font: inherit;
   font-size: 13.5px;
   cursor: pointer;
@@ -542,7 +554,7 @@ html, body {
   aspect-ratio: 4 / 3;
   padding: 0;
   border: 2px solid transparent;
-  border-radius: 10px;
+  border-radius: 14px;
   overflow: hidden;
   background: var(--t1);
   cursor: pointer;
@@ -598,7 +610,7 @@ html, body {
 .pille {
   position: relative;
   width: 36px; height: 21px;
-  border-radius: 11px;
+  border-radius: 15px;
   background: var(--t3);
   flex-shrink: 0;
   transition: background 0.18s;
@@ -676,7 +688,7 @@ html, body {
    deshalb als einziger in Grün. */
 .breit {
   border: 0;
-  border-radius: 24px;
+  border-radius: 28px;
   background: var(--gruen);
   color: var(--auf-akzent);
   font: inherit;
@@ -695,9 +707,10 @@ html, body {
 .rund {
   width: 46px; height: 46px;
   border-radius: 50%;
-  border: 1px solid var(--rand);
-  background: var(--panel);
-  backdrop-filter: blur(12px);
+  border: 1px solid var(--glas-rand);
+  background: var(--glas);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
   color: var(--text);
   font-size: 20px;
   cursor: pointer;
@@ -713,11 +726,12 @@ html, body {
    Fußzeile — Koordinaten der Kartenmitte, Zoom, Attribution
    ========================================================================== */
 .fuss {
-  background: var(--panel);
-  border: 1px solid var(--rand);
-  border-radius: 11px;
-  backdrop-filter: blur(12px);
-  padding: 8px 12px;
+  background: var(--glas);
+  border: 1px solid var(--glas-rand);
+  border-radius: 17px;
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+  padding: 8px 13px;
   font-size: 12px;
   color: var(--text-weak);
   display: flex;
@@ -760,11 +774,12 @@ html, body {
 .status {
   align-self: center;
   max-width: 520px;
-  background: var(--panel);
-  border: 1px solid var(--rand);
-  border-radius: 10px;
-  backdrop-filter: blur(12px);
-  padding: 9px 14px;
+  background: var(--glas);
+  border: 1px solid var(--glas-rand);
+  border-radius: 16px;
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+  padding: 9px 15px;
   font-size: 13px;
   line-height: 1.45;
   box-shadow: 0 4px 20px var(--sch1);
@@ -918,7 +933,7 @@ html, body {
   width: 100%;
   padding: 15px 16px;
   border: 1.5px solid var(--rand);
-  border-radius: 13px;
+  border-radius: 17px;
   background: var(--t1);
   color: var(--text);
   font: inherit;
@@ -959,7 +974,7 @@ html, body {
   align-items: flex-start;
   padding: 13px 14px;
   border: 1px solid var(--rand);
-  border-radius: 12px;
+  border-radius: 16px;
   background: var(--t1);
 }
 .intro-regel .emoji { font-size: 19px; line-height: 1.3; flex-shrink: 0; }
@@ -999,7 +1014,7 @@ html, body {
   width: 100%;
   padding: 15px;
   border: 0;
-  border-radius: 13px;
+  border-radius: 17px;
   background: var(--gruen);
   color: var(--auf-akzent);
   font: inherit;
@@ -1057,7 +1072,7 @@ html, body {
   max-width: 460px;
   background: var(--flaeche);
   border: 1px solid var(--rand);
-  border-radius: 16px;
+  border-radius: 20px;
   padding: 24px;
   box-shadow: 0 20px 60px var(--sch2);
 }
@@ -1069,7 +1084,7 @@ html, body {
   margin-top: 8px;
   padding: 12px;
   border: 0;
-  border-radius: 10px;
+  border-radius: 14px;
   background: var(--gruen);
   color: var(--auf-akzent);
   font: inherit;
@@ -1110,7 +1125,7 @@ html, body {
   overscroll-behavior: contain;
   background: var(--flaeche);
   border: 1px solid var(--rand);
-  border-radius: 16px;
+  border-radius: 20px;
   padding: 24px;
   box-shadow: 0 20px 60px var(--sch2);
 }
@@ -1128,7 +1143,7 @@ html, body {
   padding: 11px 12px;
   margin-bottom: 13px;
   border: 1px solid var(--rand);
-  border-radius: 9px;
+  border-radius: 12px;
   background: var(--t1);
   color: var(--text);
   font: inherit;
@@ -1144,7 +1159,7 @@ html, body {
   width: 100%;
   padding: 12px;
   border: 0;
-  border-radius: 10px;
+  border-radius: 14px;
   background: var(--gruen);
   color: var(--auf-akzent);
   font: inherit;
@@ -1173,7 +1188,7 @@ html, body {
   margin-top: 12px;
   padding: 11px;
   border: 1px solid var(--rand);
-  border-radius: 10px;
+  border-radius: 14px;
   background: #fff;
   color: #1f1f1f;
   font: inherit;
@@ -1210,7 +1225,7 @@ html, body {
   display: none;
   margin: 0 0 14px;
   padding: 10px 12px;
-  border-radius: 9px;
+  border-radius: 12px;
   font-size: 13px;
   line-height: 1.5;
 }
@@ -1237,7 +1252,7 @@ html, body {
   padding: 11px 12px;
   margin-bottom: 13px;
   border: 1px solid var(--rand);
-  border-radius: 9px;
+  border-radius: 12px;
   background: var(--t1);
   color: var(--text);
   font: inherit;
@@ -1253,7 +1268,7 @@ html, body {
   padding: 10px 12px;
   margin-bottom: 12px;
   border: 1px solid var(--rand);
-  border-radius: 9px;
+  border-radius: 12px;
   background: var(--t1);
   color: var(--text);
   font: inherit;
@@ -1276,7 +1291,7 @@ html, body {
   margin: 0 0 16px;
   padding: 13px;
   border: 1px dashed var(--rand);
-  border-radius: 11px;
+  border-radius: 15px;
 }
 .aus-foto .zweit { margin-bottom: 0; }
 .aus-foto .hinweis-klein { margin-top: 9px; }
@@ -1288,7 +1303,7 @@ html, body {
    sehen und die Lust verlieren. */
 .spot-box details {
   border: 1px solid var(--rand);
-  border-radius: 10px;
+  border-radius: 14px;
   margin-bottom: 9px;
   overflow: hidden;
 }
@@ -1321,7 +1336,7 @@ html, body {
   margin: 0;
   padding: 7px 11px;
   border: 1px solid var(--rand);
-  border-radius: 8px;
+  border-radius: 11px;
   font-size: 13px;
   color: var(--text);
   cursor: pointer;
@@ -1366,7 +1381,7 @@ html, body {
   z-index: 20;
   background: var(--panel);
   border: 1px solid var(--rand);
-  border-radius: 14px;
+  border-radius: 18px;
   backdrop-filter: blur(14px);
   box-shadow: 0 12px 44px var(--sch2);
   display: flex;
@@ -1552,7 +1567,7 @@ body.detail-offen .unten { right: 404px; }
   aspect-ratio: 1 / 1;
   padding: 0;
   border: 0;
-  border-radius: 8px;
+  border-radius: 11px;
   overflow: hidden;
   background: var(--t1);
   cursor: zoom-in;
@@ -1605,7 +1620,7 @@ body.detail-offen .unten { right: 404px; }
 .foto-gross img {
   max-width: 100%;
   max-height: 100%;
-  border-radius: 10px;
+  border-radius: 14px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
 }
 
@@ -1614,7 +1629,7 @@ body.detail-offen .unten { right: 404px; }
   width: 100%;
   padding: 11px;
   border: 1px solid var(--rand);
-  border-radius: 10px;
+  border-radius: 14px;
   background: var(--t1);
   color: var(--text);
   font: inherit;
@@ -1633,7 +1648,7 @@ body.detail-offen .unten { right: 404px; }
   gap: 10px;
   padding: 11px 13px;
   border: 1px solid var(--rand);
-  border-radius: 10px;
+  border-radius: 14px;
   background: var(--t1);
   margin-bottom: 4px;
 }
@@ -1655,7 +1670,7 @@ body.detail-offen .unten { right: 404px; }
   gap: 9px;
   padding: 10px 11px;
   border: 1px solid var(--rand);
-  border-radius: 10px;
+  border-radius: 14px;
   background: var(--t1);
   color: var(--text);
   text-decoration: none;
@@ -1737,7 +1752,7 @@ body.detail-offen .unten { right: 404px; }
   padding: 10px 11px;
   margin-bottom: 9px;
   border: 1px solid var(--rand);
-  border-radius: 9px;
+  border-radius: 12px;
   background: var(--t1);
   color: var(--text);
   font: inherit;
@@ -1759,7 +1774,7 @@ body.detail-offen .unten { right: 404px; }
   width: 100%;
   padding: 11px;
   border: 0;
-  border-radius: 10px;
+  border-radius: 14px;
   background: var(--gruen);
   color: var(--auf-akzent);
   font: inherit;
@@ -1777,7 +1792,7 @@ body.detail-offen .unten { right: 404px; }
   padding: 10px;
   margin-top: 8px;
   border: 1px solid var(--fehl-rand);
-  border-radius: 10px;
+  border-radius: 14px;
   background: transparent;
   color: var(--fehl-text);
   font: inherit;
@@ -1791,7 +1806,7 @@ body.detail-offen .unten { right: 404px; }
   margin-top: 10px;
   padding: 12px 13px;
   border: 1px solid var(--fehl-rand);
-  border-radius: 10px;
+  border-radius: 14px;
   background: var(--fehl-weich);
 }
 .loeschfrage[hidden] { display: none; }
@@ -1840,7 +1855,7 @@ body.detail-offen .unten { right: 404px; }
   display: none;
   margin: 0 0 12px;
   padding: 9px 11px;
-  border-radius: 9px;
+  border-radius: 12px;
   font-size: 13px;
   line-height: 1.5;
 }
@@ -1855,7 +1870,7 @@ body.detail-offen .unten { right: 404px; }
   background: var(--flaeche);
   color: var(--text);
   border: 1px solid var(--rand);
-  border-radius: 10px;
+  border-radius: 14px;
   padding: 11px 13px;
   font-size: 13px;
   box-shadow: 0 8px 30px var(--sch2);
@@ -1928,7 +1943,7 @@ body.detail-offen .unten { right: 404px; }
     width: auto;
     max-height: 76vh;
     max-height: 76dvh;
-    border-radius: 16px 16px 0 0;
+    border-radius: 24px 24px 0 0;
     border-bottom: 0;
     padding-bottom: env(safe-area-inset-bottom);
   }
@@ -1965,8 +1980,9 @@ body.detail-offen .unten { right: 404px; }
   line-height: 1.3;
   text-align: center;
 
-  background: var(--panel);
-  backdrop-filter: blur(8px);
+  background: var(--glas);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
   box-shadow: 0 6px 20px var(--sch1);
 }
 
@@ -2105,7 +2121,7 @@ body.detail-offen .unten { right: 404px; }
   gap: 9px;
   background: var(--blau-weich);
   border: 1px solid var(--blau-rand);
-  border-radius: 11px;
+  border-radius: 15px;
   padding: 10px 12px;
   margin-bottom: 9px;
 }
@@ -2130,7 +2146,7 @@ body.detail-offen .unten { right: 404px; }
 
 .wetter-tage {
   border: 1px solid var(--rand);
-  border-radius: 11px;
+  border-radius: 15px;
   overflow: hidden;
 }
 .wetter-tag {
@@ -2182,7 +2198,7 @@ body.detail-offen .unten { right: 404px; }
   gap: 8px;
   padding: 11px 12px;
   border: 1px solid var(--rand);
-  border-radius: 10px;
+  border-radius: 14px;
   background: var(--route-weich);
 }
 .route-zahlen > div { display: flex; flex-direction: column; gap: 2px; }
@@ -2216,7 +2232,7 @@ body.detail-offen .unten { right: 404px; }
   margin: 0 auto;
   padding: 13px 15px 14px;
   border: 1px solid var(--rand);
-  border-radius: 14px;
+  border-radius: 18px;
   background: var(--panel);
   backdrop-filter: blur(12px);
   box-shadow: 0 8px 28px var(--sch2);
@@ -2225,7 +2241,7 @@ body.detail-offen .unten { right: 404px; }
 .park-knoepfe .haupt {
   padding: 11px;
   border: 0;
-  border-radius: 10px;
+  border-radius: 14px;
   background: var(--gruen);
   color: var(--auf-akzent);
   font: inherit;
@@ -2294,7 +2310,7 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   text-transform: uppercase;
   color: var(--bg);
   background: var(--gruen);
-  border-radius: 5px;
+  border-radius: 7px;
   padding: 3px 7px;
 }
 .admin-kopf .luecke { flex: 1; }
@@ -2302,7 +2318,7 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   background: none;
   border: 1px solid var(--rand);
   color: var(--text);
-  border-radius: 9px;
+  border-radius: 12px;
   /* 40 statt 34 Pixel: mit dem Daumen trifft man ein 34er Ziel nur mit
      Zielen. Alles zum Antippen ist in dieser App mindestens 40 breit. */
   width: 40px;
@@ -2368,7 +2384,7 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   box-sizing: border-box;
   background: var(--flaeche);
   border: 1px solid var(--rand);
-  border-radius: 10px;
+  border-radius: 14px;
   color: var(--text);
   font: inherit;
   font-size: 14px;
@@ -2390,7 +2406,7 @@ body.parkplatz-modus .knopf-zeile { display: none; }
 .admin-kachel {
   background: var(--flaeche);
   border: 1px solid var(--rand);
-  border-radius: 12px;
+  border-radius: 16px;
   padding: 12px 13px;
 }
 .admin-kachel b {
@@ -2407,7 +2423,7 @@ body.parkplatz-modus .knopf-zeile { display: none; }
 /* Eine Zeile in einer Liste — Spot, Kommentar, Nutzer */
 .admin-zeile {
   border: 1px solid var(--rand);
-  border-radius: 12px;
+  border-radius: 16px;
   padding: 11px 12px;
   margin-bottom: 8px;
   background: var(--flaeche);
@@ -2434,7 +2450,7 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   background: none;
   border: 1px solid var(--rand);
   color: var(--text);
-  border-radius: 8px;
+  border-radius: 11px;
   font: inherit;
   font-size: 12.5px;
   padding: 7px 12px;
@@ -2452,7 +2468,7 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   display: inline-block;
   font-size: 10.5px;
   border: 1px solid var(--rand);
-  border-radius: 5px;
+  border-radius: 7px;
   padding: 1px 5px;
   margin-right: 4px;
   color: var(--text-weak);
@@ -2470,7 +2486,7 @@ body.parkplatz-modus .knopf-zeile { display: none; }
 
 .admin-meldung {
   font-size: 12.5px;
-  border-radius: 9px;
+  border-radius: 12px;
   padding: 9px 11px;
   margin-bottom: 12px;
   line-height: 1.5;
@@ -2494,7 +2510,7 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   width: 88px;
   height: 66px;
   object-fit: cover;
-  border-radius: 7px;
+  border-radius: 9px;
   display: block;
   background: var(--flaeche-tief);
 }
@@ -2510,7 +2526,7 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   display: grid;
   place-items: center;
   padding: 0;
-  border-radius: 6px;
+  border-radius: 8px;
   background: rgba(0, 0, 0, 0.72);
   font-size: 13px;
   line-height: 1;
@@ -2554,10 +2570,10 @@ body.parkplatz-modus .knopf-zeile { display: none; }
 
      34 Pixel braucht es aber nur, wenn unten etwas zum Antippen sitzt. Hier
      steht ganz unten bloß ein Wort, und ein Wort darf näher an den Balken.
-     Deshalb werden 14 Pixel abgezogen. Im Browser meldet das Handy null —
+     Deshalb werden 18 Pixel abgezogen. Im Browser meldet das Handy null —
      dann bleibt es bei null, und es wird kein Platz verschenkt. */
   --tab-inhalt: 50px;
-  --tab-luft: max(0px, calc(env(safe-area-inset-bottom) - 14px));
+  --tab-luft: max(0px, calc(env(safe-area-inset-bottom) - 18px));
   --tab-h: calc(var(--tab-inhalt) + var(--tab-luft));
 }
 
@@ -2597,18 +2613,42 @@ body.parkplatz-modus .knopf-zeile { display: none; }
 /* ==========================================================================
    Die untere Leiste
    ========================================================================== */
+/* --------------------------------------------------------------------------
+   Milchglas statt weißer Balken
+
+   Eine deckende Leiste schneidet den Bildschirm ab: Darüber ist die App,
+   darunter ein Streifen Nichts. Genau deshalb wirkte sie „zu weit oben",
+   obwohl sie am unteren Rand klebte.
+
+   Als Milchglas liegt sie stattdessen ÜBER dem Inhalt, und der Inhalt läuft
+   darunter weiter — man sieht ihn verschwommen durchscheinen. Dadurch endet
+   die Seite erst am Bildschirmrand und nicht schon an der Leiste.
+
+   Damit das aufgeht, dürfen die Bereiche nicht über der Leiste aufhören.
+   Sie reichen bis ganz nach unten und halten sich den Platz stattdessen mit
+   padding frei — siehe .schirm.
+   -------------------------------------------------------------------------- */
 .tableiste {
   position: fixed;
   left: 0; right: 0; bottom: 0;
   z-index: 70;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  background: var(--flaeche);
-  border-top: 1px solid var(--rand);
   padding-bottom: var(--tab-luft);
-  /* Ein Hauch Schatten nach oben: die Leiste liegt auf der Karte, nicht
-     neben ihr. */
-  box-shadow: 0 -1px 12px var(--sch1);
+
+  background: var(--glas);
+  /* saturate hebt die Farben unter dem Glas an. Ohne das wirkt jedes Foto
+     darunter ausgewaschen und die Leiste wie schmutziges Fensterglas. */
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+  border-top: 1px solid var(--glas-rand);
+}
+
+/* Wo es kein Milchglas gibt — ältere Android-Browser —, wäre die Leiste
+   halbdurchsichtig und der Text darunter läge lesbar im Weg. Dort also
+   doch deckend. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .tableiste { background: var(--flaeche); border-top-color: var(--rand); }
 }
 
 .tab {
@@ -2632,6 +2672,7 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   -webkit-tap-highlight-color: transparent;
 }
 .tab svg {
+  position: relative;   /* über der Pille, nicht darunter */
   width: 22px; height: 22px;
   fill: none;
   stroke: currentColor;
@@ -2640,9 +2681,38 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   stroke-linejoin: round;
   transition: transform 0.16s cubic-bezier(0.3, 1.4, 0.5, 1);
 }
+
+/* Die Pille hinter dem Zeichen des Bereichs, in dem man gerade ist.
+
+   Die Farbe allein reicht dafür nicht: Oliv auf Milchglas ist auf einem
+   hellen Foto darunter kaum vom Grau der anderen zu unterscheiden. Eine
+   Fläche sieht man auch mit dem Daumen davor. */
+.tab::before {
+  content: "";
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  width: 54px;
+  height: 27px;
+  margin-left: -27px;
+  border-radius: 999px;
+  background: var(--gruen);
+  opacity: 0;
+  transform: scale(0.7);
+  transition: opacity 0.18s, transform 0.22s cubic-bezier(0.3, 1.3, 0.5, 1);
+}
+.tab[aria-selected="true"]::before { opacity: 0.15; transform: none; }
+
 .tab[aria-selected="true"] { color: var(--gruen); }
-.tab[aria-selected="true"] svg { stroke-width: 2.1; transform: translateY(-1px); }
-.tab:active svg { transform: scale(0.9); }
+.tab[aria-selected="true"] svg { stroke-width: 2.1; }
+.tab:active svg { transform: scale(0.88); }
+
+/* Auf schmalen Handys stünden 54 Pixel Pille bei fünf Bereichen Kante an
+   Kante. Dann lieber etwas schmaler. */
+@media (max-width: 360px) {
+  .tab::before { width: 46px; margin-left: -23px; }
+  .tab { font-size: 9px; }
+}
 
 /* Der Punkt am Plus-Zeichen, solange man es noch nie geöffnet hat. */
 .tab .neu-punkt {
@@ -2682,7 +2752,7 @@ body.parkplatz-modus .knopf-zeile { display: none; }
     padding: 0 8px;
     box-shadow: 1px 0 12px var(--sch1);
   }
-  .tab { height: 64px; border-radius: 14px; font-size: 10.5px; }
+  .tab { height: 64px; border-radius: 18px; font-size: 10.5px; }
   .tab[aria-selected="true"] { background: var(--akzent-weich); }
   .tab .neu-punkt { top: 12px; }
 }
@@ -2697,14 +2767,20 @@ body.parkplatz-modus .knopf-zeile { display: none; }
 .schirm {
   position: fixed;
   left: 0; right: 0; top: 0;
-  bottom: var(--tab-h);
+  /* Bis ganz nach unten, nicht bis zur Leiste: Der Inhalt soll unter dem
+     Milchglas durchlaufen. Hörte er darüber auf, wäre die Leiste wieder ein
+     Balken mit einer harten Kante — und genau die sah aus, als säße sie zu
+     weit oben. */
+  bottom: 0;
   z-index: 40;
   background: var(--bg);
   overflow-y: auto;
   overflow-x: hidden;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
-  padding-bottom: 30px;
+  /* Der Platz, den die Leiste verdeckt, plus etwas Luft. Ohne das ließe sich
+     die letzte Zeile jeder Seite nie ganz lesen. */
+  padding-bottom: calc(var(--tab-h) + 26px);
 }
 .schirm[hidden] { display: none; }
 
@@ -2772,7 +2848,7 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   width: 252px;
   padding: 0;
   border: 0;
-  border-radius: 16px;
+  border-radius: 20px;
   overflow: hidden;
   background: var(--flaeche-tief);
   color: inherit;
@@ -2853,7 +2929,7 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   align-items: center;
   gap: 4px;
   padding: 4px 9px;
-  border-radius: 7px;
+  border-radius: 9px;
   background: rgba(255, 255, 255, 0.94);
   color: #1c1a18;
   font-size: 11px;
@@ -2904,7 +2980,7 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   padding: 9px;
   margin-bottom: 8px;
   border: 0;
-  border-radius: 14px;
+  border-radius: 18px;
   background: var(--flaeche);
   color: inherit;
   font: inherit;
@@ -2918,7 +2994,7 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   position: relative;
   width: 76px; height: 76px;
   flex-shrink: 0;
-  border-radius: 10px;
+  border-radius: 14px;
   overflow: hidden;
   background: var(--flaeche-tief);
 }
@@ -3009,9 +3085,9 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   align-items: center;
   gap: 10px;
   width: 100%;
-  padding: 13px 15px;
+  padding: 14px 18px;
   border: 1px solid var(--rand);
-  border-radius: 14px;
+  border-radius: 999px;
   background: var(--flaeche);
   color: var(--text-weak);
   font: inherit;
@@ -3042,7 +3118,7 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   width: 100%;
   padding: 0;
   border: 0;
-  border-radius: 16px;
+  border-radius: 20px;
   overflow: hidden;
   background: var(--flaeche);
   color: inherit;
@@ -3160,7 +3236,7 @@ body.parkplatz-modus .knopf-zeile { display: none; }
 /* Der Ladebalken, solange die Spots kommen. Drei graue Kacheln sagen
    „gleich da" und lassen die Seite nicht springen, wenn die Bilder kommen. */
 .platzhalter {
-  border-radius: 16px;
+  border-radius: 20px;
   background: linear-gradient(100deg, var(--t1) 30%, var(--t2) 50%, var(--t1) 70%);
   background-size: 300% 100%;
   animation: schieben 1.4s linear infinite;
@@ -3265,7 +3341,7 @@ body.parkplatz-modus .knopf-zeile { display: none; }
 }
 .zahl-kachel {
   padding: 14px 12px;
-  border-radius: 14px;
+  border-radius: 18px;
   background: var(--flaeche);
   text-align: center;
 }
@@ -3287,7 +3363,7 @@ body.parkplatz-modus .knopf-zeile { display: none; }
 /* Die Liste der Einstellungen. Weiße Fläche, feine Linien dazwischen —
    die Form, die jeder von seinem Telefon kennt. */
 .menue {
-  border-radius: 16px;
+  border-radius: 20px;
   background: var(--flaeche);
   overflow: hidden;
   margin-bottom: 22px;
@@ -3349,14 +3425,14 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   display: flex;
   gap: 5px;
   padding: 4px;
-  border-radius: 11px;
+  border-radius: 15px;
   background: var(--t1);
   flex-shrink: 0;
 }
 .thema-wahl button {
   padding: 6px 11px;
   border: 0;
-  border-radius: 8px;
+  border-radius: 11px;
   background: none;
   color: var(--text-weak);
   font: inherit;
@@ -3452,7 +3528,7 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   place-items: center;
   width: 42px; height: 42px;
   flex-shrink: 0;
-  border-radius: 12px;
+  border-radius: 16px;
   background: rgba(255, 255, 255, 0.07);
   font-size: 20px;
   line-height: 1;
@@ -3476,7 +3552,7 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   margin-top: 8px;
   padding: 9px 11px;
   border-left: 2px solid var(--orange);
-  border-radius: 0 8px 8px 0;
+  border-radius: 0 11px 11px 0;
   background: rgba(238, 107, 23, 0.09);
   font-size: 12.5px;
   line-height: 1.55;
@@ -3486,7 +3562,7 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   display: inline-block;
   margin-top: 8px;
   padding: 3px 8px;
-  border-radius: 6px;
+  border-radius: 8px;
   background: rgba(255, 255, 255, 0.1);
   font-size: 11px;
   font-weight: 700;
@@ -3509,7 +3585,7 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   width: 100%;
   padding: 16px 17px;
   border: 2px solid rgba(255, 255, 255, 0.13);
-  border-radius: 16px;
+  border-radius: 20px;
   background: rgba(255, 255, 255, 0.04);
   color: inherit;
   font: inherit;
@@ -3575,7 +3651,7 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   position: absolute;
   top: -9px; right: 14px;
   padding: 3px 9px;
-  border-radius: 6px;
+  border-radius: 8px;
   background: var(--orange);
   color: #fff;
   font-size: 10.5px;
@@ -3616,7 +3692,7 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   margin: 18px 0 0;
   padding: 15px 16px;
   border: 1px dashed rgba(255, 255, 255, 0.22);
-  border-radius: 14px;
+  border-radius: 18px;
   background: rgba(255, 255, 255, 0.03);
 }
 /* Nur die Überschrift des Kastens, nicht jedes hervorgehobene Wort im Text
@@ -3640,7 +3716,7 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   padding: 12px 13px;
   margin-bottom: 9px;
   border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 11px;
+  border-radius: 15px;
   background: rgba(0, 0, 0, 0.25);
   color: #f4f2ea;
   font: inherit;
@@ -3653,7 +3729,7 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   display: none;
   margin: 11px 0 0;
   padding: 11px 13px;
-  border-radius: 11px;
+  border-radius: 15px;
   font-size: 13px;
   line-height: 1.55;
 }
@@ -3667,7 +3743,7 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   align-items: center;
   gap: 13px;
   padding: 17px;
-  border-radius: 16px;
+  border-radius: 20px;
   background: rgba(238, 107, 23, 0.12);
   border: 1px solid rgba(238, 107, 23, 0.32);
   margin-bottom: 18px;
@@ -3690,7 +3766,7 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   width: 100%;
   padding: 13px 14px;
   border: 1px solid var(--warn-rand);
-  border-radius: 13px;
+  border-radius: 17px;
   background: var(--warn-weich);
   color: var(--text);
   font: inherit;
@@ -3703,7 +3779,7 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   place-items: center;
   width: 34px; height: 34px;
   flex-shrink: 0;
-  border-radius: 10px;
+  border-radius: 14px;
   background: var(--orange);
   color: #fff;
   font-size: 16px;

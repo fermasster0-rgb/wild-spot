@@ -54,6 +54,27 @@ das Bild und nicht die Beschreibung. Deshalb ist übernommen:
 - **Das Foto ist die Kachel**, der Name liegt darauf, die Fakten darunter
 - **Reihen, die man seitlich schiebt** und die absichtlich über den Bildrand
   hinauslaufen: Das zeigt ohne Pfeil, dass noch mehr kommt
+- **Weiche Ecken überall** — Radien zwischen 14 und 24 Pixeln, das Suchfeld
+  ganz rund
+- **Die Leiste unten ist Milchglas**, und der Inhalt läuft darunter durch
+
+### Warum Milchglas und nicht einfach Weiß
+
+Die erste Fassung hatte eine deckende Leiste. Sie klebte technisch am unteren
+Rand, wirkte aber trotzdem **zu weit oben** — und der Grund dafür ist lehrreich:
+
+Ein deckender Balken **schneidet den Bildschirm ab.** Darüber ist die App,
+darunter ein Streifen Nichts. Das Auge liest die Kante als Ende der Seite, und
+alles darunter als verschenkten Platz.
+
+Milchglas liegt stattdessen **über** dem Inhalt. Die Seite reicht bis zum
+Bildschirmrand, man sieht sie unter der Leiste verschwommen weiterlaufen —
+und damit endet nichts zu früh. Dazu muss der Bereich bis `bottom: 0` gehen
+und sich den Platz mit `padding-bottom` freihalten statt mit `bottom`.
+
+Der aktive Bereich bekommt eine **grüne Pille** hinter dem Zeichen. Farbe
+allein reicht auf Glas nicht: Über einem hellen Foto ist Oliv kaum von Grau zu
+unterscheiden. Eine Fläche sieht man auch mit dem Daumen davor.
 
 Nicht übernommen ist die Schriftart (Satoshi, kostenpflichtig und ein Nachladen
 aus dem Netz — die App muss aber offline starten). Die Wirkung macht hier die
