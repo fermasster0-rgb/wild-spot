@@ -44,6 +44,13 @@ function meter(n) {
   return Number(n).toLocaleString('de-DE') + ' m';
 }
 
+// Hat der Spot eine fertig gerechnete Wanderroute? Entscheidet an mehreren
+// Stellen darüber, ob die geschätzte Gehzeit noch gezeigt wird.
+function gemesseneRoute(spot) {
+  return Array.isArray(spot?.route_line) && spot.route_line.length > 1
+         && Number.isFinite(spot.route_minutes);
+}
+
 function gehzeit(min) {
   const m = Number(min);
   if (m < 60) return m + ' min';
@@ -101,7 +108,11 @@ const ANZEIGE = [
     titel: 'Praktisches',
     felder: [
       { name: 'access', sym: '🚶', label: 'Anreise' },
-      { name: 'hike_minutes', sym: '⏱️', label: 'Gehzeit', wert: gehzeit },
+      // Die geschätzte Gehzeit verschwindet, sobald die Route gemessen ist:
+      // Sie steht dann weiter oben als echte Zahl, und zwei verschiedene
+      // Gehzeiten in einem Fenster wären die schlechteste aller Antworten.
+      { name: 'hike_minutes', sym: '⏱️', label: 'Gehzeit (geschätzt)', wert: gehzeit,
+        nurWenn: (spot) => !gemesseneRoute(spot) },
       { name: 'mobile_signal', sym: '📶', label: 'Handyempfang',
         ton: (v) => (v === 'keiner' ? 'warn' : null) },
       { name: 'discreet', sym: '👁️', label: 'Einsehbarkeit',
@@ -120,6 +131,12 @@ const ANZEIGE = [
 const SPALTEN = [
   'id', 'name', 'description', 'created_by', 'created_at',
   'avg_stars', 'rating_count',
+  // Der Parkplatz und die dazu gerechnete Wanderroute (route.js). Sie stehen
+  // hier statt in ANZEIGE, weil sie keine Merkmalszeile bekommen, sondern
+  // einen eigenen Block mit Linie auf der Karte.
+  'parking_lat', 'parking_lng',
+  'route_line', 'route_minutes', 'route_distance_m',
+  'route_ascent_m', 'route_descent_m', 'route_status', 'route_updated_at',
   ...ANZEIGE.flatMap((g) => g.felder.map((f) => f.name)),
 ].join(',');
 
@@ -141,6 +158,13 @@ function detailSchliessen() {
   detailEl.hidden = true;
   document.body.classList.remove('detail-offen');
   offenerSpot = null;
+
+  // Die Wanderroute gehört zu diesem einen Spot — sie darf nicht auf der
+  // Karte liegen bleiben, wenn die Leiste zu ist.
+  if (typeof window.routeAusblenden === 'function') window.routeAusblenden();
+
+  // Teilen-Knopf weg, Adresszeile wieder aufräumen.
+  if (typeof window.teilenAbmelden === 'function') window.teilenAbmelden();
 }
 
 document.getElementById('detail-zu').onclick = detailSchliessen;
@@ -185,6 +209,19 @@ async function spotDetailOeffnen(id, name, lat, lng) {
   document.body.classList.add('detail-offen');
   detailKoerper.scrollTop = 0;
 
+  // Die Route des vorher offenen Spots sofort von der Karte nehmen. Sonst
+  // führt sie ein paar Zehntelsekunden lang scheinbar zu diesem hier.
+  if (typeof window.routeAusblenden === 'function') window.routeAusblenden();
+
+  // Ab jetzt zeigt der Teilen-Knopf im Kopf auf diesen Spot. Das geschieht
+  // sofort und nicht erst nach dem Laden: Der Link steht schon fest, sobald
+  // die ID bekannt ist.
+  if (typeof window.teilenAnmelden === 'function') window.teilenAnmelden(id);
+
+  // Das Herz zeigt ab jetzt auf diesen Spot. Wie beim Teilen sofort und nicht
+  // erst nach dem Laden — der Knopf muss vom ersten Moment an stimmen.
+  merkenAnmelden(id);
+
   freilegen(lat, lng);
 
   const auth = window.WILDCAMP_AUTH;
@@ -213,6 +250,31 @@ async function spotDetailOeffnen(id, name, lat, lng) {
   }
 }
 window.spotDetailOeffnen = spotDetailOeffnen;
+
+// ----------------------------------------------------------------------------
+// Das Herz im Kopf der Leiste
+//
+// Die Merkliste selbst liegt in screens.js — hier wird nur der Knopf bedient.
+// Deshalb die Prüfung auf window.WILDSPOT_MERKEN: Läuft die App einmal ohne
+// diese Datei, fehlt eben das Herz, und alles andere geht weiter.
+// ----------------------------------------------------------------------------
+
+const merkenKnopf = document.getElementById('detail-merken');
+
+function merkenAnmelden(spotId) {
+  if (!merkenKnopf || !window.WILDSPOT_MERKEN) return;
+
+  merkenKnopf.hidden = false;
+  merkenKnopf.dataset.merken = spotId;
+  merkenKnopf.setAttribute('aria-pressed', String(window.WILDSPOT_MERKEN.hat(spotId)));
+}
+
+if (merkenKnopf) {
+  merkenKnopf.addEventListener('click', () => {
+    const id = merkenKnopf.dataset.merken;
+    if (id && window.WILDSPOT_MERKEN) window.WILDSPOT_MERKEN.umschalten(id);
+  });
+}
 
 // Den Spot ins Sichtbare schieben, falls die Leiste genau darüber liegt.
 // Nur dann — eine Karte, die bei jedem Antippen wegspringt, nervt.
@@ -299,6 +361,12 @@ function zeichnen(spot, kommentare, meineSterne, fotos = []) {
   const teile = [];
   const angemeldet = !!window.WILDCAMP_AUTH.nutzer;
 
+  // Wer den Spot angelegt hat, darf ihn ändern — Admins ebenfalls, die
+  // Datenbank erlaubt beiden dasselbe (Migration 013). Steht schon hier oben,
+  // weil der Parkplatz-Knopf weit vor dem Bereich "Dein Spot" gebraucht wird.
+  const meiner = angemeldet && spot.created_by === window.WILDCAMP_AUTH.nutzer.id;
+  const darfAendern = meiner || (angemeldet && window.WILDCAMP_AUTH.nutzer.istAdmin === true);
+
   // ------------------------------------------------------------- Fotos -----
   // Ganz nach oben: ein Bild sagt über einen Zeltplatz mehr als jede Liste.
   if (fotos.length) {
@@ -348,6 +416,14 @@ function zeichnen(spot, kommentare, meineSterne, fotos = []) {
   teile.push('<h3>Hinkommen</h3>');
   teile.push(hinkommenHtml(offenerSpot.lat, offenerSpot.lng));
 
+  // ------------------------------------------------------- Wanderroute -----
+  // Gleich hinter den beiden Links: die eigene Route vom Parkplatz zum Spot,
+  // gerechnet über OpenStreetMap-Wanderwege. Sie braucht nichts nachzuladen —
+  // Linie, Gehzeit und Höhenmeter stehen schon im geholten Spot.
+  if (typeof window.routeHtml === 'function') {
+    teile.push(window.routeHtml(spot, darfAendern));
+  }
+
   // ------------------------------------------------------- Bedingungen -----
   // Gleich nach dem Hinkommen: Wie kalt wird die Nacht, regnet es, wann wird
   // es dunkel. Der Block erscheint sofort leer und füllt sich nach — die
@@ -374,6 +450,10 @@ function zeichnen(spot, kommentare, meineSterne, fotos = []) {
       // nicht einfach auf "wahr oder unwahr".
       if (roh === null || roh === undefined) continue;
       if (Array.isArray(roh) && roh.length === 0) continue;
+
+      // Manche Angaben sind nur so lange interessant, wie es nichts Besseres
+      // gibt — die geschätzte Gehzeit etwa, solange die Route nicht gemessen ist.
+      if (feld.nurWenn && !feld.nurWenn(spot)) continue;
 
       const text = feld.wert ? feld.wert(roh) : auswahlText(feld.name, roh);
       const ton = feld.ton ? feld.ton(roh) : null;
@@ -468,8 +548,6 @@ function zeichnen(spot, kommentare, meineSterne, fotos = []) {
   // Ganz unten, hinter allem anderen: Bearbeiten und Löschen sind selten und
   // gewichtig. Wer den Spot nicht angelegt hat, sieht hier gar nichts — die
   // Datenbank würde beides ohnehin ablehnen.
-  const meiner = angemeldet && spot.created_by === window.WILDCAMP_AUTH.nutzer.id;
-
   if (meiner) {
     teile.push(
       '<h3>Dein Spot</h3>',
@@ -500,6 +578,10 @@ function zeichnen(spot, kommentare, meineSterne, fotos = []) {
   if (typeof window.wetterLaden === 'function' && offenerSpot) {
     window.wetterLaden(offenerSpot.lat, offenerSpot.lng, Number(spot.elevation_m));
   }
+
+  // Die Route auf die Karte legen — Linie und Parkplatz. Sie verschwindet
+  // wieder, sobald die Leiste zugeht.
+  if (typeof window.routeZeichnen === 'function') window.routeZeichnen(spot);
 }
 
 // Die zwei Wege zum Spot. Sie beantworten zwei verschiedene Fragen: Google
@@ -584,6 +666,10 @@ function detailMeldung(text, art = 'info') {
 function verdrahten(spot, meineSterne, anzahlFotos, meiner) {
   const auth = window.WILDCAMP_AUTH;
   const sterneBox = document.getElementById('meine-sterne');
+
+  // Die Knöpfe im Routen-Block: Route ins Bild holen, Parkplatz setzen oder
+  // wieder entfernen. Sie sind nach jedem Neuzeichnen frische Elemente.
+  if (typeof window.routeVerdrahten === 'function') window.routeVerdrahten(spot);
 
   // Den eigenen Spot bearbeiten oder löschen.
   if (meiner) {

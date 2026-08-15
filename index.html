@@ -14,7 +14,25 @@
      welches Symbol sie trägt und dass sie ohne Adresszeile im Vollbild läuft.
      Zusammen mit sw.js macht das die Installation möglich. -->
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#12140f">
+<meta name="theme-color" content="#edebe5" id="theme-color">
+
+<!-- Das Thema muss stehen, BEVOR das Blatt gezeichnet wird. Läge es unten bei
+     den Skripten, sähe man beim Start eine Zehntelsekunde die helle App und
+     dann erst die dunkle — genau der Blitz, den nachts niemand will.
+     Deshalb ausnahmsweise hier oben und ohne eigene Datei. -->
+<script>
+(function () {
+  var t = null;
+  try { t = localStorage.getItem('wildspot-thema'); } catch (e) {}
+  if (t !== 'tag' && t !== 'nacht') {
+    // Nichts gewählt: der Systemeinstellung folgen.
+    t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        ? 'nacht' : 'tag';
+  }
+  if (t === 'nacht') document.documentElement.dataset.thema = 'nacht';
+  document.documentElement.dataset.themaQuelle = t;
+})();
+</script>
 
 <!-- Das iPhone kennt das Manifest nur halb und braucht seine eigenen Angaben. -->
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -30,15 +48,140 @@
 /* ==========================================================================
    Grundgerüst
    ========================================================================== */
+/* --------------------------------------------------------------------------
+   Die Farben stehen alle an dieser einen Stelle.
+
+   Im ganzen Blatt darunter steht keine feste Farbe mehr, sondern immer nur
+   ein Name von hier. Deshalb reicht ein Attribut am <html>, um die ganze App
+   zwischen Tag und Nacht umzuschalten — ohne dass eine einzige Regel doppelt
+   gepflegt werden muss.
+
+   Tag ist der Normalfall: warmes Papierbeige, fast schwarze Schrift, Oliv als
+   Akzent. Draußen bei Sonne ist das lesbar, wo Dunkelgrau verschwindet.
+   Nacht ist der bisherige Waldlook — im Zelt um 22 Uhr blendet Weiß.
+   -------------------------------------------------------------------------- */
 :root {
-  --bg:        #12140f;
-  --panel:     rgba(20, 23, 17, 0.92);
-  --rand:      rgba(255, 255, 255, 0.14);
+  /* Flächen */
+  --bg:          #edebe5;   /* der Grund: warmes Papier, kein kaltes Grau */
+  --flaeche:     #ffffff;   /* Karten, Tafeln, Blätter — sie liegen darauf */
+  --flaeche-tief:#e4e1d8;   /* wo noch etwas darunter liegt: Bildplatzhalter */
+  --panel:       rgba(255, 255, 255, 0.93);   /* schwebt über der Karte */
+  --rand:        rgba(28, 26, 24, 0.13);
+
+  /* Schrift */
+  --text:      #1c1a18;   /* warmes Schwarz, kein reines #000 */
+  --text-lese: #33302c;   /* Fließtext: eine Spur weicher */
+  --text-weak: #736554;   /* Nebensachen: warmes Braungrau statt Grau */
+
+  /* Akzente */
+  --gruen:       #4f6814;   /* Oliv — die Hauptfarbe der App */
+  --auf-akzent:  #ffffff;   /* was auf dem Oliv steht */
+  --akzent-weich:rgba(79, 104, 20, 0.11);
+  --akzent-rand: rgba(79, 104, 20, 0.42);
+  --akzent-hell: #dbf0ae;   /* nur auf Fotos, deshalb hell in beiden Themen */
+  --orange:      #ee6b17;   /* der zweite Akzent: Plus, Neuigkeiten, Route */
+  --blau:        #2f7fb8;   /* Wasser */
+  --braun:       #a86a2a;   /* Unterstand / Hütte */
+
+  /* Vier Stufen Tönung, für Füllungen, Trennlinien und Zustände.
+     Sie sind der Grund, warum das Umschalten überhaupt funktioniert:
+     dieselbe Stufe bedeutet in beiden Themen dasselbe. */
+  --t1: rgba(28, 26, 24, 0.055);
+  --t2: rgba(28, 26, 24, 0.085);
+  --t3: rgba(28, 26, 24, 0.13);
+  --t4: rgba(28, 26, 24, 0.2);
+
+  /* Schatten. Am Tag fast unsichtbar — auf hellem Grund reicht eine Andeutung,
+     alles andere sieht nach Schmutz aus. */
+  --sch1: rgba(40, 34, 26, 0.1);
+  --sch2: rgba(40, 34, 26, 0.16);
+  --ueber: rgba(28, 26, 24, 0.45);   /* hinter Fenstern */
+
+  /* Zustände */
+  --stern:      #e09600;
+  --stern-leer: #cfc9bd;
+  --warn-text:  #9a5e05;
+  --warn-weich: rgba(224, 150, 0, 0.13);
+  --warn-rand:  rgba(224, 150, 0, 0.42);
+  --fehl-text:  #a8321b;
+  --fehl-weich: rgba(190, 60, 35, 0.1);
+  --fehl-rand:  rgba(190, 60, 35, 0.35);
+  --gefahr:     #b8432c;
+  --gefahr-hover: #9d3623;
+  --info-text:  #3b5210;
+  --blau-weich: rgba(47, 127, 184, 0.1);
+  --blau-rand:  rgba(47, 127, 184, 0.3);
+  --route-weich:rgba(238, 107, 23, 0.1);
+
+  /* Die Zeichen in der Legende — kräftiger als am Bildschirm nötig wäre,
+     damit sie auf Weiß nicht verschwinden. */
+  --sym-spot: #0e8a38;
+  --sym-seen: #0f9e92;
+  --sym-fall: #2c6fd0;
+
+  --schimmer-1: rgba(79, 104, 20, 0.1);
+  --schimmer-2: rgba(238, 107, 23, 0.06);
+
+  /* Die Karte außerhalb Österreichs und hinter allem: dieselbe Farbe wie
+     der Grund, sonst blitzt beim Ziehen ein fremder Ton auf. */
+  --karte-grund: #e4e1d8;
+
+  color-scheme: light;
+}
+
+/* --------------------------------------------------------------- Nacht --- */
+html[data-thema="nacht"] {
+  --bg:          #12140f;
+  --flaeche:     #191d14;
+  --flaeche-tief:#0d0f0a;
+  --panel:       rgba(20, 23, 17, 0.92);
+  --rand:        rgba(255, 255, 255, 0.14);
+
   --text:      #f2f4ee;
+  --text-lese: #d6dbcd;
   --text-weak: #a8b09c;
-  --gruen:     #7bb661;   /* Akzent: Wiese */
-  --blau:      #4aa3df;   /* Wasser */
-  --braun:     #c98a3f;   /* Unterstand / Hütte */
+
+  --gruen:       #7bb661;
+  --auf-akzent:  #10140c;
+  --akzent-weich:rgba(123, 182, 97, 0.14);
+  --akzent-rand: rgba(123, 182, 97, 0.45);
+  --akzent-hell: #b8e8a0;
+  --orange:      #f08a3c;
+  --blau:        #4aa3df;
+  --braun:       #c98a3f;
+
+  --t1: rgba(255, 255, 255, 0.05);
+  --t2: rgba(255, 255, 255, 0.09);
+  --t3: rgba(255, 255, 255, 0.14);
+  --t4: rgba(255, 255, 255, 0.22);
+
+  --sch1: rgba(0, 0, 0, 0.4);
+  --sch2: rgba(0, 0, 0, 0.55);
+  --ueber: rgba(8, 10, 6, 0.8);
+
+  --stern:      #e8c34a;
+  --stern-leer: #5a614f;
+  --warn-text:  #e0b070;
+  --warn-weich: rgba(232, 194, 106, 0.1);
+  --warn-rand:  rgba(232, 194, 106, 0.36);
+  --fehl-text:  #e8907a;
+  --fehl-weich: rgba(226, 106, 90, 0.15);
+  --fehl-rand:  rgba(226, 106, 90, 0.42);
+  --gefahr:     #b8503c;
+  --gefahr-hover: #cc5a44;
+  --info-text:  #cbe4bb;
+  --blau-weich: rgba(74, 163, 223, 0.1);
+  --blau-rand:  rgba(74, 163, 223, 0.28);
+  --route-weich:rgba(226, 96, 60, 0.12);
+
+  --sym-spot: #19c052;
+  --sym-seen: #38e1d0;
+  --sym-fall: #4f97e8;
+
+  --schimmer-1: rgba(123, 182, 97, 0.16);
+  --schimmer-2: rgba(56, 225, 208, 0.07);
+
+  --karte-grund: #141812;
 
   /* Sagt dem Browser, dass die Seite dunkel ist. Damit werden Rollbalken,
      das Kalendersymbol im Datumsfeld und der Datumswähler selbst dunkel
@@ -121,14 +264,14 @@ html, body {
   cursor: pointer;
   display: grid;
   place-items: center;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 20px var(--sch1);
   transition: background 0.15s, border-color 0.15s;
 }
-.werkzeug:hover { background: rgba(255, 255, 255, 0.13); }
+.werkzeug:hover { background: var(--t3); }
 .werkzeug[aria-expanded="true"] {
   background: var(--gruen);
   border-color: var(--gruen);
-  color: #10140c;
+  color: var(--auf-akzent);
 }
 .werkzeug svg {
   width: 21px; height: 21px;
@@ -146,7 +289,7 @@ html, body {
   width: 11px; height: 11px;
   border-radius: 50%;
   background: var(--gruen);
-  border: 2px solid #12140f;
+  border: 2px solid var(--bg);
 }
 .ampel[hidden] { display: none; }
 
@@ -179,7 +322,7 @@ html, body {
   border-radius: 11px;
   background: var(--panel);
   backdrop-filter: blur(12px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 20px var(--sch1);
   transition: border-color 0.15s;
 }
 .suche-feld:focus-within { border-color: var(--gruen); }
@@ -212,14 +355,14 @@ html, body {
   width: 19px; height: 19px;
   border: 0;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.12);
+  background: var(--t2);
   color: var(--text-weak);
   font-size: 15px;
   line-height: 1;
   cursor: pointer;
   padding: 0;
 }
-#suche-leeren:hover { background: rgba(255, 255, 255, 0.2); color: var(--text); }
+#suche-leeren:hover { background: var(--t4); color: var(--text); }
 #suche-leeren[hidden] { display: none; }
 
 /* ------------------------------------------------------------- Trefferliste */
@@ -230,11 +373,11 @@ html, body {
   overflow-y: auto;
   overflow-x: hidden;   /* siehe .detail-koerper */
   overscroll-behavior: contain;
-  background: #191d14;
+  background: var(--flaeche);
   border: 1px solid var(--rand);
   border-radius: 14px;
   padding: 6px;
-  box-shadow: 0 14px 44px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 14px 44px var(--sch2);
 }
 .suche-treffer[hidden] { display: none; }
 
@@ -263,7 +406,7 @@ html, body {
   text-align: left;
   cursor: pointer;
 }
-.suche-treffer button:hover { background: rgba(255, 255, 255, 0.08); }
+.suche-treffer button:hover { background: var(--t2); }
 
 .suche-treffer .sym { width: 17px; height: 17px; }
 .suche-treffer .wo { flex: 1; min-width: 0; }
@@ -307,11 +450,11 @@ html, body {
   overflow-y: auto;
   overflow-x: hidden;   /* siehe .detail-koerper */
   overscroll-behavior: contain;
-  background: #191d14;
+  background: var(--flaeche);
   border: 1px solid var(--rand);
   border-radius: 14px;
   padding: 14px;
-  box-shadow: 0 14px 44px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 14px 44px var(--sch2);
 }
 .tafel[hidden] { display: none; }
 .ecke.links  .tafel { left: 0; }
@@ -353,16 +496,16 @@ html, body {
 .tafel-haupt {
   border: 0;
   background: var(--gruen);
-  color: #10140c;
+  color: var(--auf-akzent);
   font-weight: 600;
 }
 .tafel-haupt:hover { filter: brightness(1.08); }
 .tafel-zweit {
   border: 1px solid var(--rand);
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--t1);
   color: var(--text);
 }
-.tafel-zweit:hover { background: rgba(255, 255, 255, 0.13); }
+.tafel-zweit:hover { background: var(--t3); }
 
 .kontozeile {
   display: flex;
@@ -371,7 +514,7 @@ html, body {
   gap: 10px;
   padding: 7px 0;
   font-size: 13px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid var(--t1);
   margin-bottom: 2px;
 }
 .kontozeile span { color: var(--text-weak); flex-shrink: 0; }
@@ -401,7 +544,7 @@ html, body {
   border: 2px solid transparent;
   border-radius: 10px;
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--t1);
   cursor: pointer;
   font: inherit;
 }
@@ -423,11 +566,11 @@ html, body {
   text-align: left;
   /* Kräftig genug, damit der Name auch auf einem hellen Luftbild oder auf
      grüner Wiese noch steht. */
-  background: linear-gradient(transparent, rgba(0, 0, 0, 0.5) 45%, rgba(0, 0, 0, 0.88));
+  background: linear-gradient(transparent, var(--sch2) 45%, rgba(0, 0, 0, 0.88));
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
 }
 .stil[aria-pressed="true"] { border-color: var(--gruen); }
-.stil[aria-pressed="true"] span { color: #b8e8a0; }
+.stil[aria-pressed="true"] span { color: var(--akzent-hell); }
 
 /* ---------------------------------------------------------- Ebenenwahl --- */
 .schalter { display: flex; flex-direction: column; }
@@ -439,7 +582,7 @@ html, body {
   width: 100%;
   padding: 9px 2px;
   border: 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid var(--t1);
   background: transparent;
   color: var(--text);
   font: inherit;
@@ -456,7 +599,7 @@ html, body {
   position: relative;
   width: 36px; height: 21px;
   border-radius: 11px;
-  background: rgba(255, 255, 255, 0.16);
+  background: var(--t3);
   flex-shrink: 0;
   transition: background 0.18s;
 }
@@ -486,9 +629,9 @@ html, body {
 /* Etwas heller als auf der Karte: dort steht das Zelt auf hellem Grund, hier
    auf dunklem Panel. Es soll in beiden Fällen dieselbe Farbe zu sein
    scheinen. */
-.sym.spot       { color: #19c052; }
-.sym.seen       { color: #38e1d0; }
-.sym.wasserfall { color: #4f97e8; }   /* heller als auf der Karte, sonst
+.sym.spot       { color: var(--sym-spot); }
+.sym.seen       { color: var(--sym-seen); }
+.sym.wasserfall { color: var(--sym-fall); }   /* heller als auf der Karte, sonst
                                          verschwindet es im dunklen Panel */
 .sym.wasser     { color: var(--blau); }
 .sym.unterstand { color: var(--braun); }
@@ -535,13 +678,13 @@ html, body {
   border: 0;
   border-radius: 24px;
   background: var(--gruen);
-  color: #10140c;
+  color: var(--auf-akzent);
   font: inherit;
   font-size: 14px;
   font-weight: 600;
   padding: 12px 18px;
   cursor: pointer;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 4px 20px var(--sch1);
   display: flex;
   align-items: center;
   gap: 7px;
@@ -560,10 +703,10 @@ html, body {
   cursor: pointer;
   display: grid;
   place-items: center;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 20px var(--sch1);
   transition: background 0.15s;
 }
-.rund:hover { background: rgba(255, 255, 255, 0.12); }
+.rund:hover { background: var(--t2); }
 .rund:disabled { opacity: 0.5; cursor: progress; }
 
 /* ==========================================================================
@@ -581,7 +724,7 @@ html, body {
   gap: 12px;
   align-items: center;
   justify-content: space-between;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 20px var(--sch1);
 }
 .fuss .mitte {
   font-variant-numeric: tabular-nums;
@@ -624,13 +767,13 @@ html, body {
   padding: 9px 14px;
   font-size: 13px;
   line-height: 1.45;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 20px var(--sch1);
   display: none;
 }
 .status.sichtbar { display: block; }
-.status.warnung  { border-color: rgba(230, 170, 60, 0.55); }
+.status.warnung  { border-color: var(--warn-rand); }
 .status code {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--t2);
   padding: 1px 5px;
   border-radius: 4px;
   font-size: 12px;
@@ -664,8 +807,8 @@ html, body {
   width: 130vmax; height: 130vmax;
   left: 50%; top: 50%;
   background: radial-gradient(circle at 50% 50%,
-              rgba(123, 182, 97, 0.16) 0%,
-              rgba(56, 225, 208, 0.07) 35%,
+              var(--schimmer-1) 0%,
+              var(--schimmer-2) 35%,
               transparent 62%);
   animation: schimmer 22s ease-in-out infinite;
   pointer-events: none;
@@ -776,7 +919,7 @@ html, body {
   padding: 15px 16px;
   border: 1.5px solid var(--rand);
   border-radius: 13px;
-  background: rgba(255, 255, 255, 0.045);
+  background: var(--t1);
   color: var(--text);
   font: inherit;
   font-size: 15px;
@@ -784,11 +927,11 @@ html, body {
   cursor: pointer;
   transition: border-color 0.15s, background 0.15s, transform 0.12s;
 }
-.intro-wahl button:hover { background: rgba(255, 255, 255, 0.09); }
+.intro-wahl button:hover { background: var(--t2); }
 .intro-wahl button:active { transform: scale(0.985); }
 .intro-wahl button[aria-pressed="true"] {
   border-color: var(--gruen);
-  background: rgba(123, 182, 97, 0.14);
+  background: var(--akzent-weich);
 }
 .intro-wahl .emoji { font-size: 21px; line-height: 1; flex-shrink: 0; }
 .intro-wahl .haken {
@@ -817,7 +960,7 @@ html, body {
   padding: 13px 14px;
   border: 1px solid var(--rand);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.035);
+  background: var(--t1);
 }
 .intro-regel .emoji { font-size: 19px; line-height: 1.3; flex-shrink: 0; }
 .intro-regel p { margin: 0; font-size: 13.5px; line-height: 1.55; }
@@ -838,7 +981,7 @@ html, body {
 .intro-balken {
   height: 4px;
   border-radius: 2px;
-  background: rgba(255, 255, 255, 0.12);
+  background: var(--t2);
   overflow: hidden;
   margin-bottom: 16px;
 }
@@ -846,7 +989,7 @@ html, body {
   height: 100%;
   width: 0;
   border-radius: 2px;
-  background: linear-gradient(90deg, var(--gruen), #38e1d0);
+  background: linear-gradient(90deg, var(--gruen), var(--sym-seen));
   transition: width 0.45s cubic-bezier(0.3, 0.9, 0.3, 1);
 }
 
@@ -858,7 +1001,7 @@ html, body {
   border: 0;
   border-radius: 13px;
   background: var(--gruen);
-  color: #10140c;
+  color: var(--auf-akzent);
   font: inherit;
   font-size: 16px;
   font-weight: 600;
@@ -898,7 +1041,7 @@ html, body {
   position: absolute;
   inset: 0;
   z-index: 50;
-  background: rgba(8, 10, 6, 0.8);
+  background: var(--ueber);
   backdrop-filter: blur(4px);
   display: grid;
   place-items: center;
@@ -912,14 +1055,14 @@ html, body {
 
 .hinweis {
   max-width: 460px;
-  background: #191d14;
+  background: var(--flaeche);
   border: 1px solid var(--rand);
   border-radius: 16px;
   padding: 24px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 20px 60px var(--sch2);
 }
 .hinweis h2 { margin: 0 0 12px; font-size: 18px; }
-.hinweis p  { margin: 0 0 12px; font-size: 14px; line-height: 1.6; color: #d6dbcd; }
+.hinweis p  { margin: 0 0 12px; font-size: 14px; line-height: 1.6; color: var(--text-lese); }
 .hinweis strong { color: var(--text); }
 .hinweis button {
   width: 100%;
@@ -928,7 +1071,7 @@ html, body {
   border: 0;
   border-radius: 10px;
   background: var(--gruen);
-  color: #10140c;
+  color: var(--auf-akzent);
   font: inherit;
   font-weight: 600;
   cursor: pointer;
@@ -941,7 +1084,7 @@ html, body {
   position: absolute;
   inset: 0;
   z-index: 60;
-  background: rgba(8, 10, 6, 0.8);
+  background: var(--ueber);
   backdrop-filter: blur(4px);
   display: grid;
   place-items: center;
@@ -965,11 +1108,11 @@ html, body {
   overflow-y: auto;
   overflow-x: hidden;   /* siehe .detail-koerper */
   overscroll-behavior: contain;
-  background: #191d14;
+  background: var(--flaeche);
   border: 1px solid var(--rand);
   border-radius: 16px;
   padding: 24px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 20px 60px var(--sch2);
 }
 .login-box h2 { margin: 0 0 4px; font-size: 19px; }
 .login-box .unter { margin: 0 0 18px; font-size: 13px; color: var(--text-weak); line-height: 1.5; }
@@ -986,7 +1129,7 @@ html, body {
   margin-bottom: 13px;
   border: 1px solid var(--rand);
   border-radius: 9px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--t1);
   color: var(--text);
   font: inherit;
   font-size: 15px;   /* am Handy 16px — siehe Block „Eingabefelder" unten */
@@ -994,7 +1137,7 @@ html, body {
 .login-box input:focus {
   outline: none;
   border-color: var(--gruen);
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--t2);
 }
 
 .login-box .haupt {
@@ -1003,7 +1146,7 @@ html, body {
   border: 0;
   border-radius: 10px;
   background: var(--gruen);
-  color: #10140c;
+  color: var(--auf-akzent);
   font: inherit;
   font-weight: 600;
   font-size: 15px;
@@ -1072,8 +1215,8 @@ html, body {
   line-height: 1.5;
 }
 .login-meldung.sichtbar { display: block; }
-.login-meldung.info   { background: rgba(123, 182, 97, 0.14); color: #cbe4bb; }
-.login-meldung.fehler { background: rgba(226, 106, 90, 0.16); color: #f0bcb3; }
+.login-meldung.info   { background: var(--akzent-weich); color: var(--info-text); }
+.login-meldung.fehler { background: var(--fehl-weich); color: var(--fehl-text); }
 
 /* ==========================================================================
    Spot anlegen — nutzt das Aussehen des Anmeldefensters weiter
@@ -1095,7 +1238,7 @@ html, body {
   margin-bottom: 13px;
   border: 1px solid var(--rand);
   border-radius: 9px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--t1);
   color: var(--text);
   font: inherit;
   font-size: 15px;
@@ -1111,12 +1254,12 @@ html, body {
   margin-bottom: 12px;
   border: 1px solid var(--rand);
   border-radius: 9px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--t1);
   color: var(--text);
   font: inherit;
   font-size: 15px;
 }
-.spot-box select option { background: #191d14; color: var(--text); }
+.spot-box select option { background: var(--flaeche); color: var(--text); }
 .pflicht { color: var(--gruen); }
 
 .hinweis-klein {
@@ -1138,7 +1281,7 @@ html, body {
 .aus-foto .zweit { margin-bottom: 0; }
 .aus-foto .hinweis-klein { margin-top: 9px; }
 .aus-foto .hinweis-klein.gut  { color: var(--gruen); }
-.aus-foto .hinweis-klein.warn { color: #e0b070; }
+.aus-foto .hinweis-klein.warn { color: var(--warn-text); }
 .aus-foto[hidden] { display: none; }
 
 /* Die Attributgruppen sind zugeklappt — niemand soll 19 Felder vor sich
@@ -1154,7 +1297,7 @@ html, body {
   cursor: pointer;
   font-size: 14px;
   color: var(--text);
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--t1);
   list-style: none;
   display: flex;
   justify-content: space-between;
@@ -1191,7 +1334,7 @@ html, body {
   color: var(--text-weak);
   line-height: 1.45;
 }
-.feld-hinweis.warn { color: #e0b070; }
+.feld-hinweis.warn { color: var(--warn-text); }
 
 #login-schliessen, #spot-schliessen {
   position: absolute;
@@ -1199,13 +1342,13 @@ html, body {
   width: 30px; height: 30px;
   border: 0;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--t2);
   color: var(--text-weak);
   font-size: 17px;
   line-height: 1;
   cursor: pointer;
 }
-#login-schliessen:hover, #spot-schliessen:hover { background: rgba(255, 255, 255, 0.16); color: var(--text); }
+#login-schliessen:hover, #spot-schliessen:hover { background: var(--t3); color: var(--text); }
 
 /* ==========================================================================
    Spot-Detail — die Seitenleiste rechts
@@ -1225,7 +1368,7 @@ html, body {
   border: 1px solid var(--rand);
   border-radius: 14px;
   backdrop-filter: blur(14px);
-  box-shadow: 0 12px 44px rgba(0, 0, 0, 0.55);
+  box-shadow: 0 12px 44px var(--sch2);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -1237,7 +1380,8 @@ html, body {
 body.detail-offen .unten { right: 404px; }
 
 .detail-kopf {
-  padding: 16px 44px 12px 16px;
+  /* Rechts Platz für zwei runde Knöpfe: Teilen und Schließen. */
+  padding: 16px 82px 12px 16px;
   border-bottom: 1px solid var(--rand);
   flex-shrink: 0;
 }
@@ -1261,14 +1405,65 @@ body.detail-offen .unten { right: 404px; }
   width: 30px; height: 30px;
   border: 0;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--t2);
   color: var(--text-weak);
   font-size: 17px;
   line-height: 1;
   cursor: pointer;
   z-index: 1;
 }
-#detail-zu:hover { background: rgba(255, 255, 255, 0.16); color: var(--text); }
+#detail-zu:hover { background: var(--t3); color: var(--text); }
+
+/* Der Teilen-Knopf sitzt links neben dem Schließen — dieselbe Ecke, in der
+   ihn jeder sucht. Bewusst genauso unauffällig: Er ist nützlich, aber nicht
+   das, wofür man die Leiste aufmacht. */
+#detail-teilen {
+  position: absolute;
+  top: 12px; right: 48px;
+  width: 30px; height: 30px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--t2);
+  color: var(--text-weak);
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 1;
+}
+#detail-teilen:hover { background: var(--t3); color: var(--text); }
+#detail-teilen[hidden] { display: none; }
+
+/* Das Herz. Dieselbe Form wie seine beiden Nachbarn, damit die Ecke ruhig
+   bleibt — die Farbe macht den Unterschied, sobald es gedrückt ist. */
+#detail-merken {
+  position: absolute;
+  top: 12px; right: 84px;
+  display: grid;
+  place-items: center;
+  width: 30px; height: 30px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--t2);
+  color: var(--text-weak);
+  cursor: pointer;
+  z-index: 1;
+  transition: transform 0.14s cubic-bezier(0.3, 1.5, 0.5, 1);
+}
+#detail-merken svg {
+  width: 17px; height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linejoin: round;
+}
+#detail-merken:hover { background: var(--t3); color: var(--text); }
+#detail-merken:active { transform: scale(0.85); }
+#detail-merken[aria-pressed="true"] { color: var(--gefahr); }
+#detail-merken[aria-pressed="true"] svg { fill: currentColor; }
+#detail-merken[hidden] { display: none; }
+
+/* Drei Knöpfe statt zwei — die Überschrift braucht entsprechend mehr Luft. */
+.detail-kopf { padding-right: 118px; }
 
 /* Der scrollende Teil. Alles Lange landet hier drin. */
 .detail-koerper {
@@ -1298,7 +1493,7 @@ body.detail-offen .unten { right: 404px; }
   margin: 0 0 4px;
   font-size: 14px;
   line-height: 1.6;
-  color: #d6dbcd;
+  color: var(--text-lese);
   white-space: pre-wrap;
   word-break: break-word;
 }
@@ -1313,7 +1508,7 @@ body.detail-offen .unten { right: 404px; }
   align-items: baseline;
   padding: 7px 0;
   font-size: 13.5px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--t1);
 }
 .merkmal:last-child { border-bottom: 0; }
 .merkmal .sym { font-size: 14px; line-height: 1.2; }
@@ -1332,7 +1527,7 @@ body.detail-offen .unten { right: 404px; }
   line-height: 1.5;
   word-break: break-word;
 }
-.merkmal .wert.warn { color: #e0b070; }
+.merkmal .wert.warn { color: var(--warn-text); }
 .merkmal .wert.gut  { color: var(--gruen); }
 
 /* ---------------------------------------------------------------- Fotos ---
@@ -1359,7 +1554,7 @@ body.detail-offen .unten { right: 404px; }
   border: 0;
   border-radius: 8px;
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--t1);
   cursor: zoom-in;
 }
 .foto img {
@@ -1420,7 +1615,7 @@ body.detail-offen .unten { right: 404px; }
   padding: 11px;
   border: 1px solid var(--rand);
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.07);
+  background: var(--t1);
   color: var(--text);
   font: inherit;
   font-size: 14px;
@@ -1428,7 +1623,7 @@ body.detail-offen .unten { right: 404px; }
   cursor: pointer;
   margin-bottom: 8px;
 }
-.zweit:hover { background: rgba(255, 255, 255, 0.14); }
+.zweit:hover { background: var(--t3); }
 .zweit:disabled { opacity: 0.55; cursor: progress; }
 
 /* Der Sterneschnitt ganz oben — die eine Zahl, die man zuerst sucht. */
@@ -1439,7 +1634,7 @@ body.detail-offen .unten { right: 404px; }
   padding: 11px 13px;
   border: 1px solid var(--rand);
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--t1);
   margin-bottom: 4px;
 }
 .schnitt .zahl { font-size: 22px; font-weight: 600; line-height: 1; }
@@ -1461,7 +1656,7 @@ body.detail-offen .unten { right: 404px; }
   padding: 10px 11px;
   border: 1px solid var(--rand);
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--t1);
   color: var(--text);
   text-decoration: none;
   font-size: 13.5px;
@@ -1469,8 +1664,8 @@ body.detail-offen .unten { right: 404px; }
   line-height: 1.25;
 }
 .weg-knopf:hover {
-  background: rgba(255, 255, 255, 0.13);
-  border-color: rgba(255, 255, 255, 0.24);
+  background: var(--t3);
+  border-color: var(--t4);
 }
 .weg-knopf .sym { font-size: 18px; line-height: 1; }
 .weg-knopf .was { display: flex; flex-direction: column; gap: 2px; }
@@ -1485,7 +1680,7 @@ body.detail-offen .unten { right: 404px; }
 .meine-sterne button {
   border: 0;
   background: transparent;
-  color: #5a614f;
+  color: var(--stern-leer);
   font-size: 27px;
   line-height: 1;
   padding: 2px 1px;
@@ -1493,15 +1688,15 @@ body.detail-offen .unten { right: 404px; }
   transition: transform 0.1s, color 0.12s;
 }
 .meine-sterne button:hover { transform: scale(1.15); }
-.meine-sterne button.an { color: #e8c34a; }
-.meine-sterne:hover button { color: #5a614f; }
-.meine-sterne:hover button.bis-hier { color: #e8c34a; }
+.meine-sterne button.an { color: var(--stern); }
+.meine-sterne:hover button { color: var(--stern-leer); }
+.meine-sterne:hover button.bis-hier { color: var(--stern); }
 
 /* Ein Kommentar. Das Besuchsdatum steht bewusst prominent — ohne das ist
    „Bach war trocken" wertlos. */
 .kommentar {
   padding: 11px 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  border-top: 1px solid var(--t1);
 }
 .kommentar:first-of-type { border-top: 0; padding-top: 4px; }
 .kommentar .zeile {
@@ -1518,7 +1713,7 @@ body.detail-offen .unten { right: 404px; }
   margin: 0;
   font-size: 14px;
   line-height: 1.55;
-  color: #d6dbcd;
+  color: var(--text-lese);
   white-space: pre-wrap;
   word-break: break-word;
 }
@@ -1533,7 +1728,7 @@ body.detail-offen .unten { right: 404px; }
   text-decoration: underline;
   padding: 0;
 }
-.kommentar .weg:hover { color: #e0907a; }
+.kommentar .weg:hover { color: var(--fehl-text); }
 
 /* Das Formular für einen neuen Kommentar. */
 .detail-koerper textarea,
@@ -1543,7 +1738,7 @@ body.detail-offen .unten { right: 404px; }
   margin-bottom: 9px;
   border: 1px solid var(--rand);
   border-radius: 9px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--t1);
   color: var(--text);
   font: inherit;
   font-size: 15px;   /* am Handy 16px — siehe Block „Eingabefelder" unten */
@@ -1566,7 +1761,7 @@ body.detail-offen .unten { right: 404px; }
   border: 0;
   border-radius: 10px;
   background: var(--gruen);
-  color: #10140c;
+  color: var(--auf-akzent);
   font: inherit;
   font-weight: 600;
   font-size: 14px;
@@ -1581,30 +1776,30 @@ body.detail-offen .unten { right: 404px; }
   width: 100%;
   padding: 10px;
   margin-top: 8px;
-  border: 1px solid rgba(226, 106, 90, 0.45);
+  border: 1px solid var(--fehl-rand);
   border-radius: 10px;
   background: transparent;
-  color: #e8907a;
+  color: var(--fehl-text);
   font: inherit;
   font-size: 13.5px;
   cursor: pointer;
 }
-.gefahr:hover { background: rgba(226, 106, 90, 0.14); }
+.gefahr:hover { background: var(--fehl-weich); }
 .gefahr:disabled { opacity: 0.55; cursor: progress; }
 
 .loeschfrage {
   margin-top: 10px;
   padding: 12px 13px;
-  border: 1px solid rgba(226, 106, 90, 0.4);
+  border: 1px solid var(--fehl-rand);
   border-radius: 10px;
-  background: rgba(226, 106, 90, 0.09);
+  background: var(--fehl-weich);
 }
 .loeschfrage[hidden] { display: none; }
 .loeschfrage p {
   margin: 0 0 8px;
   font-size: 13px;
   line-height: 1.5;
-  color: #f0c4ba;
+  color: var(--fehl-text);
 }
 .loeschfrage p:last-of-type { margin-bottom: 12px; }
 .loeschfrage b { color: var(--text); }
@@ -1613,12 +1808,12 @@ body.detail-offen .unten { right: 404px; }
 .loeschfrage-knoepfe button { margin-top: 0; flex: 1; }
 /* Hier ist die Warnung angekommen — jetzt darf der Knopf deutlich sein. */
 .loeschfrage-knoepfe .gefahr {
-  background: #b8503c;
-  border-color: #b8503c;
+  background: var(--gefahr);
+  border-color: var(--gefahr);
   color: #fff;
   font-weight: 600;
 }
-.loeschfrage-knoepfe .gefahr:hover { background: #cc5a44; }
+.loeschfrage-knoepfe .gefahr:hover { background: var(--gefahr-hover); }
 
 .detail-leer {
   font-size: 13px;
@@ -1650,22 +1845,22 @@ body.detail-offen .unten { right: 404px; }
   line-height: 1.5;
 }
 .detail-meldung.sichtbar { display: block; }
-.detail-meldung.info   { background: rgba(123, 182, 97, 0.14); color: #cbe4bb; }
-.detail-meldung.fehler { background: rgba(226, 106, 90, 0.16); color: #f0bcb3; }
+.detail-meldung.info   { background: var(--akzent-weich); color: var(--info-text); }
+.detail-meldung.fehler { background: var(--fehl-weich); color: var(--fehl-text); }
 
 /* ==========================================================================
    Popup auf einer Wasserstelle
    ========================================================================== */
 .maplibregl-popup-content {
-  background: #191d14;
+  background: var(--flaeche);
   color: var(--text);
   border: 1px solid var(--rand);
   border-radius: 10px;
   padding: 11px 13px;
   font-size: 13px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 8px 30px var(--sch2);
 }
-.maplibregl-popup-tip { border-top-color: #191d14 !important; border-bottom-color: #191d14 !important; }
+.maplibregl-popup-tip { border-top-color: var(--flaeche) !important; border-bottom-color: var(--flaeche) !important; }
 .maplibregl-popup-content b { display: block; margin-bottom: 3px; font-size: 14px; }
 .maplibregl-popup-content .meta { color: var(--text-weak); font-size: 12px; }
 .maplibregl-popup-content a { color: var(--blau); }
@@ -1772,7 +1967,7 @@ body.detail-offen .unten { right: 404px; }
 
   background: var(--panel);
   backdrop-filter: blur(8px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 6px 20px var(--sch1);
 }
 
 /* Kein Netz ist eine Feststellung, kein Fehler: gedämpft, nicht rot. */
@@ -1784,7 +1979,7 @@ body.detail-offen .unten { right: 404px; }
 /* Die neue Fassung ist dagegen zum Antippen da und darf danach aussehen. */
 .neue-fassung {
   color: var(--text);
-  border-color: rgba(123, 182, 97, 0.55);
+  border-color: var(--akzent-rand);
   cursor: pointer;
 }
 .neue-fassung:hover { border-color: var(--gruen); }
@@ -1908,8 +2103,8 @@ body.detail-offen .unten { right: 404px; }
   display: flex;
   align-items: baseline;
   gap: 9px;
-  background: rgba(74, 163, 223, 0.1);
-  border: 1px solid rgba(74, 163, 223, 0.28);
+  background: var(--blau-weich);
+  border: 1px solid var(--blau-rand);
   border-radius: 11px;
   padding: 10px 12px;
   margin-bottom: 9px;
@@ -1928,10 +2123,10 @@ body.detail-offen .unten { right: 404px; }
 /* Bei Frostgefahr wechselt der Block die Farbe — das ist die Nacht, in der
    ein Sommerschlafsack nicht reicht. */
 .wetter-nacht.frostig {
-  background: rgba(232, 194, 106, 0.1);
-  border-color: rgba(232, 194, 106, 0.34);
+  background: var(--warn-weich);
+  border-color: var(--warn-rand);
 }
-.wetter-nacht.frostig b { color: #e8c26a; }
+.wetter-nacht.frostig b { color: var(--warn-text); }
 
 .wetter-tage {
   border: 1px solid var(--rand);
@@ -1971,6 +2166,90 @@ body.detail-offen .unten { right: 404px; }
   color: var(--text-weak);
   opacity: 0.8;
 }
+
+/* ==========================================================================
+   Wanderroute vom Parkplatz zum Spot (route.js)
+   ========================================================================== */
+
+.route { margin-bottom: 4px; }
+
+/* Die drei bis vier Zahlen nebeneinander: Gehzeit, Strecke, Höhenmeter.
+   Gleich breit, weil keine davon die wichtigere ist — welche zählt, hängt am
+   Spot und an dem, der hingeht. */
+.route-zahlen {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(72px, 1fr));
+  gap: 8px;
+  padding: 11px 12px;
+  border: 1px solid var(--rand);
+  border-radius: 10px;
+  background: var(--route-weich);
+}
+.route-zahlen > div { display: flex; flex-direction: column; gap: 2px; }
+.route-zahlen b {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+}
+.route-zahlen span { font-size: 11px; color: var(--text-weak); }
+
+.route-knoepfe { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+.route-knoepfe .zweit { flex: 1; margin: 0; }
+
+.route .zweit { margin-top: 8px; }
+
+.route-quelle {
+  margin: 7px 0 0;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--text-weak);
+  opacity: 0.8;
+}
+
+/* Die Leiste, die beim Setzen des Parkplatzes unten erscheint. Solange sie
+   offen ist, verschwindet die Detail-Leiste: Sie deckt am Handy fast die
+   ganze Karte ab, und das Fadenkreuz läge darunter. */
+.park-leiste {
+  width: 100%;
+  max-width: 460px;
+  margin: 0 auto;
+  padding: 13px 15px 14px;
+  border: 1px solid var(--rand);
+  border-radius: 14px;
+  background: var(--panel);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 28px var(--sch2);
+}
+.park-leiste[hidden] { display: none; }
+.park-knoepfe .haupt {
+  padding: 11px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--gruen);
+  color: var(--auf-akzent);
+  font: inherit;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+}
+.park-knoepfe .haupt:disabled { opacity: 0.6; cursor: progress; }
+.park-knoepfe .zweit { margin-bottom: 0; }
+.park-text { margin: 0; font-size: 13px; line-height: 1.45; }
+.park-koord {
+  margin: 7px 0 0;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-weak);
+}
+.park-knoepfe { display: flex; gap: 9px; margin-top: 11px; }
+.park-knoepfe button { flex: 1; margin: 0; }
+
+/* Solange der Parkplatz gesetzt wird, hat nichts anderes unten etwas
+   verloren: Die Detail-Leiste würde die Karte verdecken, und „Spot hier
+   anlegen" hieße jetzt etwas ganz anderes als sonst. */
+body.parkplatz-modus #detail,
+body.parkplatz-modus .knopf-zeile { display: none; }
 
 /* ==========================================================================
    Admin-Fenster
@@ -2033,7 +2312,7 @@ body.detail-offen .unten { right: 404px; }
   line-height: 1;
   flex-shrink: 0;
 }
-.admin-zu:hover { background: rgba(255, 255, 255, 0.07); }
+.admin-zu:hover { background: var(--t1); }
 
 .admin-reiter {
   display: flex;
@@ -2087,7 +2366,7 @@ body.detail-offen .unten { right: 404px; }
 .admin-suche {
   width: 100%;
   box-sizing: border-box;
-  background: #191d14;
+  background: var(--flaeche);
   border: 1px solid var(--rand);
   border-radius: 10px;
   color: var(--text);
@@ -2109,7 +2388,7 @@ body.detail-offen .unten { right: 404px; }
   margin-bottom: 20px;
 }
 .admin-kachel {
-  background: #191d14;
+  background: var(--flaeche);
   border: 1px solid var(--rand);
   border-radius: 12px;
   padding: 12px 13px;
@@ -2131,7 +2410,7 @@ body.detail-offen .unten { right: 404px; }
   border-radius: 12px;
   padding: 11px 12px;
   margin-bottom: 8px;
-  background: #191d14;
+  background: var(--flaeche);
 }
 .admin-zeile .titel {
   font-weight: 600;
@@ -2162,12 +2441,12 @@ body.detail-offen .unten { right: 404px; }
   min-height: 36px;   /* Daumenbreite, nicht Mauszeigerbreite */
   cursor: pointer;
 }
-.admin-zeile button:hover { background: rgba(255, 255, 255, 0.07); }
-.admin-zeile button.admin-gefahr { color: #ff9b8a; border-color: rgba(255, 120, 100, 0.42); }
-.admin-zeile button.admin-gefahr:hover { background: rgba(255, 100, 80, 0.14); }
+.admin-zeile button:hover { background: var(--t1); }
+.admin-zeile button.admin-gefahr { color: var(--fehl-text); border-color: var(--fehl-rand); }
+.admin-zeile button.admin-gefahr:hover { background: var(--fehl-weich); }
 
 /* Wird beim Löschen an die Zeile geheftet: erst bestätigen, dann weg. */
-.admin-zeile.fragt { border-color: rgba(255, 120, 100, 0.5); }
+.admin-zeile.fragt { border-color: var(--fehl-rand); }
 
 .admin-marke {
   display: inline-block;
@@ -2178,8 +2457,8 @@ body.detail-offen .unten { right: 404px; }
   margin-right: 4px;
   color: var(--text-weak);
 }
-.admin-marke.gruen { color: var(--gruen); border-color: rgba(123, 182, 97, 0.45); }
-.admin-marke.warn  { color: #e8c26a; border-color: rgba(232, 194, 106, 0.4); }
+.admin-marke.gruen { color: var(--gruen); border-color: var(--akzent-rand); }
+.admin-marke.warn  { color: var(--warn-text); border-color: var(--warn-rand); }
 
 .admin-leer {
   color: var(--text-weak);
@@ -2196,8 +2475,8 @@ body.detail-offen .unten { right: 404px; }
   margin-bottom: 12px;
   line-height: 1.5;
 }
-.admin-meldung.ok   { background: rgba(123, 182, 97, 0.14); color: var(--gruen); }
-.admin-meldung.fehl { background: rgba(255, 100, 80, 0.14); color: #ff9b8a; }
+.admin-meldung.ok   { background: var(--akzent-weich); color: var(--gruen); }
+.admin-meldung.fehl { background: var(--fehl-weich); color: var(--fehl-text); }
 
 /* Fotostreifen im Foto-Reiter */
 .admin-fotos {
@@ -2217,7 +2496,7 @@ body.detail-offen .unten { right: 404px; }
   object-fit: cover;
   border-radius: 7px;
   display: block;
-  background: #0d0f0a;
+  background: var(--flaeche-tief);
 }
 .admin-fotos button {
   position: absolute;
@@ -2240,10 +2519,1258 @@ body.detail-offen .unten { right: 404px; }
 /* Der Knopf im Einstellungsmenü, der hierher führt */
 #knopf-admin {
   background: none;
-  border: 1px solid rgba(123, 182, 97, 0.45);
+  border: 1px solid var(--akzent-rand);
   color: var(--gruen);
 }
-#knopf-admin:hover { background: rgba(123, 182, 97, 0.12); }
+#knopf-admin:hover { background: var(--akzent-weich); }
+
+/* ##########################################################################
+   ##                                                                      ##
+   ##   DIE APP-HÜLLE — untere Leiste und die Bereiche darüber             ##
+   ##                                                                      ##
+   ##   Bis hierher war Wild Spot eine Karte mit Knöpfen an den Rändern.    ##
+   ##   Das ist für eine Karte richtig, aber es gibt keinen Ort für alles   ##
+   ##   andere: Was gibt es Neues? Was habe ich mir gemerkt? Wer bin ich?   ##
+   ##                                                                      ##
+   ##   Deshalb liegt unten jetzt eine feste Leiste mit fünf Bereichen.     ##
+   ##   Die Karte ist einer davon — der wichtigste, aber eben einer.        ##
+   ##                                                                      ##
+   ########################################################################## */
+
+:root {
+  /* Die Höhe der unteren Leiste. Alles, was über ihr schwebt — der Knopf
+     „Spot hier anlegen", die Fußzeile, das Spot-Blatt — rechnet damit.
+     Deshalb steht sie als Wert hier und nicht dreimal im Blatt. */
+  --tab-h: calc(56px + env(safe-area-inset-bottom));
+}
+
+/* ---------------------------------------------------------------------------
+   Überschriften
+
+   Komoot setzt seine Titel sehr fett und sehr eng. Das ist der halbe
+   Wiedererkennungswert der App: eine Zeile „Routen in deiner Nähe" wirkt
+   dadurch wie ein Plakat und nicht wie eine Zwischenüberschrift.
+
+   Ohne eine geladene Schriftart nachgebaut — die App muss offline starten,
+   und eine Schrift, die erst aus dem Netz kommt, kann sie das nicht.
+   --------------------------------------------------------------------------- */
+.gross-titel {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.08;
+  color: var(--text);
+}
+.abschnitt-titel {
+  margin: 0 0 3px;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+  color: var(--text);
+}
+.abschnitt-unter {
+  margin: 0 0 13px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--text-weak);
+}
+
+/* ==========================================================================
+   Die untere Leiste
+   ========================================================================== */
+.tableiste {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  z-index: 70;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  background: var(--flaeche);
+  border-top: 1px solid var(--rand);
+  padding-bottom: env(safe-area-inset-bottom);
+  /* Ein Hauch Schatten nach oben: die Leiste liegt auf der Karte, nicht
+     neben ihr. */
+  box-shadow: 0 -1px 12px var(--sch1);
+}
+
+.tab {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  height: 56px;
+  padding: 0 2px;
+  border: 0;
+  background: none;
+  color: var(--text-weak);
+  font: inherit;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.tab svg {
+  width: 23px; height: 23px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.16s cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+.tab[aria-selected="true"] { color: var(--gruen); }
+.tab[aria-selected="true"] svg { stroke-width: 2.1; transform: translateY(-1px); }
+.tab:active svg { transform: scale(0.9); }
+
+/* Der Punkt am Plus-Zeichen, solange man es noch nie geöffnet hat. */
+.tab .neu-punkt {
+  position: absolute;
+  top: 8px;
+  margin-left: 17px;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--orange);
+}
+.tab .neu-punkt[hidden] { display: none; }
+
+/* Auf breiten Bildschirmen wird aus der Leiste unten eine Spalte links —
+   dort ist unten kein Daumen, sondern nur weiter Weg für die Maus. */
+@media (min-width: 900px) {
+  :root { --tab-h: 0px; }
+  .tableiste {
+    top: 0; bottom: 0; right: auto;
+    width: 88px;
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(5, auto);
+    align-content: center;
+    gap: 6px;
+    border-top: 0;
+    border-right: 1px solid var(--rand);
+    padding: 0 8px;
+    box-shadow: 1px 0 12px var(--sch1);
+  }
+  .tab { height: 64px; border-radius: 14px; font-size: 10.5px; }
+  .tab[aria-selected="true"] { background: var(--akzent-weich); }
+  .tab .neu-punkt { top: 12px; }
+}
+
+/* ==========================================================================
+   Die Bereiche über der Karte
+
+   Entdecken, Merkliste, Plus und Profil sind volle Seiten. Die Karte liegt
+   darunter und bleibt geladen — wer von Entdecken zur Karte wechselt, soll
+   sie sofort sehen und nicht warten, bis sie sich neu aufbaut.
+   ========================================================================== */
+.schirm {
+  position: fixed;
+  left: 0; right: 0; top: 0;
+  bottom: var(--tab-h);
+  z-index: 40;
+  background: var(--bg);
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 30px;
+}
+.schirm[hidden] { display: none; }
+
+/* Der Kopf einer Seite: Titel groß, darunter eine ruhige Zeile. */
+.schirm-kopf {
+  padding:
+    calc(18px + env(safe-area-inset-top))
+    max(18px, env(safe-area-inset-right))
+    14px
+    max(18px, env(safe-area-inset-left));
+}
+.schirm-kopf .zeile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.schirm-kopf .zeile .gross-titel { flex: 1; min-width: 0; }
+.schirm-kopf .unter {
+  margin: 7px 0 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--text-weak);
+}
+
+/* Der seitliche Rand aller Blöcke einer Seite. Über eine eigene Klasse, weil
+   die Bilderreihen ihn absichtlich durchbrechen. */
+.rand {
+  padding-left:  max(18px, env(safe-area-inset-left));
+  padding-right: max(18px, env(safe-area-inset-right));
+}
+
+.block { margin-bottom: 26px; }
+
+/* ==========================================================================
+   Karten mit Bild — die Grundform von „Entdecken"
+
+   Ein Spot ist ein Ort, und ein Ort verkauft sich über sein Bild. Deshalb
+   ist das Foto hier nicht Beiwerk neben dem Namen, sondern die Kachel selbst;
+   der Name liegt darauf.
+   ========================================================================== */
+
+/* Eine Reihe, die man seitlich schiebt. Sie läuft bis an den Bildschirmrand
+   und darüber hinaus — das zeigt ohne Pfeil und ohne Punkte, dass da noch
+   mehr kommt. */
+.reihe {
+  display: flex;
+  /* Ohne das strecken sich alle Kacheln auf die Höhe der höchsten — und mit
+     ihnen die Bilder, die dann nicht mehr im gewollten Seitenverhältnis
+     stehen. Eine Kachel mit langem Namen würde die ganze Reihe verziehen. */
+  align-items: flex-start;
+  gap: 11px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+  padding: 2px max(18px, env(safe-area-inset-right)) 4px max(18px, env(safe-area-inset-left));
+  touch-action: pan-x;
+}
+.reihe::-webkit-scrollbar { display: none; }
+.reihe > * { scroll-snap-align: start; flex: 0 0 auto; }
+
+/* Die Bildkachel. */
+.spotkarte {
+  position: relative;
+  display: block;
+  width: 252px;
+  padding: 0;
+  border: 0;
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--flaeche-tief);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.spotkarte .bild {
+  /* Muss ausdrücklich dastehen: Der Behälter ist ein <span>, weil in einem
+     Knopf keine <div> stehen dürfen. Ein span ist von Haus aus inline, und
+     bei einem inline-Element wirken weder Höhe noch aspect-ratio — das Bild
+     wäre einen Strich hoch. */
+  display: block;
+  position: relative;
+  aspect-ratio: 3 / 2;
+  background: var(--flaeche-tief);
+  overflow: hidden;
+}
+.spotkarte .bild img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.35s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+.spotkarte:hover .bild img { transform: scale(1.05); }
+.spotkarte:active { transform: scale(0.985); }
+
+/* Kein Foto da: statt eines grauen Lochs ein Zelt auf Farbverlauf. Sieht
+   nach Absicht aus und nicht nach Fehler. Der Verlauf ist in beiden Themen
+   derselbe — er steht für den Wald, nicht für die Oberfläche. */
+.kein-bild {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(140deg, #5c6b3a, #2f3a22);
+}
+.kein-bild svg {
+  width: 46px; height: 46px;
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.55);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.spotzeile .kein-bild svg { width: 30px; height: 30px; }
+
+/* Der Name liegt im Bild, auf einem Verlauf. Ohne den Verlauf verschwindet
+   weiße Schrift in jedem hellen Himmel. */
+.spotkarte .auf-bild {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  padding: 26px 13px 11px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.72));
+}
+.spotkarte .auf-bild b {
+  display: block;
+  font-size: 15.5px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  line-height: 1.25;
+  color: #fff;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
+  /* Höchstens zwei Zeilen — sonst wächst eine Kachel mit langem Namen aus
+     der Reihe heraus und die Zeile wird unruhig. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Die Marke oben links: „Neu", „Bergsee", „5 Fotos". */
+.marke {
+  position: absolute;
+  top: 10px; left: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 9px;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.94);
+  color: #1c1a18;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  backdrop-filter: blur(6px);
+}
+.marke.orange { background: var(--orange); color: #fff; }
+
+/* Die Zeile unter dem Bild: Bewertung, Seehöhe, Wasser, Gehzeit. */
+.spotkarte .fakten {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-wrap: wrap;
+  padding: 9px 12px 11px;
+  background: var(--flaeche);
+  font-size: 12px;
+  color: var(--text-weak);
+}
+.spotkarte .fakten span { display: flex; align-items: center; gap: 4px; }
+.spotkarte .fakten b { color: var(--text); font-weight: 600; }
+
+/* ------------------------------------------------------- Die große Kachel */
+.held {
+  width: auto;
+  margin: 0 max(18px, env(safe-area-inset-left)) 0 max(18px, env(safe-area-inset-right));
+  display: block;
+}
+.held .bild { aspect-ratio: 4 / 3; }
+.held .auf-bild { padding: 46px 16px 15px; }
+.held .auf-bild b { font-size: 23px; letter-spacing: -0.03em; }
+.held .auf-bild .wo {
+  display: block;
+  margin-top: 5px;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.88);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+}
+
+/* --------------------------------------------------- Die Kachel als Zeile */
+.spotzeile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 9px;
+  margin-bottom: 8px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--flaeche);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.spotzeile:active { transform: scale(0.99); }
+.spotzeile .bild {
+  display: block;   /* siehe .spotkarte .bild — es ist ein <span> */
+  position: relative;
+  width: 76px; height: 76px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--flaeche-tief);
+}
+.spotzeile .bild img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.spotzeile .bild .kein-bild svg { width: 28px; height: 28px; }
+.spotzeile .wo { flex: 1; min-width: 0; }
+.spotzeile .wo b {
+  display: block;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  line-height: 1.3;
+  margin-bottom: 3px;
+  word-break: break-word;
+}
+.spotzeile .wo .fakten {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: var(--text-weak);
+  padding: 0;
+  background: none;
+}
+.spotzeile .wo .fakten span { display: flex; align-items: center; gap: 4px; }
+.spotzeile .platz {
+  flex-shrink: 0;
+  width: 26px;
+  text-align: center;
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--text-weak);
+  letter-spacing: -0.04em;
+}
+
+/* Die Sterne in einer Faktenzeile. */
+.mini-stern { color: var(--stern); }
+
+/* ==========================================================================
+   Filterchips — „Am See", „Feuer erlaubt", „Kurzer Zustieg"
+
+   Sie sind der schnellste Weg von „ich will irgendwo hin" zu einer Handvoll
+   Spots. Deshalb stehen sie ganz oben, gleich unter der Suche.
+   ========================================================================== */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 14px;
+  border: 1px solid var(--rand);
+  border-radius: 999px;
+  background: var(--flaeche);
+  color: var(--text);
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.14s, border-color 0.14s, color 0.14s;
+}
+.chip .emoji { font-size: 15px; line-height: 1; }
+.chip:hover { border-color: var(--t4); }
+.chip[aria-pressed="true"] {
+  background: var(--gruen);
+  border-color: var(--gruen);
+  color: var(--auf-akzent);
+}
+.chip.schloss::after {
+  content: "";
+  width: 13px; height: 13px;
+  background: currentColor;
+  opacity: 0.55;
+  -webkit-mask: var(--schloss) center / contain no-repeat;
+  mask: var(--schloss) center / contain no-repeat;
+}
+
+/* ==========================================================================
+   Das Suchfeld auf der Entdecken-Seite
+
+   Es sucht nicht selbst, sondern führt zur Karte und öffnet dort die Suche.
+   Zwei Suchen mit zwei Ergebnislisten wären eine zu viel.
+   ========================================================================== */
+.such-knopf {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 13px 15px;
+  border: 1px solid var(--rand);
+  border-radius: 14px;
+  background: var(--flaeche);
+  color: var(--text-weak);
+  font: inherit;
+  font-size: 14.5px;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 1px 3px var(--sch1);
+}
+.such-knopf svg {
+  width: 18px; height: 18px;
+  flex-shrink: 0;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+.such-knopf:hover { border-color: var(--t4); }
+
+/* ==========================================================================
+   Lesbares — die Hinweiskarten auf der Entdecken-Seite
+
+   Wildcampen ist in Österreich nicht überall erlaubt, und die Regeln stehen
+   sonst nirgends in der App außer im Hinweis beim ersten Start. Hier haben
+   sie einen Platz, an dem man sie freiwillig liest.
+   ========================================================================== */
+.lesekarte {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--flaeche);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+.lesekarte .streifen {
+  height: 4px;
+  background: linear-gradient(90deg, var(--gruen), var(--orange));
+}
+.lesekarte .inhalt { padding: 14px 15px 15px; }
+.lesekarte .art {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--orange);
+}
+.lesekarte h4 {
+  margin: 0 0 5px;
+  font-size: 16.5px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+.lesekarte p {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--text-weak);
+}
+
+/* Der aufgeklappte Text eines Artikels. */
+.lesetext {
+  padding: 0 15px 16px;
+  font-size: 14.5px;
+  line-height: 1.65;
+  color: var(--text-lese);
+}
+.lesetext[hidden] { display: none; }
+.lesetext h5 {
+  margin: 16px 0 6px;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+.lesetext p { margin: 0 0 10px; }
+.lesetext ul { margin: 0 0 10px; padding-left: 19px; }
+.lesetext li { margin-bottom: 5px; }
+.lesetext b { color: var(--text); font-weight: 700; }
+
+/* ==========================================================================
+   Leere Zustände
+
+   Eine leere Merkliste ist der häufigste erste Eindruck. Sie darf nicht nach
+   Fehler aussehen, sondern muss sagen, was als Nächstes zu tun ist.
+   ========================================================================== */
+.leer {
+  padding: 40px 24px;
+  text-align: center;
+}
+.leer svg {
+  width: 52px; height: 52px;
+  margin-bottom: 14px;
+  fill: none;
+  stroke: var(--text-weak);
+  stroke-width: 1.3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.55;
+}
+.leer b {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 16.5px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.leer p {
+  margin: 0 auto 16px;
+  max-width: 300px;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--text-weak);
+}
+
+/* Ein Knopf in der Hauptfarbe, überall auf den neuen Seiten. */
+.oliv-knopf {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px 22px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--gruen);
+  color: var(--auf-akzent);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.oliv-knopf:hover { filter: brightness(1.1); }
+.oliv-knopf:active { transform: scale(0.98); }
+.oliv-knopf.voll { width: 100%; }
+.oliv-knopf:disabled { opacity: 0.5; cursor: progress; }
+
+/* Der Ladebalken, solange die Spots kommen. Drei graue Kacheln sagen
+   „gleich da" und lassen die Seite nicht springen, wenn die Bilder kommen. */
+.platzhalter {
+  border-radius: 16px;
+  background: linear-gradient(100deg, var(--t1) 30%, var(--t2) 50%, var(--t1) 70%);
+  background-size: 300% 100%;
+  animation: schieben 1.4s linear infinite;
+}
+@keyframes schieben { to { background-position: -150% 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .platzhalter { animation: none; }
+}
+
+/* ==========================================================================
+   Die Merkliste
+   ========================================================================== */
+.listen-reiter {
+  display: flex;
+  gap: 7px;
+  padding: 0 max(18px, env(safe-area-inset-left)) 14px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  touch-action: pan-x;
+}
+.listen-reiter::-webkit-scrollbar { display: none; }
+
+/* Das Herz an einer Spot-Kachel und im Spot-Blatt. */
+.merken-knopf {
+  display: grid;
+  place-items: center;
+  width: 34px; height: 34px;
+  flex-shrink: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--t1);
+  color: var(--text-weak);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.14s cubic-bezier(0.3, 1.5, 0.5, 1);
+}
+.merken-knopf svg {
+  width: 19px; height: 19px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linejoin: round;
+}
+.merken-knopf:hover { background: var(--t2); }
+.merken-knopf:active { transform: scale(0.85); }
+.merken-knopf[aria-pressed="true"] { color: var(--gefahr); }
+.merken-knopf[aria-pressed="true"] svg { fill: currentColor; }
+
+/* Auf einem Foto braucht das Herz eine eigene Fläche, sonst verschwindet es. */
+.spotkarte .merken-knopf,
+.held .merken-knopf {
+  position: absolute;
+  top: 9px; right: 9px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #1c1a18;
+  backdrop-filter: blur(6px);
+}
+
+/* ==========================================================================
+   Das Profil
+   ========================================================================== */
+.profil-kopf {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 4px max(18px, env(safe-area-inset-left)) 20px;
+}
+.profil-bild {
+  display: grid;
+  place-items: center;
+  width: 64px; height: 64px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--gruen);
+  color: var(--auf-akzent);
+  font-size: 25px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+.profil-kopf .wer { flex: 1; min-width: 0; }
+.profil-kopf .wer b {
+  display: block;
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+  word-break: break-word;
+}
+.profil-kopf .wer span {
+  display: block;
+  margin-top: 3px;
+  font-size: 13px;
+  color: var(--text-weak);
+}
+
+/* Die drei Zahlen: Spots, Fotos, Bewertungen. */
+.zahlen {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 9px;
+  margin-bottom: 22px;
+}
+.zahl-kachel {
+  padding: 14px 12px;
+  border-radius: 14px;
+  background: var(--flaeche);
+  text-align: center;
+}
+.zahl-kachel b {
+  display: block;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.zahl-kachel span {
+  display: block;
+  margin-top: 3px;
+  font-size: 11.5px;
+  color: var(--text-weak);
+}
+
+/* Die Liste der Einstellungen. Weiße Fläche, feine Linien dazwischen —
+   die Form, die jeder von seinem Telefon kennt. */
+.menue {
+  border-radius: 16px;
+  background: var(--flaeche);
+  overflow: hidden;
+  margin-bottom: 22px;
+}
+.menue-zeile {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  width: 100%;
+  padding: 15px 16px;
+  border: 0;
+  border-bottom: 1px solid var(--rand);
+  background: none;
+  color: var(--text);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.menue-zeile:last-child { border-bottom: 0; }
+.menue-zeile:hover { background: var(--t1); }
+.menue-zeile > svg:first-child {
+  width: 21px; height: 21px;
+  flex-shrink: 0;
+  fill: none;
+  stroke: var(--text-weak);
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.menue-zeile .was { flex: 1; min-width: 0; }
+.menue-zeile .was small {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-weak);
+  line-height: 1.4;
+}
+.menue-zeile .pfeil {
+  flex-shrink: 0;
+  color: var(--text-weak);
+  font-size: 17px;
+  line-height: 1;
+}
+.menue-zeile .wert {
+  flex-shrink: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-weak);
+}
+.menue-zeile.gefaehrlich { color: var(--fehl-text); }
+.menue-zeile.gefaehrlich > svg:first-child { stroke: var(--fehl-text); }
+
+/* Der Umschalter Tag/Nacht. */
+.thema-wahl {
+  display: flex;
+  gap: 5px;
+  padding: 4px;
+  border-radius: 11px;
+  background: var(--t1);
+  flex-shrink: 0;
+}
+.thema-wahl button {
+  padding: 6px 11px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--text-weak);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.thema-wahl button[aria-pressed="true"] {
+  background: var(--flaeche);
+  color: var(--text);
+  box-shadow: 0 1px 3px var(--sch1);
+}
+
+/* ==========================================================================
+   Wild Spot Plus
+
+   Die einzige Seite der App, die etwas verkauft. Sie darf deshalb anders
+   aussehen als der Rest — dunkel, mit einem Schimmer, wie ein Abend am
+   Lagerfeuer. Aber sie darf nicht lügen: Was noch nicht fertig ist, steht
+   als „noch nicht fertig" da.
+   ========================================================================== */
+#schirm-plus { background: #14170f; color: #f4f2ea; }
+#schirm-plus .schirm-kopf { padding-bottom: 6px; }
+
+/* Der Schimmer über dem Kopf. */
+.plus-himmel {
+  position: relative;
+  overflow: hidden;
+  padding-bottom: 26px;
+}
+.plus-himmel::before {
+  content: "";
+  position: absolute;
+  left: 50%; top: -180px;
+  width: 560px; height: 420px;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse at 50% 50%,
+              rgba(238, 107, 23, 0.3) 0%,
+              rgba(238, 107, 23, 0.09) 42%,
+              transparent 68%);
+  pointer-events: none;
+}
+
+.plus-marke {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 13px 6px 9px;
+  border-radius: 999px;
+  background: rgba(238, 107, 23, 0.16);
+  border: 1px solid rgba(238, 107, 23, 0.4);
+  color: #ffb479;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.plus-marke svg {
+  width: 15px; height: 15px;
+  fill: currentColor;
+}
+
+.plus-titel {
+  position: relative;
+  margin: 15px 0 10px;
+  font-size: 33px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.08;
+  color: #fff;
+}
+.plus-titel em { font-style: normal; color: var(--orange); }
+.plus-unter {
+  position: relative;
+  margin: 0;
+  font-size: 15.5px;
+  line-height: 1.55;
+  color: rgba(244, 242, 234, 0.72);
+}
+
+/* Eine Funktion. Nummer, Titel, Satz — und ein Beispiel, das sie greifbar
+   macht. Ohne das Beispiel ist jede Aufzählung austauschbar. */
+.plus-punkt {
+  display: flex;
+  gap: 14px;
+  padding: 17px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+}
+.plus-punkt:last-child { border-bottom: 0; }
+.plus-punkt .zeichen {
+  display: grid;
+  place-items: center;
+  width: 42px; height: 42px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.07);
+  font-size: 20px;
+  line-height: 1;
+}
+.plus-punkt .was { flex: 1; min-width: 0; }
+.plus-punkt h4 {
+  margin: 0 0 5px;
+  font-size: 16.5px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+  color: #fff;
+}
+.plus-punkt p {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: rgba(244, 242, 234, 0.66);
+}
+.plus-punkt .beispiel {
+  margin-top: 8px;
+  padding: 9px 11px;
+  border-left: 2px solid var(--orange);
+  border-radius: 0 8px 8px 0;
+  background: rgba(238, 107, 23, 0.09);
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: rgba(255, 200, 160, 0.92);
+}
+.plus-punkt .bald {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: rgba(244, 242, 234, 0.6);
+}
+
+/* ------------------------------------------------------------- Die Preise */
+.preise {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  margin: 6px 0 18px;
+}
+.preis {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  width: 100%;
+  padding: 16px 17px;
+  border: 2px solid rgba(255, 255, 255, 0.13);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.04);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: border-color 0.16s, background 0.16s;
+}
+.preis:hover { border-color: rgba(255, 255, 255, 0.28); }
+.preis[aria-pressed="true"] {
+  border-color: var(--orange);
+  background: rgba(238, 107, 23, 0.1);
+}
+.preis .kreis {
+  width: 21px; height: 21px;
+  flex-shrink: 0;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  position: relative;
+}
+.preis[aria-pressed="true"] .kreis { border-color: var(--orange); }
+.preis[aria-pressed="true"] .kreis::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: var(--orange);
+}
+.preis .was { flex: 1; min-width: 0; }
+.preis .was b {
+  display: block;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+.preis .was small {
+  display: block;
+  margin-top: 3px;
+  font-size: 12.5px;
+  color: rgba(244, 242, 234, 0.62);
+  line-height: 1.45;
+}
+.preis .geld {
+  flex-shrink: 0;
+  text-align: right;
+}
+.preis .geld b {
+  display: block;
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+}
+.preis .geld small {
+  display: block;
+  margin-top: 2px;
+  font-size: 11.5px;
+  color: rgba(244, 242, 234, 0.55);
+}
+.preis .fahne {
+  position: absolute;
+  top: -9px; right: 14px;
+  padding: 3px 9px;
+  border-radius: 6px;
+  background: var(--orange);
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.plus-knopf {
+  width: 100%;
+  padding: 16px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--orange);
+  color: #fff;
+  font: inherit;
+  font-size: 16.5px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.plus-knopf:hover { filter: brightness(1.08); }
+.plus-knopf:active { transform: scale(0.99); }
+.plus-knopf:disabled { opacity: 0.55; cursor: progress; }
+
+.plus-klein {
+  margin: 12px 0 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: rgba(244, 242, 234, 0.5);
+  text-align: center;
+}
+.plus-klein a { color: rgba(244, 242, 234, 0.7); }
+
+/* Der ehrliche Kasten: Bezahlen geht noch nicht. */
+.plus-ehrlich {
+  margin: 18px 0 0;
+  padding: 15px 16px;
+  border: 1px dashed rgba(255, 255, 255, 0.22);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+}
+/* Nur die Überschrift des Kastens, nicht jedes hervorgehobene Wort im Text
+   darunter — sonst reißt ein <b> mitten im Satz eine eigene Zeile auf. */
+.plus-ehrlich > b {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 800;
+  color: #fff;
+}
+.plus-ehrlich p b { color: #fff; font-weight: 700; }
+.plus-ehrlich p {
+  margin: 0 0 11px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: rgba(244, 242, 234, 0.66);
+}
+.plus-ehrlich input {
+  width: 100%;
+  padding: 12px 13px;
+  margin-bottom: 9px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 11px;
+  background: rgba(0, 0, 0, 0.25);
+  color: #f4f2ea;
+  font: inherit;
+  font-size: 15px;
+}
+.plus-ehrlich input:focus { outline: none; border-color: var(--orange); }
+.plus-ehrlich input::placeholder { color: rgba(244, 242, 234, 0.35); }
+
+.plus-meldung {
+  display: none;
+  margin: 11px 0 0;
+  padding: 11px 13px;
+  border-radius: 11px;
+  font-size: 13px;
+  line-height: 1.55;
+}
+.plus-meldung.sichtbar { display: block; }
+.plus-meldung.ok   { background: rgba(123, 182, 97, 0.16); color: #cbe4bb; }
+.plus-meldung.fehl { background: rgba(226, 106, 90, 0.16); color: #f0bcb3; }
+
+/* Wer Plus hat, sieht statt der Preise diesen Kasten. */
+.plus-aktiv {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 17px;
+  border-radius: 16px;
+  background: rgba(238, 107, 23, 0.12);
+  border: 1px solid rgba(238, 107, 23, 0.32);
+  margin-bottom: 18px;
+}
+.plus-aktiv .zeichen { font-size: 27px; line-height: 1; }
+.plus-aktiv b { display: block; font-size: 16px; font-weight: 800; color: #fff; }
+.plus-aktiv span { font-size: 12.5px; color: rgba(244, 242, 234, 0.62); }
+
+/* ==========================================================================
+   Die Plus-Schranke
+
+   Sie erscheint dort, wo eine Funktion Plus verlangt — im Spot-Blatt, auf der
+   Karte, in den Einstellungen. Bewusst klein und freundlich: Sie soll zeigen,
+   was es gibt, und nicht im Weg stehen.
+   ========================================================================== */
+.schranke {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 13px 14px;
+  border: 1px solid var(--warn-rand);
+  border-radius: 13px;
+  background: var(--warn-weich);
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+.schranke .zeichen {
+  display: grid;
+  place-items: center;
+  width: 34px; height: 34px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  background: var(--orange);
+  color: #fff;
+  font-size: 16px;
+}
+.schranke .was { flex: 1; min-width: 0; }
+.schranke .was b {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  margin-bottom: 2px;
+}
+.schranke .was small {
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--text-weak);
+}
+.schranke .pfeil { color: var(--text-weak); flex-shrink: 0; }
+
+/* ==========================================================================
+   Was der neue Unterbau am Bestehenden ändert
+
+   Die Karte behält alle ihre Knöpfe — sie rücken nur so weit nach oben, dass
+   die untere Leiste sie nicht verdeckt.
+   ========================================================================== */
+.unten { bottom: calc(var(--tab-h) + 12px); }
+
+@media (max-width: 760px) {
+  .detail { bottom: var(--tab-h); }
+  /* Das Spot-Blatt darf nicht mehr die ganze Höhe nehmen: die Leiste unten
+     und die Suche oben bleiben erreichbar. */
+  .detail { max-height: calc(76dvh - var(--tab-h)); }
+}
+
+/* Auf der Karte ist das Fadenkreuz die Mitte des Bildschirms — mit der Leiste
+   darunter liegt die optische Mitte etwas höher. */
+.fadenkreuz { top: calc(50% - var(--tab-h) / 2); }
+
+/* Solange ein Bereich offen ist, gehört die Karte nicht bedient. Ihre Knöpfe
+   haben eigene Ebenen und lägen sonst über der Seite — der Knopf „Spot hier
+   anlegen" mitten in der Merkliste. */
+body.bereich-offen .ecke,
+body.bereich-offen .suche,
+body.bereich-offen .unten,
+body.bereich-offen .detail,
+body.bereich-offen .fadenkreuz,
+body.bereich-offen #filter-hinweis,
+body.bereich-offen .kein-netz,
+body.bereich-offen .neue-fassung { display: none; }
+
+/* Verwaltung und Anmeldefenster liegen über der Leiste — dort wäre sie nur
+   ein Ausweg, den es an dieser Stelle nicht geben soll. */
+#admin-hg { z-index: 80; }
+.login-hg, .hinweis-hg { z-index: 75; }
+.foto-gross { z-index: 95; }
+
+/* Der Rechtshinweis und die Einführung beim allerersten Start liegen über
+   allem — auch über der Leiste unten. Wer die App zum ersten Mal öffnet, soll
+   sie lesen und nicht daran vorbeitippen. */
+.intro { z-index: 100; }
+#start { z-index: 200; }
+
+/* ==========================================================================
+   Am Rechner
+
+   Steht bewusst ganz am Ende des Blattes: Diese Regeln müssen die weiter oben
+   gewinnen, und bei gleicher Genauigkeit entscheidet die Reihenfolge.
+
+   Zwei Dinge ändern sich gegenüber dem Handy. Erstens rückt alles um die
+   Breite der Leiste ein, die hier links steht statt unten. Zweitens bekommt
+   der Text eine Grenze: Eine Zeile über 1.200 Pixel liest niemand gern, und
+   ein Foto über die volle Breite eines Monitors ist kein Blickfang mehr,
+   sondern eine Wand.
+   ========================================================================== */
+@media (min-width: 900px) {
+  #karte { left: 88px; }
+  .schirm { left: 88px; }
+  .ecke.links { left: calc(88px + max(12px, env(safe-area-inset-left))); }
+  .suche { left: calc(164px + env(safe-area-inset-left)); }
+  .unten { left: calc(88px + max(12px, env(safe-area-inset-left))); }
+  .fadenkreuz { left: calc(50% + 44px); top: 50%; }
+
+  /* Der Inhalt der Bereiche bleibt in einer lesbaren Spalte, mittig. */
+  .schirm > * { max-width: 760px; margin-left: auto; margin-right: auto; }
+  .schirm .reihe { max-width: 760px; margin-left: auto; margin-right: auto; }
+  .held { margin-left: 18px; margin-right: 18px; }
+
+  /* Die Plus-Seite hat einen eigenen Kopf mit Schimmer — der darf über die
+     ganze Breite gehen, sonst hängt der Farbfleck schief im Bild. */
+  #schirm-plus > .plus-himmel { max-width: none; }
+  .plus-himmel .schirm-kopf { max-width: 760px; margin: 0 auto; }
+
+  /* Am Rechner ist die Kachel breiter — bei 4:3 würde sie dann höher als der
+     Bildschirm und man sähe nur Himmel. Breitbild passt hier besser. */
+  .held .bild { aspect-ratio: 16 / 9; }
+}
 </style>
 </head>
 
@@ -2508,6 +4035,16 @@ body.detail-offen .unten { right: 404px; }
      Der Inhalt wird von spot-detail.js gebaut, sobald ein Spot angetippt wird. -->
 <aside class="detail" id="detail" hidden>
   <button id="detail-zu" title="Schließen">×</button>
+  <!-- Kopiert einen Link auf genau diesen Spot (teilen.js). Bleibt versteckt,
+       solange kein Spot offen ist. -->
+  <button id="detail-teilen" title="Link zu diesem Spot kopieren"
+          aria-label="Link zu diesem Spot kopieren" hidden>⤴</button>
+  <!-- Das Herz. Merkt sich den Spot für die Merkliste (screens.js). Steht in
+       derselben Ecke wie Teilen und Schließen — dort sucht man es. -->
+  <button id="detail-merken" title="Auf die Merkliste" aria-label="Auf die Merkliste"
+          aria-pressed="false" hidden>
+    <svg viewBox="0 0 24 24"><path d="M12 20s-7-4.5-7-9.2A4 4 0 0112 8.4 4 4 0 0119 10.8c0 4.7-7 9.2-7 9.2z"/></svg>
+  </button>
   <div class="detail-kopf">
     <h2 id="detail-name">–</h2>
     <span class="koord" id="detail-koord" title="Anklicken zum Kopieren"></span>
@@ -2642,13 +4179,493 @@ body.detail-offen .unten { right: 404px; }
 <script src="spot-form.js"></script>
 <!-- Nach spot-form.js, weil das Detail dessen Feldliste GRUPPEN mitbenutzt. -->
 <script src="wetter.js"></script>
+<!-- Die Wanderroute: zeichnet die Linie auf die Karte und baut den Block in
+     der Detail-Leiste. Muss vor spot-detail.js stehen, das sie aufruft. -->
+<script src="route.js"></script>
 <script src="spot-detail.js"></script>
+<!-- Teilen: der Knopf im Kopf der Leiste und das Öffnen geteilter Links.
+     Nach spot-detail.js, weil es dessen Leiste aufklappt. -->
+<script src="teilen.js"></script>
 <!-- Die Suche greift auf die Karte, die Ebenen und die Spot-Leiste zu. -->
 <script src="suche.js"></script>
 <!-- Zuletzt: die Einführung stellt am Ende die Ebenen der Karte ein und
      braucht dafür alles andere. -->
 <script src="intro.js"></script>
 <!-- Macht aus der Seite eine App: Service Worker, Installieren, Funkloch. -->
+<!-- ##########################################################################
+     ##                                                                      ##
+     ##   DIE VIER BEREICHE NEBEN DER KARTE                                  ##
+     ##                                                                      ##
+     ##   Sie liegen als volle Seiten über der Karte. Die Karte selbst wird  ##
+     ##   nie ausgeblendet, sondern nur verdeckt — beim Zurückwechseln steht ##
+     ##   sie sofort wieder da, an derselben Stelle, im selben Zoom.         ##
+     ##                                                                      ##
+     ##   Gefüllt werden sie von screens.js, außer Plus: dessen Text ist     ##
+     ##   Inhalt und steht deshalb hier, damit er auch ohne Netz da ist.     ##
+     ##                                                                      ##
+     ########################################################################## -->
+
+<!-- ============================================================ ENTDECKEN -->
+<div class="schirm" id="schirm-entdecken" hidden>
+
+  <div class="schirm-kopf">
+    <h1 class="gross-titel">Entdecken</h1>
+    <p class="unter" id="entdecken-unter">Plätze für die Nacht draußen</p>
+  </div>
+
+  <div class="rand block">
+    <button class="such-knopf" id="entdecken-suche">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <span>Ort, Berg oder See suchen</span>
+    </button>
+  </div>
+
+  <!-- Die Filterchips. Sie schicken zur Karte und stellen dort ein, was
+       gefragt war — deshalb stehen sie ganz oben. -->
+  <div class="block">
+    <div class="reihe" id="entdecken-chips"></div>
+  </div>
+
+  <!-- Der Spot, der heute oben steht. -->
+  <div class="block" id="entdecken-held-block">
+    <div class="rand">
+      <h2 class="abschnitt-titel">Spot der Woche</h2>
+      <p class="abschnitt-unter">Der am besten bewertete Platz in der Karte</p>
+    </div>
+    <div id="entdecken-held"></div>
+  </div>
+
+  <!-- Neu dazugekommen -->
+  <div class="block" id="entdecken-neu-block">
+    <div class="rand">
+      <h2 class="abschnitt-titel">Neu dazugekommen</h2>
+      <p class="abschnitt-unter">Zuletzt von der Gemeinschaft eingetragen</p>
+    </div>
+    <div class="reihe" id="entdecken-neu"></div>
+  </div>
+
+  <!-- In deiner Nähe. Der Block versteckt sich, solange kein Standort da ist —
+       eine Überschrift ohne Inhalt ist schlimmer als gar keine. -->
+  <div class="block" id="entdecken-nah-block" hidden>
+    <div class="rand">
+      <h2 class="abschnitt-titel">In deiner Nähe</h2>
+      <p class="abschnitt-unter" id="entdecken-nah-unter">Vom aktuellen Standort aus</p>
+    </div>
+    <div class="reihe" id="entdecken-nah"></div>
+  </div>
+
+  <!-- Bestenliste -->
+  <div class="block" id="entdecken-best-block">
+    <div class="rand">
+      <h2 class="abschnitt-titel">Am besten bewertet</h2>
+      <p class="abschnitt-unter">Was andere für die beste Nacht gehalten haben</p>
+    </div>
+    <div class="rand" id="entdecken-best"></div>
+  </div>
+
+  <!-- Zum Lesen. Die Regeln stehen sonst nur im Hinweis beim ersten Start —
+       hier kann man sie freiwillig nachlesen, statt sie wegzuklicken. -->
+  <div class="block">
+    <div class="rand">
+      <h2 class="abschnitt-titel">Bevor du losziehst</h2>
+      <p class="abschnitt-unter">Drei Dinge, die eine Nacht draußen ausmachen</p>
+
+      <div class="lesekarte">
+        <div class="streifen"></div>
+        <button class="inhalt" data-lesen="recht"
+                style="border:0;background:none;font:inherit;color:inherit;text-align:left;width:100%;cursor:pointer">
+          <span class="art">Rechtliches</span>
+          <h4>Wo Wildcampen erlaubt ist — und wo nicht</h4>
+          <p>In Österreich entscheidet das Bundesland. Was im Wald gilt, was oberhalb
+             der Baumgrenze, und warum ein Biwak etwas anderes ist als ein Zelt.</p>
+        </button>
+        <div class="lesetext" id="lesen-recht" hidden>
+          <p>Es gibt <b>kein einheitliches Gesetz</b>. Zuständig sind die
+             Landes-Naturschutz-, Forst- und Campinggesetze — deshalb ist dieselbe
+             Nacht im einen Bundesland geduldet und im anderen eine Verwaltungsstrafe.</p>
+
+          <h5>Die grobe Linie</h5>
+          <ul>
+            <li><b>Wald:</b> Das Forstgesetz erlaubt das Betreten zur Erholung, aber
+                ausdrücklich <b>kein Lagern</b>. Zelten im Wald braucht immer die
+                Zustimmung des Grundeigentümers.</li>
+            <li><b>Oberhalb der Baumgrenze:</b> In Tirol, Salzburg und Vorarlberg ist
+                das <b>Biwakieren im hochalpinen Ödland</b> weitgehend geduldet oder
+                erlaubt — außerhalb von Schutzgebieten.</li>
+            <li><b>Kärnten und Steiermark:</b> deutlich strenger, Zelten außerhalb von
+                Campingplätzen ist grundsätzlich verboten.</li>
+            <li><b>Schutzgebiete:</b> Nationalparks, Naturschutzgebiete und
+                Ruhegebiete — <b>immer verboten</b>, ohne Ausnahme und mit den
+                höchsten Strafen.</li>
+          </ul>
+
+          <h5>Biwak ist nicht Camping</h5>
+          <p>Ein <b>Notbiwak</b> — spät angekommen, Wetterumschwung, kein Weiterkommen —
+             wird fast überall anders bewertet als ein aufgebautes Lager. Praktisch heißt
+             das: spät ankommen, früh weg, kein Feuer, keine Spuren, eine Nacht.</p>
+
+          <h5>Was in der Praxis Ärger macht</h5>
+          <ul>
+            <li>Mehrere Nächte an derselben Stelle</li>
+            <li>Sichtbar von Weg, Hütte oder Straße</li>
+            <li>Feuer — das ist ein eigenes Thema und fast überall verboten</li>
+            <li>Gruppen ab drei, vier Zelten</li>
+          </ul>
+
+          <p><b>Kurz:</b> Wer hoch, spät, allein, ohne Feuer und ohne Spuren unterwegs
+             ist, hat in Österreich selten ein Problem. Wer im Talwald neben dem
+             Parkplatz ein Lager aufschlägt, schon.</p>
+
+          <p style="color:var(--text-weak);font-size:12.5px">
+             Das ist eine Zusammenfassung nach bestem Wissen und keine Rechtsberatung.
+             Im Zweifel gilt, was das jeweilige Land sagt — und der Grundeigentümer.</p>
+        </div>
+      </div>
+
+      <div class="lesekarte">
+        <div class="streifen"></div>
+        <button class="inhalt" data-lesen="kalt"
+                style="border:0;background:none;font:inherit;color:inherit;text-align:left;width:100%;cursor:pointer">
+          <span class="art">Ausrüstung</span>
+          <h4>Warum die Nacht kälter wird, als die App sagt</h4>
+          <p>Die Vorhersage gilt für das Tal. Am Spot kommen Höhe, Kaltluftsee und
+             Windstille dazu — zusammen schnell acht Grad Unterschied.</p>
+        </button>
+        <div class="lesetext" id="lesen-kalt" hidden>
+          <h5>Die drei Rechnungen</h5>
+          <ul>
+            <li><b>Höhe:</b> pro 100 Höhenmeter etwa <b>0,6 °C</b> weniger. 1.000 Meter
+                über der Wetterstation sind also rund 6 Grad.</li>
+            <li><b>Kaltluftsee:</b> In Mulden, Karen und Talböden sammelt sich in
+                klaren Nächten kalte Luft. Das kann noch einmal <b>3 bis 5 Grad</b>
+                ausmachen. Ein Platz 20 Meter über dem Talboden ist wärmer als der
+                Talboden selbst.</li>
+            <li><b>Klare Nacht:</b> Ohne Wolken strahlt der Boden frei ab. Bei
+                Windstille und klarem Himmel liegt die Bodentemperatur unter der
+                gemessenen Lufttemperatur — Reif auf dem Zelt bei „plus zwei".</li>
+          </ul>
+          <h5>Was daraus folgt</h5>
+          <p>Die <b>Komforttemperatur</b> des Schlafsacks sollte unter dem liegen, was
+             du erwartest — nicht die Grenztemperatur. Die Grenztemperatur bedeutet
+             „du überlebst", nicht „du schläfst".</p>
+          <p>Und: <b>Die Isomatte macht mehr aus als der Schlafsack.</b> Nach unten geht
+             die Wärme durch Leitung weg, und ein zusammengedrückter Daunenschlafsack
+             isoliert dort gar nicht. Der R-Wert der Matte ist im Herbst die wichtigere
+             Zahl.</p>
+          <p>Wild Spot zeigt dir die <b>Nachttemperatur am Spot</b> statt der im Tal —
+             sie ist auf die Seehöhe des Platzes gerechnet.</p>
+        </div>
+      </div>
+
+      <div class="lesekarte">
+        <div class="streifen"></div>
+        <button class="inhalt" data-lesen="spuren"
+                style="border:0;background:none;font:inherit;color:inherit;text-align:left;width:100%;cursor:pointer">
+          <span class="art">Haltung</span>
+          <h4>Keine Spuren — warum das kein Moralthema ist</h4>
+          <p>Jeder gefundene Platz ist nur so lange nutzbar, wie er nicht auffällt.
+             Sieben Regeln, die genau das sichern.</p>
+        </button>
+        <div class="lesetext" id="lesen-spuren" hidden>
+          <p>Wildcampen wird geduldet, solange es niemand merkt. Jede Feuerstelle, jeder
+             Müllsack und jede plattgetretene Wiese ist ein Grund mehr für das nächste
+             Verbotsschild. Es geht hier also nicht um Moral, sondern um den
+             <b>Fortbestand der Sache selbst</b>.</p>
+          <ul>
+            <li><b>Spät hin, früh weg.</b> Aufbauen bei Dämmerung, abbauen vor sieben.</li>
+            <li><b>Kein Feuer.</b> Nirgends. Ein Kocher tut es auch, und eine Brandstelle
+                bleibt jahrelang sichtbar.</li>
+            <li><b>Alles mit.</b> Auch Obstschalen und Papiertaschentücher — beides
+                braucht draußen Monate.</li>
+            <li><b>Geschäft 60 Meter weg vom Wasser</b>, 20 Zentimeter tief, Papier
+                wieder mit.</li>
+            <li><b>Kein Seifenwasser in den Bach</b>, auch kein biologisch abbaubares.</li>
+            <li><b>Nichts umbauen.</b> Keine Steine wegräumen, keine Äste schneiden,
+                keine Gräben ziehen.</li>
+            <li><b>Wild in Ruhe lassen.</b> Von Frühjahr bis Sommer sind Wiesen und
+                Waldränder Kinderstube — vor allem in der Dämmerung.</li>
+          </ul>
+          <p>Und der wichtigste Punkt für diese App: <b>Ein Spot verträgt nicht beliebig
+             viele Leute.</b> Wenn ein Platz jede Nacht besetzt ist, ist er in zwei Jahren
+             gesperrt. Deshalb gibt es hier keine Bestenliste mit hundert Einträgen,
+             sondern eine Karte, auf der man selbst suchen muss.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="rand" style="margin:0;font-size:12px;line-height:1.6;color:var(--text-weak)">
+    Wild Spot lebt davon, dass Leute ihre Plätze eintragen. Kennst du einen?
+    Auf der Karte auf <b>+ Spot hier anlegen</b> tippen.
+  </p>
+</div>
+
+<!-- ============================================================ MERKLISTE -->
+<div class="schirm" id="schirm-merken" hidden>
+  <div class="schirm-kopf">
+    <h1 class="gross-titel">Merkliste</h1>
+    <p class="unter">Deine Plätze, deine Einträge, deine Karten</p>
+  </div>
+
+  <div class="listen-reiter" id="merken-reiter">
+    <button class="chip" data-liste="gemerkt" aria-pressed="true">Gemerkt</button>
+    <button class="chip" data-liste="meine"   aria-pressed="false">Meine Spots</button>
+    <button class="chip" data-liste="offline" aria-pressed="false">Offline</button>
+  </div>
+
+  <div class="rand" id="merken-inhalt"></div>
+</div>
+
+<!-- ================================================================= PLUS -->
+<div class="schirm" id="schirm-plus" hidden>
+
+  <div class="plus-himmel">
+    <div class="schirm-kopf">
+      <span class="plus-marke">
+        <svg viewBox="0 0 24 24"><path d="M12 2l2.6 6.4L21 11l-6.4 2.6L12 20l-2.6-6.4L3 11l6.4-2.6z"/></svg>
+        Wild Spot Plus
+      </span>
+      <h1 class="plus-titel">Die Nacht draußen<br><em>vorbereitet</em> statt gehofft.</h1>
+      <p class="plus-unter">
+        Die Karte bleibt für alle kostenlos — Spots ansehen, eintragen, bewerten.
+        Plus ist für die, die wirklich hinausgehen: Karten fürs Funkloch, die
+        richtige Nacht, und der Blick darauf, wo man überhaupt sein darf.
+      </p>
+    </div>
+  </div>
+
+  <div class="rand">
+
+    <div id="plus-zustand"></div>
+
+    <!-- ------------------------------------------------------ Was drin ist -->
+    <div style="margin-bottom:26px">
+
+      <div class="plus-punkt">
+        <div class="zeichen">🗺️</div>
+        <div class="was">
+          <h4>Karten für unterwegs herunterladen</h4>
+          <p>Ein Gebiet zu Hause auf das Handy laden — Karte, Wege, Höhenlinien und
+             alle Spots darin. Am Berg brauchst du danach keinen Empfang mehr.</p>
+          <div class="beispiel">Ohne Plus musst du die Gegend vorher einmal auf der
+             Karte abfahren und hoffen, dass sie im Speicher bleibt.</div>
+        </div>
+      </div>
+
+      <div class="plus-punkt">
+        <div class="zeichen">🌙</div>
+        <div class="was">
+          <h4>Die beste Nacht der Woche</h4>
+          <p>Für jeden Spot sieben Nächte im Voraus: Temperatur am Platz, Wind, Regen
+             und Bewölkung — und welche Nacht davon die richtige ist.</p>
+          <div class="beispiel">„Do–Fr: −1 °C, klar, windstill. Die einzige trockene
+             Nacht diese Woche."</div>
+        </div>
+      </div>
+
+      <div class="plus-punkt">
+        <div class="zeichen">⚖️</div>
+        <div class="was">
+          <h4>Wo du sein darfst</h4>
+          <p>Nationalparks, Naturschutz- und Ruhegebiete liegen als Fläche auf der
+             Karte, dazu die Regel des Bundeslands. Rot heißt: hier nicht.</p>
+          <div class="beispiel">Eine Verwaltungsstrafe im Nationalpark kostet mehr als
+             Plus in zehn Jahren.</div>
+        </div>
+      </div>
+
+      <div class="plus-punkt">
+        <div class="zeichen">🔒</div>
+        <div class="was">
+          <h4>Geheime Spots</h4>
+          <p>Deine besten Plätze musst du nicht teilen. Private Spots siehst nur du —
+             oder wer einen Link von dir bekommt.</p>
+          <div class="beispiel">Der Grund, warum viele ihre Plätze gar nicht erst
+             eintragen. Jetzt gibt es keinen mehr.</div>
+        </div>
+      </div>
+
+      <div class="plus-punkt">
+        <div class="zeichen">🎯</div>
+        <div class="was">
+          <h4>Alle Filter auf einmal</h4>
+          <p>„Über 1.500 Meter, Wasser in der Nähe, unter 90 Minuten Zustieg, nicht
+             einsehbar." Ohne Plus geht ein Filter, mit Plus alle zusammen — samt
+             gespeicherter Suchen.</p>
+        </div>
+      </div>
+
+      <div class="plus-punkt">
+        <div class="zeichen">🧭</div>
+        <div class="was">
+          <h4>Routen ohne Limit, dazu GPX</h4>
+          <p>Die Wanderroute vom Parkplatz zum Spot beliebig oft berechnen und als
+             GPX-Datei mitnehmen — für Uhr, Garmin oder eine andere App.</p>
+          <div class="beispiel">Kostenlos sind drei Routen im Monat drin.</div>
+        </div>
+      </div>
+
+      <div class="plus-punkt">
+        <div class="zeichen">✨</div>
+        <div class="was">
+          <h4>Sterne, Mond und wirkliche Dunkelheit</h4>
+          <p>Lichtverschmutzung am Platz, Mondphase und der Zeitpunkt, ab dem es
+             astronomisch dunkel ist. Für alle, die wegen des Himmels hinausgehen.</p>
+        </div>
+      </div>
+
+      <div class="plus-punkt">
+        <div class="zeichen">🔔</div>
+        <div class="was">
+          <h4>Wache über deine Spots</h4>
+          <p>Nachricht, wenn an einem gemerkten Spot Frost kommt, wenn jemand einen
+             neuen Platz in deiner Gegend einträgt oder einen deiner kommentiert.</p>
+        </div>
+      </div>
+
+      <div class="plus-punkt">
+        <div class="zeichen">🤝</div>
+        <div class="was">
+          <h4>Und du hältst das Ding am Laufen</h4>
+          <p>Wild Spot hat keine Werbung, verkauft keine Daten und gehört keinem
+             Konzern. Es gibt genau eine Einnahmequelle, und das hier ist sie.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- --------------------------------------------------------- Die Preise -->
+    <div id="plus-kauf">
+      <h2 style="margin:0 0 4px;font-size:22px;font-weight:800;letter-spacing:-0.03em;color:#fff">
+        Was es kostet</h2>
+      <p style="margin:0 0 16px;font-size:13.5px;line-height:1.55;color:rgba(244,242,234,0.6)">
+        Kein Probeabo, das sich von selbst verlängert. Kündigen geht jederzeit
+        mit einem Tipp.</p>
+
+      <div class="preise" id="preise">
+        <button class="preis" data-tarif="monat" aria-pressed="false">
+          <span class="kreis"></span>
+          <span class="was">
+            <b>Monatlich</b>
+            <small>Zum Ausprobieren, monatlich kündbar</small>
+          </span>
+          <span class="geld"><b>3,49 €</b><small>pro Monat</small></span>
+        </button>
+
+        <button class="preis" data-tarif="jahr" aria-pressed="true">
+          <span class="fahne">Beliebteste</span>
+          <span class="kreis"></span>
+          <span class="was">
+            <b>Jährlich</b>
+            <small>Entspricht 2,08 € im Monat — 40 % günstiger</small>
+          </span>
+          <span class="geld"><b>24,99 €</b><small>pro Jahr</small></span>
+        </button>
+
+        <button class="preis" data-tarif="immer" aria-pressed="false">
+          <span class="fahne">Nur am Anfang</span>
+          <span class="kreis"></span>
+          <span class="was">
+            <b>Für immer</b>
+            <small>Einmal zahlen, nie wieder. Für die ersten 500.</small>
+          </span>
+          <span class="geld"><b>59 €</b><small>einmalig</small></span>
+        </button>
+      </div>
+
+      <button class="plus-knopf" id="plus-kaufen">Wild Spot Plus holen</button>
+
+      <p class="plus-klein">
+        Preise inkl. USt. Kündigung jederzeit im Profil.
+        Der Gründerpreis gilt, solange die ersten 500 nicht voll sind.
+      </p>
+
+      <!-- Der ehrliche Kasten. Eine Verkaufsseite, die etwas verspricht, das es
+           noch nicht gibt, verliert genau einmal Vertrauen — und dann für immer. -->
+      <div class="plus-ehrlich" id="plus-warteliste">
+        <b>Ehrlich gesagt: bezahlen kannst du noch nicht.</b>
+        <p>
+          Wild Spot ist gerade dabei, das einzurichten. Trag deine E-Mail ein, dann
+          bekommst du zum Start <b>den Gründerpreis</b> — und den ersten Monat gratis
+          dazu. Keine Werbung, nur diese eine Nachricht.
+        </p>
+        <input type="email" id="plus-mail" placeholder="deine@mail.at"
+               autocomplete="email" inputmode="email">
+        <button class="plus-knopf" id="plus-vormerken">Platz sichern</button>
+        <div class="plus-meldung" id="plus-meldung"></div>
+      </div>
+    </div>
+
+    <p class="plus-klein" style="margin-top:22px">
+      Fragen dazu? Schreib einfach an die Adresse im Rechtshinweis.
+    </p>
+  </div>
+</div>
+
+<!-- =============================================================== PROFIL -->
+<div class="schirm" id="schirm-profil" hidden>
+  <div class="schirm-kopf">
+    <h1 class="gross-titel">Profil</h1>
+  </div>
+  <div id="profil-inhalt"></div>
+</div>
+
+<!-- ##########################################################################
+     Die untere Leiste. Steht als Letztes im Dokument, damit sie über allem
+     liegt, ohne dass dafür eine hohe Ebenennummer nötig wäre.
+     ########################################################################## -->
+<nav class="tableiste" id="tableiste" role="tablist" aria-label="Bereiche">
+
+  <button class="tab" role="tab" data-tab="entdecken" aria-selected="true">
+    <svg viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="9"/>
+      <path d="M15.5 8.5l-2 5-5 2 2-5z"/>
+    </svg>
+    Entdecken
+  </button>
+
+  <button class="tab" role="tab" data-tab="karte" aria-selected="false">
+    <svg viewBox="0 0 24 24">
+      <path d="M9 4L3 6.5v13L9 17l6 2.5 6-2.5v-13L15 6.5z"/>
+      <path d="M9 4v13M15 6.5v13"/>
+    </svg>
+    Karte
+  </button>
+
+  <button class="tab" role="tab" data-tab="merken" aria-selected="false">
+    <svg viewBox="0 0 24 24">
+      <path d="M6.5 3.5h11a1 1 0 011 1v16l-6.5-4-6.5 4v-16a1 1 0 011-1z"/>
+    </svg>
+    Merkliste
+  </button>
+
+  <button class="tab" role="tab" data-tab="plus" aria-selected="false">
+    <svg viewBox="0 0 24 24">
+      <path d="M12 2.5l2.5 6.2 6.2 2.5-6.2 2.5-2.5 6.2-2.5-6.2L3.3 11.2l6.2-2.5z"/>
+    </svg>
+    Plus
+    <span class="neu-punkt" id="plus-punkt"></span>
+  </button>
+
+  <button class="tab" role="tab" data-tab="profil" aria-selected="false">
+    <svg viewBox="0 0 24 24">
+      <circle cx="12" cy="8" r="3.6"/>
+      <path d="M4.8 20c0-3.6 3.2-5.8 7.2-5.8s7.2 2.2 7.2 5.8"/>
+    </svg>
+    Profil
+  </button>
+</nav>
+
+<!-- Die beiden Dateien für alles oben stehen bewusst HIER und nicht bei den
+     anderen Skripten weiter oben: Sie suchen ihre Elemente beim Start über
+     getElementById. Stünden sie vor diesem Abschnitt, wäre der noch gar nicht
+     im Dokument — sie fänden nichts und die Leiste unten bliebe tot.
+
+     plus.js zuerst: Das Profil baut einen Plus-Kasten und fragt dafür schon
+     beim Aufbauen window.WILDSPOT_PLUS. -->
+<script src="plus.js"></script>
+<script src="screens.js"></script>
+
 <!-- ==========================================================================
      Das Admin-Fenster. Liegt leer im Dokument und wird von admin.js gefüllt,
      sobald es geöffnet wird — wer kein Admin ist, lädt dadurch auch nichts.

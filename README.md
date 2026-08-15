@@ -13,6 +13,54 @@ Dann steht im Fenster eine Adresse wie `http://localhost:5173`. Die im Browser
 
 ## Was du siehst
 
+Unten liegt eine Leiste mit **fünf Bereichen**. Die Karte ist einer davon —
+der wichtigste, aber eben einer.
+
+| Bereich | Wofür |
+|---------|-------|
+| **Entdecken** | Die Startseite. Spots als große Bilder: Spot der Woche, neu dazugekommen, in deiner Nähe, Bestenliste. Dazu drei Artikel zum Nachlesen |
+| **Karte** | Alles wie bisher — Spots, Wasser, Hütten, Position, Spot anlegen |
+| **Merkliste** | Was du dir gemerkt hast, deine eigenen Spots, und was offline gespeichert ist |
+| **Plus** | Was Geld kostet und warum ([KONZEPT.md, Abschnitt 10](../KONZEPT.md)) |
+| **Profil** | Konto, deine Zahlen, hell/dunkel, Einstellungen |
+
+**Am Rechner** wird aus der Leiste unten eine Spalte links — dort ist unten
+kein Daumen, sondern nur weiter Weg für die Maus.
+
+Die Karte wird beim Wechseln nie weggeworfen, sondern nur verdeckt. Deshalb
+steht sie sofort wieder da, an derselben Stelle und im selben Zoom.
+
+### Hell und dunkel
+
+Die App startet **hell** — warmes Papierbeige, wie Komoot. Bei Sonne draußen
+ist das lesbar, wo Dunkelgrau verschwindet.
+
+Im Profil unter *Aussehen* lässt sich auf **dunkel** stellen: der bisherige
+Waldlook. Im Zelt um 22 Uhr blendet Weiß. Beim allerersten Start folgt die App
+der Einstellung deines Handys.
+
+### Das Herz
+
+An jeder Spot-Kachel und oben im Spot-Blatt sitzt ein Herz. Es legt den Spot
+auf die **Merkliste** — die ist privat, niemand sonst sieht sie. Dafür braucht
+es ein Konto, sonst wäre die Liste beim nächsten Gerät weg.
+
+### Die Filterchips
+
+Auf der Entdecken-Seite stehen Chips wie *Am See*, *Ab 1.500 m* oder *Feuer
+erlaubt*. Ein Tipp darauf springt zur Karte und blendet alles aus, was nicht
+passt. Unten steht dann, dass gefiltert wird — sonst sucht man später den Spot,
+den man selbst weggefiltert hat.
+
+Gefiltert wird **ohne neue Abfrage**: Die Punkte sind längst geladen, es werden
+nur welche ausgeblendet. Das geht sofort und auch ohne Empfang.
+
+**Ein Filter ist kostenlos, mehrere gleichzeitig gehören zu Plus.**
+
+---
+
+## Auf der Karte
+
 Oben liegt in jeder Ecke **ein** Knopf. Alles andere klappt sich von dort auf —
 die Karte soll den Platz haben, nicht die Bedienung.
 
@@ -262,10 +310,15 @@ oder `https`. Eine direkt geöffnete Datei zählt für sie nicht dazu — der
 | Datei | Inhalt |
 |-------|--------|
 | `index.html` | Aufbau der Seite und das gesamte Aussehen |
+| `screens.js` | Die Leiste unten und die Bereiche Entdecken, Merkliste, Profil |
+| `plus.js` | Wild Spot Plus: Zustand, Schranken, Verkaufsseite |
 | `app.js` | Die Karte: Ebenen, Datenabfrage, Position |
 | `auth.js` | Anmelden, Registrieren, Abmelden |
 | `spot-form.js` | Das Formular zum Anlegen eines Spots |
 | `spot-detail.js` | Die Leiste rechts: Angaben, Bewertungen, Kommentare |
+| `wetter.js` | Wetter und Nachttemperatur am Spot (Open-Meteo) |
+| `route.js` | Die Wanderroute Parkplatz → Spot: Linie, Gehzeit, Höhenmeter |
+| `teilen.js` | Der Teilen-Knopf und das Öffnen geteilter Spot-Links |
 | `suche.js` | Die Suchleiste über Spots, OSM-Punkte und Orte |
 | `foto-ort.js` | Liest die Koordinaten aus einem Handyfoto (EXIF) |
 | `intro.js` | Die Einführung beim allerersten Start |
