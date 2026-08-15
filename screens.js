@@ -388,6 +388,13 @@
   // Die Filterchips. Jeder ist eine Bedingung an die Punkte auf der Karte —
   // deshalb steht neben dem Text gleich der Kartenausdruck, mit dem MapLibre
   // die Punkte ausblendet.
+  //
+  // Dieselbe Bedingung steht ein zweites Mal in der Datenbank
+  // (db/019-filter.sql, Funktion spots_filtern). Das ist kein Versehen: Die
+  // Karte filtert, was sie schon geladen hat — das geht ohne Netz und ohne
+  // Warten. Die Trefferliste auf Entdecken dagegen muss alle Spots kennen,
+  // auch die weit weg liegenden, und die kann nur die Datenbank aussuchen.
+  // Wer eine Bedingung ändert, ändert sie an beiden Stellen.
   const CHIPS = [
     { id: 'see',    emoji: '🏞️', text: 'Am See',           regel: ['==', ['get', 'has_lake'], true] },
     { id: 'wasser', emoji: '💧',  text: 'Wasser dabei',      regel: ['==', ['get', 'water_nearby'], true] },
@@ -401,20 +408,29 @@
 
   const gewaehlteChips = new Set();
 
+  // Die Chips stehen zweimal auf dem Schirm: auf der Entdecken-Seite und über
+  // der Karte. Beide Reihen zeigen dieselbe Auswahl — wer auf Entdecken „Ab
+  // 1.500 m" antippt und dann zur Karte wechselt, findet den Filter dort
+  // gesetzt vor. Alles andere wäre zweimal dieselbe Einstellung mit zwei
+  // verschiedenen Ständen.
   function chipsBauen() {
-    const reihe = $('entdecken-chips');
-    if (!reihe) return;
-    reihe.innerHTML = '';
+    for (const wo of ['entdecken-chips', 'karte-chips']) {
+      const reihe = $(wo);
+      if (!reihe) continue;
+      reihe.innerHTML = '';
 
-    for (const c of CHIPS) {
-      const k = el('button');
-      k.className = 'chip';
-      k.type = 'button';
-      k.dataset.chip = c.id;
-      k.setAttribute('aria-pressed', 'false');
-      k.innerHTML = `<span class="emoji">${c.emoji}</span>${sicher(c.text)}`;
-      k.addEventListener('click', () => chipUmschalten(c.id));
-      reihe.appendChild(k);
+      for (const c of CHIPS) {
+        const k = el('button');
+        k.className = 'chip';
+        k.type = 'button';
+        k.dataset.chip = c.id;
+        // Den Stand aus der Auswahl lesen und nicht auf „aus" setzen: Die
+        // Reihe wird auch neu gebaut, während schon gefiltert wird.
+        k.setAttribute('aria-pressed', String(gewaehlteChips.has(c.id)));
+        k.innerHTML = `<span class="emoji">${c.emoji}</span>${sicher(c.text)}`;
+        k.addEventListener('click', () => chipUmschalten(c.id));
+        reihe.appendChild(k);
+      }
     }
   }
 
@@ -441,10 +457,17 @@
       k.setAttribute('aria-pressed', String(gewaehlteChips.has(k.dataset.chip)));
     }
 
+    // Beides auf einmal, egal wo getippt wurde: die Punkte auf der Karte
+    // ausdünnen und die Trefferliste auf Entdecken neu holen. Der Filter ist
+    // eine Einstellung, keine zwei — nur seine Wirkung sieht an jedem der
+    // beiden Orte anders aus.
+    //
+    // Was hier bewusst NICHT mehr passiert: der Sprung zur Karte. Wer auf
+    // Entdecken einen Filter setzt, will die passenden Plätze durchsehen —
+    // und wurde bisher stattdessen auf eine Karte mit ein paar Punkten
+    // geworfen, ohne Bild und ohne Namen.
     filterAnwenden();
-
-    // Ein gesetzter Filter gehört auf die Karte — dort sieht man, was er tut.
-    if (gewaehlteChips.size) bereichZeigen('karte');
+    trefferAuffrischen();
   }
 
   // Der Filter läuft über MapLibre selbst: Die Punkte sind längst geladen,
@@ -485,11 +508,7 @@
         'font:inherit;font-size:13px;font-weight:600;cursor:pointer;' +
         'box-shadow:0 4px 18px var(--sch2)';
       leiste.addEventListener('click', () => {
-        gewaehlteChips.clear();
-        for (const k of document.querySelectorAll('[data-chip]')) {
-          k.setAttribute('aria-pressed', 'false');
-        }
-        filterAnwenden();
+        filterZuruecksetzen();
       });
 
       // Bewusst IN die untere Spalte und nicht frei über die Karte gelegt:
@@ -504,6 +523,116 @@
     leiste.innerHTML =
       `${anzahl} ${anzahl === 1 ? 'Filter' : 'Filter'} aktiv` +
       '<span style="opacity:0.75;font-weight:400">· zurücksetzen ×</span>';
+  }
+
+  // Alles auf Anfang: keine Chips, alle Punkte auf der Karte, auf Entdecken
+  // wieder die gewohnte Seite.
+  function filterZuruecksetzen() {
+    gewaehlteChips.clear();
+    for (const k of document.querySelectorAll('[data-chip]')) {
+      k.setAttribute('aria-pressed', 'false');
+    }
+    filterAnwenden();
+    trefferAuffrischen();
+  }
+
+  // ==========================================================================
+  // 6b. DIE TREFFER ZUM FILTER (Entdecken)
+  //
+  // Die Chips sind auf dieser Seite eine Frage: „Welche Plätze liegen über
+  // 1.500 m?" Die Antwort gehört hierher und nicht auf die Karte — als
+  // Kacheln mit Bild, zwei nebeneinander, wie der Rest der Seite.
+  //
+  // Geholt wird über spots_filtern (db/019-filter.sql): eine Abfrage für
+  // alle Treffer samt erstem Foto. Die Karte kann das nicht liefern, sie
+  // kennt immer nur den Ausschnitt, den jemand gerade angeschaut hat.
+  // ==========================================================================
+
+  // Der zuletzt bekannte Standort — gesetzt von nahLaden(), sobald der Nutzer
+  // ihn ohnehin schon freigegeben hat. Steht er, sind die Treffer nach
+  // Entfernung sortiert und zeigen die Kilometer mit an. Steht er nicht,
+  // wird hier nicht danach gefragt: Ein Standortdialog als Antwort auf einen
+  // Filterchip wäre eine Frage, die niemand gestellt hat.
+  let letzterStandort = null;
+
+  // Läuft schon eine Abfrage, darf ihre Antwort eine neuere nicht überholen.
+  let trefferLauf = 0;
+
+  function chipText(id) {
+    const c = CHIPS.find((x) => x.id === id);
+    return c ? c.text : id;
+  }
+
+  async function trefferAuffrischen() {
+    const block  = $('entdecken-treffer-block');
+    const listeEl = $('entdecken-treffer');
+    const standard = $('entdecken-standard');
+    if (!block || !listeEl) return;
+
+    const chips = [...gewaehlteChips];
+
+    // Ohne Filter ist die Seite wieder die gewohnte.
+    if (!chips.length) {
+      block.hidden = true;
+      listeEl.innerHTML = '';
+      if (standard) standard.hidden = false;
+      return;
+    }
+
+    block.hidden = false;
+    if (standard) standard.hidden = true;
+
+    const titel = $('entdecken-treffer-titel');
+    const unter = $('entdecken-treffer-unter');
+    if (titel) titel.textContent = chips.map(chipText).join(' · ');
+    if (unter) unter.textContent = 'Wird gesucht …';
+
+    // Graue Kacheln, solange geladen wird — die Seite soll nicht springen.
+    listeEl.innerHTML =
+      '<div class="platzhalter" style="height:210px;border-radius:20px"></div>'.repeat(4);
+
+    const lauf = ++trefferLauf;
+
+    const { data, error } = await sb.rpc('spots_filtern', {
+      chips,
+      von_lat: letzterStandort ? letzterStandort.lat : null,
+      von_lng: letzterStandort ? letzterStandort.lng : null,
+      anzahl: 60,
+    });
+
+    // Zwischenzeitlich wurde weitergetippt: diese Antwort ist überholt.
+    if (lauf !== trefferLauf) return;
+
+    if (error) {
+      listeEl.innerHTML =
+        '<p class="treffer-leer" style="grid-column:1/-1">Die Treffer konnten ' +
+        'gerade nicht geladen werden. Ohne Netz zeigt die <b>Karte</b> weiter ' +
+        'die Punkte, die schon da sind.</p>';
+      if (unter) unter.textContent = 'Nicht erreichbar';
+      return;
+    }
+
+    const liste = data || [];
+    listeEl.innerHTML = '';
+
+    if (!liste.length) {
+      listeEl.innerHTML =
+        '<p class="treffer-leer" style="grid-column:1/-1">Dazu steht noch ' +
+        'kein Spot in der Karte. Entweder passt gerade keiner — oder bei den ' +
+        'vorhandenen ist diese Angabe noch nicht ausgefüllt.</p>';
+      if (unter) unter.textContent = 'Kein Treffer';
+      return;
+    }
+
+    for (const s of liste) listeEl.appendChild(kachel(s));
+
+    if (unter) {
+      unter.textContent = liste.length === 1
+        ? 'Ein Platz passt dazu'
+        : `${liste.length} Plätze passen dazu`;
+    }
+
+    herzenAuffrischen();
   }
 
   async function entdeckenFuellen() {
@@ -582,6 +711,10 @@
 
     herzenAuffrischen();
     nahLaden();
+
+    // War schon ein Filter gesetzt — etwa auf der Karte —, gehört die
+    // Trefferliste auch beim ersten Öffnen dieser Seite gleich dazu.
+    trefferAuffrischen();
   }
 
   // In deiner Nähe — nur, wenn der Standort schon bekannt ist. Diese Seite
@@ -600,6 +733,10 @@
     if (!erlaubt) return;
 
     navigator.geolocation.getCurrentPosition(async (pos) => {
+      // Merken für die Trefferliste: Sie sortiert dann nach Entfernung,
+      // ohne selbst nach dem Standort fragen zu müssen.
+      letzterStandort = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+
       const { data, error } = await sb.rpc('spots_entdecken', {
         sortierung: 'nah',
         von_lat: pos.coords.latitude,
@@ -623,6 +760,17 @@
       herzenAuffrischen();
     }, () => {}, { maximumAge: 300000, timeout: 8000 });
   }
+
+  // Vom Trefferblock aus freiwillig zur Karte. Der Filter ist dort schon
+  // gesetzt, es fehlt nur noch der Blick von oben.
+  const trefferKarte = $('entdecken-treffer-karte');
+  if (trefferKarte) {
+    trefferKarte.addEventListener('click', () => bereichZeigen('karte'));
+  }
+
+  // Die Chips über der Karte müssen dastehen, auch wenn Entdecken noch nie
+  // offen war — die App kann mit der Karte starten.
+  chipsBauen();
 
   // Die Suche auf der Entdecken-Seite führt zur Karte und öffnet dort die
   // richtige Suche. Zwei Suchen mit zwei Ergebnislisten wären eine zu viel.

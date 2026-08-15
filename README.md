@@ -62,13 +62,28 @@ es ein Konto, sonst wäre die Liste beim nächsten Gerät weg.
 
 ### Die Filterchips
 
-Auf der Entdecken-Seite stehen Chips wie *Am See*, *Ab 1.500 m* oder *Feuer
-erlaubt*. Ein Tipp darauf springt zur Karte und blendet alles aus, was nicht
-passt. Unten steht dann, dass gefiltert wird — sonst sucht man später den Spot,
-den man selbst weggefiltert hat.
+Chips wie *Am See*, *Ab 1.500 m* oder *Feuer erlaubt* stehen an **zwei**
+Stellen: auf der Entdecken-Seite und über der Karte. Beide zeigen dieselbe
+Auswahl — was hier gesetzt wird, ist dort gesetzt. Nur die Antwort sieht an
+jedem der beiden Orte anders aus:
 
-Gefiltert wird **ohne neue Abfrage**: Die Punkte sind längst geladen, es werden
-nur welche ausgeblendet. Das geht sofort und auch ohne Empfang.
+| Wo getippt | Was passiert |
+|------------|--------------|
+| **Entdecken** | Man bleibt auf der Seite. Direkt unter den Chips kommen die Treffer als Kacheln mit Bild, zwei nebeneinander. Der Rest der Seite tritt so lange zurück. |
+| **Karte** | Man bleibt auf der Karte. Es bleiben nur die passenden Punkte stehen — auch beim Weiterschieben, für alles, was neu dazugeladen wird. |
+
+Der Grund für die Trennung: Wer einen Filter setzt, stellt eine Frage („Welche
+Plätze liegen über 1.500 m?"). Auf einer Karte sind ein paar Punkte darauf
+keine Antwort — man sieht weder Name noch Bild. Früher sprang die App beim
+Antippen sofort zur Karte; heute entscheidet der Ort, an dem man tippt.
+
+Auf der Karte wird **ohne neue Abfrage** gefiltert: Die Punkte sind längst
+geladen, es werden nur welche ausgeblendet. Das geht sofort und auch ohne
+Empfang. Die Trefferliste auf Entdecken holt dagegen alle passenden Spots aus
+der Datenbank (`spots_filtern`, `db/019-filter.sql`) — sie soll auch Plätze
+zeigen, die weit weg vom aktuellen Kartenausschnitt liegen. Deshalb steht jede
+Bedingung an zwei Stellen: als Kartenausdruck in `screens.js` und als
+SQL-Zeile in der Migration.
 
 **Ein Filter ist kostenlos, mehrere gleichzeitig gehören zu Plus.**
 
