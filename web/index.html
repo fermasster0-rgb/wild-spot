@@ -75,6 +75,12 @@
   --glas:      rgba(252, 251, 248, 0.72);
   --glas-rand: rgba(28, 26, 24, 0.09);
 
+  /* Genau die Farbe, die --glas über --bg ergibt. Sie ist der Untergrund für
+     den Streifen, den das Handy unterhalb der Seite selbst malt — siehe die
+     Regel für <html> weiter unten. Reines Weiß wäre dort eine Spur zu hell
+     und würde als feine Kante sichtbar. */
+  --unterkante: #f8f7f3;
+
   /* Schrift */
   --text:      #1c1a18;   /* warmes Schwarz, kein reines #000 */
   --text-lese: #33302c;   /* Fließtext: eine Spur weicher */
@@ -146,6 +152,7 @@ html[data-thema="nacht"] {
 
   --glas:      rgba(22, 26, 18, 0.72);
   --glas-rand: rgba(255, 255, 255, 0.11);
+  --unterkante: #151811;
 
   --text:      #f2f4ee;
   --text-lese: #d6dbcd;
@@ -204,12 +211,27 @@ html[data-thema="nacht"] {
 html, body {
   margin: 0;
   height: 100%;
-  background: var(--bg);
   color: var(--text);
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   -webkit-text-size-adjust: 100%;
   overscroll-behavior: none;   /* kein Pull-to-Refresh beim Kartenziehen */
 }
+
+body { background: var(--bg); }
+
+/* --------------------------------------------------------------------------
+   Warum das <html> eine ANDERE Farbe hat als der Rest
+
+   Als installierte App füllt die Seite nicht immer den ganzen Bildschirm.
+   Das iPhone malt am unteren Rand — dort, wo der Wischbalken liegt — einen
+   Streifen selbst, und es nimmt dafür die Hintergrundfarbe des <html>.
+
+   Stand dort das Papierbeige der Seite, sah man unter der weißen Leiste einen
+   beigen Streifen. Der ist nicht wegzuschieben, weil er gar nicht zur Seite
+   gehört — man kann ihm nur die Farbe der Leiste geben. Dann fällt er mit
+   ihr zusammen und die Leiste reicht optisch bis zur Bildschirmkante.
+   -------------------------------------------------------------------------- */
+html { background: var(--unterkante); }
 
 #karte { position: absolute; inset: 0; }
 
