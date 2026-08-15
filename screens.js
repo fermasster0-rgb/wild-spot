@@ -99,7 +99,7 @@
   // aufmacht.
   const geladen = {};
 
-  function bereichZeigen(name, { merken = true } = {}) {
+  function bereichZeigen(name, { merken = true, blattBehalten = false } = {}) {
     if (!BEREICHE.includes(name)) name = 'entdecken';
     if (name === aktiv) {
       // Nochmal auf denselben Reiter: nach oben scrollen. Kleine Sache, aber
@@ -107,6 +107,15 @@
       const s = $('schirm-' + name);
       if (s) s.scrollTo({ top: 0, behavior: 'smooth' });
       return;
+    }
+
+    // Ein offenes Spot-Blatt gehört zu dem Bereich, aus dem es geöffnet wurde.
+    // Wer auf einen anderen Reiter wechselt, will es nicht mitnehmen.
+    //
+    // Die eine Ausnahme ist „Auf der Karte anzeigen": Dort ist der Wechsel
+    // genau der Zweck, und das Blatt soll offen bleiben.
+    if (!blattBehalten && typeof window.spotDetailSchliessen === 'function') {
+      window.spotDetailSchliessen();
     }
 
     aktiv = name;
@@ -148,6 +157,10 @@
 
   window.WILDSPOT_BEREICH = bereichZeigen;
 
+  // Damit spot-detail.js weiß, ob sein Blatt gerade über der Karte liegt —
+  // davon hängt ab, ob der Knopf „Auf der Karte anzeigen" nötig ist.
+  window.WILDSPOT_BEREICH_JETZT = () => aktiv;
+
   for (const knopf of document.querySelectorAll('.tab')) {
     knopf.addEventListener('click', () => bereichZeigen(knopf.dataset.tab));
   }
@@ -155,30 +168,25 @@
   // ==========================================================================
   // 3. EINEN SPOT ÖFFNEN
   //
-  // Aus jeder Kachel heraus. Zuerst zur Karte, dann hinfliegen, dann das
-  // Blatt aufklappen — in dieser Reihenfolge, sonst klappt das Blatt über
-  // einer Seite auf, die gerade noch die Kachelliste war.
+  // Das Blatt geht dort auf, wo man gerade ist — auf der Entdecken-Seite, in
+  // der Merkliste, auf der Karte. Es wechselt NICHT von selbst den Bereich.
+  //
+  // Vorher sprang die App beim Antippen einer Kachel sofort zur Karte. Das
+  // war falsch herum: Wer eine Kachel antippt, will zuerst wissen, was das
+  // für ein Platz ist. Wo er liegt, ist die Frage danach — und dafür gibt es
+  // im Blatt den Knopf „Auf der Karte anzeigen" (spot-detail.js).
+  //
+  // Der Nebeneffekt ist der eigentliche Gewinn: Man kann sich durch zehn
+  // Spots lesen, ohne die Liste zu verlieren. Beim Schließen des Blattes
+  // steht man wieder genau dort, wo man war.
   // ==========================================================================
 
   function spotOeffnen(spot) {
-    bereichZeigen('karte');
-
     const lat = Number(spot.lat), lng = Number(spot.lng);
-    if (karte && Number.isFinite(lat) && Number.isFinite(lng)) {
-      karte.flyTo({
-        center: [lng, lat],
-        // Nah genug, dass man Wege und Bäche sieht, weit genug, dass man die
-        // Umgebung noch einordnen kann.
-        zoom: Math.max(karte.getZoom(), 14),
-        duration: 900,
-      });
-    }
 
-    setTimeout(() => {
-      if (typeof window.spotDetailOeffnen === 'function') {
-        window.spotDetailOeffnen(spot.id, spot.name, lat, lng);
-      }
-    }, 260);
+    if (typeof window.spotDetailOeffnen === 'function') {
+      window.spotDetailOeffnen(spot.id, spot.name, lat, lng);
+    }
   }
 
   // ==========================================================================

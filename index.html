@@ -1502,6 +1502,39 @@ body.detail-offen .unten { right: 404px; }
 /* Drei Knöpfe statt zwei — die Überschrift braucht entsprechend mehr Luft. */
 .detail-kopf { padding-right: 118px; }
 
+/* „Auf der Karte anzeigen" — steht ganz oben im Blatt, wenn dieses nicht
+   ohnehin über der Karte liegt. Bewusst in der Hauptfarbe: Von hier aus ist
+   es die naheliegendste nächste Handlung, alles andere im Blatt ist Lesen. */
+.zur-karte {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  width: 100%;
+  margin-bottom: 14px;
+  padding: 13px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--gruen);
+  color: var(--auf-akzent);
+  font: inherit;
+  font-size: 14.5px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.zur-karte svg {
+  width: 19px; height: 19px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.zur-karte:hover { filter: brightness(1.1); }
+.zur-karte:active { transform: scale(0.985); }
+
 /* Der scrollende Teil. Alles Lange landet hier drin. */
 .detail-koerper {
   overflow-y: auto;
@@ -3860,15 +3893,42 @@ body.parkplatz-modus .knopf-zeile { display: none; }
 
 /* Solange ein Bereich offen ist, gehört die Karte nicht bedient. Ihre Knöpfe
    haben eigene Ebenen und lägen sonst über der Seite — der Knopf „Spot hier
-   anlegen" mitten in der Merkliste. */
+   anlegen" mitten in der Merkliste.
+
+   Das Spot-Blatt steht bewusst NICHT in dieser Liste: Es soll sich auch über
+   der Entdecken-Seite und über der Merkliste öffnen lassen. Dafür braucht es
+   allerdings eine höhere Ebene als die Bereiche — siehe direkt darunter. */
 body.bereich-offen .ecke,
 body.bereich-offen .suche,
 body.bereich-offen .unten,
-body.bereich-offen .detail,
 body.bereich-offen .fadenkreuz,
 body.bereich-offen #filter-hinweis,
 body.bereich-offen .kein-netz,
 body.bereich-offen .neue-fassung { display: none; }
+
+/* Das Blatt liegt über den Bereichen (40), aber unter der Leiste unten (70) —
+   die bleibt immer erreichbar. Am Handy endet das Blatt ohnehin über ihr. */
+.detail { z-index: 55; }
+
+/* Ein dunkler Schleier hinter dem Blatt, wenn es über einem Bereich liegt.
+   Über der Karte gibt es ihn nicht: Dort will man beim Lesen weiter sehen,
+   wo der Spot liegt. Über einer Liste ist das egal — dort trennt der Schleier
+   das Gelesene vom Rest und macht das Blatt zum Fenster. */
+body.bereich-offen.detail-offen::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  bottom: var(--tab-h);
+  z-index: 50;
+  background: var(--ueber);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+  animation: schleier-auf 0.2s ease-out;
+}
+@keyframes schleier-auf { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  body.bereich-offen.detail-offen::after { animation: none; }
+}
 
 /* Verwaltung und Anmeldefenster liegen über der Leiste — dort wäre sie nur
    ein Ausweg, den es an dieser Stelle nicht geben soll. */

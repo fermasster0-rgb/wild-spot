@@ -169,6 +169,9 @@ function detailSchliessen() {
 
 document.getElementById('detail-zu').onclick = detailSchliessen;
 
+// screens.js räumt das Blatt weg, wenn man den Bereich wechselt.
+window.spotDetailSchliessen = detailSchliessen;
+
 document.addEventListener('keydown', (e) => {
   // Nur schließen, wenn nicht gerade etwas darüber liegt — sonst würde ein
   // Escape im Spot-Formular oder im großen Bild auch die Leiste dahinter
@@ -260,6 +263,13 @@ window.spotDetailOeffnen = spotDetailOeffnen;
 // ----------------------------------------------------------------------------
 
 const merkenKnopf = document.getElementById('detail-merken');
+
+// Liegt das Blatt gerade über der Karte? Ist screens.js nicht dabei, gibt es
+// nur die Karte — dann stimmt "ja" immer.
+function aufDerKarte() {
+  if (!window.WILDSPOT_BEREICH_JETZT) return true;
+  return window.WILDSPOT_BEREICH_JETZT() === 'karte';
+}
 
 function merkenAnmelden(spotId) {
   if (!merkenKnopf || !window.WILDSPOT_MERKEN) return;
@@ -366,6 +376,24 @@ function zeichnen(spot, kommentare, meineSterne, fotos = []) {
   // weil der Parkplatz-Knopf weit vor dem Bereich "Dein Spot" gebraucht wird.
   const meiner = angemeldet && spot.created_by === window.WILDCAMP_AUTH.nutzer.id;
   const darfAendern = meiner || (angemeldet && window.WILDCAMP_AUTH.nutzer.istAdmin === true);
+
+  // -------------------------------------------------- Auf der Karte zeigen --
+  //
+  // Nur, wenn das Blatt NICHT über der Karte liegt — also wenn es von der
+  // Entdecken-Seite oder aus der Merkliste heraus geöffnet wurde.
+  //
+  // Der Grund für diesen Knopf: Wer eine Kachel antippt, will zuerst wissen,
+  // was das für ein Platz ist — Fotos, Wasser, Bewertung. Wo genau er liegt,
+  // ist die Frage danach. Vorher sprang die App sofort zur Karte und riss
+  // einen aus der Liste heraus, in der man gerade gestöbert hat.
+  if (!aufDerKarte()) {
+    teile.push(
+      '<button type="button" class="zur-karte" id="detail-zur-karte">' +
+      '<svg viewBox="0 0 24 24"><path d="M9 4L3 6.5v13L9 17l6 2.5 6-2.5v-13L15 6.5z"/>' +
+      '<path d="M9 4v13M15 6.5v13"/></svg>' +
+      'Auf der Karte anzeigen</button>'
+    );
+  }
 
   // ------------------------------------------------------------- Fotos -----
   // Ganz nach oben: ein Bild sagt über einen Zeltplatz mehr als jede Liste.
@@ -666,6 +694,38 @@ function detailMeldung(text, art = 'info') {
 function verdrahten(spot, meineSterne, anzahlFotos, meiner) {
   const auth = window.WILDCAMP_AUTH;
   const sterneBox = document.getElementById('meine-sterne');
+
+  // „Auf der Karte anzeigen" — das Blatt bleibt dabei offen. Wer den Spot
+  // gerade liest, will ihn auf der Karte SEHEN und nicht die Angaben verlieren
+  // und danach von vorne suchen.
+  const zurKarte = document.getElementById('detail-zur-karte');
+  if (zurKarte) {
+    zurKarte.onclick = () => {
+      if (!offenerSpot) return;
+      const { lat, lng } = offenerSpot;
+
+      if (window.WILDSPOT_BEREICH) {
+        // Der zweite Wert sagt screens.js, dass das Blatt offen bleiben soll —
+        // sonst räumt jeder Bereichswechsel es weg.
+        window.WILDSPOT_BEREICH('karte', { blattBehalten: true });
+      }
+
+      // Jetzt liegt das Blatt über der Karte — der Knopf hat seine Aufgabe
+      // erfüllt und wäre ab hier nur noch ein Knopf, der nichts mehr tut.
+      zurKarte.remove();
+
+      // Erst fliegen, dann freilegen: Das Aufklappen der Leiste schiebt die
+      // Karte selbst noch zur Seite, und mitten im Flug bricht das ihn ab.
+      if (karte) {
+        karte.flyTo({
+          center: [lng, lat],
+          zoom: Math.max(karte.getZoom(), 14),
+          duration: 900,
+        });
+        karte.once('moveend', () => freilegen(lat, lng));
+      }
+    };
+  }
 
   // Die Knöpfe im Routen-Block: Route ins Bild holen, Parkplatz setzen oder
   // wieder entfernen. Sie sind nach jedem Neuzeichnen frische Elemente.

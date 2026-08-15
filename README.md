@@ -39,6 +39,21 @@ Im Profil unter *Aussehen* lässt sich auf **dunkel** stellen: der bisherige
 Waldlook. Im Zelt um 22 Uhr blendet Weiß. Beim allerersten Start folgt die App
 der Einstellung deines Handys.
 
+### Einen Spot antippen
+
+Egal wo — auf einer Kachel bei *Entdecken*, in der *Merkliste* oder auf der
+Karte: Es geht immer **dasselbe Blatt** auf, mit Fotos, Angaben, Wetter,
+Bewertung und Kommentaren.
+
+**Der Bereich wechselt dabei nicht.** Wer bei Entdecken stöbert, bleibt bei
+Entdecken — beim Schließen des Blattes steht man wieder genau dort, wo man war,
+und kann sich durch zehn Spots lesen, ohne die Liste zu verlieren.
+
+Wo der Spot liegt, ist die Frage danach. Dafür steht ganz oben im Blatt der
+grüne Knopf **Auf der Karte anzeigen**: Er springt zur Karte, fliegt hin — und
+lässt das Blatt offen, damit die Angaben nicht verloren gehen. Liegt das Blatt
+ohnehin schon über der Karte, gibt es den Knopf nicht.
+
 ### Das Herz
 
 An jeder Spot-Kachel und oben im Spot-Blatt sitzt ein Herz. Es legt den Spot
