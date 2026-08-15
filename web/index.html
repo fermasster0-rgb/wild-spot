@@ -2540,8 +2540,25 @@ body.parkplatz-modus .knopf-zeile { display: none; }
 :root {
   /* Die Höhe der unteren Leiste. Alles, was über ihr schwebt — der Knopf
      „Spot hier anlegen", die Fußzeile, das Spot-Blatt — rechnet damit.
-     Deshalb steht sie als Wert hier und nicht dreimal im Blatt. */
-  --tab-h: calc(56px + env(safe-area-inset-bottom));
+     Deshalb steht sie als Wert hier und nicht dreimal im Blatt.
+
+     Sie besteht aus zwei Teilen:
+
+     --tab-inhalt  ist die Reihe selbst, also Zeichen und Wort.
+     --tab-luft    ist der Abstand darunter zum Wischbalken des Handys.
+
+     Der zweite Wert ist der Grund, warum die Leiste anfangs zu wuchtig war.
+     Ein iPhone meldet dort 34 Pixel. Nimmt man die voll dazu, ist die Leiste
+     90 Pixel hoch — fast ein Neuntel des Bildschirms, und das auf einer Seite,
+     auf der es um Fotos geht.
+
+     34 Pixel braucht es aber nur, wenn unten etwas zum Antippen sitzt. Hier
+     steht ganz unten bloß ein Wort, und ein Wort darf näher an den Balken.
+     Deshalb werden 14 Pixel abgezogen. Im Browser meldet das Handy null —
+     dann bleibt es bei null, und es wird kein Platz verschenkt. */
+  --tab-inhalt: 50px;
+  --tab-luft: max(0px, calc(env(safe-area-inset-bottom) - 14px));
+  --tab-h: calc(var(--tab-inhalt) + var(--tab-luft));
 }
 
 /* ---------------------------------------------------------------------------
@@ -2588,7 +2605,7 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   grid-template-columns: repeat(5, 1fr);
   background: var(--flaeche);
   border-top: 1px solid var(--rand);
-  padding-bottom: env(safe-area-inset-bottom);
+  padding-bottom: var(--tab-luft);
   /* Ein Hauch Schatten nach oben: die Leiste liegt auf der Karte, nicht
      neben ihr. */
   box-shadow: 0 -1px 12px var(--sch1);
@@ -2600,21 +2617,22 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 3px;
-  height: 56px;
+  gap: 2px;
+  height: var(--tab-inhalt);
   padding: 0 2px;
   border: 0;
   background: none;
   color: var(--text-weak);
   font: inherit;
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: 600;
   letter-spacing: -0.005em;
+  line-height: 1.1;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
 .tab svg {
-  width: 23px; height: 23px;
+  width: 22px; height: 22px;
   fill: none;
   stroke: currentColor;
   stroke-width: 1.8;
@@ -2629,13 +2647,24 @@ body.parkplatz-modus .knopf-zeile { display: none; }
 /* Der Punkt am Plus-Zeichen, solange man es noch nie geöffnet hat. */
 .tab .neu-punkt {
   position: absolute;
-  top: 8px;
-  margin-left: 17px;
-  width: 7px; height: 7px;
+  top: 6px;
+  margin-left: 16px;
+  width: 6px; height: 6px;
   border-radius: 50%;
   background: var(--orange);
 }
 .tab .neu-punkt[hidden] { display: none; }
+
+/* Quer gehaltenes Handy: Dort ist der Bildschirm nur gut 400 Pixel hoch. Eine
+   Leiste in voller Höhe nähme davon ein Achtel — also rückt alles zusammen
+   und Zeichen und Wort stellen sich nebeneinander statt übereinander. */
+@media (max-height: 500px) and (orientation: landscape) {
+  :root { --tab-inhalt: 40px; }
+  .tab { flex-direction: row; gap: 6px; font-size: 11px; }
+  .tab svg { width: 19px; height: 19px; }
+  .tab[aria-selected="true"] svg { transform: none; }
+  .tab .neu-punkt { top: 7px; margin-left: 44px; }
+}
 
 /* Auf breiten Bildschirmen wird aus der Leiste unten eine Spalte links —
    dort ist unten kein Daumen, sondern nur weiter Weg für die Maus. */
