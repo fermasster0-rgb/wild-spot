@@ -1018,6 +1018,71 @@
       rand.appendChild(menue3);
     }
 
+    // ---------------------------------------------------------- Die Fassung
+    //
+    // Steht hier, weil sich sonst nicht feststellen lässt, welche Fassung auf
+    // einem Handy wirklich läuft. Die App hält sich selbst fürs Funkloch fest;
+    // wenn eine Änderung „nicht ankommt", ist fast immer die alte Fassung noch
+    // im Speicher. Ohne diese Zeile sucht man den Fehler im Neuen, obwohl man
+    // das Alte vor sich hat.
+    //
+    // Die Nummer steht im Namen des Speichers, den der Service Worker anlegt
+    // (sw.js, VERSION) — von dort wird sie gelesen.
+    const fassung = el('button');
+    fassung.className = 'menue-zeile';
+    fassung.type = 'button';
+    fassung.innerHTML =
+      '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/>' +
+      '<path d="M12 7.5v5M12 16h.01"/></svg>' +
+      '<span class="was">Fassung<small id="fassung-text">wird gelesen …</small></span>' +
+      '<span class="pfeil">↻</span>';
+
+    // Antippen holt sie neu vom Server — der schnellste Weg aus einer alten
+    // Fassung heraus, ohne die App zu löschen und neu zu installieren.
+    fassung.addEventListener('click', async () => {
+      const t = $('fassung-text');
+      if (t) t.textContent = 'wird neu geholt …';
+      try {
+        for (const reg of await navigator.serviceWorker.getRegistrations()) {
+          await reg.update();
+        }
+      } catch (e) {}
+      setTimeout(() => location.reload(true), 900);
+    });
+
+    const menue0 = el('div');
+    menue0.className = 'menue';
+    menue0.appendChild(fassung);
+    rand.appendChild(menue0);
+
+    (async () => {
+      const t = $('fassung-text');
+      if (!t) return;
+      let nummer = 'unbekannt';
+      try {
+        const namen = await caches.keys();
+        const treffer = namen.map((n) => (n.match(/(\d{4}-\d{2}-\d{2}-\d{2}-\d{2})/) || [])[1])
+                             .filter(Boolean)
+                             .sort();
+        if (treffer.length) nummer = treffer[treffer.length - 1];
+      } catch (e) {}
+
+      // Der Sicherheitsabstand, den das Gerät unten meldet. Er ist der Grund,
+      // warum die Leiste auf dem einen Handy tiefer sitzt als auf dem anderen.
+      const probe = el('div');
+      probe.style.cssText =
+        'position:fixed;bottom:0;height:env(safe-area-inset-bottom);visibility:hidden';
+      document.body.appendChild(probe);
+      const unten = Math.round(probe.getBoundingClientRect().height);
+      probe.remove();
+
+      const alsApp = window.matchMedia('(display-mode: standalone)').matches ||
+                     window.navigator.standalone === true;
+
+      t.textContent = `${nummer} · ${alsApp ? 'als App' : 'im Browser'} · ` +
+                      `Rand unten ${unten} px · zum Auffrischen tippen`;
+    })();
+
     // ------------------------------------------------------------- Fußzeile
     const fuss = el('p');
     fuss.style.cssText =
