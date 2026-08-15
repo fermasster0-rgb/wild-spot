@@ -3,7 +3,7 @@
 Eine App für Wildcampen-Spots in Österreich. Nutzer legen Plätze an, bewerten sie
 und sehen auf der Karte, wo Wasser ist.
 
-**Stand:** 2026-08-04 · **Version:** V1-Planung
+**Stand:** 2026-08-15 · **Version:** V1, in Benutzung
 
 ---
 
@@ -21,13 +21,47 @@ keine AGB. Das kommt erst, wenn die App wirklich benutzt wird.
 
 ## 2. Die 5 Bildschirme
 
-| # | Screen | Was drauf ist |
-|---|--------|---------------|
-| 1 | **Karte** (Start) | Spots als Pins, Wasser als eigener Layer, "Meine Position"-Button, Layer-Umschalter |
-| 2 | **Spot-Detail** | Name, Fotos, alle Attribute mit Icons, Durchschnittsbewertung, Kommentare |
-| 3 | **Spot anlegen** | Position per Fadenkreuz auf der Karte, dann Formular |
-| 4 | **Bewerten / Kommentieren** | 5 Sterne + Text + Pflichtfeld "Wann warst du da?" |
-| 5 | **Profil / Login** | E-Mail-Login, meine Spots, meine Bewertungen |
+Seit dem 2026-08-15 hat die App **eine Leiste unten mit fünf Bereichen**, wie
+man es von Komoot, Strava oder AllTrails kennt. Vorher war sie eine Karte mit
+Knöpfen an den Rändern — richtig für eine Karte, aber es gab keinen Ort für
+die Frage *davor*: Wo könnte ich überhaupt hin?
+
+| # | Bereich | Was drauf ist |
+|---|---------|---------------|
+| 1 | **Entdecken** (Start) | Spots als große Bildkacheln: Spot der Woche, neu dazugekommen, in deiner Nähe, Bestenliste. Dazu Filterchips und drei Artikel (Recht, Kälte, keine Spuren) |
+| 2 | **Karte** | Wie bisher: Spots als Zeichen, Wasser und Hütten als Ebenen, Position, Ebenenwahl, Spot anlegen |
+| 3 | **Merkliste** | Gemerkte Spots (Herz), eigene Spots, was offline gespeichert ist |
+| 4 | **Plus** | Der bezahlte Teil — siehe Abschnitt 10 |
+| 5 | **Profil** | Konto, Zahlen, Tag/Nacht, Einstellungen, Verwaltung (nur Admins) |
+
+Dazu die beiden Ansichten, die sich über alles legen:
+
+| Ansicht | Was drauf ist |
+|---------|---------------|
+| **Spot-Blatt** | Name, Fotos, alle Attribute, Wetter, Wanderroute, Sterne, Kommentare — dazu Merken, Teilen, Schließen |
+| **Spot anlegen** | Position per Fadenkreuz auf der Karte, dann Formular |
+
+### Warum das Aussehen von Komoot kommt
+
+Komoot löst dasselbe Problem für Wanderrouten, das Wild Spot für Schlafplätze
+hat: Man muss etwas finden, das man noch nicht kennt, und dabei entscheidet
+das Bild und nicht die Beschreibung. Deshalb ist übernommen:
+
+- **Warmes Papierbeige statt Weiß** (`#edebe5`), fast schwarze Schrift, Oliv
+  als Akzent (`#4f6814`), Orange für alles Neue und für Plus (`#ee6b17`)
+- **Sehr fette, sehr enge Überschriften** — eine Zeile wirkt dadurch wie ein
+  Plakat und nicht wie eine Zwischenüberschrift
+- **Das Foto ist die Kachel**, der Name liegt darauf, die Fakten darunter
+- **Reihen, die man seitlich schiebt** und die absichtlich über den Bildrand
+  hinauslaufen: Das zeigt ohne Pfeil, dass noch mehr kommt
+
+Nicht übernommen ist die Schriftart (Satoshi, kostenpflichtig und ein Nachladen
+aus dem Netz — die App muss aber offline starten). Die Wirkung macht hier die
+Systemschrift in Gewicht 800 mit engem Zeichenabstand.
+
+**Der Nachtmodus bleibt.** Die alte dunkle Fassung ist als Umschalter im Profil
+erhalten — im Zelt um 22 Uhr blendet Weiß. Möglich ist das, weil im Stilblatt
+keine feste Farbe mehr steht, sondern überall nur ein Name aus `:root`.
 
 ---
 
@@ -95,7 +129,12 @@ was der Nutzer im Formular sieht.
 | Feld | Anzeige (Auswahl) | Wert in der Datenbank |
 |------|-------------------|------------------------|
 | `access` | Auto direkt / kurze Wanderung / lange Wanderung | `auto` `kurze_wanderung` `lange_wanderung` |
-| `hike_minutes` | Gehzeit in Minuten | Zahl |
+| `hike_minutes` | Gehzeit in Minuten (geschätzt) | Zahl |
+| `parking_lat` / `parking_lng` | Parkplatz, an dem die Wanderung beginnt | zwei Zahlen |
+| `route_line` | Die Wanderroute als Linie | Liste von `[lng,lat]` |
+| `route_minutes` | **gemessene** Gehzeit | Zahl |
+| `route_distance_m`, `route_ascent_m`, `route_descent_m` | Strecke und Höhenmeter | Zahlen |
+| `route_status` | Stand der Berechnung | `ok` `kein_weg` `fehler` |
 | `mobile_signal` | Empfang: gut / schwach / keiner | `gut` `schwach` `keiner` |
 | `discreet` | Einsehbarkeit: sehr diskret / mittel / einsehbar | `sehr` `mittel` `einsehbar` |
 | `legal_status` | erlaubt / geduldet / verboten / unklar | `erlaubt` `geduldet` `verboten` `unklar` |
@@ -274,6 +313,29 @@ diese Entscheidung keine Arbeit verloren.
       Bedingungen verbieten es, eine Google-Route auf einer fremden Karte
       (basemap.at) zu zeichnen, und Komoot hat für Außenstehende gar keine
       offene Schnittstelle — nur Partnerverträge mit Geräteherstellern.
+      Die eigene Wanderroute darunter ist ein anderer Fall: sie kommt aus
+      OpenStreetMap-Daten, die man zeichnen darf (siehe unten).
+
+- [x] **Eigene Wanderroute Parkplatz → Spot** (`web/route.js`,
+      `scripts/routen-rechnen.mjs`, Migration 015) — beim Spot lässt sich ein
+      Parkplatz setzen (Fadenkreuz, wie beim Anlegen). Zwischen Parkplatz und
+      Spot rechnet OpenRouteService den Fußweg über echte Wanderwege aus
+      OpenStreetMap, Profil `foot-hiking` — dieselbe Datengrundlage, aus der
+      auch Komoot seine Touren baut. Angezeigt werden Linie auf der Karte,
+      Gehzeit, Strecke und Höhenmeter; die geschätzte `hike_minutes`
+      verschwindet damit aus der Anzeige und wird in der Datenbank durch den
+      gemessenen Wert ersetzt.
+
+      Gerechnet wird **nicht im Browser**, sondern im Skript
+      `node scripts/routen-rechnen.mjs`. Zwei Gründe: Der Schlüssel läge im
+      Ordner `web/` für jeden lesbar (er bleibt so in `.env.local`), und die
+      2.000 Gratis-Anfragen am Tag wären an einem guten Tag verbraucht,
+      obwohl sich eine Wanderroute nie ändert. Gespeichert ist sie einmal —
+      und funktioniert dadurch nebenbei auch offline.
+
+      Wird ein Parkplatz verschoben, wirft ein Trigger in der Datenbank die
+      alte Route weg. Eine Linie, die vom falschen Ort losläuft, wäre am Berg
+      schlimmer als gar keine.
 
 - [x] **Ort aus dem Foto lesen** (`web/foto-ort.js`) — beim Anlegen ein
       Handyfoto auswählen, und die Position steht. Die Karte fliegt hin, die
@@ -316,12 +378,96 @@ diese Entscheidung keine Arbeit verloren.
 
 **Als Nächstes**
 
-- [ ] **Eigene Wanderroute auf der Karte** — Parkplatz als zweite Koordinate
-      speichern, dann die Route Parkplatz → Spot über einen Routendienst auf
-      OpenStreetMap-Basis rechnen (OpenRouteService, Profil `foot-hiking`:
-      gratis, 2.500 Abfragen am Tag, keine Kreditkarte). Das liefert Linie,
-      Gehzeit und Höhenmeter — genau das, was Komoot auch rechnet, denn dessen
-      Grundlage sind dieselben OSM-Daten. Damit wird `hike_minutes` gemessen
-      statt geschätzt.
+- [x] **Einen Spot teilen** (`web/teilen.js`, Migration 016) — im Kopf der
+      Detail-Leiste ein Knopf, der einen Link auf genau diesen Spot in die
+      Zwischenablage legt: `…/wild-spot/?spot=<id>`. Wer ihn öffnet, bekommt
+      die Karte auf diesen Spot zentriert und die Leiste aufgeklappt — ohne
+      Konto, ohne Installation.
+
+      Die ID statt Koordinaten im Link: So zeigt er auch dann noch auf den
+      Spot, wenn der umbenannt wird oder ein paar Meter wandert. Nachgesehen
+      wird zuerst im Offline-Speicher der Karte, erst dann in der Datenbank —
+      ein Link auf einen schon einmal gesehenen Spot geht damit auch im
+      Funkloch auf.
+
+      Zwei Stolpersteine, die beim Bauen Zeit gekostet haben und hier stehen,
+      damit sie es nicht noch einmal tun: `karte.isStyleLoaded()` meldet beim
+      Start eine ganze Weile `false`, obwohl die Karte längst dasteht, und
+      `load` feuert mehrfach — gewartet wird deshalb auf `idle`. Und das
+      Aufklappen der Leiste schiebt die Karte selbst noch zur Seite; passiert
+      das mitten im Flug, bricht es ihn ab. Erst fliegen, dann aufklappen.
+
+- [ ] **Die Routen regelmäßig nachrechnen lassen** — setzt jemand anderes
+      einen Parkplatz, erscheint seine Route erst, wenn
+      `node scripts/routen-rechnen.mjs` gelaufen ist. Bei einer Handvoll Spots
+      genügt es, das gelegentlich von Hand zu tun; wächst die Karte, gehört
+      das einmal am Tag automatisch angestoßen.
 - [ ] *(kein Muss)* In ein paar Monaten den Import wiederholen, dann sind die
       OSM-Daten wieder aktuell: `node scripts/import-water.mjs`
+
+---
+
+## 10. Wild Spot Plus — womit die App Geld verdient
+
+Steht seit dem 2026-08-15 in der App (`web/plus.js`, Migration 017). Die
+Verkaufsseite ist fertig, **Bezahlen geht noch nicht** — dazu unten mehr.
+
+### Der Grundsatz
+
+**Die Karte bleibt kostenlos.** Spots ansehen, eintragen, bewerten,
+kommentieren, Fotos hochladen — alles ohne Bezahlung, für immer. Eine Karte,
+die von Beiträgen der Nutzer lebt, darf das Beitragen nicht hinter eine
+Bezahlschranke stellen; sonst gibt es bald nichts mehr zu verkaufen.
+
+Bezahlt wird für das, was **die Nacht draußen vorbereitet**: Karten fürs
+Funkloch, die richtige Nacht, und die Frage, wo man überhaupt sein darf.
+
+### Was drin ist
+
+| Funktion | Warum das Geld wert ist | Stand |
+|----------|------------------------|-------|
+| **Karten im Voraus laden** | Am Berg gibt es keinen Empfang. Heute muss man die Gegend vorher von Hand abfahren und hoffen, dass sie im Speicher bleibt | zu bauen |
+| **Die beste Nacht der Woche** | Sieben Nächte im Voraus am Spot: Temperatur, Wind, Regen, Bewölkung — und welche Nacht die richtige ist | Hälfte steht (`wetter.js` kann schon einen Spot) |
+| **Wo du sein darfst** | Nationalparks und Schutzgebiete als Fläche auf der Karte, dazu die Regel des Bundeslands. Eine Strafe im Nationalpark kostet mehr als Plus in zehn Jahren | zu bauen |
+| **Geheime Spots** | Eigene Plätze privat halten oder nur per Link teilen. Das ist der Grund, warum viele ihre besten Plätze gar nicht erst eintragen | zu bauen (`spots.visibility`) |
+| **Alle Filter auf einmal** | Kostenlos geht ein Filter, mit Plus alle zusammen — samt gespeicherter Suchen | **fertig**, Schranke greift |
+| **Routen ohne Limit + GPX** | Wanderroute beliebig oft rechnen und als Datei mitnehmen. Kostenlos: drei im Monat | Route steht (`route.js`), Limit und GPX fehlen |
+| **Sterne, Mond, Dunkelheit** | Lichtverschmutzung, Mondphase, astronomische Dunkelheit — für alle, die wegen des Himmels hinausgehen | zu bauen |
+| **Wache über deine Spots** | Nachricht bei Frost am gemerkten Spot, bei neuen Spots in der Gegend, bei Kommentaren | zu bauen |
+
+### Die Preise
+
+| Tarif | Preis | Gedanke dahinter |
+|-------|-------|------------------|
+| Monatlich | **3,49 €** | Zum Ausprobieren. Bewusst nicht billig — wer monatlich zahlt, soll zum Jahr wechseln |
+| Jährlich | **24,99 €** | 2,08 € im Monat, 40 % günstiger. Der Tarif, den die Seite vorschlägt |
+| Für immer | **59 €** einmalig | Der *Gründerpass* für die ersten 500. Bringt am Anfang Geld herein, wenn es am nötigsten ist, und schafft Leute, die das Ding weiterempfehlen |
+
+Zum Vergleich: Komoot Premium kostet 59,99 € im Jahr. Wild Spot kann und soll
+das nicht verlangen — es kann viel weniger. 24,99 € liegt an der Stelle, an
+der niemand lange nachrechnet.
+
+**Bei 500 Jahresabos wären das rund 1.040 € im Monat.** Das Ziel von 500 € im
+Monat steht bei etwa 240 laufenden Jahresabos.
+
+### Warum man noch nicht bezahlen kann, und was stattdessen passiert
+
+Für echtes Geld braucht es einen Zahlungsdienstleister (Stripe oder Paddle),
+ein Gewerbe und ein Geschäftskonto. Nichts davon ist eingerichtet.
+
+Die Seite sagt das **offen** und sammelt stattdessen E-Mail-Adressen
+(`plus_warteliste`). Das ist nicht nur ehrlicher, sondern nützlicher: Bevor
+man Wochen in eine Bezahlstrecke steckt, will man die Antwort auf die eine
+Frage haben, die zählt — **will überhaupt jemand zahlen?** Zwanzig Adressen
+auf der Liste sind diese Antwort. Null Adressen sind sie auch.
+
+### Wie Plus später angeschaltet wird
+
+In `profiles.plus_until` steht ein Datum. Liegt es in der Zukunft, hat der
+Nutzer Plus. Mehr ist es nicht.
+
+Setzen darf es **nur der Server**: Ein Trigger aus Migration 017 hält jeden
+davon ab, sich das Datum selbst einzutragen — der Schlüssel in `config.js`
+liegt ja offen, und was die Datenbank erlaubt, kann jeder tun. Kommt eines
+Tages Stripe dazu, schreibt dessen Webhook dieses eine Feld, und alles in der
+App funktioniert ohne eine weitere Zeile Änderung.

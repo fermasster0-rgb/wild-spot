@@ -32,6 +32,19 @@ node scripts/veroeffentlichen.mjs
 Sichert alles, schickt es zu GitHub und veröffentlicht den `web/`-Ordner.
 Nach etwa einer Minute ist die Seite oben aktuell.
 
+## Die Wanderrouten rechnen
+
+```
+node scripts/routen-rechnen.mjs
+```
+
+Sucht alle Spots, bei denen jemand einen Parkplatz gesetzt hat, und lässt
+OpenRouteService den Fußweg zum Spot rechnen — Linie, Gehzeit und Höhenmeter
+landen in der Datenbank und stehen danach in der App. Braucht `ORS_API_KEY` in
+`.env.local`. Ohne offene Spots ist es nach zwei Sekunden fertig, man kann es
+also bedenkenlos öfter laufen lassen. `--probe` zeigt nur an, `--alle` rechnet
+alles noch einmal.
+
 ## Was wo liegt
 
 | Ordner | Inhalt |

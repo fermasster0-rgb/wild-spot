@@ -35,7 +35,7 @@
 // App-Dateien weg und holt sie frisch — sonst würde am Handy ewig die alte
 // Fassung kleben. Die Kartenkacheln bleiben davon unberührt, die sind ja
 // nicht veraltet.
-const VERSION = '2026-08-12-21-48';
+const VERSION = '2026-08-15-14-39';
 
 const CACHE_APP    = `wildspot-app-${VERSION}`;
 const CACHE_KARTEN = 'wildspot-karten';   // ohne Version: bleibt über Updates
@@ -66,6 +66,10 @@ const APP_DATEIEN = [
   './intro.js',
   './offline.js',
   './wetter.js',
+  './route.js',
+  './teilen.js',
+  './plus.js',
+  './screens.js',
   // Die Verwaltung. Liegt für alle mit im Speicher — sie ist ohne
   // Admin-Recht ohnehin wirkungslos, und ein Nachladen unterwegs würde
   // offline scheitern.

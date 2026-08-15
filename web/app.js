@@ -272,6 +272,15 @@ sources['spots'] = {
   data: { type: 'FeatureCollection', features: [] },
 };
 
+// Die Farbe unter allem. Sie steht im Stilblatt (--karte-grund) und wechselt
+// dort mit Tag und Nacht — hier wird sie nur ausgelesen. Zwei Stellen fuer
+// dieselbe Farbe waeren zwei Stellen, an denen man sie vergessen kann.
+function kartenGrund() {
+  const wert = getComputedStyle(document.documentElement)
+    .getPropertyValue('--karte-grund').trim();
+  return wert || '#141812';
+}
+
 const karte = new maplibregl.Map({
   container: 'karte',
   style: {
@@ -280,7 +289,7 @@ const karte = new maplibregl.Map({
     // Eine ruhige dunkle Fläche unter allem. Sie ist überall dort zu sehen,
     // wo basemap.at aufhört — also außerhalb Österreichs.
     layers: [
-      { id: 'hintergrund', type: 'background', paint: { 'background-color': '#141812' } },
+      { id: 'hintergrund', type: 'background', paint: { 'background-color': kartenGrund() } },
       // Zuunterst Europa, darüber die österreichischen Karten.
       { id: 'welt', type: 'raster', source: 'welt' },
       ...rasterLayers,
@@ -298,7 +307,7 @@ const karte = new maplibregl.Map({
         // Beim Start ist "Standard" gewählt — dort ist sie nicht nötig.
         layout: { visibility: 'none' },
         paint: {
-          'fill-color': '#141812',
+          'fill-color': kartenGrund(),
           'fill-antialias': true,
           'fill-opacity': ['interpolate', ['linear'], ['zoom'],
             AT_KARTE_AB - 0.4, 0, AT_KARTE_AB + 0.8, 1],
@@ -322,6 +331,16 @@ karte.touchZoomRotate.disableRotation();
 // Damit die Verwaltung (admin.js) von einer Liste aus zu einem Spot springen
 // kann. Bewusst nur die Karte selbst, keine internen Hilfsfunktionen.
 window.WILDCAMP_KARTE = karte;
+
+// Wechselt jemand zwischen Tag und Nacht, muss die Flaeche unter der Karte
+// mitwechseln — sonst steht ein dunkles Rechteck um das helle Oesterreich.
+window.addEventListener('wildspot-thema', () => {
+  const farbe = kartenGrund();
+  try {
+    if (karte.getLayer('hintergrund')) karte.setPaintProperty('hintergrund', 'background-color', farbe);
+    if (karte.getLayer('maske'))       karte.setPaintProperty('maske', 'fill-color', farbe);
+  } catch (e) { /* Karte noch nicht fertig — dann greift der naechste Aufruf */ }
+});
 
 // Farbe je nach Art. "match" ist die Wenn-Dann-Liste von MapLibre.
 function farbAusdruck(gruppe) {
@@ -1143,6 +1162,13 @@ async function spotsLaden() {
         water_nearby: s.water_nearby,
         above_treeline: s.above_treeline,
         elevation_m: s.elevation_m,
+        // Die vier hängen hier, damit die Filterchips (screens.js) ohne neue
+        // Abfrage arbeiten können: Sie blenden Punkte aus, statt sie neu zu
+        // holen — das geht sofort und auch ohne Netz.
+        has_lake: s.has_lake,
+        hike_minutes: s.hike_minutes,
+        fire_allowed: s.fire_allowed,
+        discreet: s.discreet,
       },
     }));
 

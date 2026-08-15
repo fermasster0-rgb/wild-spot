@@ -1,0 +1,1355 @@
+[
+  {
+    "name": "Kvalvika – Bucht hinter dem Ryten",
+    "land": "Norwegen",
+    "alt": {
+      "lat": 68.1228,
+      "lng": 13.2185
+    },
+    "neu": {
+      "lat": 68.079,
+      "lng": 13.08,
+      "quelle": "no.wikipedia: Kvalvika (Flakstad)"
+    },
+    "km": 7.530827946662548,
+    "hoehe": 0
+  },
+  {
+    "name": "Ryten – Plateau über Kvalvika",
+    "land": "Norwegen",
+    "alt": {
+      "lat": 68.1305,
+      "lng": 13.1985
+    },
+    "neu": {
+      "lat": 68.053435,
+      "lng": 13.146206,
+      "quelle": "Commons-Median aus 10 Fotos"
+    },
+    "km": 8.839629088290918,
+    "hoehe": 16
+  },
+  {
+    "name": "Bunes – Strand im Reinefjord",
+    "land": "Norwegen",
+    "alt": {
+      "lat": 67.9525,
+      "lng": 12.9985
+    },
+    "neu": {
+      "lat": 67.9791,
+      "lng": 12.9538,
+      "quelle": "no.wikipedia: Bunes (Moskenes)"
+    },
+    "km": 3.4965121643274393,
+    "hoehe": 25
+  },
+  {
+    "name": "Offersøykammen – Aussichtsrücken",
+    "land": "Norwegen",
+    "alt": {
+      "lat": 68.1688,
+      "lng": 13.6285
+    },
+    "neu": {
+      "lat": 68.161659,
+      "lng": 13.50151,
+      "quelle": "Commons-Median aus 3 Fotos"
+    },
+    "km": 5.311594416103324,
+    "hoehe": 203
+  },
+  {
+    "name": "Mannen – Hang über dem Haukland-Strand",
+    "land": "Norwegen",
+    "alt": {
+      "lat": 68.1935,
+      "lng": 13.5745
+    },
+    "neu": {
+      "lat": 68.19972222,
+      "lng": 13.53944444,
+      "quelle": "sv.wikipedia: Haukland"
+    },
+    "km": 1.6046305522838427,
+    "hoehe": 9
+  },
+  {
+    "name": "Nesland bei Nusfjord",
+    "land": "Norwegen",
+    "alt": {
+      "lat": 68.0355,
+      "lng": 13.3395
+    },
+    "neu": {
+      "lat": 68.03333333,
+      "lng": 13.35,
+      "quelle": "no.wikipedia: Nusfjord"
+    },
+    "km": 0.498766909121324,
+    "hoehe": 2
+  },
+  {
+    "name": "Måstadfjellet auf Værøy",
+    "land": "Norwegen",
+    "alt": {
+      "lat": 67.6425,
+      "lng": 12.6705
+    },
+    "neu": {
+      "lat": 67.64432,
+      "lng": 12.59316,
+      "quelle": "no.wikipedia: Måstad"
+    },
+    "km": 3.2773640365596424,
+    "hoehe": 7
+  },
+  {
+    "name": "Måtind über dem Bleik-Strand",
+    "land": "Norwegen",
+    "alt": {
+      "lat": 69.2705,
+      "lng": 15.932
+    },
+    "neu": {
+      "lat": 69.27262,
+      "lng": 15.95544,
+      "quelle": "no.wikipedia: Bleik"
+    },
+    "km": 0.9521528977184964,
+    "hoehe": 3
+  },
+  {
+    "name": "Segla – Sattel unter dem Gipfel",
+    "land": "Norwegen",
+    "alt": {
+      "lat": 69.4822,
+      "lng": 17.7095
+    },
+    "neu": {
+      "lat": 69.514111,
+      "lng": 17.5847355,
+      "quelle": "Commons-Median aus 10 Fotos"
+    },
+    "km": 6.016618042664673,
+    "hoehe": 432
+  },
+  {
+    "name": "Tungeneset – Felsrücken hinter dem Rastplatz",
+    "land": "Norwegen",
+    "alt": {
+      "lat": 69.5228,
+      "lng": 17.4485
+    },
+    "neu": {
+      "lat": 69.4883495,
+      "lng": 17.33260578,
+      "quelle": "Commons-Median aus 32 Fotos"
+    },
+    "km": 5.918749953256946,
+    "hoehe": 0
+  },
+  {
+    "name": "Ersfjord – Hang über dem Strand",
+    "land": "Norwegen",
+    "alt": {
+      "lat": 69.5065,
+      "lng": 17.4175
+    },
+    "neu": null
+  },
+  {
+    "name": "Grøtfjord auf Kvaløya",
+    "land": "Norwegen",
+    "alt": {
+      "lat": 69.759,
+      "lng": 18.4585
+    },
+    "neu": {
+      "lat": 69.76636889,
+      "lng": 18.49548306,
+      "quelle": "no.wikipedia: Grøtfjorden"
+    },
+    "km": 1.6416073731581606,
+    "hoehe": 0
+  },
+  {
+    "name": "Steindalsbreen in den Lyngenalpen",
+    "land": "Norwegen",
+    "alt": {
+      "lat": 69.5565,
+      "lng": 20.228
+    },
+    "neu": {
+      "lat": 69.376352,
+      "lng": 20.169212,
+      "quelle": "Commons-Median aus 3 Fotos"
+    },
+    "km": 20.16233830354942,
+    "hoehe": 184
+  },
+  {
+    "name": "Gjende-Ostufer bei Gjendesheim",
+    "land": "Norwegen",
+    "alt": {
+      "lat": 61.4952,
+      "lng": 8.7812
+    },
+    "neu": {
+      "lat": 61.49383333,
+      "lng": 8.81291667,
+      "quelle": "no.wikipedia: Gjendesheim"
+    },
+    "km": 1.6899546050772332,
+    "hoehe": 986
+  },
+  {
+    "name": "Bessvatnet unter dem Besseggen",
+    "land": "Norwegen",
+    "alt": {
+      "lat": 61.5085,
+      "lng": 8.7245
+    },
+    "neu": {
+      "lat": 61.523056,
+      "lng": 8.775556,
+      "quelle": "no.wikipedia: Bessvatnet"
+    },
+    "km": 3.1544362567426854,
+    "hoehe": 1371
+  },
+  {
+    "name": "Leirvatnet bei Leirvassbu",
+    "land": "Norwegen",
+    "alt": {
+      "lat": 61.5145,
+      "lng": 8.2675
+    },
+    "neu": {
+      "lat": 61.54872222,
+      "lng": 8.24811111,
+      "quelle": "no.wikipedia: Leirvassbu"
+    },
+    "km": 3.9416651030917116,
+    "hoehe": 1407
+  },
+  {
+    "name": "Fantesteinen am Sognefjellet",
+    "land": "Norwegen",
+    "alt": {
+      "lat": 61.5618,
+      "lng": 8.0795
+    },
+    "neu": {
+      "lat": 61.56,
+      "lng": 7.99,
+      "quelle": "en.wikipedia: Sognefjellet"
+    },
+    "km": 4.743583486830401,
+    "hoehe": 1406
+  },
+  {
+    "name": "Bygdin-Nordufer",
+    "land": "Norwegen",
+    "alt": {
+      "lat": 61.3405,
+      "lng": 8.6985
+    },
+    "neu": {
+      "lat": 61.3486,
+      "lng": 8.4986,
+      "quelle": "no.wikipedia: Bygdin"
+    },
+    "km": 10.697161234003248,
+    "hoehe": 1055
+  },
+  {
+    "name": "Rondvassbu im Rondane",
+    "land": "Norwegen",
+    "alt": {
+      "lat": 61.9065,
+      "lng": 9.7595
+    },
+    "neu": {
+      "lat": 61.87875,
+      "lng": 9.79633333,
+      "quelle": "no.wikipedia: Rondvassbu"
+    },
+    "km": 3.6393084258722785,
+    "hoehe": 1165
+  },
+  {
+    "name": "Høvringen am Rondane-Westrand",
+    "land": "Norwegen",
+    "alt": {
+      "lat": 61.8615,
+      "lng": 9.468
+    },
+    "neu": {
+      "lat": 61.89555556,
+      "lng": 9.47611111,
+      "quelle": "no.wikipedia: Høvringen fjellalter"
+    },
+    "km": 3.8105924366179655,
+    "hoehe": 974
+  },
+  {
+    "name": "Snøheim-Ebene im Dovrefjell",
+    "land": "Norwegen",
+    "alt": {
+      "lat": 62.3355,
+      "lng": 9.5765
+    },
+    "neu": {
+      "lat": 62.32,
+      "lng": 9.268333,
+      "quelle": "no.wikipedia: Snøhetta"
+    },
+    "km": 16.006907310473075,
+    "hoehe": 2234
+  },
+  {
+    "name": "Elgå am Femunden",
+    "land": "Norwegen",
+    "alt": {
+      "lat": 62.1855,
+      "lng": 11.942
+    },
+    "neu": {
+      "lat": 62.16666667,
+      "lng": 11.94166667,
+      "quelle": "no.wikipedia: Elgå"
+    },
+    "km": 2.094242205474627,
+    "hoehe": 668
+  },
+  {
+    "name": "Røvollen in der Femundsmarka",
+    "land": "Norwegen",
+    "alt": {
+      "lat": 62.1245,
+      "lng": 12.0585
+    },
+    "neu": {
+      "lat": 62.21666667,
+      "lng": 12.11666667,
+      "quelle": "no.wikipedia: Femundsmarka nasjonalpark"
+    },
+    "km": 10.684012143351904,
+    "hoehe": 1125
+  },
+  {
+    "name": "Trolltunga – Hochebene vor der Felszunge",
+    "land": "Norwegen",
+    "alt": {
+      "lat": 60.1245,
+      "lng": 6.7385
+    },
+    "neu": {
+      "lat": 60.13297532,
+      "lng": 6.7539895,
+      "quelle": "no.wikipedia: Trolltunga"
+    },
+    "km": 1.2743634543548603,
+    "hoehe": 1111
+  },
+  {
+    "name": "Dyranut auf der Hardangervidda",
+    "land": "Norwegen",
+    "alt": {
+      "lat": 60.4225,
+      "lng": 7.4585
+    },
+    "neu": null
+  },
+  {
+    "name": "Hochebene über dem Vøringsfossen",
+    "land": "Norwegen",
+    "alt": {
+      "lat": 60.4315,
+      "lng": 7.2585
+    },
+    "neu": {
+      "lat": 60.42688889,
+      "lng": 7.25113889,
+      "quelle": "no.wikipedia: Vøringsfossen"
+    },
+    "km": 0.6527325456492281,
+    "hoehe": 485
+  },
+  {
+    "name": "Aurlandsfjellet – Hochebene am Snøvegen",
+    "land": "Norwegen",
+    "alt": {
+      "lat": 60.9585,
+      "lng": 7.2265
+    },
+    "neu": {
+      "lat": 60.90860889,
+      "lng": 7.21200889,
+      "quelle": "no.wikipedia: Stegastein"
+    },
+    "km": 5.602598233112743,
+    "hoehe": 614
+  },
+  {
+    "name": "Bakka am Nærøyfjord",
+    "land": "Norwegen",
+    "alt": {
+      "lat": 60.9105,
+      "lng": 6.9205
+    },
+    "neu": {
+      "lat": 60.9175,
+      "lng": 6.8702,
+      "quelle": "no.wikipedia: Bakka kirke"
+    },
+    "km": 2.828150286643596,
+    "hoehe": 0
+  },
+  {
+    "name": "Lovatnet bei Loen",
+    "land": "Norwegen",
+    "alt": {
+      "lat": 61.8425,
+      "lng": 6.8785
+    },
+    "neu": {
+      "lat": 61.83,
+      "lng": 6.94,
+      "quelle": "no.wikipedia: Lovatnet"
+    },
+    "km": 3.5142698670725987,
+    "hoehe": 35
+  },
+  {
+    "name": "Nigardsbreen im Jostedal",
+    "land": "Norwegen",
+    "alt": {
+      "lat": 61.6955,
+      "lng": 7.2135
+    },
+    "neu": {
+      "lat": 61.68666667,
+      "lng": 7.19583333,
+      "quelle": "no.wikipedia: Nigardsbreen"
+    },
+    "km": 1.3537418381543054,
+    "hoehe": 631
+  },
+  {
+    "name": "Trollstigen – Hochebene am Pass",
+    "land": "Norwegen",
+    "alt": {
+      "lat": 62.4595,
+      "lng": 7.672
+    },
+    "neu": {
+      "lat": 62.45694444,
+      "lng": 7.67333333,
+      "quelle": "sv.wikipedia: Trollstigen"
+    },
+    "km": 0.29231770680375235,
+    "hoehe": 448
+  },
+  {
+    "name": "Askvågen an der Atlantikstraße",
+    "land": "Norwegen",
+    "alt": {
+      "lat": 63.0175,
+      "lng": 7.3245
+    },
+    "neu": {
+      "lat": 63.018409665,
+      "lng": 7.3634525,
+      "quelle": "Commons-Median aus 14 Fotos"
+    },
+    "km": 1.9677702563233164,
+    "hoehe": 16
+  },
+  {
+    "name": "Dalsnibba-Hochebene über Geiranger",
+    "land": "Norwegen",
+    "alt": {
+      "lat": 62.0445,
+      "lng": 7.271
+    },
+    "neu": {
+      "lat": 62.04885,
+      "lng": 7.26931,
+      "quelle": "no.wikipedia: Dalsnibba"
+    },
+    "km": 0.4916534542432145,
+    "hoehe": 1374
+  },
+  {
+    "name": "Preikestolen – Hochebene hinter der Kanzel",
+    "land": "Norwegen",
+    "alt": {
+      "lat": 58.9895,
+      "lng": 6.1985
+    },
+    "neu": {
+      "lat": 58.98643,
+      "lng": 6.18849,
+      "quelle": "no.wikipedia: Preikestolen"
+    },
+    "km": 0.6673825258332478,
+    "hoehe": 618
+  },
+  {
+    "name": "Kjerag-Plateau über Lysebotn",
+    "land": "Norwegen",
+    "alt": {
+      "lat": 59.0345,
+      "lng": 6.5985
+    },
+    "neu": {
+      "lat": 59.01979,
+      "lng": 6.56692,
+      "quelle": "no.wikipedia: Kjerag"
+    },
+    "km": 2.437462932551136,
+    "hoehe": 1074
+  },
+  {
+    "name": "Månafossen im Frafjord",
+    "land": "Norwegen",
+    "alt": {
+      "lat": 58.9245,
+      "lng": 6.4405
+    },
+    "neu": {
+      "lat": 58.8438,
+      "lng": 6.3685,
+      "quelle": "no.wikipedia: Månafossen"
+    },
+    "km": 9.881270898397032,
+    "hoehe": 46
+  },
+  {
+    "name": "Hovden im oberen Setesdal",
+    "land": "Norwegen",
+    "alt": {
+      "lat": 59.5885,
+      "lng": 7.3565
+    },
+    "neu": {
+      "lat": 59.56028,
+      "lng": 7.35639,
+      "quelle": "no.wikipedia: Hovden (Setesdal)"
+    },
+    "km": 3.1379269435972597,
+    "hoehe": 782
+  },
+  {
+    "name": "Saltstraumen bei Bodø",
+    "land": "Norwegen",
+    "alt": {
+      "lat": 67.2325,
+      "lng": 14.6285
+    },
+    "neu": {
+      "lat": 67.23055556,
+      "lng": 14.61388889,
+      "quelle": "no.wikipedia: Saltstraumen"
+    },
+    "km": 0.664900819145114,
+    "hoehe": 0
+  },
+  {
+    "name": "Holandsfjorden vor dem Svartisen",
+    "land": "Norwegen",
+    "alt": {
+      "lat": 66.6795,
+      "lng": 13.7545
+    },
+    "neu": {
+      "lat": 66.69906,
+      "lng": 13.74928,
+      "quelle": "no.wikipedia: Engabreen"
+    },
+    "km": 2.1870673614575784,
+    "hoehe": 9
+  },
+  {
+    "name": "Torghatten auf Helgeland",
+    "land": "Norwegen",
+    "alt": {
+      "lat": 65.3985,
+      "lng": 12.0925
+    },
+    "neu": {
+      "lat": 65.39811,
+      "lng": 12.09186,
+      "quelle": "no.wikipedia: Torghatten"
+    },
+    "km": 0.05251987624966933,
+    "hoehe": 220
+  },
+  {
+    "name": "Runde – Vogelfelsen am Atlantik",
+    "land": "Norwegen",
+    "alt": {
+      "lat": 62.4015,
+      "lng": 5.6165
+    },
+    "neu": {
+      "lat": 62.4,
+      "lng": 5.65,
+      "quelle": "no.wikipedia: Runde"
+    },
+    "km": 1.7337898668307599,
+    "hoehe": 131
+  },
+  {
+    "name": "Romsdalseggen über Åndalsnes",
+    "land": "Norwegen",
+    "alt": {
+      "lat": 62.5755,
+      "lng": 7.6885
+    },
+    "neu": {
+      "lat": 62.558831525,
+      "lng": 7.719255275,
+      "quelle": "Commons-Median aus 10 Fotos"
+    },
+    "km": 2.4326154654741137,
+    "hoehe": 680
+  },
+  {
+    "name": "Buer im Folgefonna",
+    "land": "Norwegen",
+    "alt": {
+      "lat": 60.0765,
+      "lng": 6.4685
+    },
+    "neu": {
+      "lat": 60.043277055,
+      "lng": 6.483221,
+      "quelle": "Commons-Median aus 4 Fotos"
+    },
+    "km": 3.783479840052326,
+    "hoehe": 277
+  },
+  {
+    "name": "Altevatnet bei Innset",
+    "land": "Norwegen",
+    "alt": {
+      "lat": 68.7885,
+      "lng": 19.4885
+    },
+    "neu": {
+      "lat": 68.52,
+      "lng": 19.55,
+      "quelle": "no.wikipedia: Altevatnet"
+    },
+    "km": 29.959419432867264,
+    "hoehe": 479
+  },
+  {
+    "name": "Mollisfossen im Reisadalen",
+    "land": "Norwegen",
+    "alt": {
+      "lat": 69.4025,
+      "lng": 21.6485
+    },
+    "neu": {
+      "lat": 69.36155,
+      "lng": 21.83243,
+      "quelle": "no.wikipedia: Mollisfossen"
+    },
+    "km": 8.52062344908001,
+    "hoehe": 337
+  },
+  {
+    "name": "Abiskojaure am Kungsleden",
+    "land": "Schweden",
+    "alt": {
+      "lat": 68.3005,
+      "lng": 18.6155
+    },
+    "neu": {
+      "lat": 68.29645,
+      "lng": 18.6186,
+      "quelle": "sv.wikipedia: Abiskojaure"
+    },
+    "km": 0.4680300589765485,
+    "hoehe": 485
+  },
+  {
+    "name": "Alesjaure am Kungsleden",
+    "land": "Schweden",
+    "alt": {
+      "lat": 68.2195,
+      "lng": 18.3335
+    },
+    "neu": {
+      "lat": 68.137,
+      "lng": 18.414,
+      "quelle": "sv.wikipedia: Alesjaure"
+    },
+    "km": 9.758367923632884,
+    "hoehe": 787
+  },
+  {
+    "name": "Lapporten von Björkliden",
+    "land": "Schweden",
+    "alt": {
+      "lat": 68.4085,
+      "lng": 18.6885
+    },
+    "neu": {
+      "lat": 68.26824444,
+      "lng": 18.97682222,
+      "quelle": "no.wikipedia: Lapporten"
+    },
+    "km": 19.577301560494355,
+    "hoehe": 972
+  },
+  {
+    "name": "Kebnekaise Fjällstation",
+    "land": "Schweden",
+    "alt": {
+      "lat": 67.8485,
+      "lng": 18.6215
+    },
+    "neu": {
+      "lat": 67.9007,
+      "lng": 18.51693,
+      "quelle": "no.wikipedia: Kebnekaise"
+    },
+    "km": 7.271156598523507,
+    "hoehe": 2077
+  },
+  {
+    "name": "Skierfe über dem Rapadalen",
+    "land": "Schweden",
+    "alt": {
+      "lat": 67.2465,
+      "lng": 17.7885
+    },
+    "neu": {
+      "lat": 67.1675,
+      "lng": 18.19833333,
+      "quelle": "sv.wikipedia: Skierfe"
+    },
+    "km": 19.719144809934747,
+    "hoehe": 1020
+  },
+  {
+    "name": "Staloluokta im Padjelanta",
+    "land": "Schweden",
+    "alt": {
+      "lat": 67.3255,
+      "lng": 16.6285
+    },
+    "neu": {
+      "lat": 67.32069444,
+      "lng": 16.70538889,
+      "quelle": "sv.wikipedia: Staloluokta kåtakyrka"
+    },
+    "km": 3.3392151894899205,
+    "hoehe": 651
+  },
+  {
+    "name": "Ritsem am Akkajaure",
+    "land": "Schweden",
+    "alt": {
+      "lat": 67.7085,
+      "lng": 17.4695
+    },
+    "neu": {
+      "lat": 67.72,
+      "lng": 17.475,
+      "quelle": "no.wikipedia: Ritsem"
+    },
+    "km": 1.299603397911401,
+    "hoehe": 459
+  },
+  {
+    "name": "Kvikkjokk am Kungsleden",
+    "land": "Schweden",
+    "alt": {
+      "lat": 66.9525,
+      "lng": 17.7785
+    },
+    "neu": {
+      "lat": 66.952,
+      "lng": 17.72,
+      "quelle": "sv.wikipedia: Kvikkjokk"
+    },
+    "km": 2.547264208060308,
+    "hoehe": 320
+  },
+  {
+    "name": "Hemavan im Vindelfjällen",
+    "land": "Schweden",
+    "alt": {
+      "lat": 65.8285,
+      "lng": 15.0585
+    },
+    "neu": {
+      "lat": 65.799303,
+      "lng": 15.091333,
+      "quelle": "no.wikipedia: Hemavan flyplass"
+    },
+    "km": 3.574556236598235,
+    "hoehe": 457
+  },
+  {
+    "name": "Ammarnäs am Vindelälven",
+    "land": "Schweden",
+    "alt": {
+      "lat": 65.9625,
+      "lng": 16.2085
+    },
+    "neu": {
+      "lat": 65.95780389,
+      "lng": 16.20723694,
+      "quelle": "no.wikipedia: Ammarnäs"
+    },
+    "km": 0.5253086013012744,
+    "hoehe": 417
+  },
+  {
+    "name": "Sylarna in Jämtland",
+    "land": "Schweden",
+    "alt": {
+      "lat": 63.0285,
+      "lng": 12.2385
+    },
+    "neu": {
+      "lat": 63.02,
+      "lng": 12.19861111,
+      "quelle": "sv.wikipedia: Sylarna"
+    },
+    "km": 2.222918767485495,
+    "hoehe": 1710
+  },
+  {
+    "name": "Blåhammaren über Storlien",
+    "land": "Schweden",
+    "alt": {
+      "lat": 63.2185,
+      "lng": 12.2085
+    },
+    "neu": {
+      "lat": 63.18611111,
+      "lng": 12.17305556,
+      "quelle": "sv.wikipedia: Blåhammarens fjällstation"
+    },
+    "km": 4.015961500981767,
+    "hoehe": 1070
+  },
+  {
+    "name": "Helags unter dem Gletscher",
+    "land": "Schweden",
+    "alt": {
+      "lat": 62.9185,
+      "lng": 12.4585
+    },
+    "neu": {
+      "lat": 62.90402778,
+      "lng": 12.45297222,
+      "quelle": "no.wikipedia: Helagsfjället"
+    },
+    "km": 1.6333977205601433,
+    "hoehe": 1780
+  },
+  {
+    "name": "Rogen an der Grenze",
+    "land": "Schweden",
+    "alt": {
+      "lat": 62.3285,
+      "lng": 12.3585
+    },
+    "neu": {
+      "lat": 62.33,
+      "lng": 12.25,
+      "quelle": "no.wikipedia: Rogen"
+    },
+    "km": 5.605183902178849,
+    "hoehe": 757
+  },
+  {
+    "name": "Sonfjället – Bärenberg",
+    "land": "Schweden",
+    "alt": {
+      "lat": 62.2885,
+      "lng": 13.5485
+    },
+    "neu": {
+      "lat": 62.28491667,
+      "lng": 13.54041667,
+      "quelle": "no.wikipedia: Sonfjället"
+    },
+    "km": 0.5774789018274015,
+    "hoehe": 1275
+  },
+  {
+    "name": "Njupeskär im Fulufjället",
+    "land": "Schweden",
+    "alt": {
+      "lat": 61.6485,
+      "lng": 12.7485
+    },
+    "neu": {
+      "lat": 61.63611111,
+      "lng": 12.68833333,
+      "quelle": "no.wikipedia: Njupeskär"
+    },
+    "km": 3.463442475980114,
+    "hoehe": 771
+  },
+  {
+    "name": "Grövelsjön am Grenzfjell",
+    "land": "Schweden",
+    "alt": {
+      "lat": 62.0585,
+      "lng": 12.1085
+    },
+    "neu": {
+      "lat": 62.1,
+      "lng": 12.3,
+      "quelle": "sv.wikipedia: Grövelsjön"
+    },
+    "km": 10.986892226470049,
+    "hoehe": 763
+  },
+  {
+    "name": "Städjan über Idre",
+    "land": "Schweden",
+    "alt": {
+      "lat": 61.9285,
+      "lng": 12.8385
+    },
+    "neu": {
+      "lat": 61.91888889,
+      "lng": 12.87888889,
+      "quelle": "sv.wikipedia: Städjan"
+    },
+    "km": 2.3685097079618878,
+    "hoehe": 1122
+  },
+  {
+    "name": "Slåttdalsskrevan im Skuleskogen",
+    "land": "Schweden",
+    "alt": {
+      "lat": 63.1005,
+      "lng": 18.4585
+    },
+    "neu": {
+      "lat": 63.10763,
+      "lng": 18.50066,
+      "quelle": "Commons-Median aus 17 Fotos"
+    },
+    "km": 2.2640589424752235,
+    "hoehe": 264
+  },
+  {
+    "name": "Rotsidan bei Nordingrå",
+    "land": "Schweden",
+    "alt": {
+      "lat": 62.9385,
+      "lng": 18.3485
+    },
+    "neu": {
+      "lat": 62.846842,
+      "lng": 18.374794,
+      "quelle": "sv.wikipedia: Rotsidan"
+    },
+    "km": 10.278607337268971,
+    "hoehe": 20
+  },
+  {
+    "name": "Skuleberget über der Bucht",
+    "land": "Schweden",
+    "alt": {
+      "lat": 63.1085,
+      "lng": 18.3585
+    },
+    "neu": {
+      "lat": 63.0747504,
+      "lng": 18.34643897,
+      "quelle": "sv.wikipedia: Skuleberget"
+    },
+    "km": 3.8015488756352602,
+    "hoehe": 229
+  },
+  {
+    "name": "Ulvön in der Ostsee",
+    "land": "Schweden",
+    "alt": {
+      "lat": 63.0285,
+      "lng": 18.6585
+    },
+    "neu": {
+      "lat": 62.983171,
+      "lng": 18.636698,
+      "quelle": "sv.wikipedia: Södra Ulvöns naturreservat"
+    },
+    "km": 5.159070084491627,
+    "hoehe": 34
+  },
+  {
+    "name": "Stenkälla im Tiveden",
+    "land": "Schweden",
+    "alt": {
+      "lat": 58.7205,
+      "lng": 14.5985
+    },
+    "neu": {
+      "lat": 58.716667,
+      "lng": 14.6,
+      "quelle": "no.wikipedia: Tivedens nasjonalpark"
+    },
+    "km": 0.4349202525295394,
+    "hoehe": 187
+  },
+  {
+    "name": "Stora Bör im Glaskogen",
+    "land": "Schweden",
+    "alt": {
+      "lat": 59.5085,
+      "lng": 12.3285
+    },
+    "neu": {
+      "lat": 59.48912817,
+      "lng": 12.41090472,
+      "quelle": "sv.wikipedia: Glaskogen"
+    },
+    "km": 5.125350680550713,
+    "hoehe": 210
+  },
+  {
+    "name": "Färnebofjärden am Dalälven",
+    "land": "Schweden",
+    "alt": {
+      "lat": 60.2185,
+      "lng": 16.7585
+    },
+    "neu": {
+      "lat": 60.21,
+      "lng": 16.8,
+      "quelle": "no.wikipedia: Färnebofjärden"
+    },
+    "km": 2.4795402991326148,
+    "hoehe": 54
+  },
+  {
+    "name": "Djurö im Vänern",
+    "land": "Schweden",
+    "alt": {
+      "lat": 58.8685,
+      "lng": 13.4785
+    },
+    "neu": {
+      "lat": 58.85,
+      "lng": 13.46666667,
+      "quelle": "sv.wikipedia: Djurö skärgård"
+    },
+    "km": 2.1667279500433936,
+    "hoehe": 50
+  },
+  {
+    "name": "Baldersnäs in Dalsland",
+    "land": "Schweden",
+    "alt": {
+      "lat": 58.9085,
+      "lng": 12.2585
+    },
+    "neu": {
+      "lat": 58.9625,
+      "lng": 12.275,
+      "quelle": "sv.wikipedia: Baldersnäs"
+    },
+    "km": 6.078701204983258,
+    "hoehe": 85
+  },
+  {
+    "name": "Björnö in den Stockholmer Schären",
+    "land": "Schweden",
+    "alt": {
+      "lat": 59.2885,
+      "lng": 18.5485
+    },
+    "neu": {
+      "lat": 59.21678308,
+      "lng": 18.56490189,
+      "quelle": "sv.wikipedia: Björnö naturreservat, Värmdö kommun"
+    },
+    "km": 8.028884732164794,
+    "hoehe": 0
+  },
+  {
+    "name": "Langhammars auf Fårö",
+    "land": "Schweden",
+    "alt": {
+      "lat": 57.9585,
+      "lng": 19.1085
+    },
+    "neu": {
+      "lat": 57.98444444,
+      "lng": 19.16416667,
+      "quelle": "sv.wikipedia: Langhammars"
+    },
+    "km": 4.370232905041416,
+    "hoehe": 6
+  },
+  {
+    "name": "Neptuni Åkrar auf Öland",
+    "land": "Schweden",
+    "alt": {
+      "lat": 57.3585,
+      "lng": 17.0485
+    },
+    "neu": {
+      "lat": 57.348367,
+      "lng": 17.030862,
+      "quelle": "sv.wikipedia: Neptuni åkrar"
+    },
+    "km": 1.545614472913361,
+    "hoehe": 0
+  },
+  {
+    "name": "Stora Alvaret auf Öland",
+    "land": "Schweden",
+    "alt": {
+      "lat": 56.5485,
+      "lng": 16.5285
+    },
+    "neu": {
+      "lat": 56.46666667,
+      "lng": 16.5,
+      "quelle": "no.wikipedia: Stora alvaret"
+    },
+    "km": 9.265970002014717,
+    "hoehe": 29
+  },
+  {
+    "name": "Blå Jungfrun in der Ostsee",
+    "land": "Schweden",
+    "alt": {
+      "lat": 57.2485,
+      "lng": 16.7885
+    },
+    "neu": {
+      "lat": 57.248779,
+      "lng": 16.793388999999998,
+      "quelle": "Commons-Median aus 14 Fotos"
+    },
+    "km": 0.29573361516629393,
+    "hoehe": 21
+  },
+  {
+    "name": "Åsnen im südschwedischen Seenland",
+    "land": "Schweden",
+    "alt": {
+      "lat": 56.6285,
+      "lng": 14.6885
+    },
+    "neu": {
+      "lat": 56.63333333,
+      "lng": 14.73333333,
+      "quelle": "no.wikipedia: Åsnen"
+    },
+    "km": 2.7942050372178446,
+    "hoehe": 137
+  },
+  {
+    "name": "Stenshuvud an der Ostküste",
+    "land": "Schweden",
+    "alt": {
+      "lat": 55.6585,
+      "lng": 14.2685
+    },
+    "neu": {
+      "lat": 55.65784387,
+      "lng": 14.26991932,
+      "quelle": "no.wikipedia: Stenshuvud nasjonalpark"
+    },
+    "km": 0.11510658583387877,
+    "hoehe": 47
+  },
+  {
+    "name": "Kopparhatten im Söderåsen",
+    "land": "Schweden",
+    "alt": {
+      "lat": 56.0285,
+      "lng": 13.2385
+    },
+    "neu": {
+      "lat": 56.036,
+      "lng": 13.241,
+      "quelle": "sv.wikipedia: Skäralid (ravin)"
+    },
+    "km": 0.8483021042773868,
+    "hoehe": 143
+  },
+  {
+    "name": "Kullaberg an der Landspitze",
+    "land": "Schweden",
+    "alt": {
+      "lat": 56.3005,
+      "lng": 12.4485
+    },
+    "neu": {
+      "lat": 56.3,
+      "lng": 12.46666667,
+      "quelle": "sv.wikipedia: Kullaberg"
+    },
+    "km": 1.1221795658730214,
+    "hoehe": 54
+  },
+  {
+    "name": "Store Mosse – Hochmoor",
+    "land": "Schweden",
+    "alt": {
+      "lat": 57.2885,
+      "lng": 13.9385
+    },
+    "neu": {
+      "lat": 57.26666667,
+      "lng": 13.91666667,
+      "quelle": "sv.wikipedia: Store Mosse nationalpark"
+    },
+    "km": 2.759766907830568,
+    "hoehe": 166
+  },
+  {
+    "name": "Visingsö im Vättern",
+    "land": "Schweden",
+    "alt": {
+      "lat": 58.0485,
+      "lng": 14.3585
+    },
+    "neu": {
+      "lat": 58.05,
+      "lng": 14.33333333,
+      "quelle": "no.wikipedia: Visingsö"
+    },
+    "km": 1.4902520832412507,
+    "hoehe": 106
+  },
+  {
+    "name": "Töfsingdalen bei Idre",
+    "land": "Schweden",
+    "alt": {
+      "lat": 62.1585,
+      "lng": 12.6885
+    },
+    "neu": {
+      "lat": 62.16537132,
+      "lng": 12.48009466,
+      "quelle": "no.wikipedia: Töfsingdalen nasjonalpark"
+    },
+    "km": 10.848416193573005,
+    "hoehe": 712
+  },
+  {
+    "name": "Björnlandet in Västerbotten",
+    "land": "Schweden",
+    "alt": {
+      "lat": 63.9285,
+      "lng": 18.5085
+    },
+    "neu": {
+      "lat": 63.9666,
+      "lng": 18.0166,
+      "quelle": "no.wikipedia: Björnlandet"
+    },
+    "km": 24.39313048019771,
+    "hoehe": 374
+  },
+  {
+    "name": "Hornborgasjön in Västergötland",
+    "land": "Schweden",
+    "alt": {
+      "lat": 58.3185,
+      "lng": 13.5485
+    },
+    "neu": {
+      "lat": 58.31666667,
+      "lng": 13.55,
+      "quelle": "no.wikipedia: Hornborgasjön"
+    },
+    "km": 0.2218820188748625,
+    "hoehe": 119
+  },
+  {
+    "name": "Muddus – Urwald und Moor",
+    "land": "Schweden",
+    "alt": {
+      "lat": 66.9085,
+      "lng": 20.1585
+    },
+    "neu": {
+      "lat": 66.8944,
+      "lng": 20.1611,
+      "quelle": "no.wikipedia: Muddus"
+    },
+    "km": 1.5719456234830054,
+    "hoehe": 383
+  },
+  {
+    "name": "Nipfjället bei Idre",
+    "land": "Schweden",
+    "alt": {
+      "lat": 61.9885,
+      "lng": 12.4585
+    },
+    "neu": {
+      "lat": 62.007825,
+      "lng": 12.88005,
+      "quelle": "sv.wikipedia: Städjan-Nipfjället"
+    },
+    "km": 22.112060856921765,
+    "hoehe": 755
+  },
+  {
+    "name": "Vålådalen in Jämtland",
+    "land": "Schweden",
+    "alt": {
+      "lat": 63.1385,
+      "lng": 12.9985
+    },
+    "neu": {
+      "lat": 63.15,
+      "lng": 12.96666667,
+      "quelle": "sv.wikipedia: Vålådalen"
+    },
+    "km": 2.047469415942506,
+    "hoehe": 643
+  },
+  {
+    "name": "Gotska Sandön in der Ostsee",
+    "land": "Schweden",
+    "alt": {
+      "lat": 58.3885,
+      "lng": 19.2185
+    },
+    "neu": {
+      "lat": 58.3666,
+      "lng": 19.25,
+      "quelle": "no.wikipedia: Gotska Sandön"
+    },
+    "km": 3.0500475338692685,
+    "hoehe": 24
+  },
+  {
+    "name": "Tyresta bei Stockholm",
+    "land": "Schweden",
+    "alt": {
+      "lat": 59.1685,
+      "lng": 18.2585
+    },
+    "neu": {
+      "lat": 59.18305556,
+      "lng": 18.31166667,
+      "quelle": "no.wikipedia: Stensjön (Tyresta)"
+    },
+    "km": 3.434539020804596,
+    "hoehe": 36
+  }
+]

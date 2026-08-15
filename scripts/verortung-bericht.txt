@@ -1,0 +1,138 @@
+!!   7.1 km  Kvalvika – Bucht hinter dem Ryten
+        jetzt: 68.1228, 13.2185   Fotos (30): 68.0780, 13.0956
+!!   8.8 km  Ryten – Plateau über Kvalvika
+        jetzt: 68.1305, 13.1985   Fotos (10): 68.0534, 13.1462
+?? Bunes – Strand im Reinefjord — nur 1 verortete Fotos, keine Aussage
+?? Offersøykammen – Aussichtsrücken — nur 0 verortete Fotos, keine Aussage
+!!  41.2 km  Mannen – Hang über dem Haukland-Strand
+        jetzt: 68.1935, 13.5745   Fotos (3): 67.8855, 13.0220
+?? Nesland bei Nusfjord — nur 0 verortete Fotos, keine Aussage
+?? Måstadfjellet auf Værøy — nur 0 verortete Fotos, keine Aussage
+?? Måtind über dem Bleik-Strand — nur 0 verortete Fotos, keine Aussage
+!!   6.0 km  Segla – Sattel unter dem Gipfel
+        jetzt: 69.4822, 17.7095   Fotos (12): 69.5138, 17.5846
+!!   5.9 km  Tungeneset – Felsrücken hinter dem Rastplatz
+        jetzt: 69.5228, 17.4485   Fotos (34): 69.4883, 17.3326
+!!   3.0 km  Ersfjord – Hang über dem Strand
+        jetzt: 69.5065, 17.4175   Fotos (3): 69.4801, 17.3970
+?? Grøtfjord auf Kvaløya — nur 2 verortete Fotos, keine Aussage
+?? Steindalsbreen in den Lyngenalpen — nur 2 verortete Fotos, keine Aussage
+?? Gjende-Ostufer bei Gjendesheim — nur 0 verortete Fotos, keine Aussage
+?? Bessvatnet unter dem Besseggen — nur 1 verortete Fotos, keine Aussage
+?? Leirvatnet bei Leirvassbu — nur 0 verortete Fotos, keine Aussage
+?? Fantesteinen am Sognefjellet — nur 0 verortete Fotos, keine Aussage
+?? Bygdin-Nordufer — nur 0 verortete Fotos, keine Aussage
+?? Rondvassbu im Rondane — nur 1 verortete Fotos, keine Aussage
+?? Høvringen am Rondane-Westrand — nur 0 verortete Fotos, keine Aussage
+?? Snøheim-Ebene im Dovrefjell — nur 0 verortete Fotos, keine Aussage
+?? Elgå am Femunden — nur 0 verortete Fotos, keine Aussage
+?? Røvollen in der Femundsmarka — nur 0 verortete Fotos, keine Aussage
+?? Trolltunga – Hochebene vor der Felszunge — nur 0 verortete Fotos, keine Aussage
+?? Dyranut auf der Hardangervidda — nur 1 verortete Fotos, keine Aussage
+!!  33.3 km  Hochebene über dem Vøringsfossen
+        jetzt: 60.4315, 7.2585   Fotos (15): 60.4969, 7.8513
+!!   7.1 km  Aurlandsfjellet – Hochebene am Snøvegen
+        jetzt: 60.9585, 7.2265   Fotos (12): 60.9352, 7.3492
+ ?   2.7 km  Bakka am Nærøyfjord
+        jetzt: 60.9105, 6.9205   Fotos (7): 60.9189, 6.8732
+!!   5.2 km  Lovatnet bei Loen
+        jetzt: 61.8425, 6.8785   Fotos (6): 61.8850, 6.8353
+ ?   2.6 km  Nigardsbreen im Jostedal
+        jetzt: 61.6955, 7.2135   Fotos (17): 61.6737, 7.2328
+ ok   0.5 km  Trollstigen – Hochebene am Pass
+        jetzt: 62.4595, 7.672   Fotos (8): 62.4551, 7.6710
+?? Askvågen an der Atlantikstraße — nur 0 verortete Fotos, keine Aussage
+?? Dalsnibba-Hochebene über Geiranger — nur 0 verortete Fotos, keine Aussage
+ ok   0.6 km  Preikestolen – Hochebene hinter der Kanzel
+        jetzt: 58.9895, 6.1985   Fotos (11): 58.9872, 6.1884
+?? Kjerag-Plateau über Lysebotn — nur 0 verortete Fotos, keine Aussage
+?? Månafossen im Frafjord — nur 1 verortete Fotos, keine Aussage
+?? Hovden im oberen Setesdal — nur 0 verortete Fotos, keine Aussage
+ ok   0.6 km  Saltstraumen bei Bodø
+        jetzt: 67.2325, 14.6285   Fotos (3): 67.2318, 14.6154
+!!   3.8 km  Holandsfjorden vor dem Svartisen
+        jetzt: 66.6795, 13.7545   Fotos (3): 66.7053, 13.6992
+ ok   0.8 km  Torghatten auf Helgeland
+        jetzt: 65.3985, 12.0925   Fotos (13): 65.4052, 12.0891
+ ok   0.4 km  Runde – Vogelfelsen am Atlantik
+        jetzt: 62.4015, 5.6165   Fotos (31): 62.4050, 5.6150
+?? Romsdalseggen über Åndalsnes — nur 1 verortete Fotos, keine Aussage
+?? Buer im Folgefonna — nur 0 verortete Fotos, keine Aussage
+?? Altevatnet bei Innset — nur 1 verortete Fotos, keine Aussage
+?? Mollisfossen im Reisadalen — nur 0 verortete Fotos, keine Aussage
+!!  12.9 km  Abiskojaure am Kungsleden
+        jetzt: 68.3005, 18.6155   Fotos (12): 68.1991, 18.4658
+?? Alesjaure am Kungsleden — nur 0 verortete Fotos, keine Aussage
+?? Lapporten von Björkliden — nur 1 verortete Fotos, keine Aussage
+ ?   2.1 km  Kebnekaise Fjällstation
+        jetzt: 67.8485, 18.6215   Fotos (7): 67.8673, 18.6200
+!!  25.0 km  Skierfe über dem Rapadalen
+        jetzt: 67.2465, 17.7885   Fotos (9): 67.1240, 18.2751
+?? Staloluokta im Padjelanta — nur 2 verortete Fotos, keine Aussage
+?? Ritsem am Akkajaure — nur 0 verortete Fotos, keine Aussage
+ ?   2.5 km  Kvikkjokk am Kungsleden
+        jetzt: 66.9525, 17.7785   Fotos (10): 66.9505, 17.7204
+?? Hemavan im Vindelfjällen — nur 1 verortete Fotos, keine Aussage
+ ok   0.5 km  Ammarnäs am Vindelälven
+        jetzt: 65.9625, 16.2085   Fotos (12): 65.9578, 16.2118
+!!  27.8 km  Sylarna in Jämtland
+        jetzt: 63.0285, 12.2385   Fotos (6): 62.8899, 12.6965
+?? Blåhammaren über Storlien — nur 0 verortete Fotos, keine Aussage
+!!  12.3 km  Helags unter dem Gletscher
+        jetzt: 62.9185, 12.4585   Fotos (24): 62.8899, 12.6937
+!! 8471.6 km  Rogen an der Grenze
+        jetzt: 62.3285, 12.3585   Fotos (0): 33.2691, -117.1600
+!!  14.5 km  Sonfjället – Bärenberg
+        jetzt: 62.2885, 13.5485   Fotos (5): 62.4179, 13.5187
+?? Njupeskär im Fulufjället — nur 1 verortete Fotos, keine Aussage
+?? Grövelsjön am Grenzfjell — nur 0 verortete Fotos, keine Aussage
+ ok   0.5 km  Städjan über Idre
+        jetzt: 61.9285, 12.8385   Fotos (3): 61.9286, 12.8471
+ ?   2.3 km  Slåttdalsskrevan im Skuleskogen
+        jetzt: 63.1005, 18.4585   Fotos (17): 63.1076, 18.5007
+?? Rotsidan bei Nordingrå — nur 0 verortete Fotos, keine Aussage
+!!   3.8 km  Skuleberget über der Bucht
+        jetzt: 63.1085, 18.3585   Fotos (6): 63.0739, 18.3559
+ ok   0.8 km  Ulvön in der Ostsee
+        jetzt: 63.0285, 18.6585   Fotos (32): 63.0222, 18.6492
+?? Stenkälla im Tiveden — nur 0 verortete Fotos, keine Aussage
+!!  30.3 km  Stora Bör im Glaskogen
+        jetzt: 59.5085, 12.3285   Fotos (2): 59.3110, 12.6973
+?? Färnebofjärden am Dalälven — nur 0 verortete Fotos, keine Aussage
+ ok   0.3 km  Djurö im Vänern
+        jetzt: 58.8685, 13.4785   Fotos (7): 58.8669, 13.4734
+?? Baldersnäs in Dalsland — nur 0 verortete Fotos, keine Aussage
+!!   6.4 km  Björnö in den Stockholmer Schären
+        jetzt: 59.2885, 18.5485   Fotos (13): 59.2319, 18.5667
+!!   6.1 km  Langhammars auf Fårö
+        jetzt: 57.9585, 19.1085   Fotos (5): 57.9978, 19.1809
+ ?   2.3 km  Neptuni Åkrar auf Öland
+        jetzt: 57.3585, 17.0485   Fotos (3): 57.3439, 17.0223
+!!   3.0 km  Stora Alvaret auf Öland
+        jetzt: 56.5485, 16.5285   Fotos (13): 56.5348, 16.4856
+ ok   0.3 km  Blå Jungfrun in der Ostsee
+        jetzt: 57.2485, 16.7885   Fotos (14): 57.2488, 16.7934
+!!   3.4 km  Åsnen im südschwedischen Seenland
+        jetzt: 56.6285, 14.6885   Fotos (19): 56.6383, 14.6353
+?? Stenshuvud an der Ostküste — nur 2 verortete Fotos, keine Aussage
+?? Kopparhatten im Söderåsen — nur 0 verortete Fotos, keine Aussage
+ ok   0.3 km  Kullaberg an der Landspitze
+        jetzt: 56.3005, 12.4485   Fotos (23): 56.3019, 12.4518
+ ok   0.5 km  Store Mosse – Hochmoor
+        jetzt: 57.2885, 13.9385   Fotos (13): 57.2917, 13.9326
+ ?   1.7 km  Visingsö im Vättern
+        jetzt: 58.0485, 14.3585   Fotos (13): 58.0340, 14.3519
+?? Töfsingdalen bei Idre — nur 1 verortete Fotos, keine Aussage
+!!  22.9 km  Björnlandet in Västerbotten
+        jetzt: 63.9285, 18.5085   Fotos (4): 63.9713, 18.0489
+ ?   2.3 km  Hornborgasjön in Västergötland
+        jetzt: 58.3185, 13.5485   Fotos (22): 58.3241, 13.5872
+!!   8.8 km  Muddus – Urwald und Moor
+        jetzt: 66.9085, 20.1585   Fotos (6): 66.8327, 20.2160
+!!  21.4 km  Nipfjället bei Idre
+        jetzt: 61.9885, 12.4585   Fotos (3): 61.9286, 12.8471
+?? Vålådalen in Jämtland — nur 1 verortete Fotos, keine Aussage
+ ok   1.4 km  Gotska Sandön in der Ostsee
+        jetzt: 58.3885, 19.2185   Fotos (36): 58.3905, 19.1948
+ ok   0.6 km  Tyresta bei Stockholm
+        jetzt: 59.1685, 18.2585   Fotos (26): 59.1715, 18.2494

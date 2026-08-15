@@ -115,7 +115,12 @@ const GRUPPEN = [
         ['auto', 'Auto direkt hin'], ['kurze_wanderung', 'kurze Wanderung'],
         ['lange_wanderung', 'lange Wanderung'],
       ]},
-      { name: 'hike_minutes', label: 'Gehzeit in Minuten', typ: 'zahl', min: 0, max: 1440 },
+      { name: 'hike_minutes', label: 'Gehzeit in Minuten (geschätzt)', typ: 'zahl',
+        min: 0, max: 1440,
+        hinweis: 'Nur eine Notlösung. Setz beim fertigen Spot lieber den ' +
+                 'Parkplatz — dann wird die Gehzeit über die echten ' +
+                 'Wanderwege gemessen und ersetzt diese Schätzung, samt ' +
+                 'Höhenmetern.' },
       { name: 'mobile_signal', label: 'Handyempfang', typ: 'auswahl', werte: [
         ['gut', 'gut'], ['schwach', 'schwach'], ['keiner', 'keiner'],
       ]},

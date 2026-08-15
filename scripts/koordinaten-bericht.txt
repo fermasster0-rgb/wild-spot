@@ -1,0 +1,269 @@
+!!    7.5 km  Norwegen  Kvalvika – Bucht hinter dem Ryten
+        alt 68.1228, 13.2185  ->  neu 68.079, 13.08  (0 m)
+        Quelle: no.wikipedia: Kvalvika (Flakstad)
+!!    8.8 km  Norwegen  Ryten – Plateau über Kvalvika
+        alt 68.1305, 13.1985  ->  neu 68.053435, 13.146206  (16 m)
+        Quelle: Commons-Median aus 10 Fotos
+!!    3.5 km  Norwegen  Bunes – Strand im Reinefjord
+        alt 67.9525, 12.9985  ->  neu 67.9791, 12.9538  (25 m)
+        Quelle: no.wikipedia: Bunes (Moskenes)
+!!    5.3 km  Norwegen  Offersøykammen – Aussichtsrücken
+        alt 68.1688, 13.6285  ->  neu 68.161659, 13.50151  (203 m)
+        Quelle: Commons-Median aus 3 Fotos
+ ?    1.6 km  Norwegen  Mannen – Hang über dem Haukland-Strand
+        alt 68.1935, 13.5745  ->  neu 68.19972222, 13.53944444  (9 m)
+        Quelle: sv.wikipedia: Haukland
+ ok    0.5 km  Norwegen  Nesland bei Nusfjord
+        alt 68.0355, 13.3395  ->  neu 68.03333333, 13.35  (2 m)
+        Quelle: no.wikipedia: Nusfjord
+!!    3.3 km  Norwegen  Måstadfjellet auf Værøy
+        alt 67.6425, 12.6705  ->  neu 67.64432, 12.59316  (7 m)
+        Quelle: no.wikipedia: Måstad
+ ok    1.0 km  Norwegen  Måtind über dem Bleik-Strand
+        alt 69.2705, 15.932  ->  neu 69.27262, 15.95544  (3 m)
+        Quelle: no.wikipedia: Bleik
+!!    6.0 km  Norwegen  Segla – Sattel unter dem Gipfel
+        alt 69.4822, 17.7095  ->  neu 69.514111, 17.5847355  (432 m)
+        Quelle: Commons-Median aus 10 Fotos
+!!    5.9 km  Norwegen  Tungeneset – Felsrücken hinter dem Rastplatz
+        alt 69.5228, 17.4485  ->  neu 69.4883495, 17.33260578  (0 m)
+        Quelle: Commons-Median aus 32 Fotos
+??  Norwegen  Ersfjord – Hang über dem Strand — keine Quelle
+ ?    1.6 km  Norwegen  Grøtfjord auf Kvaløya
+        alt 69.759, 18.4585  ->  neu 69.76636889, 18.49548306  (0 m)
+        Quelle: no.wikipedia: Grøtfjorden
+!!   20.2 km  Norwegen  Steindalsbreen in den Lyngenalpen
+        alt 69.5565, 20.228  ->  neu 69.376352, 20.169212  (184 m)
+        Quelle: Commons-Median aus 3 Fotos
+ ?    1.7 km  Norwegen  Gjende-Ostufer bei Gjendesheim
+        alt 61.4952, 8.7812  ->  neu 61.49383333, 8.81291667  (986 m)
+        Quelle: no.wikipedia: Gjendesheim
+!!    3.2 km  Norwegen  Bessvatnet unter dem Besseggen
+        alt 61.5085, 8.7245  ->  neu 61.523056, 8.775556  (1371 m)
+        Quelle: no.wikipedia: Bessvatnet
+!!    3.9 km  Norwegen  Leirvatnet bei Leirvassbu
+        alt 61.5145, 8.2675  ->  neu 61.54872222, 8.24811111  (1407 m)
+        Quelle: no.wikipedia: Leirvassbu
+!!    4.7 km  Norwegen  Fantesteinen am Sognefjellet
+        alt 61.5618, 8.0795  ->  neu 61.56, 7.99  (1406 m)
+        Quelle: en.wikipedia: Sognefjellet
+!!   10.7 km  Norwegen  Bygdin-Nordufer
+        alt 61.3405, 8.6985  ->  neu 61.3486, 8.4986  (1055 m)
+        Quelle: no.wikipedia: Bygdin
+!!    3.6 km  Norwegen  Rondvassbu im Rondane
+        alt 61.9065, 9.7595  ->  neu 61.87875, 9.79633333  (1165 m)
+        Quelle: no.wikipedia: Rondvassbu
+!!    3.8 km  Norwegen  Høvringen am Rondane-Westrand
+        alt 61.8615, 9.468  ->  neu 61.89555556, 9.47611111  (974 m)
+        Quelle: no.wikipedia: Høvringen fjellalter
+!!   16.0 km  Norwegen  Snøheim-Ebene im Dovrefjell
+        alt 62.3355, 9.5765  ->  neu 62.32, 9.268333  (2234 m)
+        Quelle: no.wikipedia: Snøhetta
+ ?    2.1 km  Norwegen  Elgå am Femunden
+        alt 62.1855, 11.942  ->  neu 62.16666667, 11.94166667  (668 m)
+        Quelle: no.wikipedia: Elgå
+!!   10.7 km  Norwegen  Røvollen in der Femundsmarka
+        alt 62.1245, 12.0585  ->  neu 62.21666667, 12.11666667  (1125 m)
+        Quelle: no.wikipedia: Femundsmarka nasjonalpark
+ ?    1.3 km  Norwegen  Trolltunga – Hochebene vor der Felszunge
+        alt 60.1245, 6.7385  ->  neu 60.13297532, 6.7539895  (1111 m)
+        Quelle: no.wikipedia: Trolltunga
+??  Norwegen  Dyranut auf der Hardangervidda — keine Quelle
+ ok    0.7 km  Norwegen  Hochebene über dem Vøringsfossen
+        alt 60.4315, 7.2585  ->  neu 60.42688889, 7.25113889  (485 m)
+        Quelle: no.wikipedia: Vøringsfossen
+!!    5.6 km  Norwegen  Aurlandsfjellet – Hochebene am Snøvegen
+        alt 60.9585, 7.2265  ->  neu 60.90860889, 7.21200889  (614 m)
+        Quelle: no.wikipedia: Stegastein
+ ?    2.8 km  Norwegen  Bakka am Nærøyfjord
+        alt 60.9105, 6.9205  ->  neu 60.9175, 6.8702  (0 m)
+        Quelle: no.wikipedia: Bakka kirke
+!!    3.5 km  Norwegen  Lovatnet bei Loen
+        alt 61.8425, 6.8785  ->  neu 61.83, 6.94  (35 m)
+        Quelle: no.wikipedia: Lovatnet
+ ?    1.4 km  Norwegen  Nigardsbreen im Jostedal
+        alt 61.6955, 7.2135  ->  neu 61.68666667, 7.19583333  (631 m)
+        Quelle: no.wikipedia: Nigardsbreen
+ ok    0.3 km  Norwegen  Trollstigen – Hochebene am Pass
+        alt 62.4595, 7.672  ->  neu 62.45694444, 7.67333333  (448 m)
+        Quelle: sv.wikipedia: Trollstigen
+ ?    2.0 km  Norwegen  Askvågen an der Atlantikstraße
+        alt 63.0175, 7.3245  ->  neu 63.018409665, 7.3634525  (16 m)
+        Quelle: Commons-Median aus 14 Fotos
+ ok    0.5 km  Norwegen  Dalsnibba-Hochebene über Geiranger
+        alt 62.0445, 7.271  ->  neu 62.04885, 7.26931  (1374 m)
+        Quelle: no.wikipedia: Dalsnibba
+ ok    0.7 km  Norwegen  Preikestolen – Hochebene hinter der Kanzel
+        alt 58.9895, 6.1985  ->  neu 58.98643, 6.18849  (618 m)
+        Quelle: no.wikipedia: Preikestolen
+ ?    2.4 km  Norwegen  Kjerag-Plateau über Lysebotn
+        alt 59.0345, 6.5985  ->  neu 59.01979, 6.56692  (1074 m)
+        Quelle: no.wikipedia: Kjerag
+!!    9.9 km  Norwegen  Månafossen im Frafjord
+        alt 58.9245, 6.4405  ->  neu 58.8438, 6.3685  (46 m)
+        Quelle: no.wikipedia: Månafossen
+!!    3.1 km  Norwegen  Hovden im oberen Setesdal
+        alt 59.5885, 7.3565  ->  neu 59.56028, 7.35639  (782 m)
+        Quelle: no.wikipedia: Hovden (Setesdal)
+ ok    0.7 km  Norwegen  Saltstraumen bei Bodø
+        alt 67.2325, 14.6285  ->  neu 67.23055556, 14.61388889  (0 m)
+        Quelle: no.wikipedia: Saltstraumen
+ ?    2.2 km  Norwegen  Holandsfjorden vor dem Svartisen
+        alt 66.6795, 13.7545  ->  neu 66.69906, 13.74928  (9 m)
+        Quelle: no.wikipedia: Engabreen
+ ok    0.1 km  Norwegen  Torghatten auf Helgeland
+        alt 65.3985, 12.0925  ->  neu 65.39811, 12.09186  (220 m)
+        Quelle: no.wikipedia: Torghatten
+ ?    1.7 km  Norwegen  Runde – Vogelfelsen am Atlantik
+        alt 62.4015, 5.6165  ->  neu 62.4, 5.65  (131 m)
+        Quelle: no.wikipedia: Runde
+ ?    2.4 km  Norwegen  Romsdalseggen über Åndalsnes
+        alt 62.5755, 7.6885  ->  neu 62.558831525, 7.719255275  (680 m)
+        Quelle: Commons-Median aus 10 Fotos
+!!    3.8 km  Norwegen  Buer im Folgefonna
+        alt 60.0765, 6.4685  ->  neu 60.043277055, 6.483221  (277 m)
+        Quelle: Commons-Median aus 4 Fotos
+!!   30.0 km  Norwegen  Altevatnet bei Innset
+        alt 68.7885, 19.4885  ->  neu 68.52, 19.55  (479 m)
+        Quelle: no.wikipedia: Altevatnet
+!!    8.5 km  Norwegen  Mollisfossen im Reisadalen
+        alt 69.4025, 21.6485  ->  neu 69.36155, 21.83243  (337 m)
+        Quelle: no.wikipedia: Mollisfossen
+ ok    0.5 km  Schweden  Abiskojaure am Kungsleden
+        alt 68.3005, 18.6155  ->  neu 68.29645, 18.6186  (485 m)
+        Quelle: sv.wikipedia: Abiskojaure
+!!    9.8 km  Schweden  Alesjaure am Kungsleden
+        alt 68.2195, 18.3335  ->  neu 68.137, 18.414  (787 m)
+        Quelle: sv.wikipedia: Alesjaure
+!!   19.6 km  Schweden  Lapporten von Björkliden
+        alt 68.4085, 18.6885  ->  neu 68.26824444, 18.97682222  (972 m)
+        Quelle: no.wikipedia: Lapporten
+!!    7.3 km  Schweden  Kebnekaise Fjällstation
+        alt 67.8485, 18.6215  ->  neu 67.9007, 18.51693  (2077 m)
+        Quelle: no.wikipedia: Kebnekaise
+!!   19.7 km  Schweden  Skierfe über dem Rapadalen
+        alt 67.2465, 17.7885  ->  neu 67.1675, 18.19833333  (1020 m)
+        Quelle: sv.wikipedia: Skierfe
+!!    3.3 km  Schweden  Staloluokta im Padjelanta
+        alt 67.3255, 16.6285  ->  neu 67.32069444, 16.70538889  (651 m)
+        Quelle: sv.wikipedia: Staloluokta kåtakyrka
+ ?    1.3 km  Schweden  Ritsem am Akkajaure
+        alt 67.7085, 17.4695  ->  neu 67.72, 17.475  (459 m)
+        Quelle: no.wikipedia: Ritsem
+ ?    2.5 km  Schweden  Kvikkjokk am Kungsleden
+        alt 66.9525, 17.7785  ->  neu 66.952, 17.72  (320 m)
+        Quelle: sv.wikipedia: Kvikkjokk
+!!    3.6 km  Schweden  Hemavan im Vindelfjällen
+        alt 65.8285, 15.0585  ->  neu 65.799303, 15.091333  (457 m)
+        Quelle: no.wikipedia: Hemavan flyplass
+ ok    0.5 km  Schweden  Ammarnäs am Vindelälven
+        alt 65.9625, 16.2085  ->  neu 65.95780389, 16.20723694  (417 m)
+        Quelle: no.wikipedia: Ammarnäs
+ ?    2.2 km  Schweden  Sylarna in Jämtland
+        alt 63.0285, 12.2385  ->  neu 63.02, 12.19861111  (1710 m)
+        Quelle: sv.wikipedia: Sylarna
+!!    4.0 km  Schweden  Blåhammaren über Storlien
+        alt 63.2185, 12.2085  ->  neu 63.18611111, 12.17305556  (1070 m)
+        Quelle: sv.wikipedia: Blåhammarens fjällstation
+ ?    1.6 km  Schweden  Helags unter dem Gletscher
+        alt 62.9185, 12.4585  ->  neu 62.90402778, 12.45297222  (1780 m)
+        Quelle: no.wikipedia: Helagsfjället
+!!    5.6 km  Schweden  Rogen an der Grenze
+        alt 62.3285, 12.3585  ->  neu 62.33, 12.25  (757 m)
+        Quelle: no.wikipedia: Rogen
+ ok    0.6 km  Schweden  Sonfjället – Bärenberg
+        alt 62.2885, 13.5485  ->  neu 62.28491667, 13.54041667  (1275 m)
+        Quelle: no.wikipedia: Sonfjället
+!!    3.5 km  Schweden  Njupeskär im Fulufjället
+        alt 61.6485, 12.7485  ->  neu 61.63611111, 12.68833333  (771 m)
+        Quelle: no.wikipedia: Njupeskär
+!!   11.0 km  Schweden  Grövelsjön am Grenzfjell
+        alt 62.0585, 12.1085  ->  neu 62.1, 12.3  (763 m)
+        Quelle: sv.wikipedia: Grövelsjön
+ ?    2.4 km  Schweden  Städjan über Idre
+        alt 61.9285, 12.8385  ->  neu 61.91888889, 12.87888889  (1122 m)
+        Quelle: sv.wikipedia: Städjan
+ ?    2.3 km  Schweden  Slåttdalsskrevan im Skuleskogen
+        alt 63.1005, 18.4585  ->  neu 63.10763, 18.50066  (264 m)
+        Quelle: Commons-Median aus 17 Fotos
+!!   10.3 km  Schweden  Rotsidan bei Nordingrå
+        alt 62.9385, 18.3485  ->  neu 62.846842, 18.374794  (20 m)
+        Quelle: sv.wikipedia: Rotsidan
+!!    3.8 km  Schweden  Skuleberget über der Bucht
+        alt 63.1085, 18.3585  ->  neu 63.0747504, 18.34643897  (229 m)
+        Quelle: sv.wikipedia: Skuleberget
+!!    5.2 km  Schweden  Ulvön in der Ostsee
+        alt 63.0285, 18.6585  ->  neu 62.983171, 18.636698  (34 m)
+        Quelle: sv.wikipedia: Södra Ulvöns naturreservat
+ ok    0.4 km  Schweden  Stenkälla im Tiveden
+        alt 58.7205, 14.5985  ->  neu 58.716667, 14.6  (187 m)
+        Quelle: no.wikipedia: Tivedens nasjonalpark
+!!    5.1 km  Schweden  Stora Bör im Glaskogen
+        alt 59.5085, 12.3285  ->  neu 59.48912817, 12.41090472  (210 m)
+        Quelle: sv.wikipedia: Glaskogen
+ ?    2.5 km  Schweden  Färnebofjärden am Dalälven
+        alt 60.2185, 16.7585  ->  neu 60.21, 16.8  (54 m)
+        Quelle: no.wikipedia: Färnebofjärden
+ ?    2.2 km  Schweden  Djurö im Vänern
+        alt 58.8685, 13.4785  ->  neu 58.85, 13.46666667  (50 m)
+        Quelle: sv.wikipedia: Djurö skärgård
+!!    6.1 km  Schweden  Baldersnäs in Dalsland
+        alt 58.9085, 12.2585  ->  neu 58.9625, 12.275  (85 m)
+        Quelle: sv.wikipedia: Baldersnäs
+!!    8.0 km  Schweden  Björnö in den Stockholmer Schären
+        alt 59.2885, 18.5485  ->  neu 59.21678308, 18.56490189  (0 m)
+        Quelle: sv.wikipedia: Björnö naturreservat, Värmdö kommun
+!!    4.4 km  Schweden  Langhammars auf Fårö
+        alt 57.9585, 19.1085  ->  neu 57.98444444, 19.16416667  (6 m)
+        Quelle: sv.wikipedia: Langhammars
+ ?    1.5 km  Schweden  Neptuni Åkrar auf Öland
+        alt 57.3585, 17.0485  ->  neu 57.348367, 17.030862  (0 m)
+        Quelle: sv.wikipedia: Neptuni åkrar
+!!    9.3 km  Schweden  Stora Alvaret auf Öland
+        alt 56.5485, 16.5285  ->  neu 56.46666667, 16.5  (29 m)
+        Quelle: no.wikipedia: Stora alvaret
+ ok    0.3 km  Schweden  Blå Jungfrun in der Ostsee
+        alt 57.2485, 16.7885  ->  neu 57.248779, 16.793388999999998  (21 m)
+        Quelle: Commons-Median aus 14 Fotos
+ ?    2.8 km  Schweden  Åsnen im südschwedischen Seenland
+        alt 56.6285, 14.6885  ->  neu 56.63333333, 14.73333333  (137 m)
+        Quelle: no.wikipedia: Åsnen
+ ok    0.1 km  Schweden  Stenshuvud an der Ostküste
+        alt 55.6585, 14.2685  ->  neu 55.65784387, 14.26991932  (47 m)
+        Quelle: no.wikipedia: Stenshuvud nasjonalpark
+ ok    0.8 km  Schweden  Kopparhatten im Söderåsen
+        alt 56.0285, 13.2385  ->  neu 56.036, 13.241  (143 m)
+        Quelle: sv.wikipedia: Skäralid (ravin)
+ ?    1.1 km  Schweden  Kullaberg an der Landspitze
+        alt 56.3005, 12.4485  ->  neu 56.3, 12.46666667  (54 m)
+        Quelle: sv.wikipedia: Kullaberg
+ ?    2.8 km  Schweden  Store Mosse – Hochmoor
+        alt 57.2885, 13.9385  ->  neu 57.26666667, 13.91666667  (166 m)
+        Quelle: sv.wikipedia: Store Mosse nationalpark
+ ?    1.5 km  Schweden  Visingsö im Vättern
+        alt 58.0485, 14.3585  ->  neu 58.05, 14.33333333  (106 m)
+        Quelle: no.wikipedia: Visingsö
+!!   10.8 km  Schweden  Töfsingdalen bei Idre
+        alt 62.1585, 12.6885  ->  neu 62.16537132, 12.48009466  (712 m)
+        Quelle: no.wikipedia: Töfsingdalen nasjonalpark
+!!   24.4 km  Schweden  Björnlandet in Västerbotten
+        alt 63.9285, 18.5085  ->  neu 63.9666, 18.0166  (374 m)
+        Quelle: no.wikipedia: Björnlandet
+ ok    0.2 km  Schweden  Hornborgasjön in Västergötland
+        alt 58.3185, 13.5485  ->  neu 58.31666667, 13.55  (119 m)
+        Quelle: no.wikipedia: Hornborgasjön
+ ?    1.6 km  Schweden  Muddus – Urwald und Moor
+        alt 66.9085, 20.1585  ->  neu 66.8944, 20.1611  (383 m)
+        Quelle: no.wikipedia: Muddus
+!!   22.1 km  Schweden  Nipfjället bei Idre
+        alt 61.9885, 12.4585  ->  neu 62.007825, 12.88005  (755 m)
+        Quelle: sv.wikipedia: Städjan-Nipfjället
+ ?    2.0 km  Schweden  Vålådalen in Jämtland
+        alt 63.1385, 12.9985  ->  neu 63.15, 12.96666667  (643 m)
+        Quelle: sv.wikipedia: Vålådalen
+!!    3.1 km  Schweden  Gotska Sandön in der Ostsee
+        alt 58.3885, 19.2185  ->  neu 58.3666, 19.25  (24 m)
+        Quelle: no.wikipedia: Gotska Sandön
+!!    3.4 km  Schweden  Tyresta bei Stockholm
+        alt 59.1685, 18.2585  ->  neu 59.18305556, 18.31166667  (36 m)
+        Quelle: no.wikipedia: Stensjön (Tyresta)
