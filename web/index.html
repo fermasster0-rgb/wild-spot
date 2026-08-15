@@ -3378,17 +3378,49 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   padding: 4px max(18px, env(safe-area-inset-left)) 20px;
 }
 .profil-bild {
+  position: relative;
   display: grid;
   place-items: center;
   width: 64px; height: 64px;
   flex-shrink: 0;
+  border: 0;
   border-radius: 50%;
   background: var(--gruen);
   color: var(--auf-akzent);
+  font-family: inherit;
   font-size: 25px;
   font-weight: 800;
   letter-spacing: -0.03em;
+  cursor: pointer;
+  padding: 0;
 }
+
+/* Das kleine Kamerazeichen an der Ecke — es sagt, dass das Bild ein Knopf
+   ist. Ohne das tippt niemand darauf. */
+.profil-bild .wechseln {
+  position: absolute;
+  right: -2px; bottom: -2px;
+  display: grid;
+  place-items: center;
+  width: 25px; height: 25px;
+  border-radius: 50%;
+  background: var(--flaeche);
+  border: 2px solid var(--bg);
+  color: var(--text);
+}
+.profil-bild .wechseln svg {
+  width: 13px; height: 13px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Die erste Kachel ist die wichtigste — sie darf größer sein. */
+.zahl-kachel.gross b { font-size: 30px; }
+.zahl-kachel.gross { background: var(--akzent-weich); }
+.zahl-kachel.gross b { color: var(--gruen); }
 .profil-kopf .wer { flex: 1; min-width: 0; }
 .profil-kopf .wer b {
   display: block;
@@ -3942,6 +3974,509 @@ body.bereich-offen.detail-offen::after {
 .intro { z-index: 100; }
 #start { z-index: 200; }
 
+/* ##########################################################################
+   ##                                                                      ##
+   ##   DIE GEMEINSCHAFT — Feed, Beiträge, Profile                         ##
+   ##                                                                      ##
+   ########################################################################## */
+
+/* Die Reiterzeile über dem Feed. Dieselben Chips wie bei den Filtern, nur
+   als Auswahl von genau einem statt als Schalter. */
+.tafel-reiter { margin-bottom: 4px; }
+.tafel-reiter .chip[aria-selected="true"] {
+  background: var(--gruen);
+  border-color: var(--gruen);
+  color: var(--auf-akzent);
+}
+
+/* --------------------------------------------------------------- Beitrag ---
+   Aufbau von oben nach unten: wer, Bild, Text, Platz, Gefällt.
+   Das Bild bekommt die volle Breite der Karte — es ist der Inhalt, alles
+   andere ist Beschriftung.
+   -------------------------------------------------------------------------- */
+.beitrag {
+  position: relative;
+  background: var(--flaeche);
+  border-radius: 20px;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+
+.beitrag-oben {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 12px 10px;
+}
+
+.beitrag-kopf {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.beitrag-kopf .wer { min-width: 0; }
+.beitrag-kopf .wer b {
+  display: block;
+  font-size: 14.5px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.beitrag-kopf .wer small {
+  display: block;
+  margin-top: 1px;
+  font-size: 11.5px;
+  color: var(--text-weak);
+}
+
+/* Das runde Bild einer Person. Ohne eigenes Bild der erste Buchstabe auf
+   Oliv — das unterscheidet Leute wenigstens, was eine graue Silhouette nicht
+   tut. */
+.kopfbild {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--flaeche-tief);
+}
+/* Der Name „ohne-bild" statt „leer": Es gibt schon eine Klasse .leer für
+   leere Listen, und die bringt 40 Pixel Innenabstand mit. Aus dem runden
+   Kopfbild wurde damit ein Ei. */
+.kopfbild.ohne-bild {
+  background: var(--gruen);
+  color: var(--auf-akzent);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.beitrag-mehr {
+  flex-shrink: 0;
+  width: 32px; height: 32px;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--text-weak);
+  font-size: 17px;
+  line-height: 1;
+  cursor: pointer;
+}
+.beitrag-mehr:hover { background: var(--t1); color: var(--text); }
+
+/* Das kleine Menü hinter den drei Punkten. */
+.beitrag-menue {
+  position: absolute;
+  top: 44px; right: 12px;
+  z-index: 3;
+  min-width: 168px;
+  padding: 5px;
+  border-radius: 14px;
+  background: var(--flaeche);
+  border: 1px solid var(--rand);
+  box-shadow: 0 10px 34px var(--sch2);
+}
+.beitrag-menue button {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  font-size: 13.5px;
+  text-align: left;
+  cursor: pointer;
+}
+.beitrag-menue button:hover { background: var(--t1); }
+.beitrag-menue button.gefaehrlich { color: var(--fehl-text); }
+
+.beitrag-bild {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: var(--flaeche-tief);
+  cursor: zoom-in;
+  line-height: 0;
+}
+.beitrag-bild img {
+  width: 100%;
+  max-height: 460px;
+  object-fit: cover;
+  display: block;
+}
+
+.beitrag-text { padding: 12px 14px 10px; }
+.beitrag-text p {
+  margin: 0;
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--text-lese);
+  word-break: break-word;
+}
+.beitrag-mit {
+  margin: 8px 0 0 !important;
+  font-size: 12.5px !important;
+  color: var(--text-weak) !important;
+}
+.beitrag-mit b { color: var(--gruen); font-weight: 600; }
+
+/* Der Platz unter dem Text — nur da, wenn der Verfasser ihn zeigen wollte. */
+.beitrag-spot {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: calc(100% - 24px);
+  margin: 0 12px 4px;
+  padding: 10px 12px;
+  border: 1px solid var(--rand);
+  border-radius: 14px;
+  background: var(--t1);
+  color: var(--text);
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+.beitrag-spot:hover { background: var(--t2); }
+.beitrag-spot svg {
+  width: 18px; height: 18px;
+  flex-shrink: 0;
+  fill: none;
+  stroke: var(--sym-spot);
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.beitrag-spot span:not(.pfeil) {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.beitrag-spot .pfeil { color: var(--text-weak); }
+
+.beitrag-fuss {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px 10px;
+}
+
+.mag {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 12px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--text-weak);
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.14s cubic-bezier(0.3, 1.5, 0.5, 1);
+}
+.mag svg {
+  width: 20px; height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linejoin: round;
+}
+.mag:hover { background: var(--t1); }
+.mag:active { transform: scale(0.9); }
+.mag[aria-pressed="true"] { color: var(--gefahr); }
+.mag[aria-pressed="true"] svg { fill: currentColor; }
+
+/* Der schwebende Knopf zum Schreiben. */
+.schreib-knopf {
+  position: fixed;
+  right: max(18px, env(safe-area-inset-right));
+  bottom: calc(var(--tab-h) + 18px);
+  z-index: 45;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 20px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--gruen);
+  color: var(--auf-akzent);
+  font: inherit;
+  font-size: 14.5px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  box-shadow: 0 6px 22px var(--sch2);
+}
+.schreib-knopf[hidden] { display: none; }
+.schreib-knopf svg {
+  width: 19px; height: 19px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+}
+.schreib-knopf:active { transform: scale(0.97); }
+
+/* Die kurze Quittung oben — „Dein Beitrag steht." */
+.feed-meldung {
+  position: fixed;
+  top: calc(max(12px, env(safe-area-inset-top)) + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 96;
+  max-width: min(86vw, 420px);
+  padding: 12px 18px;
+  border-radius: 999px;
+  background: var(--gruen);
+  color: var(--auf-akzent);
+  font-size: 13.5px;
+  font-weight: 600;
+  text-align: center;
+  box-shadow: 0 8px 26px var(--sch2);
+  animation: quittung 0.25s cubic-bezier(0.2, 1.2, 0.4, 1);
+}
+@keyframes quittung {
+  from { opacity: 0; transform: translate(-50%, -14px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
+
+/* ------------------------------------------------- Das Verfassen-Fenster --- */
+.verfassen-box { max-width: 480px; }
+.verfassen-box .unter { margin-bottom: 16px; }
+
+.verfassen-titel {
+  margin: 20px 0 9px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+.bild-waehlen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 22px;
+  margin-bottom: 14px;
+  border: 1.5px dashed var(--rand);
+  border-radius: 16px;
+  color: var(--text-weak);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.bild-waehlen:hover { border-color: var(--gruen); color: var(--gruen); }
+.bild-waehlen svg {
+  width: 22px; height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.bild-vorschau {
+  position: relative;
+  margin-bottom: 14px;
+  border-radius: 16px;
+  overflow: hidden;
+  line-height: 0;
+}
+.bild-vorschau[hidden] { display: none; }
+.bild-vorschau img { width: 100%; max-height: 320px; object-fit: cover; display: block; }
+.bild-vorschau .weg,
+.spot-zeile .weg {
+  position: absolute;
+  top: 9px; right: 9px;
+  width: 30px; height: 30px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  font-size: 17px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.spot-zeile {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 46px;
+  padding: 11px 13px;
+  border: 1px solid var(--rand);
+  border-radius: 14px;
+  background: var(--t1);
+  font-size: 13.5px;
+}
+.spot-zeile .gewaehlt { font-weight: 600; }
+.spot-zeile .weg {
+  position: static;
+  margin-left: auto;
+  width: 26px; height: 26px;
+  background: var(--t3);
+  color: var(--text-weak);
+  font-size: 15px;
+}
+.leer-hinweis { color: var(--text-weak); font-size: 13px; line-height: 1.5; margin: 0; }
+
+/* Der Schalter „Den Platz mitzeigen" — dieselbe Pille wie bei den Ebenen. */
+.schalter-zeile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  margin-top: 10px;
+  padding: 12px 13px;
+  border: 1px solid var(--rand);
+  border-radius: 14px;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.schalter-zeile .was { flex: 1; min-width: 0; }
+.schalter-zeile .was b {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+.schalter-zeile .was small {
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--text-weak);
+}
+.schalter-zeile[aria-pressed="true"] .pille { background: var(--gruen); }
+.schalter-zeile[aria-pressed="true"] .pille::after { transform: translateX(15px); }
+
+/* Leute erwähnen */
+.person-pillen {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-bottom: 9px;
+}
+.person-pillen:empty { display: none; }
+.person-pille {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 8px 6px 12px;
+  border-radius: 999px;
+  background: var(--akzent-weich);
+  color: var(--gruen);
+  font-size: 13px;
+  font-weight: 600;
+}
+.person-pille button {
+  width: 19px; height: 19px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--gruen);
+  color: var(--auf-akzent);
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+}
+
+.leute-liste { display: flex; flex-direction: column; gap: 3px; }
+.leute-liste:empty { display: none; }
+.leute-treffer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 12px;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+}
+.leute-treffer:hover { background: var(--t1); }
+
+/* -------------------------------------------------------- Ein Profil --- */
+.person-box { max-width: 480px; }
+
+.person-kopf { text-align: center; padding: 6px 0 20px; }
+.person-kopf .kopfbild { margin: 0 auto 12px; }
+.person-kopf h2 {
+  margin: 0 0 6px;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+.person-bio {
+  margin: 0 auto 8px;
+  max-width: 340px;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--text-lese);
+}
+.person-seit { margin: 0; font-size: 12px; color: var(--text-weak); }
+
+.folge-zeile {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-bottom: 16px;
+  font-size: 13.5px;
+  color: var(--text-weak);
+}
+.folge-zeile b { color: var(--text); font-weight: 700; }
+
+.folge-knopf {
+  width: 100%;
+  padding: 13px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--gruen);
+  color: var(--auf-akzent);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.folge-knopf[aria-pressed="true"] {
+  background: var(--t2);
+  color: var(--text);
+}
+
+.person-titel {
+  margin: 24px 0 12px;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+#person-beitraege .beitrag { border: 1px solid var(--rand); }
+
 /* ==========================================================================
    Am Rechner
 
@@ -4418,12 +4953,28 @@ body.bereich-offen.detail-offen::after {
     <p class="unter" id="entdecken-unter">Plätze für die Nacht draußen</p>
   </div>
 
+  <!-- Die drei Tafeln dieser Seite. „Spots" ist die Karte in Kachelform,
+       „Alle" und „Ich folge" sind der Feed. Sie liegen hier oben statt als
+       eigener Bereich unten, weil fünf Reiter in der Leiste genug sind. -->
+  <div class="reihe tafel-reiter" id="entdecken-reiter">
+    <button class="chip" data-tafel="spots" aria-selected="true">⛺ Spots</button>
+    <button class="chip" data-tafel="alle"  aria-selected="false">🌍 Alle</button>
+    <button class="chip" data-tafel="folge" aria-selected="false">👣 Ich folge</button>
+  </div>
+
   <div class="rand block">
     <button class="such-knopf" id="entdecken-suche">
       <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
       <span>Ort, Berg oder See suchen</span>
     </button>
   </div>
+
+  <!-- ============================================================== FEED -->
+  <div id="entdecken-feed" hidden>
+    <div class="rand" id="feed-liste"></div>
+  </div>
+
+  <div id="entdecken-spots">
 
   <!-- Die Filterchips. Sie schicken zur Karte und stellen dort ein, was
        gefragt war — deshalb stehen sie ganz oben. -->
@@ -4603,6 +5154,15 @@ body.bereich-offen.detail-offen::after {
     Wild Spot lebt davon, dass Leute ihre Plätze eintragen. Kennst du einen?
     Auf der Karte auf <b>+ Spot hier anlegen</b> tippen.
   </p>
+  </div><!-- Ende #entdecken-spots -->
+
+  <!-- Der Knopf zum Schreiben schwebt über dem Feed. Er ist die einzige
+       Handlung auf dieser Seite, deshalb darf er auffallen — und er steht
+       nur da, solange der Feed offen ist. -->
+  <button class="schreib-knopf" id="feed-schreiben" hidden>
+    <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+    Beitrag
+  </button>
 </div>
 
 <!-- ============================================================ MERKLISTE -->
@@ -4807,6 +5367,65 @@ body.bereich-offen.detail-offen::after {
   </div>
 </div>
 
+<!-- ================================================== EINEN BEITRAG SCHREIBEN -->
+<div class="login-hg" id="verfassen-hg" hidden>
+  <div class="login-box verfassen-box">
+    <button id="verfassen-zu" title="Schließen">×</button>
+    <h2>Erzähl davon</h2>
+    <p class="unter">Ein Bild und zwei Sätze reichen. Wie war die Nacht?</p>
+
+    <div class="login-meldung" id="verfassen-meldung"></div>
+
+    <!-- Das Bild zuerst: Es ist der Grund, warum jemand stehen bleibt. -->
+    <label class="bild-waehlen" for="verfassen-bild">
+      <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/>
+        <circle cx="8.5" cy="10" r="1.7"/><path d="M21 16l-5-5-6.5 8"/></svg>
+      <span>Bild auswählen</span>
+    </label>
+    <input type="file" id="verfassen-bild" accept="image/*" hidden>
+
+    <div class="bild-vorschau" id="verfassen-vorschau" hidden></div>
+
+    <label for="verfassen-text">Was ist passiert?</label>
+    <textarea id="verfassen-text" rows="4"
+              placeholder="Spät angekommen, Nebel im Tal, oben klarer Himmel …"></textarea>
+
+    <label for="verfassen-datum">Wann warst du da?</label>
+    <input type="date" id="verfassen-datum">
+
+    <h3 class="verfassen-titel">Wer war dabei?</h3>
+    <div class="person-pillen" id="verfassen-leute"></div>
+    <input type="text" id="verfassen-suche" placeholder="Namen suchen …" autocomplete="off">
+    <div class="leute-liste" id="verfassen-treffer"></div>
+
+    <h3 class="verfassen-titel">Der Platz</h3>
+    <div class="spot-zeile" id="verfassen-spot"></div>
+
+    <!-- Die Entscheidung, um die es geht: Zeige ich, wo das war? -->
+    <div id="verfassen-spot-block" hidden>
+      <button type="button" class="schalter-zeile" id="verfassen-spot-zeigen"
+              aria-pressed="true">
+        <span class="was">
+          <b>Den Platz mitzeigen</b>
+          <small>Aus heißt: Dein Beitrag steht da, der Spot bleibt für dich.</small>
+        </span>
+        <span class="pille"></span>
+      </button>
+    </div>
+
+    <button type="button" class="haupt" id="verfassen-senden">Beitrag veröffentlichen</button>
+    <button type="button" class="flach" id="verfassen-abbrechen">Abbrechen</button>
+  </div>
+</div>
+
+<!-- =========================================================== EIN PROFIL -->
+<div class="login-hg" id="person-hg" hidden>
+  <div class="login-box person-box">
+    <button id="person-zu" title="Schließen">×</button>
+    <div id="person-inhalt"></div>
+  </div>
+</div>
+
 <!-- =============================================================== PROFIL -->
 <div class="schirm" id="schirm-profil" hidden>
   <div class="schirm-kopf">
@@ -4870,6 +5489,9 @@ body.bereich-offen.detail-offen::after {
      beim Aufbauen window.WILDSPOT_PLUS. -->
 <script src="plus.js"></script>
 <script src="screens.js"></script>
+<!-- Der Feed. Nach screens.js, weil er dessen Bereiche und das Spot-Blatt
+     benutzt — und weil seine Reiter auf der Entdecken-Seite sitzen. -->
+<script src="feed.js"></script>
 
 <!-- ==========================================================================
      Das Admin-Fenster. Liegt leer im Dokument und wird von admin.js gefüllt,

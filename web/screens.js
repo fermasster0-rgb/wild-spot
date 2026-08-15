@@ -871,8 +871,25 @@
 
     if (auth.nutzer) {
       const name = auth.nutzer.username || 'Konto';
+      const bild = auth.nutzer.avatarPfad
+        ? sb.storage.from('avatars').getPublicUrl(auth.nutzer.avatarPfad).data.publicUrl
+        : null;
+
+      // Das Bild ist gleichzeitig der Knopf zum Ändern. Ein eigener Knopf
+      // daneben wäre eine Zeile mehr für dieselbe Sache — und jeder tippt
+      // ohnehin zuerst auf das Bild.
       kopf.innerHTML =
-        `<div class="profil-bild">${sicher(name.slice(0, 1).toUpperCase())}</div>
+        `<button type="button" class="profil-bild" id="profil-bild-knopf"
+                 title="Bild ändern" style="${bild
+                   ? `background-image:url('${sicher(bild)}');background-size:cover;
+                      background-position:center;color:transparent` : ''}">
+           ${sicher(name.slice(0, 1).toUpperCase())}
+           <span class="wechseln">
+             <svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="14" rx="3"/>
+               <circle cx="12" cy="13" r="3.4"/><path d="M9 6l1.4-2h3.2L15 6"/></svg>
+           </span>
+         </button>
+         <input type="file" id="profil-bild-datei" accept="image/*" hidden>
          <div class="wer">
            <b>${sicher(name)}</b>
            <span>${sicher(auth.nutzer.email || '')}</span>
@@ -893,23 +910,55 @@
 
     // -------------------------------------------------------- Die Zahlen
     if (auth.nutzer) {
+      bildKnopfVerdrahten();
+
+      // Die erste Zahl ist die, um die es geht: an wie vielen Plätzen war ich
+      // schon? Sie steht bewusst vorne — sie wächst mit jeder Nacht draußen
+      // und ist damit der einzige Grund, überhaupt hierher zu schauen.
       const zahlen = el('div');
       zahlen.className = 'zahlen';
       zahlen.innerHTML =
-        `<div class="zahl-kachel"><b id="z-spots">…</b><span>Spots</span></div>
-         <div class="zahl-kachel"><b id="z-fotos">…</b><span>Fotos</span></div>
-         <div class="zahl-kachel"><b id="z-bew">…</b><span>Bewertungen</span></div>`;
+        `<div class="zahl-kachel gross"><b id="z-besucht">…</b>
+           <span id="z-besucht-wort">Plätze besucht</span></div>
+         <div class="zahl-kachel"><b id="z-spots">…</b><span>eingetragen</span></div>
+         <div class="zahl-kachel"><b id="z-posts">…</b>
+           <span id="z-posts-wort">Beiträge</span></div>`;
       rand.appendChild(zahlen);
 
-      sb.rpc('meine_zahlen').then(({ data }) => {
-        const z = (data && data[0]) || {};
-        const setz = (id, wert) => {
+      const folgen = el('div');
+      folgen.className = 'folge-zeile';
+      folgen.style.cssText = 'margin:-10px 0 20px';
+      folgen.innerHTML =
+        '<span><b id="z-follower">…</b> Follower</span>' +
+        '<span><b id="z-folge">…</b> gefolgt</span>';
+      rand.appendChild(folgen);
+
+      const setz = (id, wert) => {
+        const e = $(id);
+        if (e) e.textContent = Number(wert || 0).toLocaleString('de-AT');
+      };
+
+      // Ein Aufruf statt zwei: profil() liefert alles, was hier steht.
+      sb.rpc('profil', { wessen_id: auth.nutzer.id }).then(({ data }) => {
+        const p = (data && data[0]) || {};
+        setz('z-besucht',  p.spots_besucht);
+
+        // „1 Plätze besucht" liest sich falsch. Die Einzahl steht deshalb
+        // nicht fest im Blatt, sondern hängt an der Zahl.
+        const wort = (id, eins, viele, wieviel) => {
           const e = $(id);
-          if (e) e.textContent = Number(wert || 0).toLocaleString('de-AT');
+          if (e) e.textContent = Number(wieviel) === 1 ? eins : viele;
         };
-        setz('z-spots', z.spots);
-        setz('z-fotos', z.fotos);
-        setz('z-bew',   z.bewertungen);
+        wort('z-besucht-wort', 'Platz besucht', 'Plätze besucht', p.spots_besucht);
+        wort('z-posts-wort',   'Beitrag',       'Beiträge',       p.beitraege);
+
+        setz('z-spots',    p.spots_gelegt);
+        setz('z-posts',    p.beitraege);
+        setz('z-follower', p.folgt_mir);
+        setz('z-folge',    p.folge_ich);
+
+        // Das Bild merken, damit es beim nächsten Aufbau sofort dasteht.
+        if (p.avatar_path !== undefined) auth.nutzer.avatarPfad = p.avatar_path;
       }).catch(() => {});
     } else {
       const k = el('button');
@@ -1104,6 +1153,56 @@
       'style="color:inherit">Open-Meteo</a>.<br>' +
       'Die Spots kommen von Leuten wie dir.';
     rand.appendChild(fuss);
+  }
+
+  // ==========================================================================
+  // Das Profilbild wechseln
+  //
+  // Es wird wie jedes andere Bild schon im Browser verkleinert — hier auf
+  // 400 Pixel, weil es nirgends größer angezeigt wird. Aus einem 8-MB-Foto
+  // werden damit etwa 30 KB.
+  // ==========================================================================
+
+  function bildKnopfVerdrahten() {
+    const knopf = $('profil-bild-knopf');
+    const feld  = $('profil-bild-datei');
+    if (!knopf || !feld) return;
+
+    knopf.addEventListener('click', () => feld.click());
+
+    feld.addEventListener('change', async () => {
+      const datei = feld.files && feld.files[0];
+      if (!datei || !datei.type.startsWith('image/')) return;
+
+      knopf.style.opacity = '0.5';
+
+      try {
+        const klein = await window.wildspotVerkleinern(datei, 400);
+        const pfad = `${auth.nutzer.id}/${crypto.randomUUID()}.jpg`;
+
+        const hoch = await sb.storage.from('avatars')
+          .upload(pfad, klein, { contentType: 'image/jpeg' });
+        if (hoch.error) throw hoch.error;
+
+        const alt = auth.nutzer.avatarPfad;
+
+        const { error } = await sb.from('profiles')
+          .update({ avatar_path: pfad })
+          .eq('id', auth.nutzer.id);
+        if (error) throw error;
+
+        auth.nutzer.avatarPfad = pfad;
+
+        // Das alte Bild wegräumen — sonst sammelt sich mit jedem Wechsel eine
+        // weitere Datei im Speicher an, die niemand mehr sieht.
+        if (alt) await sb.storage.from('avatars').remove([alt]).catch(() => {});
+
+        profilFuellen();
+      } catch (err) {
+        knopf.style.opacity = '1';
+        alert('Das Bild konnte nicht gespeichert werden.\n\n' + (err.message || err));
+      }
+    });
   }
 
   function menueZeile(svg, titel, unter, tat) {

@@ -395,6 +395,17 @@ function zeichnen(spot, kommentare, meineSterne, fotos = []) {
     );
   }
 
+  // ------------------------------------------------- Von hier erzählen -----
+  // Direkt neben der Karte des Platzes: Wer gerade zurück ist und den Spot
+  // aufmacht, ist genau in dem Moment, in dem man davon erzählt.
+  if (angemeldet && window.WILDSPOT_BEITRAG) {
+    teile.push(
+      '<button type="button" class="zweit" id="detail-erzaehlen" ' +
+      'style="display:flex;align-items:center;justify-content:center;gap:8px">' +
+      '📷 Von hier erzählen</button>'
+    );
+  }
+
   // ------------------------------------------------------------- Fotos -----
   // Ganz nach oben: ein Bild sagt über einen Zeltplatz mehr als jede Liste.
   if (fotos.length) {
@@ -695,6 +706,16 @@ function verdrahten(spot, meineSterne, anzahlFotos, meiner) {
   const auth = window.WILDCAMP_AUTH;
   const sterneBox = document.getElementById('meine-sterne');
 
+  // „Von hier erzählen" — öffnet das Beitragsfenster mit gesetztem Spot.
+  const erzaehlen = document.getElementById('detail-erzaehlen');
+  if (erzaehlen) {
+    erzaehlen.onclick = () => {
+      if (window.WILDSPOT_BEITRAG) {
+        window.WILDSPOT_BEITRAG({ id: spot.id, name: spot.name });
+      }
+    };
+  }
+
   // „Auf der Karte anzeigen" — das Blatt bleibt dabei offen. Wer den Spot
   // gerade liest, will ihn auf der Karte SEHEN und nicht die Angaben verlieren
   // und danach von vorne suchen.
@@ -877,12 +898,12 @@ function verdrahten(spot, meineSterne, anzahlFotos, meiner) {
 const FOTO_KANTE = 1600;
 const FOTO_GUETE = 0.82;
 
-async function verkleinern(datei) {
+async function verkleinern(datei, kante = FOTO_KANTE) {
   // createImageBitmap dreht das Bild anhand der EXIF-Angabe gleich richtig
   // herum. Ohne das läge jedes Hochkant-Foto vom Handy auf der Seite.
   const bild = await createImageBitmap(datei, { imageOrientation: 'from-image' });
 
-  const faktor = Math.min(1, FOTO_KANTE / Math.max(bild.width, bild.height));
+  const faktor = Math.min(1, kante / Math.max(bild.width, bild.height));
   const breite = Math.round(bild.width * faktor);
   const hoehe = Math.round(bild.height * faktor);
 
@@ -898,6 +919,12 @@ async function verkleinern(datei) {
   if (!blob) throw new Error('Das Bild konnte nicht umgewandelt werden.');
   return blob;
 }
+
+// Auch die Beiträge und die Profilbilder verkleinern im Browser, bevor etwas
+// losgeschickt wird (feed.js). Dieselbe Funktion statt einer zweiten Kopie:
+// Sie dreht Hochkantfotos richtig herum, und dieser Teil ist zu leicht zu
+// vergessen, um ihn zweimal zu haben.
+window.wildspotVerkleinern = verkleinern;
 
 // Ein einzelnes Bild verkleinern, ablegen und eintragen. Steht für sich,
 // damit auch das Anlegen-Formular es benutzen kann: Wer einen Spot aus einem
