@@ -2573,13 +2573,18 @@ body.parkplatz-modus .knopf-zeile { display: none; }
      heranreichen — der ist eine dünne Linie und kein Bedienelement.
 
      Deshalb wird der Wert nicht abgezogen, sondern gedeckelt: höchstens
-     8 Pixel, egal was das Handy meldet. Alles darüber war genau der leere
+     2 Pixel, egal was das Handy meldet. Alles darüber war genau der leere
      Streifen unter den Wörtern, der die Leiste aufgebläht hat.
+
+     Zwei statt null, weil die Wörter innerhalb der Reihe ohnehin mittig
+     sitzen — bis zum Rand bleiben dadurch etwa acht Pixel, und genau dort
+     liegt der Wischbalken. Mehr Abstand braucht es nicht, weniger würde ihn
+     durch die Schrift laufen lassen.
 
      Im Browser meldet das Handy null — dann bleibt es bei null, und es wird
      kein einziger Pixel verschenkt. */
   --tab-inhalt: 48px;
-  --tab-luft: min(8px, env(safe-area-inset-bottom));
+  --tab-luft: min(2px, env(safe-area-inset-bottom));
   --tab-h: calc(var(--tab-inhalt) + var(--tab-luft));
 }
 
@@ -2640,7 +2645,14 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   z-index: 70;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  padding-bottom: var(--tab-luft);
+
+  /* Die Glasfläche ragt 30 Pixel unter den Bildschirmrand hinaus. Zu sehen
+     ist davon nichts — aber falls das Handy als App seinen unteren Rand
+     anders rechnet als der Browser, bleibt darunter garantiert kein heller
+     Streifen stehen. Der Trick kostet nichts und nimmt die letzte Quelle
+     für eine Kante weg. */
+  margin-bottom: -30px;
+  padding-bottom: calc(var(--tab-luft) + 30px);
 
   background: var(--glas);
   /* saturate hebt die Farben unter dem Glas an. Ohne das wirkt jedes Foto
