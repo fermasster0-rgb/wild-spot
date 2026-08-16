@@ -599,15 +599,13 @@
             new Date(p.seit).toLocaleDateString('de-AT', { month: 'long', year: 'numeric' }))}</p>
        </div>
 
-       <div class="zahlen">
-         <div class="zahl-kachel"><b>${Number(p.spots_besucht)}</b><span>Plätze besucht</span></div>
-         <div class="zahl-kachel"><b>${Number(p.spots_gelegt)}</b><span>Spots eingetragen</span></div>
-         <div class="zahl-kachel"><b>${Number(p.beitraege)}</b><span>Beiträge</span></div>
+       <div id="person-zahlen">
+         <div class="platzhalter" style="height:130px;border-radius:16px"></div>
        </div>
 
-       <div class="folge-zeile">
-         <span><b>${Number(p.folgt_mir)}</b> ${Number(p.folgt_mir) === 1 ? 'Follower' : 'Follower'}</span>
-         <span><b>${Number(p.folge_ich)}</b> gefolgt</span>
+       <div class="folge-zeile klickbar">
+         <button type="button" data-folge="follower"><b>${Number(p.folgt_mir)}</b> Follower</button>
+         <button type="button" data-folge="folge"><b>${Number(p.folge_ich)}</b> gefolgt</button>
        </div>
 
        ${ich ? '' :
@@ -616,11 +614,53 @@
             ${p.ich_folge ? 'Du folgst' : 'Folgen'}
           </button>`}
 
+       <h3 class="person-titel">Abzeichen</h3>
+       <div id="person-abzeichen"></div>
+
+       <h3 class="person-titel">Gipfel</h3>
+       <div id="person-gipfel"></div>
+
+       <h3 class="person-titel">Letzte Aktivität</h3>
+       <div id="person-aktivitaet"></div>
+
        <h3 class="person-titel">Beiträge</h3>
        <div id="person-beitraege"></div>`;
 
     if (!ich) {
       $('folge-knopf').addEventListener('click', () => folgenUmschalten(p.id));
+    }
+
+    for (const k of kasten.querySelectorAll('[data-folge]')) {
+      k.addEventListener('click', () => {
+        if (window.WILDSPOT_LEUTE) {
+          window.WILDSPOT_LEUTE.folgeListeOeffnen(p.id, k.dataset.folge, p.username);
+        }
+      });
+    }
+
+    // Die vier Kästen bauen sich selbst. Sie liegen in eigenen Dateien
+    // (gipfel.js, leute.js) — dieses Blatt setzt sie nur an ihren Platz.
+    if (window.WILDSPOT_GIPFEL) {
+      window.WILDSPOT_GIPFEL.statistikBauen(p.id)
+        .then((e) => { const z = $('person-zahlen'); if (z) z.replaceWith(e); })
+        .catch(() => {});
+
+      // Beim fremden Profil nur die erreichten Abzeichen: Der Fortschritt
+      // eines anderen zu „3 von 10 Gipfeln" liest sich wie eine Bewertung
+      // und geht niemanden etwas an.
+      window.WILDSPOT_GIPFEL.abzeichenBauen(p.id, { nurErreichte: true })
+        .then((e) => { const z = $('person-abzeichen'); if (z) z.replaceWith(e); })
+        .catch(() => {});
+
+      window.WILDSPOT_GIPFEL.meineGipfelBauen(p.id)
+        .then((e) => { const z = $('person-gipfel'); if (z) z.replaceWith(e); })
+        .catch(() => {});
+    }
+
+    if (window.WILDSPOT_LEUTE) {
+      window.WILDSPOT_LEUTE.aktivitaetBauen(p.id, 10)
+        .then((e) => { const z = $('person-aktivitaet'); if (z) z.replaceWith(e); })
+        .catch(() => {});
     }
 
     // Die Beiträge dieser Person
@@ -661,20 +701,56 @@
   // 5. DIE REITER AUF DER ENTDECKEN-SEITE
   // ==========================================================================
 
+  // Fünf Reiter auf einer Seite. Sie sind bewusst hier oben und nicht unten
+  // in der Leiste: Fünf Bereiche unten sind das Höchste, was man mit einem
+  // Daumen noch trifft — und Feed, Aktivität und Leute gehören ohnehin
+  // zusammen unter „Entdecken".
+  const TAFELN = {
+    spots:      'entdecken-spots',
+    alle:       'entdecken-feed',
+    folge:      'entdecken-feed',
+    aktivitaet: 'entdecken-aktivitaet',
+    leute:      'entdecken-leute',
+  };
+
   function reiterSetzen(welcher) {
-    const istFeed = welcher !== 'spots';
+    if (!TAFELN[welcher]) welcher = 'spots';
+    const istFeed = welcher === 'alle' || welcher === 'folge';
 
     for (const k of document.querySelectorAll('#entdecken-reiter [data-tafel]')) {
-      k.setAttribute('aria-selected', String(k.dataset.tafel === welcher));
+      const dran = k.dataset.tafel === welcher;
+      k.setAttribute('aria-selected', String(dran));
+      // Fünf Reiter passen auf einem Handy nicht nebeneinander. Der
+      // angetippte muss danach trotzdem zu sehen sein — sonst sieht die Seite
+      // aus, als hätte sie sich von selbst geändert.
+      if (dran) k.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
     }
 
-    $('entdecken-spots').hidden = istFeed;
-    $('entdecken-feed').hidden  = !istFeed;
-    $('feed-schreiben').hidden  = !istFeed;
+    // Erst alles zu, dann die eine auf. So kann keine Tafel hängen bleiben,
+    // wenn später eine dazukommt.
+    for (const id of new Set(Object.values(TAFELN))) {
+      const e = $(id);
+      if (e) e.hidden = (id !== TAFELN[welcher]);
+    }
+
+    // Der Schreibknopf gehört zum Feed und zu sonst nichts.
+    const schreiben = $('feed-schreiben');
+    if (schreiben) schreiben.hidden = !istFeed;
+
+    const schirm = $('schirm-entdecken');
+    if (schirm) schirm.scrollTo({ top: 0 });
 
     if (istFeed) {
       welcherFeed = welcher === 'folge' ? 'folge' : 'alle';
       feedLaden();
+      return;
+    }
+
+    if (welcher === 'aktivitaet' && window.WILDSPOT_LEUTE) {
+      window.WILDSPOT_LEUTE.aktivitaetLaden();
+    }
+    if (welcher === 'leute' && window.WILDSPOT_LEUTE) {
+      window.WILDSPOT_LEUTE.fuellen();
     }
   }
 

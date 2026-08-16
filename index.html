@@ -1373,9 +1373,15 @@ html { background: var(--unterkante); }
 }
 .feld-hinweis.warn { color: var(--warn-text); }
 
-#login-schliessen, #spot-schliessen {
+/* Der Schließen-Knopf in jedem Blatt. Die Liste ist lang, weil jedes Blatt
+   seinen eigenen Knopf mit eigener Nummer hat — sie sollen aber alle gleich
+   aussehen und an derselben Stelle sitzen. */
+#login-schliessen, #spot-schliessen,
+#verfassen-zu, #person-zu, #filter-zu, #gipfel-zu, #gipfelliste-zu,
+#leute-hg-zu {
   position: absolute;
   top: 12px; right: 12px;
+  z-index: 2;
   width: 30px; height: 30px;
   border: 0;
   border-radius: 50%;
@@ -1385,7 +1391,9 @@ html { background: var(--unterkante); }
   line-height: 1;
   cursor: pointer;
 }
-#login-schliessen:hover, #spot-schliessen:hover { background: var(--t3); color: var(--text); }
+#login-schliessen:hover, #spot-schliessen:hover,
+#verfassen-zu:hover, #person-zu:hover, #filter-zu:hover, #gipfel-zu:hover,
+#gipfelliste-zu:hover, #leute-hg-zu:hover { background: var(--t3); color: var(--text); }
 
 /* ==========================================================================
    Spot-Detail — die Seitenleiste rechts
@@ -3180,51 +3188,97 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   mask: var(--schloss) center / contain no-repeat;
 }
 
-/* --------------------------------------------------- Die Chips über der Karte
+/* --------------------------------------------------- Der Filterknopf
 
-   Dieselben Filter wie auf der Entdecken-Seite, nur an einem Ort, an dem
-   ringsum die Karte liegt: Deshalb sind sie hier aus Glas und nicht aus
-   Fläche — alles über der Karte gehört zur selben Familie von Werkzeugen
-   (Suchfeld, Zahnrad, Standortknopf).
+   Hier stand bis zum 2026-08-16 eine Reihe aus acht Chips, die man seitlich
+   schieben musste. Auf einem Handy sah man drei davon — die anderen fünf
+   existierten für die meisten Leute nicht.
 
-   Die Reihe läuft über die ganze Breite und wird seitlich geschoben. Sie
-   nimmt nur ihre eigene Höhe ein: Rechts und links daneben bleibt die Karte
-   anfassbar, sonst wäre ein Streifen quer über dem Bild tot. */
-.karten-chips {
+   Jetzt liegt hier EIN Knopf. Er ist aus Glas wie alles über der Karte
+   (Suchfeld, Zahnrad, Standortknopf) und trägt die Zahl der gesetzten
+   Filter. Angetippt klappt er das Filterblatt auf, in dem alle über zwanzig
+   Filter untereinander stehen. */
+.filter-knopf {
   position: absolute;
   top: calc(max(12px, env(safe-area-inset-top)) + 52px);
-  left: 0; right: 0;
+  left: max(12px, env(safe-area-inset-left));
   z-index: 24;
 
-  display: flex;
+  display: inline-flex;
+  align-items: center;
   gap: 7px;
-  padding: 2px max(12px, env(safe-area-inset-right)) 2px max(12px, env(safe-area-inset-left));
-  overflow-x: auto;
-  scrollbar-width: none;
-  /* Seitliches Schieben gehört hier der Reihe, alles andere der Karte. */
-  touch-action: pan-x;
-  /* Der Behälter selbst fängt keine Tipper ab — nur die Chips darin. */
-  pointer-events: none;
-}
-.karten-chips::-webkit-scrollbar { display: none; }
-.karten-chips:empty { display: none; }
-
-.karten-chips .chip {
-  pointer-events: auto;
-  flex: 0 0 auto;
-  padding: 7px 12px;
-  font-size: 12.5px;
-  border-color: var(--glas-rand);
+  padding: 8px 14px;
+  border: 1px solid var(--glas-rand);
+  border-radius: 999px;
   background: var(--glas);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   backdrop-filter: blur(20px) saturate(180%);
   box-shadow: 0 4px 20px var(--sch1);
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
-.karten-chips .chip[aria-pressed="true"] {
+.filter-knopf svg {
+  width: 16px; height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+.filter-knopf[aria-pressed="true"] {
   background: var(--gruen);
   border-color: var(--gruen);
   color: var(--auf-akzent);
 }
+.filter-knopf .zaehler {
+  display: grid;
+  place-items: center;
+  min-width: 19px; height: 19px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--gruen);
+  color: var(--auf-akzent);
+  font-size: 11.5px;
+  font-weight: 800;
+}
+.filter-knopf[aria-pressed="true"] .zaehler {
+  background: var(--auf-akzent);
+  color: var(--gruen);
+}
+.filter-knopf .zaehler[hidden] { display: none; }
+
+/* Auf der Entdecken-Seite steht derselbe Knopf am Ende der Chipreihe —
+   dort ohne Glas, weil ringsum keine Karte liegt, sondern Papier. */
+.filter-knopf.flach {
+  position: static;
+  flex: 0 0 auto;
+  background: var(--flaeche);
+  border-color: var(--rand);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  box-shadow: none;
+  padding: 9px 14px;
+  font-size: 13.5px;
+}
+.filter-knopf.flach[aria-pressed="true"] {
+  background: var(--gruen);
+  border-color: var(--gruen);
+  color: var(--auf-akzent);
+}
+
+/* Chipreihe und Filterknopf nebeneinander: die Reihe schiebbar, der Knopf
+   fest am rechten Rand. Ohne das rutscht er beim Schieben mit weg — und
+   genau dann sucht man ihn. */
+.filter-zeile {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-right: max(18px, env(safe-area-inset-right));
+}
+.filter-zeile .reihe { flex: 1; min-width: 0; padding-right: 4px; }
 
 /* ------------------------------------------- Die Treffer auf Entdecken
 
@@ -4600,6 +4654,654 @@ body.bereich-offen.detail-offen::after {
 #person-beitraege .beitrag { border: 1px solid var(--rand); }
 
 /* ==========================================================================
+   Das Zahlenband auf der Entdecken-Seite
+
+   Fünf kleine Zahlen unter der Überschrift: Spots, Gipfel, Leute, Nächte,
+   Fotos. Sie beantworten die erste Frage, die jemand an eine unbekannte App
+   hat — ist hier überhaupt was los?
+   ========================================================================== */
+.zahlenband {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.zahlenband::-webkit-scrollbar { display: none; }
+.zahlenband[hidden] { display: none; }
+.band-kachel {
+  flex: 1 0 auto;
+  min-width: 64px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: var(--flaeche);
+  border: 1px solid var(--rand);
+  text-align: center;
+}
+.band-kachel b {
+  display: block;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+.band-kachel span {
+  display: block;
+  margin-top: 1px;
+  font-size: 10.5px;
+  color: var(--text-weak);
+}
+
+/* ==========================================================================
+   Das Filterblatt
+
+   Es ist bewusst hoch und schmal wie die anderen Blätter, nicht breit: Man
+   liest hier eine Liste von Bedingungen, und Listen liest man untereinander.
+   ========================================================================== */
+.filter-box { max-width: 460px; }
+.filter-gruppe {
+  margin: 20px 0 9px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-weak);
+}
+.filter-gruppe:first-child { margin-top: 6px; }
+.filter-reihe {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+.filter-hinweis-text {
+  margin: 20px 0 0;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--text-weak);
+}
+.filter-hinweis-text b { color: var(--text); }
+.filter-fuss {
+  position: sticky;
+  bottom: -24px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin: 18px -24px -24px;
+  padding: 14px 24px calc(14px + env(safe-area-inset-bottom));
+  background: var(--flaeche);
+  border-top: 1px solid var(--rand);
+}
+.filter-fuss .haupt { flex: 1; margin: 0; }
+.filter-fuss .flach { margin: 0; white-space: nowrap; }
+
+/* ==========================================================================
+   Gipfel
+
+   Ein Gipfel hat kein Foto — und ein gekauftes Bergbild wäre gelogen.
+   Deshalb trägt die Kachel eine gezeichnete Flanke und die Höhe groß. Die
+   Höhe ist ohnehin die Zahl, um die es beim Sammeln geht.
+   ========================================================================== */
+.gipfelkachel {
+  position: relative;
+  width: 168px;
+  padding: 14px 14px 12px;
+  border: 1px solid var(--rand);
+  border-radius: 18px;
+  background: var(--flaeche);
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+}
+/* Die gezeichnete Flanke liegt als Schatten hinter dem Text, ganz unten am
+   Rand. Weiter oben schnitt sie durch die Zeile „noch niemand oben" und ließ
+   sie wie eine Pille aussehen. */
+.gipfelkachel .berg {
+  position: absolute;
+  right: -10px; bottom: -2px;
+  width: 126px;
+  opacity: 0.1;
+  pointer-events: none;
+}
+.gipfelkachel .berg svg { width: 100%; display: block; fill: currentColor; }
+.gipfelkachel .berg .schnee { fill: #ffffff; opacity: 0.9; }
+.gipfelkachel .hoehe {
+  position: relative;
+  display: block;
+  font-size: 23px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+.gipfelkachel .hoehe small { font-size: 13px; font-weight: 700; opacity: 0.6; }
+.gipfelkachel .name {
+  position: relative;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-top: 4px;
+  min-height: 34px;
+  font-size: 13.5px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+/* Der Name ist mit Bedacht gewählt: ".unten" heißt schon die Spalte mit den
+   Kartenknöpfen (die versteckt wird, sobald ein Bereich offen ist), und
+   ".fuss" die Fußzeile der Karte (die aus Glas ist und runde Ecken hat).
+   Beide Namen hat diese Zeile schon getragen — einmal war sie unsichtbar,
+   einmal sah sie aus wie eine Pille. */
+.gipfelkachel .wer-oben {
+  position: relative;
+  display: block;
+  margin-top: 6px;
+  font-size: 11.5px;
+  color: var(--text-weak);
+}
+.gipfelkachel.gesammelt {
+  border-color: #d9a520;
+  background: color-mix(in srgb, #d9a520 12%, var(--flaeche));
+}
+.gipfelkachel.gesammelt .hoehe { color: #a97c08; }
+
+/* Die Zeile in Listen — dieselbe Form wie eine Spotzeile, nur ohne Bild. */
+.gipfelzeile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 11px 12px;
+  margin-bottom: 6px;
+  border: 1px solid var(--rand);
+  border-radius: 14px;
+  background: var(--flaeche);
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.gipfelzeile:hover { border-color: var(--t4); }
+.gipfelzeile .zeichen { font-size: 19px; line-height: 1; flex-shrink: 0; }
+.gipfelzeile .wo { flex: 1; min-width: 0; }
+.gipfelzeile .wo b {
+  display: block;
+  font-size: 14.5px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.gipfelzeile .wo small {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--text-weak);
+  font-variant-numeric: tabular-nums;
+}
+.gipfelzeile .pfeil { color: var(--text-weak); font-size: 18px; }
+.gipfelzeile.gesammelt {
+  border-color: #d9a520;
+  background: color-mix(in srgb, #d9a520 10%, var(--flaeche));
+}
+
+/* -------------------------------------------------------- Das Gipfelblatt */
+.gipfel-box { max-width: 440px; }
+.gipfelliste-box { max-width: 480px; }
+
+.gipfel-kopf { text-align: center; padding: 4px 0 18px; }
+.gipfel-zeichen { font-size: 36px; display: block; margin-bottom: 6px; }
+.gipfel-kopf h2 {
+  margin: 0 0 4px;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+.gipfel-hoehe {
+  margin: 0;
+  font-size: 15px;
+  color: var(--text-weak);
+  font-variant-numeric: tabular-nums;
+}
+.gipfel-hoehe b { color: var(--text); font-size: 19px; font-weight: 800; }
+.gipfel-marke {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: #d9a520;
+  color: #241c00;
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+.gipfel-notiz {
+  margin: 0 0 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--t1);
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--text-lese);
+}
+.gipfel-leute {
+  margin: 0 0 16px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--text-weak);
+  text-align: center;
+}
+.gipfel-leute b { color: var(--text); }
+.gipfel-knoepfe { display: flex; flex-direction: column; gap: 8px; }
+.gipfel-datum-block { margin-top: 16px; }
+.gipfel-datum-block label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 12.5px;
+  color: var(--text-weak);
+}
+.gipfel-datum-block label span { opacity: 0.7; }
+.gipfel-datum-block input {
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 11px 13px;
+  border: 1px solid var(--rand);
+  border-radius: 12px;
+  background: var(--t1);
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+}
+.gipfel-kasten { margin-bottom: 22px; }
+
+/* Ein zurückhaltender Knopf für die zweite Handlung neben dem grünen. */
+.flach-knopf {
+  padding: 12px 18px;
+  border: 1px solid var(--rand);
+  border-radius: 999px;
+  background: var(--flaeche);
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.flach-knopf.voll { width: 100%; }
+.flach-knopf:hover { border-color: var(--t4); }
+.oliv-knopf.still { background: var(--t2); color: var(--text); }
+
+/* ==========================================================================
+   Abzeichen
+
+   Erreichte zuerst, danach die offenen mit ihrem Fortschritt. „3 von 10
+   Gipfeln" zieht — „noch nicht erreicht" nicht.
+   ========================================================================== */
+/* In einem Blatt ist der Untergrund weiß — dort verschwindet eine weiße
+   Zahlenkachel. Deshalb bekommt sie dort einen leicht getönten Grund. */
+.login-box .zahl-kachel,
+.login-box .abz,
+.login-box .personzeile,
+.login-box .gipfelzeile,
+.login-box .aktivzeile { background: var(--t1); }
+.login-box .abz.erreicht { background: var(--akzent-weich); }
+
+.abzeichen-wand {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(146px, 1fr));
+  gap: 10px;
+  margin-bottom: 22px;
+}
+.abz {
+  padding: 14px 12px;
+  border: 1px solid var(--rand);
+  border-radius: 16px;
+  background: var(--flaeche);
+  text-align: center;
+  /* Nicht erreichte Abzeichen sind blass — man soll auf einen Blick sehen,
+     was man hat, ohne dass das Fehlende verschwindet. */
+  opacity: 0.62;
+}
+.abz.erreicht {
+  opacity: 1;
+  border-color: var(--gruen);
+  background: var(--akzent-weich);
+}
+.abz .zeichen {
+  display: block;
+  font-size: 27px;
+  line-height: 1;
+  margin-bottom: 6px;
+  filter: grayscale(1);
+}
+.abz.erreicht .zeichen { filter: none; }
+.abz b {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.abz small {
+  display: block;
+  margin-top: 3px;
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: var(--text-weak);
+}
+.abz .balken {
+  display: block;
+  height: 4px;
+  margin: 9px 0 5px;
+  border-radius: 999px;
+  background: var(--t2);
+  overflow: hidden;
+}
+.abz .balken i {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--gruen);
+}
+.abz .stand {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-weak);
+  font-variant-numeric: tabular-nums;
+}
+.abz .stand.fertig { color: var(--gruen); }
+
+/* ==========================================================================
+   Die Zahlen auf dem Profil
+
+   Acht Kacheln statt drei — und darunter ehrlich das, was noch nicht geht.
+   ========================================================================== */
+.zahlen.vier { grid-template-columns: repeat(4, 1fr); }
+@media (max-width: 520px) {
+  .zahlen.vier { grid-template-columns: repeat(2, 1fr); }
+}
+.zahlen.vier .zahl-kachel b { font-size: 20px; }
+.zahlen.vier .zahl-kachel.gross b { font-size: 26px; }
+.zahl-kachel b small { font-size: 12px; font-weight: 700; opacity: 0.6; }
+
+.bald-kasten {
+  margin: -8px 0 22px;
+  padding: 16px;
+  border: 1px dashed var(--rand);
+  border-radius: 18px;
+}
+.bald-zahlen {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 12px;
+  text-align: center;
+}
+.bald-zahlen b {
+  display: block;
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--text-weak);
+  font-variant-numeric: tabular-nums;
+}
+.bald-zahlen span {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+  color: var(--text-weak);
+}
+.bald-kasten p {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--text-weak);
+}
+.bald-kasten p b { color: var(--text); }
+
+.profil-abschnitt { margin: 4px 0 12px; }
+.profil-abschnitt .abschnitt-titel { margin-bottom: 2px; }
+
+/* Die Folgezeile ist jetzt anklickbar: hinter „12 Follower" liegt die Liste
+   der zwölf. Vorher war es eine Zahl, die nichts tat. */
+.folge-zeile.klickbar button {
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 13.5px;
+  color: var(--text-weak);
+  cursor: pointer;
+  padding: 6px 4px;
+  border-radius: 10px;
+}
+.folge-zeile.klickbar button:hover { background: var(--t1); color: var(--text); }
+.folge-zeile.klickbar b { color: var(--text); font-weight: 700; }
+
+/* ==========================================================================
+   Leute
+
+   Suche, Vorschläge, Follower-Listen — überall dieselbe Zeile mit dem
+   Folgen-Knopf rechts.
+   ========================================================================== */
+.leute-suche {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 16px;
+  padding: 11px 15px;
+  border: 1px solid var(--rand);
+  border-radius: 999px;
+  background: var(--flaeche);
+}
+.leute-suche svg {
+  width: 17px; height: 17px;
+  flex-shrink: 0;
+  fill: none;
+  stroke: var(--text-weak);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+.leute-suche input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  font-size: 14.5px;
+  outline: none;
+}
+.leute-suche input::-webkit-search-cancel-button { display: none; }
+.leute-suche button {
+  border: 0;
+  background: none;
+  color: var(--text-weak);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 2px;
+}
+
+.personzeile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  margin-bottom: 6px;
+  border: 1px solid var(--rand);
+  border-radius: 16px;
+  background: var(--flaeche);
+}
+.personzeile .wer {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  padding: 0;
+}
+.personzeile .text { min-width: 0; }
+.personzeile .text b {
+  display: block;
+  font-size: 14.5px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.personzeile .text small {
+  display: block;
+  margin-top: 1px;
+  font-size: 11.5px;
+  color: var(--text-weak);
+}
+.personzeile .text small.bio {
+  margin-top: 3px;
+  color: var(--text-lese);
+  font-size: 12px;
+}
+.folge-knopf.klein {
+  width: auto;
+  flex: 0 0 auto;
+  padding: 8px 15px;
+  font-size: 13px;
+}
+
+.bestenzeile {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  padding: 9px 12px;
+  margin-bottom: 5px;
+  border: 1px solid var(--rand);
+  border-radius: 14px;
+  background: var(--flaeche);
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.bestenzeile .platz {
+  width: 22px;
+  flex-shrink: 0;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--text-weak);
+  font-variant-numeric: tabular-nums;
+}
+.bestenzeile .wo { flex: 1; min-width: 0; }
+.bestenzeile .wo b {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.bestenzeile .wo small {
+  display: block;
+  margin-top: 1px;
+  font-size: 11.5px;
+  color: var(--text-weak);
+  font-variant-numeric: tabular-nums;
+}
+.bestenzeile .wert {
+  flex-shrink: 0;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--gruen);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ==========================================================================
+   Die Aktivität
+
+   Eine Spur statt einer Bildwand: kleines Kopfbild mit Zeichen, ein Satz,
+   eine Zeitangabe. Beiträge und neue Spots bringen rechts ein Vorschaubild
+   mit — sonst wäre die Liste bei fünfzig Einträgen ein Wörterteppich.
+   ========================================================================== */
+.aktivliste { display: flex; flex-direction: column; gap: 6px; }
+
+.aktivzeile {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 10px 12px;
+  border: 1px solid var(--rand);
+  border-radius: 16px;
+  background: var(--flaeche);
+}
+.aktivzeile .wer {
+  position: relative;
+  flex-shrink: 0;
+  border: 0;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  line-height: 0;
+}
+.aktivzeile .wer .zeichen {
+  position: absolute;
+  right: -4px; bottom: -3px;
+  display: grid;
+  place-items: center;
+  width: 19px; height: 19px;
+  border-radius: 50%;
+  background: var(--flaeche);
+  border: 1px solid var(--rand);
+  font-size: 10.5px;
+  line-height: 1;
+}
+.aktivzeile .was { flex: 1; min-width: 0; }
+.aktivzeile .kopf {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.4;
+  color: var(--text-lese);
+}
+.aktivzeile .kopf .name { color: var(--text); font-weight: 700; }
+.aktivzeile .kopf b { color: var(--text); font-weight: 700; }
+.aktivzeile .kopf .meta {
+  color: var(--text-weak);
+  font-variant-numeric: tabular-nums;
+}
+.aktivzeile .text {
+  margin: 3px 0 0;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--text-weak);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.aktivzeile .wann {
+  margin: 3px 0 0;
+  font-size: 11.5px;
+  color: var(--text-weak);
+}
+.aktivzeile .bild {
+  flex-shrink: 0;
+  width: 52px; height: 52px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--t1);
+}
+.aktivzeile .bild img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* Gipfel bekommen einen goldenen Rand — dieselbe Farbe wie auf der Karte. */
+.aktivzeile.art-gipfel { border-color: color-mix(in srgb, #d9a520 55%, var(--rand)); }
+
+/* ==========================================================================
    Am Rechner
 
    Steht bewusst ganz am Ende des Blattes: Diese Regeln müssen die weiter oben
@@ -4769,6 +5471,17 @@ body.bereich-offen.detail-offen::after {
         <span class="name">Wasserfälle</span><i class="pille"></i>
       </button>
 
+      <button id="knopf-gipfel" aria-pressed="false">
+        <!-- Gipfel: eine Bergflanke mit Schneekappe. Bewusst dasselbe
+             Dreieck wie beim Bergsee-Zeichen, nur ohne Wasserlinien —
+             beides sind Berge, und das soll man sehen. -->
+        <svg class="sym gipfel" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M2 20 9 5l4.5 8L16.5 8 22 20Z"/>
+          <path d="M6.4 12.6 9 7.2l2.6 5.4"/>
+        </svg>
+        <span class="name">Gipfel</span><i class="pille"></i>
+      </button>
+
       <button id="knopf-wasser" aria-pressed="true">
         <!-- Wassertropfen -->
         <svg class="sym wasser" viewBox="0 0 24 24" aria-hidden="true">
@@ -4803,11 +5516,20 @@ body.bereich-offen.detail-offen::after {
   <div class="suche-treffer" id="suche-treffer" hidden></div>
 </div>
 
-<!-- Dieselben Filter wie auf der Entdecken-Seite, nur hier über der Karte.
-     Der Unterschied ist die Wirkung: Auf Entdecken kommt eine Liste heraus,
-     hier bleiben nur die passenden Punkte auf der Karte stehen — und die
-     bleiben es auch, während man weiterschiebt. -->
-<div class="karten-chips" id="karte-chips"></div>
+<!-- Der Filterknopf über der Karte.
+     Vorher stand hier eine Reihe aus acht Chips, die man seitlich schieben
+     musste — auf einem Handy sah man drei davon und ahnte den Rest. Jetzt
+     liegt hier ein Knopf, der das Filterblatt aufklappt: über zwanzig Filter
+     nach Gruppen sortiert, alle auf einen Blick. Die Zahl im Knopf sagt,
+     wie viele gerade gesetzt sind — sonst sucht man später den Spot, den man
+     selbst weggefiltert hat. -->
+<button class="filter-knopf" id="knopf-filter" aria-pressed="false" title="Filter">
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M3 5.5h18M6.5 12h11M10 18.5h4"/>
+  </svg>
+  <span class="wort">Filter</span>
+  <span class="zaehler" id="filter-anzahl" hidden>0</span>
+</button>
 
 <div class="ecke rechts">
   <button class="werkzeug" id="knopf-einstellungen" aria-expanded="false" title="Einstellungen">
@@ -5084,15 +5806,85 @@ body.bereich-offen.detail-offen::after {
     <p class="unter" id="entdecken-unter">Plätze für die Nacht draußen</p>
   </div>
 
-  <!-- Die drei Tafeln dieser Seite. „Spots" ist die Karte in Kachelform,
-       „Alle" und „Ich folge" sind der Feed. Sie liegen hier oben statt als
-       eigener Bereich unten, weil fünf Reiter in der Leiste genug sind. -->
+  <!-- Wie viel überhaupt drin ist. Bei einer jungen App sind das kleine
+       Zahlen — gerade deshalb stehen sie da: Eine App, die verschweigt, wie
+       groß sie ist, wirkt größer und enttäuscht mehr. -->
+  <div class="rand zahlenband" id="entdecken-band" hidden></div>
+
+  <!-- Die fünf Tafeln dieser Seite. „Spots" ist die Karte in Kachelform,
+       „Feed" und „Ich folge" sind die Beiträge, „Aktivität" ist der Strom
+       aller Ereignisse, „Leute" ist die Suche nach anderen. Sie liegen hier
+       oben statt als eigene Bereiche unten, weil fünf Reiter in der unteren
+       Leiste das Höchste sind, was ein Daumen noch trifft. -->
   <div class="reihe tafel-reiter" id="entdecken-reiter">
-    <button class="chip" data-tafel="spots" aria-selected="true">⛺ Spots</button>
-    <button class="chip" data-tafel="alle"  aria-selected="false">🌍 Alle</button>
-    <button class="chip" data-tafel="folge" aria-selected="false">👣 Ich folge</button>
+    <button class="chip" data-tafel="spots"      aria-selected="true">⛺ Spots</button>
+    <button class="chip" data-tafel="alle"       aria-selected="false">🌍 Feed</button>
+    <button class="chip" data-tafel="folge"      aria-selected="false">👣 Ich folge</button>
+    <button class="chip" data-tafel="aktivitaet" aria-selected="false">⚡ Aktivität</button>
+    <button class="chip" data-tafel="leute"      aria-selected="false">🧭 Leute</button>
   </div>
 
+
+  <!-- ============================================================== FEED -->
+  <div id="entdecken-feed" hidden>
+    <div class="rand" id="feed-liste"></div>
+  </div>
+
+  <!-- ========================================================= AKTIVITÄT -->
+  <!-- Der Unterschied zum Feed in einem Satz: Der Feed zeigt Erzählungen,
+       die Aktivität zeigt Bewegung. Wer einen Gipfel einträgt, schreibt
+       dazu keinen Beitrag — hier steht es trotzdem. -->
+  <div id="entdecken-aktivitaet" hidden>
+    <div class="rand">
+      <div class="listen-reiter" id="aktivitaet-reiter">
+        <button class="chip" data-akt="alle"  aria-pressed="true">Alle</button>
+        <button class="chip" data-akt="folge" aria-pressed="false">Nur wem ich folge</button>
+      </div>
+      <div class="aktivliste" id="aktivitaet-liste"></div>
+    </div>
+  </div>
+
+  <!-- ============================================================= LEUTE -->
+  <div id="entdecken-leute" hidden>
+    <div class="rand">
+      <div class="leute-suche">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>
+        </svg>
+        <input type="search" id="leute-suchfeld" autocomplete="off"
+               placeholder="Namen suchen — mindestens zwei Buchstaben"
+               aria-label="Leute suchen">
+        <button id="leute-suche-leeren" aria-label="Suche leeren">×</button>
+      </div>
+
+      <div id="leute-treffer" hidden></div>
+
+      <div id="leute-rest">
+        <h2 class="abschnitt-titel">Wem du folgen könntest</h2>
+        <p class="abschnitt-unter">Die, die am meisten beigetragen haben</p>
+        <div id="leute-vorschlaege"></div>
+
+        <div id="leute-besten-block">
+          <h2 class="abschnitt-titel" style="margin-top:26px">Die meisten Gipfel</h2>
+          <p class="abschnitt-unter">Kein Wettkampf — nur ein Ziel vor Augen</p>
+          <div id="leute-besten"></div>
+        </div>
+
+        <p class="abschnitt-unter" style="margin-top:22px">
+          Namen werden beim Anlegen des Kontos vergeben. Wenn du jemanden
+          suchst, den du kennst, frag am besten direkt nach seinem Namen in
+          Wild Spot — eine Suche über E-Mail-Adressen gibt es hier bewusst
+          nicht.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div id="entdecken-spots">
+
+  <!-- Die Suche gehört zu den Spots und steht deshalb IN dieser Tafel: Über
+       dem Feed, der Aktivität oder der Leutesuche wäre ein zweites Suchfeld
+       gestanden, das etwas ganz anderes sucht. -->
   <div class="rand block">
     <button class="such-knopf" id="entdecken-suche">
       <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
@@ -5100,18 +5892,19 @@ body.bereich-offen.detail-offen::after {
     </button>
   </div>
 
-  <!-- ============================================================== FEED -->
-  <div id="entdecken-feed" hidden>
-    <div class="rand" id="feed-liste"></div>
-  </div>
-
-  <div id="entdecken-spots">
-
   <!-- Die Filterchips. Sie werfen niemand mehr auf die Karte: Wer hier tippt,
-       bleibt hier und bekommt die Treffer gleich darunter als Kacheln. Wer
-       sie lieber auf der Karte sehen will, hat dieselben Chips auch dort. -->
-  <div class="block">
+       bleibt hier und bekommt die Treffer gleich darunter als Kacheln.
+       In der Reihe stehen die acht meistgebrauchten; alle übrigen liegen
+       hinter dem Knopf rechts, zusammen mit denselben acht. -->
+  <div class="block filter-zeile">
     <div class="reihe" id="entdecken-chips"></div>
+    <button class="filter-knopf flach" id="entdecken-filter" aria-pressed="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M3 5.5h18M6.5 12h11M10 18.5h4"/>
+      </svg>
+      <span class="wort">Alle Filter</span>
+      <span class="zaehler" id="entdecken-filter-anzahl" hidden>0</span>
+    </button>
   </div>
 
   <!-- Die Treffer zum gesetzten Filter. Steht direkt unter den Chips, damit
@@ -5170,6 +5963,21 @@ body.bereich-offen.detail-offen::after {
       <p class="abschnitt-unter">Was andere für die beste Nacht gehalten haben</p>
     </div>
     <div class="rand" id="entdecken-best"></div>
+  </div>
+
+  <!-- Gipfel sammeln. Der eine Teil des Bergsports, den eine Webseite ehrlich
+       zählen kann: Ein Gipfel ist ein Punkt, man war oben oder nicht. -->
+  <div class="block" id="entdecken-gipfel-block">
+    <div class="rand treffer-kopf">
+      <div>
+        <h2 class="abschnitt-titel">Gipfel sammeln</h2>
+        <p class="abschnitt-unter" id="entdecken-gipfel-unter">14.560 Gipfel warten in Österreich</p>
+      </div>
+      <button class="chip" id="gipfel-alle" type="button">
+        <span class="emoji">🏔️</span>Alle ansehen
+      </button>
+    </div>
+    <div class="reihe" id="entdecken-gipfel"></div>
   </div>
 
   <!-- Zum Lesen. Die Regeln stehen sonst nur im Hinweis beim ersten Start —
@@ -5329,6 +6137,7 @@ body.bereich-offen.detail-offen::after {
   <div class="listen-reiter" id="merken-reiter">
     <button class="chip" data-liste="gemerkt" aria-pressed="true">Gemerkt</button>
     <button class="chip" data-liste="meine"   aria-pressed="false">Meine Spots</button>
+    <button class="chip" data-liste="gipfel"  aria-pressed="false">Gipfel</button>
     <button class="chip" data-liste="offline" aria-pressed="false">Offline</button>
   </div>
 
@@ -5580,6 +6389,69 @@ body.bereich-offen.detail-offen::after {
   </div>
 </div>
 
+<!-- ====================================================== DAS FILTERBLATT -->
+<!-- Ein Blatt für beide Orte: Karte und Entdecken zeigen dieselbe Auswahl.
+     Zwei Filterstände, die auseinanderlaufen können, wären der sicherste Weg
+     zu „wieso sehe ich diesen Spot nicht mehr". Gefüllt wird es von
+     screens.js aus der Liste CHIPS. -->
+<div class="login-hg" id="filter-hg" hidden>
+  <div class="login-box filter-box">
+    <button id="filter-zu" title="Schließen">×</button>
+    <h2>Filter</h2>
+    <p class="unter" id="filter-stand">Kein Filter gesetzt</p>
+
+    <div id="filter-inhalt"></div>
+
+    <div class="filter-fuss">
+      <button type="button" class="flach" id="filter-zuruecksetzen">Alle zurücksetzen</button>
+      <button type="button" class="haupt" id="filter-fertig">Fertig</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================================= EIN GIPFEL -->
+<div class="login-hg" id="gipfel-hg" hidden>
+  <div class="login-box gipfel-box">
+    <button id="gipfel-zu" title="Schließen">×</button>
+    <div id="gipfel-inhalt"></div>
+  </div>
+</div>
+
+<!-- ==================================================== DIE GIPFELLISTE -->
+<div class="login-hg" id="gipfelliste-hg" hidden>
+  <div class="login-box gipfelliste-box">
+    <button id="gipfelliste-zu" title="Schließen">×</button>
+    <h2>Gipfel</h2>
+    <p class="unter">Antippen öffnet den Gipfel. Dort trägst du ein, dass du oben warst.</p>
+
+    <div class="leute-suche">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>
+      </svg>
+      <input type="search" id="gipfelliste-suche" autocomplete="off"
+             placeholder="Gipfel suchen …" aria-label="Gipfel suchen">
+    </div>
+
+    <div class="listen-reiter" id="gipfelliste-reiter">
+      <button class="chip" data-gl="alle"  aria-pressed="true">Die höchsten</button>
+      <button class="chip" data-gl="offen" aria-pressed="false">Noch offen</button>
+      <button class="chip" data-gl="meine" aria-pressed="false">Meine</button>
+      <button class="chip" data-gl="nah"   aria-pressed="false">In der Nähe</button>
+    </div>
+
+    <div id="gipfelliste-inhalt"></div>
+  </div>
+</div>
+
+<!-- ============================================ FOLLOWER UND GEFOLGTE -->
+<div class="login-hg" id="leute-hg" hidden>
+  <div class="login-box person-box">
+    <button id="leute-hg-zu" title="Schließen">×</button>
+    <h2 id="leute-hg-titel">Follower</h2>
+    <div id="leute-hg-inhalt"></div>
+  </div>
+</div>
+
 <!-- =============================================================== PROFIL -->
 <div class="schirm" id="schirm-profil" hidden>
   <div class="schirm-kopf">
@@ -5646,6 +6518,11 @@ body.bereich-offen.detail-offen::after {
 <!-- Der Feed. Nach screens.js, weil er dessen Bereiche und das Spot-Blatt
      benutzt — und weil seine Reiter auf der Entdecken-Seite sitzen. -->
 <script src="feed.js"></script>
+<!-- Gipfel, Abzeichen und Zahlen. Vor leute.js: Die Aktivitätsliste öffnet
+     beim Antippen eines Gipfel-Ereignisses dessen Blatt. -->
+<script src="gipfel.js"></script>
+<!-- Leute suchen, folgen, und der Aktivitätsstrom. -->
+<script src="leute.js"></script>
 
 <!-- ==========================================================================
      Das Admin-Fenster. Liegt leer im Dokument und wird von admin.js gefüllt,

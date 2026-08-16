@@ -18,11 +18,26 @@ der wichtigste, aber eben einer.
 
 | Bereich | Wofür |
 |---------|-------|
-| **Entdecken** | Die Startseite. Spots als große Bilder: Spot der Woche, neu dazugekommen, in deiner Nähe, Bestenliste. Dazu drei Artikel zum Nachlesen |
-| **Karte** | Alles wie bisher — Spots, Wasser, Hütten, Position, Spot anlegen |
-| **Merkliste** | Was du dir gemerkt hast, deine eigenen Spots, und was offline gespeichert ist |
+| **Entdecken** | Die Startseite mit **fünf Tafeln**: Spots, Feed, Ich folge, Aktivität, Leute |
+| **Karte** | Spots, Wasser, Hütten, **Gipfel**, Position, Spot anlegen, Filter |
+| **Merkliste** | Gemerkte Plätze, deine eigenen Spots, **deine Gipfel**, offline Gespeichertes |
 | **Plus** | Was Geld kostet und warum ([KONZEPT.md, Abschnitt 10](../KONZEPT.md)) |
-| **Profil** | Konto, deine Zahlen, hell/dunkel, Einstellungen |
+| **Profil** | Konto, **deine Zahlen**, **Abzeichen**, **Gipfel**, **letzte Aktivität**, Einstellungen |
+
+Die fünf Tafeln auf **Entdecken**:
+
+| Tafel | Was drauf steht |
+|-------|-----------------|
+| **Spots** | Suche, Filter, Treffer, Spot der Woche, neu dazugekommen, in deiner Nähe, Bestenliste, **Gipfel sammeln**, drei Artikel |
+| **Feed** | Beiträge aller — Bild, Text, Spot, Datum |
+| **Ich folge** | Derselbe Feed, nur von Leuten, denen du folgst |
+| **Aktivität** | Alle Ereignisse: wer war auf einem Gipfel, wer hat einen Platz eingetragen, wer hat bewertet |
+| **Leute** | Namen suchen, Vorschläge zum Folgen, die Gipfel-Bestenliste |
+
+Ganz oben steht ein **Zahlenband**: wie viele Spots, Gipfel, Leute, Nächte und
+Fotos es überhaupt gibt. Bei einer jungen App sind das kleine Zahlen — gerade
+deshalb stehen sie da. Eine App, die verschweigt, wie groß sie ist, wirkt
+größer und enttäuscht mehr.
 
 **Am Rechner** wird aus der Leiste unten eine Spalte links — dort ist unten
 kein Daumen, sondern nur weiter Weg für die Maus.
@@ -60,12 +75,25 @@ An jeder Spot-Kachel und oben im Spot-Blatt sitzt ein Herz. Es legt den Spot
 auf die **Merkliste** — die ist privat, niemand sonst sieht sie. Dafür braucht
 es ein Konto, sonst wäre die Liste beim nächsten Gerät weg.
 
-### Die Filterchips
+### Die Filter
 
-Chips wie *Am See*, *Ab 1.500 m* oder *Feuer erlaubt* stehen an **zwei**
-Stellen: auf der Entdecken-Seite und über der Karte. Beide zeigen dieselbe
-Auswahl — was hier gesetzt wird, ist dort gesetzt. Nur die Antwort sieht an
-jedem der beiden Orte anders aus:
+Es gibt **28 Filter** in sieben Gruppen — Wasser, Lage, Zustieg, Der Platz,
+Regeln und Empfang, Jahreszeit, Ruf und Alter. Sie liegen hinter einem
+**Filterknopf**, der an zwei Stellen steht: über der Karte (oben links, als
+Glasknopf) und auf der Entdecken-Seite am Ende der Chipreihe. Die Zahl im Knopf
+sagt, wie viele Filter gerade gesetzt sind.
+
+> **Warum ein Knopf statt einer Chipreihe:** Über der Karte lag bis zum
+> 2026-08-16 eine Reihe aus acht Chips, die man seitlich schieben musste. Auf
+> einem Handy sah man drei davon — die anderen fünf existierten für die
+> meisten Leute nicht. Ein Blatt mit allen Filtern untereinander zeigt in einer
+> Sekunde, was überhaupt geht.
+
+Auf der Entdecken-Seite stehen die acht meistgebrauchten zusätzlich als Reihe
+direkt auf der Seite; im Blatt sind sie noch einmal mit dabei.
+
+Beide Orte zeigen **dieselbe Auswahl** — was hier gesetzt wird, ist dort
+gesetzt. Nur die Antwort sieht an jedem der beiden Orte anders aus:
 
 | Wo getippt | Was passiert |
 |------------|--------------|
@@ -87,6 +115,97 @@ SQL-Zeile in der Migration.
 
 **Ein Filter ist kostenlos, mehrere gleichzeitig gehören zu Plus.**
 
+Ein Filter, der keine Kartenregel hat (*Mit Fotos*), wirkt nur auf die
+Trefferliste: Ob ein Spot Fotos hat, weiß der Kartenpunkt nicht.
+
+---
+
+## Gipfel sammeln
+
+Auf der Karte liegt seit dem 2026-08-16 eine neue Ebene: **14.560 Gipfel**
+Österreichs aus OpenStreetMap, jeder mit Namen und Höhe (`kind = 'peak'` in
+`water_points`, importiert mit `node scripts/import-peaks.mjs`).
+
+Ein Gipfel antippen — auf der Karte, in der Suche, in einer Liste — öffnet sein
+**Gipfelblatt**: Höhe, der wievielthöchste des Landes, wie viele schon oben
+waren, wer zuletzt. Und den Knopf **„Ich war oben"**, dazu freiwillig ein Datum
+und ein Satz.
+
+Gesammelte Gipfel werden auf der Karte **goldgelb** statt schiefergrau. Das ist
+der ganze Reiz daran: Man sieht im Vorbeiscrollen, wo man schon überall
+gestanden ist, ohne eine Liste zu öffnen.
+
+Wo Gipfel stehen:
+
+| Ort | Was man dort sieht |
+|-----|--------------------|
+| **Karte** | Alle Gipfel im Ausschnitt, ab Zoom 11. Nie zu Blasen zusammengefasst — man muss sie einzeln antippen können |
+| **Entdecken → Spots** | Der Block *Gipfel sammeln*: ohne Konto die höchsten, mit Konto die, die dir noch fehlen |
+| **Gipfelliste** (Knopf *Alle ansehen*) | Die höchsten, noch offene, meine, in der Nähe — mit Suche |
+| **Merkliste → Gipfel** | Deine gesammelten |
+| **Profil** | Deine gesammelten und die Zahlen dazu |
+
+> **Warum Gipfel und nicht Touren:** Ein Gipfel ist ein Punkt — man war oben
+> oder nicht, und beides lässt sich ehrlich speichern. Kilometer und Gehzeit
+> bräuchten eine Aufzeichnung im Hintergrund, und die kann eine Webseite nicht
+> (siehe unten).
+
+## Abzeichen
+
+Fünfzehn Stück, vom *Ersten Spot* über *Winterbiwak* bis *Fünfzig Gipfel*. Sie
+stehen im Profil, erreichte zuerst, darunter die offenen **mit Fortschritt**
+(„3 von 10") — denn ein Abzeichen zieht nur, wenn man sieht, wie weit man ist.
+
+Auf **fremden** Profilen stehen nur die erreichten: Der Fortschritt eines
+anderen liest sich wie eine Bewertung und geht niemanden etwas an.
+
+Vergeben wird nichts — die Abzeichen werden bei jedem Aufruf aus den Daten
+**gerechnet** (`abzeichen(...)` in `db/020`). Ein neues Abzeichen ist damit
+eine Zeile SQL und nicht ein Durchlauf über alle Konten.
+
+## Kilometer und Zeit — warum die fehlen
+
+Im Profil stehen drei Zahlen ausdrücklich als Strich: **km, Stunden,
+Höhenmeter**. Der Grund steht dort auch:
+
+Ein Browser darf im Hintergrund nicht dauerhaft den Standort verfolgen. Sobald
+der Bildschirm aus ist oder man die App wechselt, hört er auf zu zählen — die
+halbe Strecke fehlt, und niemand merkt es. Eine Zahl, die falsch ist, ohne dass
+man es sieht, ist schlechter als gar keine.
+
+Vorbereitet ist alles: Die Tabelle `tracks` (`db/020`) steht, und die Statistik
+rechnet schon mit ihr. Sobald es Wild Spot als echte App gibt — oder jemand
+eine GPX-Datei hochlädt — stehen die Zahlen sofort überall, ohne dass eine
+Abfrage geändert werden muss.
+
+---
+
+## Leute und Aktivität
+
+**Leute** (Entdecken → *Leute*): Namen suchen, Vorschläge zum Folgen (die, die
+am meisten beigetragen haben), und die Gipfel-Bestenliste. Folgen geht einseitig
+und ohne Zustimmung, wie bei Komoot.
+
+Eine Suche nach E-Mail-Adressen gibt es bewusst **nicht** — man findet jemanden
+über seinen Namen in Wild Spot oder gar nicht.
+
+Auf jedem Profil sind die Zahlen **Follower** und **gefolgt** anklickbar und
+öffnen die jeweilige Liste.
+
+**Aktivität** (Entdecken → *Aktivität*): fünf Arten von Ereignissen in einer
+Spur — Beitrag, Gipfel, neuer Spot, Bewertung, Kommentar. Umschaltbar zwischen
+*Alle* und *Nur wem ich folge*, und dieselbe Liste steht auf jedem Profil unter
+*Letzte Aktivität*.
+
+> **Der Unterschied zum Feed in einem Satz:** Der Feed zeigt Erzählungen, die
+> Aktivität zeigt Bewegung. Wer einen Gipfel einträgt, schreibt dazu keinen
+> Beitrag — in der Aktivität steht es trotzdem.
+
+Die Aktivität ist eine **Abfrage über fünf Tabellen** (`aktivitaeten(...)`) und
+kein Ereignisprotokoll. Ein Protokoll wäre schneller, müsste aber bei jedem
+Löschen mitgepflegt werden — und ein Strom, in dem Gelöschtes stehen bleibt,
+ist schlimmer als ein langsamer Strom.
+
 ---
 
 ## Auf der Karte
@@ -96,7 +215,8 @@ die Karte soll den Platz haben, nicht die Bedienung.
 
 | Bedienelement | Was es tut |
 |---------------|------------|
-| **Ebenen-Knopf (oben links)** | Kartenstil wählen und Datenebenen ein- und ausblenden |
+| **Ebenen-Knopf (oben links)** | Kartenstil wählen und Datenebenen ein- und ausblenden (Spots, Bergseen, Wasserfälle, **Gipfel**, Wasserstellen, Unterkünfte) |
+| **Filter-Knopf (darunter)** | Klappt das Filterblatt mit allen 28 Filtern auf; die Zahl darin sagt, wie viele gesetzt sind |
 | **Zahnrad (oben rechts)** | Konto, E-Mail-Adresse, Abmelden, Rechtshinweis |
 | **+ Spot hier anlegen** | Legt einen Spot am Fadenkreuz an |
 | **➤ unten rechts** | Springt zu deiner eigenen Position |
@@ -340,7 +460,10 @@ oder `https`. Eine direkt geöffnete Datei zählt für sie nicht dazu — der
 | Datei | Inhalt |
 |-------|--------|
 | `index.html` | Aufbau der Seite und das gesamte Aussehen |
-| `screens.js` | Die Leiste unten und die Bereiche Entdecken, Merkliste, Profil |
+| `screens.js` | Die Leiste unten, die Bereiche Entdecken/Merkliste/Profil und die Filter |
+| `feed.js` | Beiträge, Gefällt mir, das Profilblatt einer Person |
+| `gipfel.js` | Gipfel sammeln, das Gipfelblatt, die Gipfelliste, Abzeichen, Zahlen |
+| `leute.js` | Leute suchen und folgen, Follower-Listen, der Aktivitätsstrom |
 | `plus.js` | Wild Spot Plus: Zustand, Schranken, Verkaufsseite |
 | `app.js` | Die Karte: Ebenen, Datenabfrage, Position |
 | `auth.js` | Anmelden, Registrieren, Abmelden |

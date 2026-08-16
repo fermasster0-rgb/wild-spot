@@ -395,16 +395,63 @@
   // Warten. Die Trefferliste auf Entdecken dagegen muss alle Spots kennen,
   // auch die weit weg liegenden, und die kann nur die Datenbank aussuchen.
   // Wer eine Bedingung ändert, ändert sie an beiden Stellen.
+  // Ein Chip ohne "regel" filtert nur die Trefferliste, nicht die Karte —
+  // das ist kein Versehen: Ob ein Spot Fotos hat, weiß die Karte nicht, denn
+  // die Fotos hängen nicht am Kartenpunkt. Solche Chips stehen bewusst
+  // trotzdem in der Liste; sie sind auf Entdecken nützlich.
   const CHIPS = [
-    { id: 'see',    emoji: '🏞️', text: 'Am See',           regel: ['==', ['get', 'has_lake'], true] },
-    { id: 'wasser', emoji: '💧',  text: 'Wasser dabei',      regel: ['==', ['get', 'water_nearby'], true] },
-    { id: 'hoch',   emoji: '⛰️',  text: 'Ab 1.500 m',        regel: ['>=', ['coalesce', ['get', 'elevation_m'], 0], 1500] },
-    { id: 'baum',   emoji: '🌲',  text: 'Über der Baumgrenze', regel: ['==', ['get', 'above_treeline'], true] },
-    { id: 'kurz',   emoji: '🚶',  text: 'Zustieg unter 1 h', regel: ['<=', ['coalesce', ['get', 'hike_minutes'], 9999], 60] },
-    { id: 'gut',    emoji: '⭐',  text: 'Gut bewertet',      regel: ['>=', ['coalesce', ['get', 'avg_stars'], 0], 4] },
-    { id: 'still',  emoji: '👁️',  text: 'Nicht einsehbar',   regel: ['==', ['get', 'discreet'], 'sehr'] },
-    { id: 'feuer',  emoji: '🔥',  text: 'Feuer erlaubt',     regel: ['==', ['get', 'fire_allowed'], 'erlaubt'] },
+    // ------------------------------------------------------------- Wasser
+    { id: 'see',    gruppe: 'Wasser', emoji: '🏞️', text: 'Am See',            regel: ['==', ['get', 'has_lake'], true] },
+    { id: 'wasser', gruppe: 'Wasser', emoji: '💧',  text: 'Wasser dabei',      regel: ['==', ['get', 'water_nearby'], true] },
+    { id: 'quelle', gruppe: 'Wasser', emoji: '⛲',  text: 'Quelle oder Bach',  regel: ['match', ['coalesce', ['get', 'water_type'], ''], ['quelle', 'bach'], true, false] },
+    { id: 'sicher', gruppe: 'Wasser', emoji: '🚰',  text: 'Ganzjährig Wasser', regel: ['==', ['get', 'water_reliable'], 'ganzjaehrig'] },
+
+    // --------------------------------------------------------------- Lage
+    { id: 'hoch',     gruppe: 'Lage', emoji: '⛰️', text: 'Ab 1.500 m',          regel: ['>=', ['coalesce', ['get', 'elevation_m'], 0], 1500] },
+    { id: 'sehrhoch', gruppe: 'Lage', emoji: '🏔️', text: 'Ab 2.000 m',          regel: ['>=', ['coalesce', ['get', 'elevation_m'], 0], 2000] },
+    { id: 'baum',     gruppe: 'Lage', emoji: '🌲', text: 'Über der Baumgrenze', regel: ['==', ['get', 'above_treeline'], true] },
+    { id: 'still',    gruppe: 'Lage', emoji: '👁️', text: 'Nicht einsehbar',     regel: ['==', ['get', 'discreet'], 'sehr'] },
+    { id: 'schutz',   gruppe: 'Lage', emoji: '🍃', text: 'Windgeschützt',       regel: ['==', ['get', 'exposure'], 'geschuetzt'] },
+
+    // ------------------------------------------------------------ Zustieg
+    { id: 'sehrkurz', gruppe: 'Zustieg', emoji: '👟', text: 'Unter 20 Minuten', regel: ['<=', ['coalesce', ['get', 'hike_minutes'], 9999], 20] },
+    { id: 'kurz',     gruppe: 'Zustieg', emoji: '🚶', text: 'Unter 1 Stunde',   regel: ['<=', ['coalesce', ['get', 'hike_minutes'], 9999], 60] },
+    { id: 'auto',     gruppe: 'Zustieg', emoji: '🚗', text: 'Mit dem Auto hin', regel: ['==', ['get', 'access'], 'auto'] },
+    { id: 'weit',     gruppe: 'Zustieg', emoji: '🥾', text: 'Lange Wanderung',  regel: ['==', ['get', 'access'], 'lange_wanderung'] },
+
+    // ---------------------------------------------------------- Der Platz
+    { id: 'weich',   gruppe: 'Der Platz', emoji: '🌱', text: 'Weicher Untergrund', regel: ['match', ['coalesce', ['get', 'ground_type'], ''], ['wiese', 'waldboden'], true, false] },
+    { id: 'mehrere', gruppe: 'Der Platz', emoji: '⛺', text: 'Mehrere Zelte',      regel: ['match', ['coalesce', ['get', 'flat_tent_spots'], ''], ['2-3', '4+'], true, false] },
+    { id: 'unter',   gruppe: 'Der Platz', emoji: '🏚️', text: 'Unterstand in der Nähe', regel: ['match', ['coalesce', ['get', 'shelter_nearby'], ''], ['biwakschachtel', 'huette', 'felsueberhang'], true, false] },
+    { id: 'holz',    gruppe: 'Der Platz', emoji: '🪵', text: 'Holz vorhanden',     regel: ['match', ['coalesce', ['get', 'firewood_available'], ''], ['viel', 'etwas'], true, false] },
+
+    // ------------------------------------------------------- Regeln, Empfang
+    { id: 'feuer',    gruppe: 'Regeln und Empfang', emoji: '🔥', text: 'Feuer erlaubt',        regel: ['==', ['get', 'fire_allowed'], 'erlaubt'] },
+    { id: 'erlaubt',  gruppe: 'Regeln und Empfang', emoji: '⚖️', text: 'Erlaubt oder geduldet', regel: ['match', ['coalesce', ['get', 'legal_status'], ''], ['erlaubt', 'geduldet'], true, false] },
+    { id: 'empfang',  gruppe: 'Regeln und Empfang', emoji: '📶', text: 'Handyempfang',          regel: ['==', ['get', 'mobile_signal'], 'gut'] },
+    { id: 'funkloch', gruppe: 'Regeln und Empfang', emoji: '🔇', text: 'Bewusst Funkloch',      regel: ['==', ['get', 'mobile_signal'], 'keiner'] },
+
+    // -------------------------------------------------------- Jahreszeiten
+    { id: 'fruehling', gruppe: 'Jahreszeit', emoji: '🌷', text: 'Frühling', regel: ['in', 'fruehling', ['coalesce', ['get', 'season'], ['literal', []]]] },
+    { id: 'sommer',    gruppe: 'Jahreszeit', emoji: '☀️', text: 'Sommer',   regel: ['in', 'sommer',    ['coalesce', ['get', 'season'], ['literal', []]]] },
+    { id: 'herbst',    gruppe: 'Jahreszeit', emoji: '🍂', text: 'Herbst',   regel: ['in', 'herbst',    ['coalesce', ['get', 'season'], ['literal', []]]] },
+    { id: 'winter',    gruppe: 'Jahreszeit', emoji: '❄️', text: 'Winter',   regel: ['in', 'winter',    ['coalesce', ['get', 'season'], ['literal', []]]] },
+
+    // --------------------------------------------------------------- Ruf
+    { id: 'gut',    gruppe: 'Ruf und Alter', emoji: '⭐', text: 'Gut bewertet',      regel: ['>=', ['coalesce', ['get', 'avg_stars'], 0], 4] },
+    { id: 'neu',    gruppe: 'Ruf und Alter', emoji: '🆕', text: 'Neu (30 Tage)',     regel: ['==', ['get', 'frisch'], true] },
+    // Ohne Kartenregel: Fotos hängen nicht am Kartenpunkt.
+    { id: 'bilder', gruppe: 'Ruf und Alter', emoji: '📷', text: 'Mit Fotos' },
   ];
+
+  // Die Reihenfolge der Gruppen im Filterblatt.
+  const CHIP_GRUPPEN = ['Wasser', 'Lage', 'Zustieg', 'Der Platz',
+                        'Regeln und Empfang', 'Jahreszeit', 'Ruf und Alter'];
+
+  // Die Chips, die als Reihe direkt auf der Entdecken-Seite stehen. Alle
+  // sechsundzwanzig dort hinzulegen wäre eine Wand — der Rest steht hinter
+  // dem Filterknopf.
+  const SCHNELL_CHIPS = ['see', 'wasser', 'hoch', 'baum', 'kurz', 'gut', 'still', 'feuer'];
 
   const gewaehlteChips = new Set();
 
@@ -414,24 +461,113 @@
   // gesetzt vor. Alles andere wäre zweimal dieselbe Einstellung mit zwei
   // verschiedenen Ständen.
   function chipsBauen() {
-    for (const wo of ['entdecken-chips', 'karte-chips']) {
-      const reihe = $(wo);
-      if (!reihe) continue;
+    const reihe = $('entdecken-chips');
+    if (reihe) {
       reihe.innerHTML = '';
-
-      for (const c of CHIPS) {
-        const k = el('button');
-        k.className = 'chip';
-        k.type = 'button';
-        k.dataset.chip = c.id;
-        // Den Stand aus der Auswahl lesen und nicht auf „aus" setzen: Die
-        // Reihe wird auch neu gebaut, während schon gefiltert wird.
-        k.setAttribute('aria-pressed', String(gewaehlteChips.has(c.id)));
-        k.innerHTML = `<span class="emoji">${c.emoji}</span>${sicher(c.text)}`;
-        k.addEventListener('click', () => chipUmschalten(c.id));
-        reihe.appendChild(k);
+      for (const id of SCHNELL_CHIPS) {
+        const c = CHIPS.find((x) => x.id === id);
+        if (c) reihe.appendChild(chipKnopf(c));
       }
     }
+
+    filterTafelBauen();
+    filterZaehlerAuffrischen();
+  }
+
+  function chipKnopf(c) {
+    const k = el('button');
+    k.className = 'chip';
+    k.type = 'button';
+    k.dataset.chip = c.id;
+    // Den Stand aus der Auswahl lesen und nicht auf „aus" setzen: Die Reihe
+    // wird auch neu gebaut, während schon gefiltert wird.
+    k.setAttribute('aria-pressed', String(gewaehlteChips.has(c.id)));
+    k.innerHTML = `<span class="emoji">${c.emoji}</span>${sicher(c.text)}`;
+    k.addEventListener('click', () => chipUmschalten(c.id));
+    return k;
+  }
+
+  // --------------------------------------------------------------------------
+  // Das Filterblatt
+  //
+  // Vorher lag über der Karte eine Reihe aus acht Chips, die man seitlich
+  // schieben musste — auf einem Handy sah man drei davon und ahnte den Rest.
+  // Jetzt liegt dort EIN Knopf mit einem Zeichen und der Zahl der gesetzten
+  // Filter. Er klappt dieses Blatt auf: alle Filter untereinander, nach
+  // Gruppen sortiert, alle auf einen Blick.
+  //
+  // Es ist dasselbe Blatt für Karte und Entdecken — und dieselbe Auswahl.
+  // Zwei Filterstände, die auseinanderlaufen können, wären der sicherste Weg
+  // zu "wieso sehe ich diesen Spot nicht mehr".
+  // --------------------------------------------------------------------------
+
+  function filterTafelBauen() {
+    const kasten = $('filter-inhalt');
+    if (!kasten) return;
+    kasten.innerHTML = '';
+
+    for (const gruppe of CHIP_GRUPPEN) {
+      const drin = CHIPS.filter((c) => c.gruppe === gruppe);
+      if (!drin.length) continue;
+
+      const h = el('h3');
+      h.className = 'filter-gruppe';
+      h.textContent = gruppe;
+      kasten.appendChild(h);
+
+      const reihe = el('div');
+      reihe.className = 'filter-reihe';
+      for (const c of drin) reihe.appendChild(chipKnopf(c));
+      kasten.appendChild(reihe);
+    }
+
+    const hinweis = el('p');
+    hinweis.className = 'filter-hinweis-text';
+    hinweis.innerHTML =
+      'Mehrere Filter gelten <b>zusammen</b>: zwei angetippte heißt beides, ' +
+      'nicht eines von beiden. Auf der Karte bleiben nur die passenden Punkte ' +
+      'stehen, auf <b>Entdecken</b> bekommst du die Treffer als Liste mit Bild.';
+    kasten.appendChild(hinweis);
+  }
+
+  function filterOeffnen() {
+    const hg = $('filter-hg');
+    if (!hg) return;
+    filterTafelBauen();
+    filterStandAnzeigen();
+    hg.hidden = false;
+  }
+
+  function filterSchliessen() {
+    const hg = $('filter-hg');
+    if (hg) hg.hidden = true;
+  }
+
+  // Die Zahl im Knopf und im Blattfuß. Sie ist der einzige Hinweis darauf,
+  // dass überhaupt gefiltert wird, sobald das Blatt zu ist.
+  function filterZaehlerAuffrischen() {
+    const wie = gewaehlteChips.size;
+    for (const id of ['filter-anzahl', 'entdecken-filter-anzahl']) {
+      const e = $(id);
+      if (!e) continue;
+      e.textContent = String(wie);
+      e.hidden = wie === 0;
+    }
+    for (const id of ['knopf-filter', 'entdecken-filter']) {
+      const k = $(id);
+      if (k) k.setAttribute('aria-pressed', String(wie > 0));
+    }
+    filterStandAnzeigen();
+  }
+
+  function filterStandAnzeigen() {
+    const e = $('filter-stand');
+    if (!e) return;
+    const wie = gewaehlteChips.size;
+    e.textContent = wie === 0
+      ? 'Kein Filter gesetzt'
+      : `${wie} ${wie === 1 ? 'Filter' : 'Filter'} gesetzt: ` +
+        [...gewaehlteChips].map(chipText).join(' · ');
   }
 
   function chipUmschalten(id) {
@@ -456,6 +592,7 @@
     for (const k of document.querySelectorAll('[data-chip]')) {
       k.setAttribute('aria-pressed', String(gewaehlteChips.has(k.dataset.chip)));
     }
+    filterZaehlerAuffrischen();
 
     // Beides auf einmal, egal wo getippt wurde: die Punkte auf der Karte
     // ausdünnen und die Trefferliste auf Entdecken neu holen. Der Filter ist
@@ -532,6 +669,7 @@
     for (const k of document.querySelectorAll('[data-chip]')) {
       k.setAttribute('aria-pressed', 'false');
     }
+    filterZaehlerAuffrischen();
     filterAnwenden();
     trefferAuffrischen();
   }
@@ -711,10 +849,37 @@
 
     herzenAuffrischen();
     nahLaden();
+    zahlenbandFuellen();
+
+    // Die Gipfel und die Leute bauen sich selbst — beide liegen in eigenen
+    // Dateien, weil sie mit der Spotliste nichts zu tun haben.
+    if (window.WILDSPOT_GIPFEL) window.WILDSPOT_GIPFEL.entdeckenFuellen();
 
     // War schon ein Filter gesetzt — etwa auf der Karte —, gehört die
     // Trefferliste auch beim ersten Öffnen dieser Seite gleich dazu.
     trefferAuffrischen();
+  }
+
+  // Das Zahlenband ganz oben: wie viel überhaupt drin ist. Bei einer jungen
+  // App sind das kleine Zahlen — gerade deshalb gehören sie hin. Eine App,
+  // die verschweigt, wie groß sie ist, wirkt größer und enttäuscht mehr.
+  async function zahlenbandFuellen() {
+    const band = $('entdecken-band');
+    if (!band) return;
+
+    const { data, error } = await sb.rpc('gemeinschaft_zahlen');
+    const z = (data && data[0]) || null;
+    if (error || !z) { band.hidden = true; return; }
+
+    const n = (w) => Number(w || 0).toLocaleString('de-AT');
+
+    band.hidden = false;
+    band.innerHTML =
+      `<div class="band-kachel"><b>${n(z.spots)}</b><span>Spots</span></div>
+       <div class="band-kachel"><b>${n(z.gipfel_frei)}</b><span>Gipfel</span></div>
+       <div class="band-kachel"><b>${n(z.leute)}</b><span>Leute</span></div>
+       <div class="band-kachel"><b>${n(z.naechte)}</b><span>Nächte</span></div>
+       <div class="band-kachel"><b>${n(z.fotos)}</b><span>Fotos</span></div>`;
   }
 
   // In deiner Nähe — nur, wenn der Standort schon bekannt ist. Diese Seite
@@ -768,9 +933,28 @@
     trefferKarte.addEventListener('click', () => bereichZeigen('karte'));
   }
 
-  // Die Chips über der Karte müssen dastehen, auch wenn Entdecken noch nie
-  // offen war — die App kann mit der Karte starten.
+  // Die Chips und das Filterblatt müssen dastehen, auch wenn Entdecken noch
+  // nie offen war — die App kann mit der Karte starten.
   chipsBauen();
+
+  // Die beiden Filterknöpfe (Karte und Entdecken) öffnen dasselbe Blatt.
+  for (const id of ['knopf-filter', 'entdecken-filter']) {
+    const k = $(id);
+    if (k) k.addEventListener('click', filterOeffnen);
+  }
+  for (const id of ['filter-zu', 'filter-fertig']) {
+    const k = $(id);
+    if (k) k.addEventListener('click', filterSchliessen);
+  }
+  const filterWeg = $('filter-zuruecksetzen');
+  if (filterWeg) filterWeg.addEventListener('click', filterZuruecksetzen);
+
+  // Mit Esc wieder zu — dieselbe Erwartung wie bei den Tafeln auf der Karte.
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    const hg = $('filter-hg');
+    if (hg && !hg.hidden) filterSchliessen();
+  });
 
   // Die Suche auf der Entdecken-Seite führt zur Karte und öffnet dort die
   // richtige Suche. Zwei Suchen mit zwei Ergebnislisten wären eine zu viel.
@@ -855,6 +1039,30 @@
     // ------------------------------------------------------------- Offline
     if (welcheListe === 'offline') {
       offlineZeigen(kasten);
+      return;
+    }
+
+    // -------------------------------------------------------------- Gipfel
+    //
+    // Die gesammelten Gipfel stehen hier, weil die Merkliste die Seite ist,
+    // auf der alles Eigene liegt. Gebaut wird der Kasten von gipfel.js —
+    // derselbe wie im Profil.
+    if (welcheListe === 'gipfel') {
+      kasten.innerHTML = '';
+
+      const kopf = el('p');
+      kopf.className = 'abschnitt-unter';
+      kopf.style.marginTop = '0';
+      kopf.innerHTML =
+        'Jeder Gipfel, auf dem du warst. Auf der Karte sind deine goldgelb — ' +
+        'du siehst also im Vorbeischauen, wo du schon überall oben gestanden bist.';
+      kasten.appendChild(kopf);
+
+      if (window.WILDSPOT_GIPFEL) {
+        window.WILDSPOT_GIPFEL.meineGipfelBauen(auth.nutzer.id, { ichSelbst: true })
+          .then((e) => kasten.appendChild(e))
+          .catch(() => {});
+      }
       return;
     }
 
@@ -1059,55 +1267,91 @@
     // -------------------------------------------------------- Die Zahlen
     if (auth.nutzer) {
       bildKnopfVerdrahten();
+      const ich = auth.nutzer.id;
 
-      // Die erste Zahl ist die, um die es geht: an wie vielen Plätzen war ich
-      // schon? Sie steht bewusst vorne — sie wächst mit jeder Nacht draußen
-      // und ist damit der einzige Grund, überhaupt hierher zu schauen.
-      const zahlen = el('div');
-      zahlen.className = 'zahlen';
-      zahlen.innerHTML =
-        `<div class="zahl-kachel gross"><b id="z-besucht">…</b>
-           <span id="z-besucht-wort">Plätze besucht</span></div>
-         <div class="zahl-kachel"><b id="z-spots">…</b><span>eingetragen</span></div>
-         <div class="zahl-kachel"><b id="z-posts">…</b>
-           <span id="z-posts-wort">Beiträge</span></div>`;
-      rand.appendChild(zahlen);
+      // Alle Zahlen auf einmal — Gipfel, Plätze, Nächte, Gipfelmeter, Fotos,
+      // Bewertungen. Und darunter ehrlich das, was noch nicht geht:
+      // Kilometer und Zeit (siehe gipfel.js).
+      const zahlenPlatz = el('div');
+      zahlenPlatz.innerHTML =
+        '<div class="platzhalter" style="height:150px;border-radius:16px;margin-bottom:14px"></div>';
+      rand.appendChild(zahlenPlatz);
 
+      if (window.WILDSPOT_GIPFEL) {
+        window.WILDSPOT_GIPFEL.statistikBauen(ich, { ichSelbst: true })
+          .then((e) => zahlenPlatz.replaceWith(e))
+          .catch(() => {});
+      }
+
+      // Die Folgezeile ist jetzt anklickbar: Hinter „12 Follower" liegt die
+      // Liste der zwölf. Vorher war es eine Zahl, die nichts tat.
       const folgen = el('div');
-      folgen.className = 'folge-zeile';
-      folgen.style.cssText = 'margin:-10px 0 20px';
+      folgen.className = 'folge-zeile klickbar';
       folgen.innerHTML =
-        '<span><b id="z-follower">…</b> Follower</span>' +
-        '<span><b id="z-folge">…</b> gefolgt</span>';
+        '<button type="button" data-folge="follower"><b id="z-follower">…</b> Follower</button>' +
+        '<button type="button" data-folge="folge"><b id="z-folge">…</b> gefolgt</button>';
       rand.appendChild(folgen);
 
-      const setz = (id, wert) => {
-        const e = $(id);
-        if (e) e.textContent = Number(wert || 0).toLocaleString('de-AT');
-      };
+      for (const k of folgen.querySelectorAll('[data-folge]')) {
+        k.addEventListener('click', () => {
+          if (window.WILDSPOT_LEUTE) {
+            window.WILDSPOT_LEUTE.folgeListeOeffnen(ich, k.dataset.folge,
+              auth.nutzer.username || 'dir');
+          }
+        });
+      }
 
-      // Ein Aufruf statt zwei: profil() liefert alles, was hier steht.
-      sb.rpc('profil', { wessen_id: auth.nutzer.id }).then(({ data }) => {
+      sb.rpc('profil', { wessen_id: ich }).then(({ data }) => {
         const p = (data && data[0]) || {};
-        setz('z-besucht',  p.spots_besucht);
-
-        // „1 Plätze besucht" liest sich falsch. Die Einzahl steht deshalb
-        // nicht fest im Blatt, sondern hängt an der Zahl.
-        const wort = (id, eins, viele, wieviel) => {
+        const setz = (id, wert) => {
           const e = $(id);
-          if (e) e.textContent = Number(wieviel) === 1 ? eins : viele;
+          if (e) e.textContent = Number(wert || 0).toLocaleString('de-AT');
         };
-        wort('z-besucht-wort', 'Platz besucht', 'Plätze besucht', p.spots_besucht);
-        wort('z-posts-wort',   'Beitrag',       'Beiträge',       p.beitraege);
-
-        setz('z-spots',    p.spots_gelegt);
-        setz('z-posts',    p.beitraege);
         setz('z-follower', p.folgt_mir);
         setz('z-folge',    p.folge_ich);
 
         // Das Bild merken, damit es beim nächsten Aufbau sofort dasteht.
         if (p.avatar_path !== undefined) auth.nutzer.avatarPfad = p.avatar_path;
       }).catch(() => {});
+
+      // ------------------------------------------------------- Abzeichen
+      rand.appendChild(abschnittKopf('Abzeichen',
+        'Was du schon geschafft hast — und was als Nächstes drin wäre'));
+
+      const abzPlatz = el('div');
+      abzPlatz.innerHTML =
+        '<div class="platzhalter" style="height:120px;border-radius:16px"></div>';
+      rand.appendChild(abzPlatz);
+      if (window.WILDSPOT_GIPFEL) {
+        window.WILDSPOT_GIPFEL.abzeichenBauen(ich)
+          .then((e) => abzPlatz.replaceWith(e)).catch(() => {});
+      }
+
+      // --------------------------------------------------- Meine Gipfel
+      rand.appendChild(abschnittKopf('Deine Gipfel',
+        'Antippen öffnet den Gipfel — dort steht, wer sonst schon oben war'));
+
+      const gipfelPlatz = el('div');
+      gipfelPlatz.innerHTML =
+        '<div class="platzhalter" style="height:80px;border-radius:16px"></div>';
+      rand.appendChild(gipfelPlatz);
+      if (window.WILDSPOT_GIPFEL) {
+        window.WILDSPOT_GIPFEL.meineGipfelBauen(ich, { ichSelbst: true })
+          .then((e) => gipfelPlatz.replaceWith(e)).catch(() => {});
+      }
+
+      // ------------------------------------------------ Letzte Aktivität
+      rand.appendChild(abschnittKopf('Deine letzte Aktivität',
+        'Alles, was du eingetragen hast, in einer Spur'));
+
+      const aktPlatz = el('div');
+      aktPlatz.innerHTML =
+        '<div class="platzhalter" style="height:80px;border-radius:16px"></div>';
+      rand.appendChild(aktPlatz);
+      if (window.WILDSPOT_LEUTE) {
+        window.WILDSPOT_LEUTE.aktivitaetBauen(ich, 10)
+          .then((e) => aktPlatz.replaceWith(e)).catch(() => {});
+      }
     } else {
       const k = el('button');
       k.className = 'oliv-knopf voll';
@@ -1351,6 +1595,18 @@
         alert('Das Bild konnte nicht gespeichert werden.\n\n' + (err.message || err));
       }
     });
+  }
+
+  // Eine Überschrift mit Unterzeile, wie sie auf der Entdecken-Seite über
+  // jedem Abschnitt steht. Das Profil hat jetzt genug Abschnitte, dass es
+  // dieselbe Gliederung braucht.
+  function abschnittKopf(titel, unter) {
+    const k = el('div');
+    k.className = 'profil-abschnitt';
+    k.innerHTML =
+      `<h2 class="abschnitt-titel">${sicher(titel)}</h2>` +
+      (unter ? `<p class="abschnitt-unter">${sicher(unter)}</p>` : '');
+    return k;
   }
 
   function menueZeile(svg, titel, unter, tat) {
