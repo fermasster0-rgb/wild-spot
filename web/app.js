@@ -89,6 +89,12 @@ const ARTEN = {
   // Zwei ähnliche Türkistöne wären bei 3 Pixeln nicht auseinanderzuhalten.
   waterfall:        { label: 'Wasserfall',            gruppe: 'wasserfall', farbe: '#1f6fd0' },
 
+  // Gipfel sind keine Wasserstelle und kein Schlafplatz, sondern ein Ziel.
+  // Sie liegen trotzdem in derselben Tabelle (kind 'peak', siehe db/020) —
+  // die heißt nur historisch water_points und enthält längst alles, was aus
+  // OpenStreetMap kommt.
+  peak:             { label: 'Gipfel',               gruppe: 'gipfel',     farbe: '#6b7280' },
+
   // Unterkünfte und Unterstände
   alpine_hut:       { label: 'Berghütte',            gruppe: 'unterstand', farbe: '#e0a860' },
   wilderness_hut:   { label: 'Selbstversorgerhütte', gruppe: 'unterstand', farbe: '#a86a2a' },
@@ -102,12 +108,21 @@ const ARTEN = {
 // Schalter oben unabhängig voneinander funktionieren. Die Reihenfolge hier
 // bestimmt auch, welche Punkte auf der Karte oben liegen — Ziele wie Seen und
 // Wasserfälle über den Trinkbrunnen.
-const OSM_EBENEN = ['wasser', 'unterstand', 'seen', 'wasserfall'];
+const OSM_EBENEN = ['wasser', 'unterstand', 'seen', 'wasserfall', 'gipfel'];
 
 // Diese beiden sind schon in der Österreich-Übersicht zu sehen. Sie sind
 // selten (1.417 Seen, 1.777 Wasserfälle) und man sucht gezielt nach ihnen —
 // anders als bei 16.000 Trinkbrunnen, die erst beim Hineinzoomen erscheinen.
 const WEITSICHT_EBENEN = ['seen', 'wasserfall'];
+
+// Ebenen, deren Punkte NIE zu einer Blase zusammengefasst werden. Bei den
+// Gipfeln ist das wichtiger als bei allem anderen: Ein Gipfel ist ein Ziel
+// mit Namen und Höhe, und wer ihn sammeln will, muss ihn einzeln antippen
+// können. Eine graue Blase mit „37" darin ist genau das Gegenteil.
+//
+// Sie laden trotzdem erst ab ZOOM_SCHWELLE — anders als Seen und Wasserfälle
+// gibt es 14.560 von ihnen, das wäre in der Österreich-Übersicht ein Teppich.
+const OHNE_CLUSTER = [...WEITSICHT_EBENEN, 'gipfel'];
 
 // Dieselben Ebenen, als Arten für die Datenbankabfrage.
 const WEITSICHT_ARTEN = Object.entries(ARTEN)
@@ -258,7 +273,7 @@ for (const gruppe of OSM_EBENEN) {
     // paar tausend im ganzen Land, und jeder einzelne ist ein möglicher Grund
     // hinzugehen. Zu einer Blase mit "37" verschmolzen wäre genau das weg.
     // Bei 16.000 Trinkbrunnen ist das anders.
-    cluster: !WEITSICHT_EBENEN.includes(gruppe),
+    cluster: !OHNE_CLUSTER.includes(gruppe),
     clusterRadius: 45,
     clusterMaxZoom: 13,
   };
@@ -375,7 +390,17 @@ const SYMBOL_FARBE = {
   unterstand: '#a1621f',
   seen:       '#12a596',
   wasserfall: '#1a5fc0',
+  gipfel:     '#5c6472',
   spot:       '#4d9e35',
+};
+
+// Gipfel gibt es in zwei Ausführungen: schiefergrau, solange man nicht oben
+// war — und golden, sobald er gesammelt ist. Das ist der ganze Reiz am
+// Sammeln: Man sieht auf der Karte, wo man schon überall gestanden hat, ohne
+// eine Liste zu öffnen.
+const GIPFEL_FARBEN = {
+  'gipfel':           '#5c6472',
+  'gipfel-gesammelt': '#d9a520',
 };
 
 // Für Spots zusätzlich nach Bewertung, damit man ein Urteil auf der Karte
@@ -432,8 +457,16 @@ function symbolLaden(name, quelleKlasse, farbe) {
   bild.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
 }
 
-// Bei den Spots hängt das Zeichen von der Bewertung ab, sonst ist es fest.
+// Bei den Spots hängt das Zeichen von der Bewertung ab, bei den Gipfeln
+// davon, ob man schon oben war. Sonst ist es fest.
 function symbolAusdruck(gruppe) {
+  if (gruppe === 'gipfel') {
+    return ['case',
+      ['==', ['get', 'gesammelt'], true], 'sym-gipfel-gesammelt',
+      'sym-gipfel',
+    ];
+  }
+
   if (gruppe !== 'spot') return 'sym-' + gruppe;
 
   return ['case',
@@ -498,6 +531,7 @@ karte.on('load', () => {
         'circle-color': {
           wasser: '#2f7fb8', unterstand: '#a86a2a',
           seen: '#1f9e93', wasserfall: '#3f9fb8',
+          gipfel: '#5c6472',
         }[gruppe],
         'circle-opacity': 0.75,
         'circle-radius': ['step', ['get', 'point_count'], 13, 10, 17, 50, 22, 200, 28],
@@ -522,6 +556,7 @@ karte.on('load', () => {
   // steht der Kartenstil noch nicht, und addImage bräuchte ihn.
   for (const gruppe of OSM_EBENEN) symbolLaden(gruppe, gruppe, SYMBOL_FARBE[gruppe]);
   for (const [name, farbe] of Object.entries(SPOT_FARBEN)) symbolLaden(name, 'spot', farbe);
+  for (const [name, farbe] of Object.entries(GIPFEL_FARBEN)) symbolLaden(name, 'gipfel', farbe);
 
   // Die eigene Position: erst der Genauigkeitskreis, dann der Punkt darauf.
   karte.addSource('ich', { type: 'geojson', data: leer() });
@@ -879,7 +914,8 @@ document.addEventListener('keydown', (e) => {
 // stimmen würde. Innerhalb einer Sitzung bleibt natürlich alles so, wie man
 // es eingestellt hat.
 const ebenen = {
-  wasser: false, unterstand: false, seen: false, wasserfall: false, spots: true,
+  wasser: false, unterstand: false, seen: false, wasserfall: false,
+  gipfel: false, spots: true,
 };
 
 function ebenenAnwenden() {
@@ -992,6 +1028,22 @@ async function punkteAbfragen(bbox, kinds) {
   return alle;
 }
 
+// Ist dieser Gipfel schon gesammelt? Die Antwort kennt gipfel.js — diese
+// Datei fragt nur nach und kommt auch ohne die Antwort zurecht (dann ist eben
+// kein Gipfel golden).
+function gipfelGesammelt(id) {
+  return !!(window.WILDSPOT_GIPFEL && window.WILDSPOT_GIPFEL.hat &&
+            window.WILDSPOT_GIPFEL.hat(id));
+}
+
+// Nach dem Sammeln eines Gipfels muss die Karte ihre Punkte neu einfärben.
+// Der einfachste verlässliche Weg: den gemerkten Ausschnitt vergessen und
+// neu laden.
+window.WILDCAMP_PUNKTE_NEU = () => {
+  letzteBbox = null;
+  punkteLaden();
+};
+
 async function punkteLaden() {
   if (!cfg.supabaseAnonKey) return;                 // Schlüssel fehlt noch
   if (!karte.getSource('wasser')) return;           // Karte noch nicht fertig
@@ -1033,9 +1085,14 @@ async function punkteLaden() {
         type: 'Feature',
         geometry: { type: 'Point', coordinates: [z.lng, z.lat] },
         properties: {
+          id: z.id,
           kind: z.kind,
           name: z.name || '',
           elevation_m: z.elevation_m ?? null,
+          // Nur bei Gipfeln von Bedeutung: gesammelt oder nicht. Die Antwort
+          // steht in gipfel.js, nicht in der Datenbankabfrage — sonst müsste
+          // jede Kartenbewegung die eigene Sammlung mitschleppen.
+          gesammelt: z.kind === 'peak' && gipfelGesammelt(z.id),
         },
       });
     }
@@ -1051,10 +1108,11 @@ async function punkteLaden() {
     const NAMEN = {
       seen: 'Bergseen', wasserfall: 'Wasserfälle',
       wasser: 'Wasserstellen', unterstand: 'Unterkünfte',
+      gipfel: 'Gipfel',
     };
 
     const teile = [];
-    for (const gruppe of ['seen', 'wasserfall', 'wasser', 'unterstand']) {
+    for (const gruppe of ['seen', 'wasserfall', 'gipfel', 'wasser', 'unterstand']) {
       if (nach[gruppe].length) teile.push(`${nach[gruppe].length} ${NAMEN[gruppe]}`);
     }
 
@@ -1162,13 +1220,32 @@ async function spotsLaden() {
         water_nearby: s.water_nearby,
         above_treeline: s.above_treeline,
         elevation_m: s.elevation_m,
-        // Die vier hängen hier, damit die Filterchips (screens.js) ohne neue
-        // Abfrage arbeiten können: Sie blenden Punkte aus, statt sie neu zu
-        // holen — das geht sofort und auch ohne Netz.
+        // Alles ab hier hängt am Punkt, damit die Filterchips (screens.js)
+        // ohne neue Abfrage arbeiten können: Sie blenden Punkte aus, statt
+        // sie neu zu holen — das geht sofort und auch ohne Netz.
+        //
+        // Seit den über zwanzig Filtern (db/021) sind es entsprechend mehr
+        // Felder. Ein Feld, das hier fehlt, ist für die Karte nicht
+        // vorhanden — der zugehörige Chip würde dann ALLE Punkte ausblenden.
         has_lake: s.has_lake,
         hike_minutes: s.hike_minutes,
         fire_allowed: s.fire_allowed,
         discreet: s.discreet,
+        water_type: s.water_type,
+        water_reliable: s.water_reliable,
+        exposure: s.exposure,
+        access: s.access,
+        ground_type: s.ground_type,
+        flat_tent_spots: s.flat_tent_spots,
+        shelter_nearby: s.shelter_nearby,
+        firewood_available: s.firewood_available,
+        mobile_signal: s.mobile_signal,
+        legal_status: s.legal_status,
+        season: s.season || [],
+        // Fertig gerechnet statt als Datum: Ein Kartenausdruck kann keine
+        // Zeichenkette in ein Datum verwandeln.
+        frisch: !!(s.created_at &&
+                   (Date.now() - new Date(s.created_at).getTime()) < 30 * 86400000),
       },
     }));
 
@@ -1217,6 +1294,15 @@ for (const gruppe of OSM_EBENEN) {
   karte.on('click', gruppe + '-symbol', (e) => {
     const f = e.features[0];
     const art = ARTEN[f.properties.kind] || { label: f.properties.kind };
+
+    // Ein Gipfel bekommt kein Popup, sondern ein eigenes Blatt: Dort steht
+    // die Höhe, der Rang im Land, wer schon oben war — und der Knopf, mit
+    // dem man ihn sammelt. In eine Sprechblase passt das nicht.
+    if (f.properties.kind === 'peak' && window.WILDSPOT_GIPFEL) {
+      window.WILDSPOT_GIPFEL.oeffnen(f.properties.id, f.properties.name);
+      return;
+    }
+
     const [lng, lat] = f.geometry.coordinates;
     const name = f.properties.name;
     const hoehe = f.properties.elevation_m;

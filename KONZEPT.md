@@ -179,7 +179,33 @@ Das vollständige SQL steht in [`db/schema.sql`](db/schema.sql).
 | `spot_photos` | Fotos zu einem Spot (Datei liegt im Supabase Storage) |
 | `ratings` | 1–5 Sterne, ein Nutzer kann pro Spot genau einmal bewerten |
 | `comments` | Kommentar mit **Besuchsdatum** |
-| `water_points` | Wasserstellen aus OpenStreetMap, einmalig importiert |
+| `water_points` | Alles aus OpenStreetMap: Wasserstellen, Bergseen, Wasserfälle, Hütten — und seit 2026-08-16 die **Gipfel** (`kind = 'peak'`, 14.560 Stück) |
+| `posts` | Beiträge der Gemeinschaft (Bild, Text, optional Spot und Datum) |
+| `follows` | Wer wem folgt — einseitig wie bei Komoot |
+| `post_likes`, `post_mentions`, `reports` | Gefällt mir, „wer war dabei", Meldungen |
+| `saved_spots` | Die Merkliste |
+| `peak_logs` | **Gesammelte Gipfel:** wer war auf welchem, wann, mit einem Satz dazu |
+| `tracks` | Kilometer, Gehzeit, Höhenmeter — die Tabelle steht bereit und ist mit Absicht leer (siehe unten) |
+
+**Gerechnet statt gespeichert:** Abzeichen (`abzeichen(...)`), Statistik
+(`statistik(...)`) und der Aktivitätsstrom (`aktivitaeten(...)`) sind
+Datenbank-Funktionen, keine Tabellen. Es gibt keine Tabelle „verliehene
+Abzeichen" und kein Ereignisprotokoll — der Stand ergibt sich jedes Mal neu aus
+den Daten. Damit kann nichts auseinanderlaufen, und ein neues Abzeichen ist
+eine Zeile in `db/020` statt einer Wanderung durch alle bestehenden Konten.
+
+### Warum `tracks` leer bleibt
+
+Kilometer und Gehzeit sind das, was eine Wander-App eigentlich zählt. Wild Spot
+kann das als Webseite **nicht ehrlich**: Ein Browser darf im Hintergrund nicht
+dauerhaft den Standort verfolgen — sobald der Bildschirm aus ist, hört er auf
+zu zählen. Eine Zahl, die die halbe Strecke verschluckt, ohne dass man es
+merkt, ist schlechter als gar keine.
+
+Deshalb steht im Profil offen „zählt Wild Spot noch nicht mit" statt einer
+erfundenen Zahl. Die Tabelle und alle Abfragen darauf sind fertig; sobald es
+eine echte App gibt (oder jemand eine GPX-Datei hochlädt), stehen die
+Kilometer sofort überall, ohne dass eine einzige Abfrage geändert werden muss.
 
 Drei Dinge, die im Schema nicht fehlen dürfen:
 

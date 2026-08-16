@@ -171,6 +171,9 @@ function zeichnenTreffer(spots, punkte, orte) {
         .filter(Boolean).join(' · ');
       teile.push(eintrag(art ? art.gruppe : 'wasser', p.name, zusatz, {
         art: 'punkt', gruppe: art ? art.gruppe : null, lat: p.lat, lng: p.lng,
+        // Nummer und Sorte werden nur bei Gipfeln gebraucht: Dort öffnet
+        // sich nach dem Flug das Gipfelblatt, wie beim Spot auch.
+        id: p.id, kind: p.kind, name: p.name,
       }));
     }
   }
@@ -252,6 +255,15 @@ function hinspringen(ziel) {
   if (ziel.art === 'spot' && typeof window.spotDetailOeffnen === 'function') {
     karte.once('moveend', () => {
       window.spotDetailOeffnen(ziel.id, ziel.name, ziel.lat, ziel.lng);
+    });
+  }
+
+  // Ein gesuchter Gipfel ist fast immer eine Frage nach dem Gipfel selbst
+  // („war ich da schon?") und nicht nach der Gegend darum. Deshalb öffnet
+  // sich sein Blatt genauso wie das eines Spots.
+  if (ziel.art === 'punkt' && ziel.kind === 'peak' && window.WILDSPOT_GIPFEL) {
+    karte.once('moveend', () => {
+      window.WILDSPOT_GIPFEL.oeffnen(ziel.id, ziel.name);
     });
   }
 }
