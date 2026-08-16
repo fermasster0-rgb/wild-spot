@@ -51,6 +51,15 @@
       { day: 'numeric', month: 'long', year: 'numeric' });
   }
 
+  // Das Bergzeichen — dasselbe wie in der Legende und auf der Karte. Es
+  // ersetzt die Emojis ⛰️ und 🏔️, die hier bis zum 2026-08-16 standen: Die
+  // sahen auf jedem Gerät anders aus und passten zu nichts anderem in dieser
+  // App. Ein gesammelter Gipfel wird eingefärbt, nicht ausgetauscht.
+  const BERG_SVG =
+    '<svg viewBox="0 0 24 24" aria-hidden="true">' +
+    '<path d="M2 20 9 5l4.5 8L16.5 8 22 20Z"/>' +
+    '<path d="M6.4 12.6 9 7.2l2.6 5.4"/></svg>';
+
   // ==========================================================================
   // 1. DIE EIGENE SAMMLUNG
   //
@@ -124,7 +133,7 @@
 
     kasten.innerHTML =
       `<div class="gipfel-kopf ${gesammelt ? 'gesammelt' : ''}">
-         <span class="gipfel-zeichen">${gesammelt ? '🏔️' : '⛰️'}</span>
+         <span class="gipfel-zeichen">${BERG_SVG}</span>
          <h2>${sicher(g.name)}</h2>
          <p class="gipfel-hoehe"><b>${zahl(g.elevation_m)} m</b></p>
          ${gesammelt ? '<span class="gipfel-marke">Gesammelt</span>' : ''}
@@ -313,7 +322,7 @@
     k.type = 'button';
     k.className = 'gipfelzeile' + ((g.ich_war || meine.has(g.id)) ? ' gesammelt' : '');
     k.innerHTML =
-      `<span class="zeichen">${(g.ich_war || meine.has(g.id)) ? '🏔️' : '⛰️'}</span>
+      `<span class="zeichen">${BERG_SVG}</span>
        <span class="wo">
          <b>${sicher(g.name)}</b>
          <small>${zahl(g.elevation_m)} m${

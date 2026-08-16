@@ -423,8 +423,8 @@ function ortFotoStandSetzen(text, art = '') {
 // lädt er zum ersten ein — danach bietet er den Wechsel an.
 function ortFotoKnopfBeschriften() {
   ortFotoKnopf.textContent = fotoVomOrt
-    ? '📍 Anderes Foto wählen'
-    : '📍 Ort aus einem Foto übernehmen';
+    ? 'Anderes Foto wählen'
+    : 'Ort aus einem Foto übernehmen';
 }
 
 function ortAusFotoZuruecksetzen() {

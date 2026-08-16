@@ -108,7 +108,7 @@
       'font-weight:600;line-height:1.35;cursor:pointer;text-align:center;' +
       'box-shadow:0 6px 22px var(--sch2)';
     balken.innerHTML =
-      `✨ ${was} gibt es mit Plus <span style="opacity:0.8;font-weight:400">· ansehen</span>`;
+      `${was} gibt es mit Plus <span style="opacity:0.8;font-weight:400">· ansehen</span>`;
     balken.addEventListener('click', () => {
       balken.remove();
       if (window.WILDSPOT_BEREICH) window.WILDSPOT_BEREICH('plus');
@@ -152,7 +152,7 @@
       '-webkit-tap-highlight-color:transparent';
     k.innerHTML =
       `<span style="display:grid;place-items:center;width:42px;height:42px;flex-shrink:0;
-                    border-radius:12px;background:rgba(238,107,23,0.18);font-size:20px">✨</span>
+                    border-radius:12px;background:rgba(238,107,23,0.18);color:var(--orange)"><svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round"><path d="M12 3.5l1.9 4.6 4.6 1.9-4.6 1.9L12 16.5l-1.9-4.6L5.5 10l4.6-1.9z"/></svg></span>
        <span style="flex:1;min-width:0">
          <b style="display:block;font-size:15.5px;font-weight:800;letter-spacing:-0.02em">
            Wild Spot Plus</b>
@@ -269,7 +269,7 @@
         : 'Läuft bis ' + plusBis.toLocaleDateString('de-AT');
       zustand.innerHTML =
         `<div class="plus-aktiv">
-           <span class="zeichen">✨</span>
+           <span class="zeichen"><svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round"><path d="M12 3.5l1.9 4.6 4.6 1.9-4.6 1.9L12 16.5l-1.9-4.6L5.5 10l4.6-1.9z"/></svg></span>
            <span><b>Du hast Plus</b><span>${bis}</span></span>
          </div>`;
       kauf.hidden = true;

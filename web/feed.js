@@ -109,7 +109,7 @@
     if (error) {
       laeuft = false;
       if (!weiter) {
-        kasten.appendChild(leerHtml('🌐', 'Der Feed kam nicht durch',
+        kasten.appendChild(leerHtml('Der Feed kam nicht durch',
           navigator.onLine
             ? sicher(error.message)
             : 'Ohne Netz gibt es keine neuen Beiträge. Die Karte und deine ' +
@@ -122,12 +122,12 @@
 
     if (!liste.length && !weiter) {
       if (welcherFeed === 'folge') {
-        kasten.appendChild(leerHtml('👣', 'Noch still hier',
+        kasten.appendChild(leerHtml('Noch still hier',
           'Du folgst noch niemandem — oder es gibt nichts Neues. Wechsle oben ' +
           'auf <b>Alle</b>, um Leute zu finden.',
           'Alle ansehen', () => reiterSetzen('alle')));
       } else {
-        kasten.appendChild(leerHtml('📷', 'Noch kein Beitrag',
+        kasten.appendChild(leerHtml('Noch kein Beitrag',
           'Warst du draußen? Erzähl davon — ein Bild und zwei Sätze reichen. ' +
           'Deiner wäre der erste.',
           auth.nutzer ? 'Beitrag schreiben' : 'Anmelden',
@@ -145,11 +145,14 @@
     laeuft = false;
   }
 
-  function leerHtml(zeichen, titel, text, knopfText, knopfTat) {
+  // Ein leerer Zustand braucht keinen Bildschmuck, sondern einen Satz, der
+  // sagt, was als Nächstes zu tun ist. Hier stand bis zum 2026-08-16 ein
+  // riesiges Emoji darüber — das war die Stelle, an der die App am ehesten
+  // wie ein Spielzeug aussah.
+  function leerHtml(titel, text, knopfText, knopfTat) {
     const k = el('div');
     k.className = 'leer';
-    k.innerHTML = `<div style="font-size:38px;margin-bottom:10px">${zeichen}</div>` +
-                  `<b>${sicher(titel)}</b><p>${text}</p>`;
+    k.innerHTML = `<b>${sicher(titel)}</b><p>${text}</p>`;
     if (knopfText) {
       const b = el('button');
       b.className = 'oliv-knopf';
@@ -718,7 +721,9 @@
     const istFeed = welcher === 'alle' || welcher === 'folge';
 
     for (const k of document.querySelectorAll('#entdecken-reiter [data-tafel]')) {
-      const dran = k.dataset.tafel === welcher;
+      // „Ich folge" ist kein eigener Reiter mehr, sondern ein Umschalter im
+      // Feed — der Reiter „Feed" bleibt dabei der ausgewählte.
+      const dran = k.dataset.tafel === (welcher === 'folge' ? 'alle' : welcher);
       k.setAttribute('aria-selected', String(dran));
       // Fünf Reiter passen auf einem Handy nicht nebeneinander. Der
       // angetippte muss danach trotzdem zu sehen sein — sonst sieht die Seite
@@ -742,6 +747,9 @@
 
     if (istFeed) {
       welcherFeed = welcher === 'folge' ? 'folge' : 'alle';
+      for (const k of document.querySelectorAll('#feed-reiter [data-feed]')) {
+        k.setAttribute('aria-pressed', String(k.dataset.feed === welcherFeed));
+      }
       feedLaden();
       return;
     }
@@ -772,6 +780,11 @@
 
     for (const k of document.querySelectorAll('#entdecken-reiter [data-tafel]')) {
       k.addEventListener('click', () => reiterSetzen(k.dataset.tafel));
+    }
+
+    // Die zwei Umschalter im Feed — „Alle" und „Nur wem ich folge".
+    for (const k of document.querySelectorAll('#feed-reiter [data-feed]')) {
+      k.addEventListener('click', () => reiterSetzen(k.dataset.feed));
     }
 
     $('feed-schreiben').addEventListener('click', () => verfassenOeffnen());

@@ -19,8 +19,8 @@
 // ============================================================================
 // 1. WAS ANGEZEIGT WIRD
 //
-// Die Reihenfolge hier ist die Reihenfolge in der Leiste. sym ist das Zeichen
-// links, wert() macht aus dem Datenbankwert lesbaren Text.
+// Die Reihenfolge hier ist die Reihenfolge in der Leiste; wert() macht aus
+// dem Datenbankwert lesbaren Text.
 // ============================================================================
 
 // Aus GRUPPEN eine Nachschlagetabelle bauen: Feldname → Felddefinition.
@@ -63,63 +63,63 @@ const ANZEIGE = [
   {
     titel: 'Wasser',
     felder: [
-      { name: 'water_nearby', sym: '💧', label: 'Wasser in der Nähe',
+      { name: 'water_nearby', label: 'Wasser in der Nähe',
         wert: (v) => (v ? 'ja' : 'nein'), ton: (v) => (v ? 'gut' : null) },
-      { name: 'water_type', sym: '🚰', label: 'Art' },
-      { name: 'water_distance_m', sym: '📏', label: 'Entfernung', wert: meter },
-      { name: 'water_reliable', sym: '🔁', label: 'Verlässlichkeit',
+      { name: 'water_type', label: 'Art' },
+      { name: 'water_distance_m', label: 'Entfernung', wert: meter },
+      { name: 'water_reliable', label: 'Verlässlichkeit',
         ton: (v) => (v === 'unsicher' ? 'warn' : null) },
     ],
   },
   {
     titel: 'Lage',
     felder: [
-      { name: 'elevation_m', sym: '⛰️', label: 'Seehöhe', wert: meter },
-      { name: 'above_treeline', sym: '🌲', label: 'Über der Baumgrenze',
+      { name: 'elevation_m', label: 'Seehöhe', wert: meter },
+      { name: 'above_treeline', label: 'Über der Baumgrenze',
         wert: (v) => (v ? 'ja' : 'nein') },
-      { name: 'has_lake', sym: '🏞️', label: 'See am Spot',
+      { name: 'has_lake', label: 'See am Spot',
         wert: (v) => (v ? 'ja' : 'nein'), ton: (v) => (v ? 'gut' : null) },
-      { name: 'ground_type', sym: '🪨', label: 'Untergrund' },
-      { name: 'flat_tent_spots', sym: '⛺', label: 'Platz für' },
-      { name: 'exposure', sym: '💨', label: 'Wind',
+      { name: 'ground_type', label: 'Untergrund' },
+      { name: 'flat_tent_spots', label: 'Platz für' },
+      { name: 'exposure', label: 'Wind',
         ton: (v) => (v === 'exponiert' ? 'warn' : v === 'geschuetzt' ? 'gut' : null) },
     ],
   },
   {
     titel: 'Ressourcen',
     felder: [
-      { name: 'firewood_available', sym: '🪵', label: 'Brennholz' },
-      { name: 'fire_allowed', sym: '🔥', label: 'Feuer',
+      { name: 'firewood_available', label: 'Brennholz' },
+      { name: 'fire_allowed', label: 'Feuer',
         ton: (v) => (v === 'verboten' ? 'warn' : v === 'erlaubt' ? 'gut' : null) },
-      { name: 'shelter_nearby', sym: '🏚️', label: 'Unterstand' },
+      { name: 'shelter_nearby', label: 'Unterstand' },
     ],
   },
   {
     titel: 'Fischen',
     felder: [
-      { name: 'fishing', sym: '🎣', label: 'Fischen',
+      { name: 'fishing', label: 'Fischen',
         ton: (v) => (v === 'verboten' ? 'warn' : v === 'mit_lizenz' ? 'gut' : null) },
-      { name: 'fish_species', sym: '🐟', label: 'Fischarten',
+      { name: 'fish_species', label: 'Fischarten',
         wert: (v) => v.map((s) => auswahlText('fish_species', s)).join(', ') },
-      { name: 'fishing_note', sym: '🎟️', label: 'Karte', wert: (v) => v },
+      { name: 'fishing_note', label: 'Karte', wert: (v) => v },
     ],
   },
   {
     titel: 'Praktisches',
     felder: [
-      { name: 'access', sym: '🚶', label: 'Anreise' },
+      { name: 'access', label: 'Anreise' },
       // Die geschätzte Gehzeit verschwindet, sobald die Route gemessen ist:
       // Sie steht dann weiter oben als echte Zahl, und zwei verschiedene
       // Gehzeiten in einem Fenster wären die schlechteste aller Antworten.
-      { name: 'hike_minutes', sym: '⏱️', label: 'Gehzeit (geschätzt)', wert: gehzeit,
+      { name: 'hike_minutes', label: 'Gehzeit (geschätzt)', wert: gehzeit,
         nurWenn: (spot) => !gemesseneRoute(spot) },
-      { name: 'mobile_signal', sym: '📶', label: 'Handyempfang',
+      { name: 'mobile_signal', label: 'Handyempfang',
         ton: (v) => (v === 'keiner' ? 'warn' : null) },
-      { name: 'discreet', sym: '👁️', label: 'Einsehbarkeit',
+      { name: 'discreet', label: 'Einsehbarkeit',
         ton: (v) => (v === 'einsehbar' ? 'warn' : v === 'sehr' ? 'gut' : null) },
-      { name: 'legal_status', sym: '⚖️', label: 'Rechtlich',
+      { name: 'legal_status', label: 'Rechtlich',
         ton: (v) => (v === 'verboten' ? 'warn' : v === 'erlaubt' ? 'gut' : null) },
-      { name: 'season', sym: '🗓️', label: 'Jahreszeit',
+      { name: 'season', label: 'Jahreszeit',
         wert: (v) => v.map((s) => auswahlText('season', s)).join(', ') },
     ],
   },
@@ -538,7 +538,7 @@ function zeichnen(spot, kommentare, meineSterne, fotos = []) {
     teile.push(
       '<button type="button" class="zweit" id="detail-erzaehlen" ' +
       'style="display:flex;align-items:center;justify-content:center;gap:8px">' +
-      '📷 Von hier erzählen</button>'
+      'Von hier erzählen</button>'
     );
   }
 
@@ -640,7 +640,6 @@ function zeichnen(spot, kommentare, meineSterne, fotos = []) {
 
       zeilen.push(
         `<div class="merkmal${lang ? ' lang' : ''}">` +
-        `<span class="sym">${feld.sym}</span>` +
         `<span class="was">${feld.label}</span>` +
         `<span class="wert${ton ? ' ' + ton : ''}">${escapeHtml(text)}</span>` +
         '</div>'
@@ -660,7 +659,7 @@ function zeichnen(spot, kommentare, meineSterne, fotos = []) {
     teile.push('<h3>Foto hinzufügen</h3>');
     teile.push(
       '<input type="file" id="foto-datei" accept="image/*" multiple hidden>',
-      '<button type="button" class="zweit" id="foto-knopf">📷 Fotos auswählen</button>',
+      '<button type="button" class="zweit" id="foto-knopf">Fotos auswählen</button>',
       '<p class="detail-leer" id="foto-stand">Mehrere auf einmal gehen auch. ' +
       'Die Bilder sieht jeder — auch ohne Konto.</p>'
     );
@@ -789,9 +788,18 @@ function hinkommenHtml(lat, lng) {
   return (
     '<div class="hinweg">' +
     `<a class="weg-knopf" href="${google}" target="_blank" rel="noopener">` +
-    '<span class="sym">🚗</span><span class="was">Anfahrt<small>Google Maps</small></span></a>' +
+    // Gezeichnete Zeichen statt 🚗 und 🥾 — dasselbe dünne Strichbild wie
+    // überall sonst in der App.
+    '<span class="sym"><svg viewBox="0 0 24 24">' +
+    '<path d="M4.5 15.5h15M6 15.5l1.6-5.2A2 2 0 019.5 9h5a2 2 0 011.9 1.3l1.6 5.2"/>' +
+    '<path d="M4.5 15.5v2.8M19.5 15.5v2.8"/><circle cx="8" cy="15.5" r="1.4"/>' +
+    '<circle cx="16" cy="15.5" r="1.4"/></svg></span>' +
+    '<span class="was">Anfahrt<small>Google Maps</small></span></a>' +
     `<a class="weg-knopf" href="${komoot}" target="_blank" rel="noopener">` +
-    '<span class="sym">🥾</span><span class="was">Wanderweg<small>Komoot</small></span></a>' +
+    '<span class="sym"><svg viewBox="0 0 24 24">' +
+    '<path d="M6 21c0-3.5 1.5-5 1.5-8S6 9 6 6"/><path d="M12 21c0-4 2-5.5 2-9s-2-4-2-6"/>' +
+    '<path d="M18 21c0-3 1-4.5 1-7"/></svg></span>' +
+    '<span class="was">Wanderweg<small>Komoot</small></span></a>' +
     '</div>' +
     '<p class="detail-leer">Das Ziel ist der Spot selbst — mit dem Auto kommt ' +
     'man je nach Lage nur in die Nähe. ' +
