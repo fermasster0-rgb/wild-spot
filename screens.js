@@ -304,15 +304,22 @@
     // nicht NaN. Ohne sie stünde bei jedem Spot ohne Standortbezug „0 km" —
     // also überall dort, wo gar keine Entfernung gerechnet wurde.
     if (s.entfernung_km != null && Number.isFinite(Number(s.entfernung_km))) {
-      teile.push(`<span>📍 <b>${Number(s.entfernung_km).toLocaleString('de-AT')} km</b></span>`);
+      teile.push(`<span><b>${Number(s.entfernung_km).toLocaleString('de-AT')} km</b></span>`);
     }
 
+    // Ohne Zeichen davor. Hier standen bis zum 2026-08-16 vor jeder Angabe
+    // ein Emoji — 📍 ⛰️ 💧 🚶 🏞️ nebeneinander unter jeder Kachel. Das ist
+    // dreimal dieselbe Auskunft: Bild, Wort und Zahl. Das Wort allein reicht,
+    // und die Zeile wird ruhig.
+    //
+    // Der Stern bleibt: Er ist ein Schriftzeichen und keine Zeichnung, und
+    // eine Bewertung ohne Stern liest sich wie eine beliebige Zahl.
     const hoehe = meter(s.elevation_m);
-    if (hoehe && teile.length < 3) teile.push(`<span>⛰️ <b>${hoehe}</b></span>`);
-    if (s.water_nearby && teile.length < 3) teile.push('<span>💧 Wasser</span>');
+    if (hoehe && teile.length < 3) teile.push(`<span><b>${hoehe}</b></span>`);
+    if (s.water_nearby && teile.length < 3) teile.push('<span>Wasser</span>');
     const zeit = gehzeit(s.hike_minutes);
-    if (zeit && teile.length < 3) teile.push(`<span>🚶 ${zeit}</span>`);
-    if (s.has_lake && teile.length < 3) teile.push('<span>🏞️ See</span>');
+    if (zeit && teile.length < 3) teile.push(`<span>${zeit} Zustieg</span>`);
+    if (s.has_lake && teile.length < 3) teile.push('<span>See</span>');
     return teile.join('');
   }
 
@@ -401,57 +408,58 @@
   // trotzdem in der Liste; sie sind auf Entdecken nützlich.
   const CHIPS = [
     // ------------------------------------------------------------- Wasser
-    { id: 'see',    gruppe: 'Wasser', emoji: '🏞️', text: 'Am See',            regel: ['==', ['get', 'has_lake'], true] },
-    { id: 'wasser', gruppe: 'Wasser', emoji: '💧',  text: 'Wasser dabei',      regel: ['==', ['get', 'water_nearby'], true] },
-    { id: 'quelle', gruppe: 'Wasser', emoji: '⛲',  text: 'Quelle oder Bach',  regel: ['match', ['coalesce', ['get', 'water_type'], ''], ['quelle', 'bach'], true, false] },
-    { id: 'sicher', gruppe: 'Wasser', emoji: '🚰',  text: 'Ganzjährig Wasser', regel: ['==', ['get', 'water_reliable'], 'ganzjaehrig'] },
+    { id: 'see',    gruppe: 'Wasser', text: 'Am See',            regel: ['==', ['get', 'has_lake'], true] },
+    { id: 'wasser', gruppe: 'Wasser',  text: 'Wasser dabei',      regel: ['==', ['get', 'water_nearby'], true] },
+    { id: 'quelle', gruppe: 'Wasser',  text: 'Quelle oder Bach',  regel: ['match', ['coalesce', ['get', 'water_type'], ''], ['quelle', 'bach'], true, false] },
+    { id: 'sicher', gruppe: 'Wasser',  text: 'Ganzjährig Wasser', regel: ['==', ['get', 'water_reliable'], 'ganzjaehrig'] },
 
     // --------------------------------------------------------------- Lage
-    { id: 'hoch',     gruppe: 'Lage', emoji: '⛰️', text: 'Ab 1.500 m',          regel: ['>=', ['coalesce', ['get', 'elevation_m'], 0], 1500] },
-    { id: 'sehrhoch', gruppe: 'Lage', emoji: '🏔️', text: 'Ab 2.000 m',          regel: ['>=', ['coalesce', ['get', 'elevation_m'], 0], 2000] },
-    { id: 'baum',     gruppe: 'Lage', emoji: '🌲', text: 'Über der Baumgrenze', regel: ['==', ['get', 'above_treeline'], true] },
-    { id: 'still',    gruppe: 'Lage', emoji: '👁️', text: 'Nicht einsehbar',     regel: ['==', ['get', 'discreet'], 'sehr'] },
-    { id: 'schutz',   gruppe: 'Lage', emoji: '🍃', text: 'Windgeschützt',       regel: ['==', ['get', 'exposure'], 'geschuetzt'] },
+    { id: 'hoch',     gruppe: 'Lage', text: 'Ab 1.500 m',          regel: ['>=', ['coalesce', ['get', 'elevation_m'], 0], 1500] },
+    { id: 'sehrhoch', gruppe: 'Lage', text: 'Ab 2.000 m',          regel: ['>=', ['coalesce', ['get', 'elevation_m'], 0], 2000] },
+    { id: 'baum',     gruppe: 'Lage', text: 'Über der Baumgrenze', regel: ['==', ['get', 'above_treeline'], true] },
+    { id: 'still',    gruppe: 'Lage', text: 'Nicht einsehbar',     regel: ['==', ['get', 'discreet'], 'sehr'] },
+    { id: 'schutz',   gruppe: 'Lage', text: 'Windgeschützt',       regel: ['==', ['get', 'exposure'], 'geschuetzt'] },
 
     // ------------------------------------------------------------ Zustieg
-    { id: 'sehrkurz', gruppe: 'Zustieg', emoji: '👟', text: 'Unter 20 Minuten', regel: ['<=', ['coalesce', ['get', 'hike_minutes'], 9999], 20] },
-    { id: 'kurz',     gruppe: 'Zustieg', emoji: '🚶', text: 'Unter 1 Stunde',   regel: ['<=', ['coalesce', ['get', 'hike_minutes'], 9999], 60] },
-    { id: 'auto',     gruppe: 'Zustieg', emoji: '🚗', text: 'Mit dem Auto hin', regel: ['==', ['get', 'access'], 'auto'] },
-    { id: 'weit',     gruppe: 'Zustieg', emoji: '🥾', text: 'Lange Wanderung',  regel: ['==', ['get', 'access'], 'lange_wanderung'] },
+    { id: 'sehrkurz', gruppe: 'Zustieg', text: 'Unter 20 Minuten', regel: ['<=', ['coalesce', ['get', 'hike_minutes'], 9999], 20] },
+    { id: 'kurz',     gruppe: 'Zustieg', text: 'Unter 1 Stunde',   regel: ['<=', ['coalesce', ['get', 'hike_minutes'], 9999], 60] },
+    { id: 'auto',     gruppe: 'Zustieg', text: 'Mit dem Auto hin', regel: ['==', ['get', 'access'], 'auto'] },
+    { id: 'weit',     gruppe: 'Zustieg', text: 'Lange Wanderung',  regel: ['==', ['get', 'access'], 'lange_wanderung'] },
 
     // ---------------------------------------------------------- Der Platz
-    { id: 'weich',   gruppe: 'Der Platz', emoji: '🌱', text: 'Weicher Untergrund', regel: ['match', ['coalesce', ['get', 'ground_type'], ''], ['wiese', 'waldboden'], true, false] },
-    { id: 'mehrere', gruppe: 'Der Platz', emoji: '⛺', text: 'Mehrere Zelte',      regel: ['match', ['coalesce', ['get', 'flat_tent_spots'], ''], ['2-3', '4+'], true, false] },
-    { id: 'unter',   gruppe: 'Der Platz', emoji: '🏚️', text: 'Unterstand in der Nähe', regel: ['match', ['coalesce', ['get', 'shelter_nearby'], ''], ['biwakschachtel', 'huette', 'felsueberhang'], true, false] },
-    { id: 'holz',    gruppe: 'Der Platz', emoji: '🪵', text: 'Holz vorhanden',     regel: ['match', ['coalesce', ['get', 'firewood_available'], ''], ['viel', 'etwas'], true, false] },
+    { id: 'weich',   gruppe: 'Der Platz', text: 'Weicher Untergrund', regel: ['match', ['coalesce', ['get', 'ground_type'], ''], ['wiese', 'waldboden'], true, false] },
+    { id: 'mehrere', gruppe: 'Der Platz', text: 'Mehrere Zelte',      regel: ['match', ['coalesce', ['get', 'flat_tent_spots'], ''], ['2-3', '4+'], true, false] },
+    { id: 'unter',   gruppe: 'Der Platz', text: 'Unterstand in der Nähe', regel: ['match', ['coalesce', ['get', 'shelter_nearby'], ''], ['biwakschachtel', 'huette', 'felsueberhang'], true, false] },
+    { id: 'holz',    gruppe: 'Der Platz', text: 'Holz vorhanden',     regel: ['match', ['coalesce', ['get', 'firewood_available'], ''], ['viel', 'etwas'], true, false] },
 
     // ------------------------------------------------------- Regeln, Empfang
-    { id: 'feuer',    gruppe: 'Regeln und Empfang', emoji: '🔥', text: 'Feuer erlaubt',        regel: ['==', ['get', 'fire_allowed'], 'erlaubt'] },
-    { id: 'erlaubt',  gruppe: 'Regeln und Empfang', emoji: '⚖️', text: 'Erlaubt oder geduldet', regel: ['match', ['coalesce', ['get', 'legal_status'], ''], ['erlaubt', 'geduldet'], true, false] },
-    { id: 'empfang',  gruppe: 'Regeln und Empfang', emoji: '📶', text: 'Handyempfang',          regel: ['==', ['get', 'mobile_signal'], 'gut'] },
-    { id: 'funkloch', gruppe: 'Regeln und Empfang', emoji: '🔇', text: 'Bewusst Funkloch',      regel: ['==', ['get', 'mobile_signal'], 'keiner'] },
+    { id: 'feuer',    gruppe: 'Regeln und Empfang', text: 'Feuer erlaubt',        regel: ['==', ['get', 'fire_allowed'], 'erlaubt'] },
+    { id: 'erlaubt',  gruppe: 'Regeln und Empfang', text: 'Erlaubt oder geduldet', regel: ['match', ['coalesce', ['get', 'legal_status'], ''], ['erlaubt', 'geduldet'], true, false] },
+    { id: 'empfang',  gruppe: 'Regeln und Empfang', text: 'Handyempfang',          regel: ['==', ['get', 'mobile_signal'], 'gut'] },
+    { id: 'funkloch', gruppe: 'Regeln und Empfang', text: 'Bewusst Funkloch',      regel: ['==', ['get', 'mobile_signal'], 'keiner'] },
 
     // -------------------------------------------------------- Jahreszeiten
-    { id: 'fruehling', gruppe: 'Jahreszeit', emoji: '🌷', text: 'Frühling', regel: ['in', 'fruehling', ['coalesce', ['get', 'season'], ['literal', []]]] },
-    { id: 'sommer',    gruppe: 'Jahreszeit', emoji: '☀️', text: 'Sommer',   regel: ['in', 'sommer',    ['coalesce', ['get', 'season'], ['literal', []]]] },
-    { id: 'herbst',    gruppe: 'Jahreszeit', emoji: '🍂', text: 'Herbst',   regel: ['in', 'herbst',    ['coalesce', ['get', 'season'], ['literal', []]]] },
-    { id: 'winter',    gruppe: 'Jahreszeit', emoji: '❄️', text: 'Winter',   regel: ['in', 'winter',    ['coalesce', ['get', 'season'], ['literal', []]]] },
+    { id: 'fruehling', gruppe: 'Jahreszeit', text: 'Frühling', regel: ['in', 'fruehling', ['coalesce', ['get', 'season'], ['literal', []]]] },
+    { id: 'sommer',    gruppe: 'Jahreszeit', text: 'Sommer',   regel: ['in', 'sommer',    ['coalesce', ['get', 'season'], ['literal', []]]] },
+    { id: 'herbst',    gruppe: 'Jahreszeit', text: 'Herbst',   regel: ['in', 'herbst',    ['coalesce', ['get', 'season'], ['literal', []]]] },
+    { id: 'winter',    gruppe: 'Jahreszeit', text: 'Winter',   regel: ['in', 'winter',    ['coalesce', ['get', 'season'], ['literal', []]]] },
 
     // --------------------------------------------------------------- Ruf
-    { id: 'gut',    gruppe: 'Ruf und Alter', emoji: '⭐', text: 'Gut bewertet',      regel: ['>=', ['coalesce', ['get', 'avg_stars'], 0], 4] },
-    { id: 'neu',    gruppe: 'Ruf und Alter', emoji: '🆕', text: 'Neu (30 Tage)',     regel: ['==', ['get', 'frisch'], true] },
+    { id: 'gut',    gruppe: 'Ruf und Alter', text: 'Gut bewertet',      regel: ['>=', ['coalesce', ['get', 'avg_stars'], 0], 4] },
+    { id: 'neu',    gruppe: 'Ruf und Alter', text: 'Neu (30 Tage)',     regel: ['==', ['get', 'frisch'], true] },
     // Ohne Kartenregel: Fotos hängen nicht am Kartenpunkt.
-    { id: 'bilder', gruppe: 'Ruf und Alter', emoji: '📷', text: 'Mit Fotos' },
+    { id: 'bilder', gruppe: 'Ruf und Alter', text: 'Mit Fotos' },
   ];
 
   // Die Reihenfolge der Gruppen im Filterblatt.
   const CHIP_GRUPPEN = ['Wasser', 'Lage', 'Zustieg', 'Der Platz',
                         'Regeln und Empfang', 'Jahreszeit', 'Ruf und Alter'];
 
-  // Die Chips, die als Reihe direkt auf der Entdecken-Seite stehen. Alle
-  // sechsundzwanzig dort hinzulegen wäre eine Wand — der Rest steht hinter
-  // dem Filterknopf.
-  const SCHNELL_CHIPS = ['see', 'wasser', 'hoch', 'baum', 'kurz', 'gut', 'still', 'feuer'];
+  // Die Chips, die als Reihe direkt auf der Entdecken-Seite stehen: die vier
+  // häufigsten Fragen, mehr nicht. Alle achtundzwanzig dort hinzulegen wäre
+  // eine Wand, und schon acht waren zu viel — sie schoben den Filterknopf aus
+  // dem Bild. Der Rest steht hinter dem Knopf, wo er hingehört.
+  const SCHNELL_CHIPS = ['see', 'wasser', 'hoch', 'gut'];
 
   const gewaehlteChips = new Set();
 
@@ -482,7 +490,11 @@
     // Den Stand aus der Auswahl lesen und nicht auf „aus" setzen: Die Reihe
     // wird auch neu gebaut, während schon gefiltert wird.
     k.setAttribute('aria-pressed', String(gewaehlteChips.has(c.id)));
-    k.innerHTML = `<span class="emoji">${c.emoji}</span>${sicher(c.text)}`;
+    // Nur Text. Bis zum 2026-08-16 stand vor jedem Chip ein Emoji — bei
+    // achtundzwanzig Filtern in einem Blatt ergab das eine Wand aus bunten
+    // Bildchen, in der die Wörter untergingen. Ein Filter ist ein Satzteil
+    // („am See"), kein Symbol.
+    k.textContent = c.text;
     k.addEventListener('click', () => chipUmschalten(c.id));
     return k;
   }
@@ -873,13 +885,16 @@
 
     const n = (w) => Number(w || 0).toLocaleString('de-AT');
 
+    // Ein Satz statt fünf Kacheln. Dieselbe Auskunft, ein Fünftel Platz —
+    // und sie steht am Ende der Seite, wo sie niemandem im Weg ist.
     band.hidden = false;
     band.innerHTML =
-      `<div class="band-kachel"><b>${n(z.spots)}</b><span>Spots</span></div>
-       <div class="band-kachel"><b>${n(z.gipfel_frei)}</b><span>Gipfel</span></div>
-       <div class="band-kachel"><b>${n(z.leute)}</b><span>Leute</span></div>
-       <div class="band-kachel"><b>${n(z.naechte)}</b><span>Nächte</span></div>
-       <div class="band-kachel"><b>${n(z.fotos)}</b><span>Fotos</span></div>`;
+      `In Wild Spot stehen gerade <b>${n(z.spots)}</b> ${
+        Number(z.spots) === 1 ? 'Spot' : 'Spots'} und <b>${n(z.fotos)}</b> ${
+        Number(z.fotos) === 1 ? 'Foto' : 'Fotos'}, dazu <b>${n(z.gipfel_frei)}</b> ` +
+      `Gipfel zum Sammeln. <b>${n(z.leute)}</b> ${
+        Number(z.leute) === 1 ? 'Person ist' : 'Leute sind'} dabei, zusammen mit ` +
+      `<b>${n(z.naechte)}</b> ${Number(z.naechte) === 1 ? 'Nacht' : 'Nächten'} draußen.`;
   }
 
   // In deiner Nähe — nur, wenn der Standort schon bekannt ist. Diese Seite
@@ -1177,7 +1192,8 @@
     // Die Plus-Schranke: ein Gebiet im Voraus laden.
     if (window.WILDSPOT_PLUS) {
       kasten.appendChild(window.WILDSPOT_PLUS.schrankeBauen(
-        '🗺️',
+        '<svg viewBox="0 0 24 24"><path d="M12 3v11M8 10.5l4 4 4-4"/>' +
+        '<path d="M4 17v2.5h16V17"/></svg>',
         'Gebiet im Voraus laden',
         'Karte, Wege und Spots einer ganzen Region auf einmal — statt sie ' +
         'vorher von Hand abzufahren.',

@@ -24,26 +24,52 @@ der wichtigste, aber eben einer.
 | **Plus** | Was Geld kostet und warum ([KONZEPT.md, Abschnitt 10](../KONZEPT.md)) |
 | **Profil** | Konto, **deine Zahlen**, **Abzeichen**, **Gipfel**, **letzte Aktivität**, Einstellungen |
 
-Die fünf Tafeln auf **Entdecken**:
+Die vier Tafeln auf **Entdecken** — Textreiter mit Unterstrich, ohne Zeichen:
 
 | Tafel | Was drauf steht |
 |-------|-----------------|
 | **Spots** | Suche, Filter, Treffer, Spot der Woche, neu dazugekommen, in deiner Nähe, Bestenliste, **Gipfel sammeln**, drei Artikel |
-| **Feed** | Beiträge aller — Bild, Text, Spot, Datum |
-| **Ich folge** | Derselbe Feed, nur von Leuten, denen du folgst |
+| **Feed** | Beiträge — umschaltbar auf *Nur wem ich folge* |
 | **Aktivität** | Alle Ereignisse: wer war auf einem Gipfel, wer hat einen Platz eingetragen, wer hat bewertet |
 | **Leute** | Namen suchen, Vorschläge zum Folgen, die Gipfel-Bestenliste |
 
-Ganz oben steht ein **Zahlenband**: wie viele Spots, Gipfel, Leute, Nächte und
-Fotos es überhaupt gibt. Bei einer jungen App sind das kleine Zahlen — gerade
-deshalb stehen sie da. Eine App, die verschweigt, wie groß sie ist, wirkt
-größer und enttäuscht mehr.
+> **Was am 2026-08-16 aufgeräumt wurde:** Über der Seite lagen vier
+> Bedienreihen übereinander — ein Zahlenband aus fünf Kacheln, fünf grüne
+> Reiterpillen mit Emojis, das Suchfeld und acht Filterchips. Der erste Spot
+> war damit aus dem Bild geschoben. Jetzt sind es drei ruhige Zeilen: Reiter,
+> Suche, Filter. Der Reiter *Ich folge* ist ein Umschalter im Feed geworden,
+> und die Zahlen der Gemeinschaft stehen als ein Satz am Ende der Seite.
 
 **Am Rechner** wird aus der Leiste unten eine Spalte links — dort ist unten
 kein Daumen, sondern nur weiter Weg für die Maus.
 
 Die Karte wird beim Wechseln nie weggeworfen, sondern nur verdeckt. Deshalb
 steht sie sofort wieder da, an derselben Stelle und im selben Zoom.
+
+### Zeichen statt Emojis
+
+In der App stehen fast keine Emojis mehr. Sie waren an vielen Stellen: vor
+jedem Filterchip, vor jeder Angabe unter einer Spot-Kachel, vor jedem der
+zwanzig Merkmale im Spot-Blatt, auf den Reitern, in der Aktivität und auf der
+Plus-Seite.
+
+Der Grund fürs Aufräumen ist nicht Geschmack, sondern Lesbarkeit: Ein Emoji vor
+dem Wort *Wasser* sagt nichts, was das Wort nicht schon sagt — es verdoppelt
+die Auskunft und zieht dabei den Blick auf sich. Zwanzig davon untereinander
+sind eine bunte Spalte, durch die man sich durchsehen muss.
+
+Wo ein Zeichen wirklich hilft, ist es jetzt **gezeichnet**: dieselben dünnen
+Striche wie die Symbole auf der Karte, in einer Farbe, auf jedem Gerät gleich.
+Das betrifft die Aktivitätsliste (Zelt, Berg, Stern, Sprechblase, Kamera), die
+Gipfel, die Wege-Knöpfe und die Plus-Seite.
+
+Emojis geblieben sind nur zwei Sorten:
+
+- **Die Abzeichen** — dort ist das Zeichen das Abzeichen und nicht seine
+  Verzierung.
+- **Das Wetter** — ein Regenschauer als Bild ist schneller erfasst als das Wort,
+  und die Symbole stehen dort für sich, nicht neben einem Text, der dasselbe
+  sagt.
 
 ### Hell und dunkel
 
@@ -89,8 +115,9 @@ sagt, wie viele Filter gerade gesetzt sind.
 > meisten Leute nicht. Ein Blatt mit allen Filtern untereinander zeigt in einer
 > Sekunde, was überhaupt geht.
 
-Auf der Entdecken-Seite stehen die acht meistgebrauchten zusätzlich als Reihe
-direkt auf der Seite; im Blatt sind sie noch einmal mit dabei.
+Auf der Entdecken-Seite stehen **vier** davon zusätzlich als Reihe neben dem
+Knopf — die häufigsten Fragen als Abkürzung. Im Blatt sind sie noch einmal mit
+dabei.
 
 Beide Orte zeigen **dieselbe Auswahl** — was hier gesetzt wird, ist dort
 gesetzt. Nur die Antwort sieht an jedem der beiden Orte anders aus:

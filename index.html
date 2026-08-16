@@ -1580,31 +1580,34 @@ body.detail-offen .unten { right: 404px; }
   word-break: break-word;
 }
 
-/* Die Attribute: ein Emoji, das Merkmal, der Wert. Zwei Spalten, damit die
-   Werte untereinander stehen und man die Zeile überfliegen kann. */
+/* Die Attribute: das Merkmal links, der Wert rechts. Zwei Spalten, damit die
+   Werte untereinander stehen und man die Zeile überfliegen kann.
+
+   Vor jedem Merkmal stand bis zum 2026-08-16 ein Emoji — bei zwanzig
+   Merkmalen untereinander (💧 🚰 📏 🔁 🌲 🏞️ 🪨 💨 …) war das eine bunte
+   Spalte, die nichts erklärt, was das Wort daneben nicht schon sagt. */
 .merkmale { display: flex; flex-direction: column; gap: 1px; }
 .merkmal {
   display: grid;
-  grid-template-columns: 22px 1fr auto;
-  gap: 8px;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
   align-items: baseline;
-  padding: 7px 0;
+  padding: 8px 0;
   font-size: 13.5px;
   border-bottom: 1px solid var(--t1);
 }
 .merkmal:last-child { border-bottom: 0; }
-.merkmal .sym { font-size: 14px; line-height: 1.2; }
 .merkmal .was { color: var(--text-weak); }
 .merkmal .wert { color: var(--text); text-align: right; font-weight: 500; }
 
 /* Lange Werte — eine Reihe Fischarten, ein Hinweis zur Fischerkarte — stehen
    unter dem Merkmal statt daneben. */
 .merkmal.lang {
-  grid-template-columns: 22px 1fr;
+  grid-template-columns: 1fr;
   row-gap: 3px;
 }
 .merkmal.lang .wert {
-  grid-column: 2;
+  grid-column: 1;
   text-align: left;
   line-height: 1.5;
   word-break: break-word;
@@ -1749,7 +1752,15 @@ body.detail-offen .unten { right: 404px; }
   background: var(--t3);
   border-color: var(--t4);
 }
-.weg-knopf .sym { font-size: 18px; line-height: 1; }
+.weg-knopf .sym { line-height: 0; color: var(--text-weak); }
+.weg-knopf .sym svg {
+  width: 20px; height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
 .weg-knopf .was { display: flex; flex-direction: column; gap: 2px; }
 .weg-knopf small { color: var(--text-weak); font-size: 11px; font-weight: 400; }
 
@@ -3067,6 +3078,16 @@ body.parkplatz-modus .knopf-zeile { display: none; }
 .spotkarte .fakten span { display: flex; align-items: center; gap: 4px; }
 .spotkarte .fakten b { color: var(--text); font-weight: 600; }
 
+/* Seit die Zeichen vor den Angaben weg sind, trennt ein Mittelpunkt sie —
+   sonst stünde da „1.982 mWasser". Er gehört ins Blatt und nicht in den
+   Text: So bleibt er auch dann richtig, wenn eine Angabe fehlt. */
+.spotkarte .fakten span + span::before,
+.spotzeile .wo .fakten span + span::before {
+  content: "·";
+  margin-right: 8px;
+  opacity: 0.45;
+}
+
 /* ------------------------------------------------------- Die große Kachel */
 .held {
   width: auto;
@@ -3810,8 +3831,18 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   flex-shrink: 0;
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.07);
-  font-size: 20px;
-  line-height: 1;
+  color: var(--orange);
+}
+/* Gezeichnete Zeichen statt Emojis — dieselbe Strichstärke wie die Symbole
+   auf der Karte. Emojis sahen auf jedem Gerät anders aus, und ausgerechnet
+   auf der einzigen Seite, die etwas verkauft, wirkten sie billig. */
+.plus-punkt .zeichen svg {
+  width: 22px; height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 .plus-punkt .was { flex: 1; min-width: 0; }
 .plus-punkt h4 {
@@ -4062,8 +4093,16 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   border-radius: 14px;
   background: var(--orange);
   color: #fff;
-  font-size: 16px;
 }
+.schranke .zeichen svg {
+  width: 18px; height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.plus-aktiv .zeichen { color: var(--orange); line-height: 0; }
 .schranke .was { flex: 1; min-width: 0; }
 .schranke .was b {
   display: block;
@@ -4156,14 +4195,52 @@ body.bereich-offen.detail-offen::after {
    ##                                                                      ##
    ########################################################################## */
 
-/* Die Reiterzeile über dem Feed. Dieselben Chips wie bei den Filtern, nur
-   als Auswahl von genau einem statt als Schalter. */
-.tafel-reiter { margin-bottom: 4px; }
-.tafel-reiter .chip[aria-selected="true"] {
-  background: var(--gruen);
-  border-color: var(--gruen);
-  color: var(--auf-akzent);
+/* Die Reiterzeile auf der Entdecken-Seite.
+
+   Text mit Unterstrich, nicht Pillen mit Zeichen. Bis zum 2026-08-16 standen
+   hier fünf grüne Pillen mit je einem Emoji; zusammen mit Zahlenband, Suche
+   und Chipreihe waren das vier Bedienreihen übereinander, bevor der erste
+   Spot kam. Ein Reiter gliedert nur — er soll leise sein und nicht aussehen
+   wie ein Knopf, den man drücken muss. */
+.tafel-reiter {
+  display: flex;
+  gap: 4px;
+  margin: 0 0 18px;
+  padding: 0 max(18px, env(safe-area-inset-left));
+  border-bottom: 1px solid var(--rand);
+  overflow-x: auto;
+  scrollbar-width: none;
 }
+.tafel-reiter::-webkit-scrollbar { display: none; }
+
+.tafel-reiter button {
+  flex: 1 0 auto;
+  position: relative;
+  padding: 11px 12px 12px;
+  border: 0;
+  background: none;
+  color: var(--text-weak);
+  font: inherit;
+  font-size: 14.5px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.tafel-reiter button::after {
+  content: "";
+  position: absolute;
+  left: 10px; right: 10px; bottom: -1px;
+  height: 2px;
+  border-radius: 2px;
+  background: transparent;
+}
+.tafel-reiter button[aria-selected="true"] {
+  color: var(--text);
+  font-weight: 800;
+}
+.tafel-reiter button[aria-selected="true"]::after { background: var(--gruen); }
 
 /* --------------------------------------------------------------- Beitrag ---
    Aufbau von oben nach unten: wer, Bild, Text, Platz, Gefällt.
@@ -4661,35 +4738,16 @@ body.bereich-offen.detail-offen::after {
    hat — ist hier überhaupt was los?
    ========================================================================== */
 .zahlenband {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 20px;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-.zahlenband::-webkit-scrollbar { display: none; }
-.zahlenband[hidden] { display: none; }
-.band-kachel {
-  flex: 1 0 auto;
-  min-width: 64px;
-  padding: 10px 12px;
-  border-radius: 14px;
-  background: var(--flaeche);
-  border: 1px solid var(--rand);
-  text-align: center;
-}
-.band-kachel b {
-  display: block;
-  font-size: 17px;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  font-variant-numeric: tabular-nums;
-}
-.band-kachel span {
-  display: block;
-  margin-top: 1px;
-  font-size: 10.5px;
+  margin: 18px 0 0;
+  font-size: 12px;
+  line-height: 1.7;
   color: var(--text-weak);
+}
+.zahlenband[hidden] { display: none; }
+.zahlenband b {
+  color: var(--text);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 
 /* ==========================================================================
@@ -4823,7 +4881,7 @@ body.bereich-offen.detail-offen::after {
   cursor: pointer;
 }
 .gipfelzeile:hover { border-color: var(--t4); }
-.gipfelzeile .zeichen { font-size: 19px; line-height: 1; flex-shrink: 0; }
+.gipfelzeile .zeichen { flex-shrink: 0; }
 .gipfelzeile .wo { flex: 1; min-width: 0; }
 .gipfelzeile .wo b {
   display: block;
@@ -4852,7 +4910,33 @@ body.bereich-offen.detail-offen::after {
 .gipfelliste-box { max-width: 480px; }
 
 .gipfel-kopf { text-align: center; padding: 4px 0 18px; }
-.gipfel-zeichen { font-size: 36px; display: block; margin-bottom: 6px; }
+.gipfel-zeichen {
+  display: block;
+  margin: 0 auto 8px;
+  width: 42px; height: 42px;
+  color: var(--text-weak);
+}
+.gipfel-zeichen svg {
+  width: 100%; height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+/* Gesammelt heißt goldgelb — dieselbe Farbe wie auf der Karte. */
+.gipfel-kopf.gesammelt .gipfel-zeichen { color: #b7860b; }
+
+.gipfelzeile .zeichen svg {
+  width: 20px; height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.gipfelzeile .zeichen { color: var(--text-weak); line-height: 0; }
+.gipfelzeile.gesammelt .zeichen { color: #b7860b; }
 .gipfel-kopf h2 {
   margin: 0 0 4px;
   font-size: 22px;
@@ -5251,16 +5335,25 @@ body.bereich-offen.detail-offen::after {
 }
 .aktivzeile .wer .zeichen {
   position: absolute;
-  right: -4px; bottom: -3px;
+  right: -5px; bottom: -4px;
   display: grid;
   place-items: center;
-  width: 19px; height: 19px;
+  width: 20px; height: 20px;
   border-radius: 50%;
   background: var(--flaeche);
   border: 1px solid var(--rand);
-  font-size: 10.5px;
-  line-height: 1;
+  color: var(--text-weak);
 }
+.aktivzeile .wer .zeichen svg {
+  width: 12px; height: 12px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+/* Der Gipfel bekommt als einziger Farbe — er ist das, was man sammelt. */
+.aktivzeile.art-gipfel .wer .zeichen { color: #a97c08; }
 .aktivzeile .was { flex: 1; min-width: 0; }
 .aktivzeile .kopf {
   margin: 0;
@@ -5688,7 +5781,7 @@ body.bereich-offen.detail-offen::after {
     <div class="aus-foto" id="aus-foto">
       <input type="file" id="ort-foto-datei" accept="image/*" hidden>
       <button type="button" class="zweit" id="ort-foto-knopf">
-        📍 Ort aus einem Foto übernehmen
+        Ort aus einem Foto übernehmen
       </button>
       <p class="hinweis-klein" id="ort-foto-stand">
         Fast jedes Handyfoto weiß, wo es aufgenommen wurde. Das Bild bleibt
@@ -5806,27 +5899,32 @@ body.bereich-offen.detail-offen::after {
     <p class="unter" id="entdecken-unter">Plätze für die Nacht draußen</p>
   </div>
 
-  <!-- Wie viel überhaupt drin ist. Bei einer jungen App sind das kleine
-       Zahlen — gerade deshalb stehen sie da: Eine App, die verschweigt, wie
-       groß sie ist, wirkt größer und enttäuscht mehr. -->
-  <div class="rand zahlenband" id="entdecken-band" hidden></div>
+  <!-- Die vier Tafeln dieser Seite: „Spots" ist die Karte in Kachelform,
+       „Feed" die Beiträge, „Aktivität" der Strom aller Ereignisse, „Leute"
+       die Suche nach anderen.
 
-  <!-- Die fünf Tafeln dieser Seite. „Spots" ist die Karte in Kachelform,
-       „Feed" und „Ich folge" sind die Beiträge, „Aktivität" ist der Strom
-       aller Ereignisse, „Leute" ist die Suche nach anderen. Sie liegen hier
-       oben statt als eigene Bereiche unten, weil fünf Reiter in der unteren
-       Leiste das Höchste sind, was ein Daumen noch trifft. -->
-  <div class="reihe tafel-reiter" id="entdecken-reiter">
-    <button class="chip" data-tafel="spots"      aria-selected="true">⛺ Spots</button>
-    <button class="chip" data-tafel="alle"       aria-selected="false">🌍 Feed</button>
-    <button class="chip" data-tafel="folge"      aria-selected="false">👣 Ich folge</button>
-    <button class="chip" data-tafel="aktivitaet" aria-selected="false">⚡ Aktivität</button>
-    <button class="chip" data-tafel="leute"      aria-selected="false">🧭 Leute</button>
+       Textreiter mit Unterstrich statt Pillen mit Zeichen. Vorher standen
+       hier fünf grüne Pillen mit je einem Emoji — zusammen mit Zahlenband,
+       Suche und Chipreihe waren das VIER Bedienreihen, bevor der erste Spot
+       kam. Ein Reiter ist eine Gliederung und keine Handlung; er darf still
+       sein. „Ich folge" ist deshalb auch keinen eigenen Reiter mehr wert,
+       sondern ein Umschalter im Feed. -->
+  <div class="tafel-reiter" id="entdecken-reiter">
+    <button data-tafel="spots"      aria-selected="true">Spots</button>
+    <button data-tafel="alle"       aria-selected="false">Feed</button>
+    <button data-tafel="aktivitaet" aria-selected="false">Aktivität</button>
+    <button data-tafel="leute"      aria-selected="false">Leute</button>
   </div>
 
 
   <!-- ============================================================== FEED -->
   <div id="entdecken-feed" hidden>
+    <div class="rand">
+      <div class="listen-reiter" id="feed-reiter">
+        <button class="chip" data-feed="alle"  aria-pressed="true">Alle</button>
+        <button class="chip" data-feed="folge" aria-pressed="false">Nur wem ich folge</button>
+      </div>
+    </div>
     <div class="rand" id="feed-liste"></div>
   </div>
 
@@ -5892,19 +5990,20 @@ body.bereich-offen.detail-offen::after {
     </button>
   </div>
 
-  <!-- Die Filterchips. Sie werfen niemand mehr auf die Karte: Wer hier tippt,
-       bleibt hier und bekommt die Treffer gleich darunter als Kacheln.
-       In der Reihe stehen die acht meistgebrauchten; alle übrigen liegen
-       hinter dem Knopf rechts, zusammen mit denselben acht. -->
+  <!-- Die Filterzeile. Der Knopf steht LINKS und zuerst: Er ist der Eingang
+       zu allen 28 Filtern, die vier Chips daneben sind nur die Abkürzung für
+       die häufigsten Fragen. Vorher standen acht Chips davor und der Knopf
+       ganz rechts außerhalb des Bildes — man musste also erst schieben, um
+       zu sehen, dass es überhaupt Filter gibt. -->
   <div class="block filter-zeile">
-    <div class="reihe" id="entdecken-chips"></div>
     <button class="filter-knopf flach" id="entdecken-filter" aria-pressed="false">
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path d="M3 5.5h18M6.5 12h11M10 18.5h4"/>
       </svg>
-      <span class="wort">Alle Filter</span>
+      <span class="wort">Filter</span>
       <span class="zaehler" id="entdecken-filter-anzahl" hidden>0</span>
     </button>
+    <div class="reihe" id="entdecken-chips"></div>
   </div>
 
   <!-- Die Treffer zum gesetzten Filter. Steht direkt unter den Chips, damit
@@ -5916,7 +6015,7 @@ body.bereich-offen.detail-offen::after {
         <p class="abschnitt-unter" id="entdecken-treffer-unter">Wird gesucht …</p>
       </div>
       <button class="chip" id="entdecken-treffer-karte" type="button">
-        <span class="emoji">🗺️</span>Auf der Karte
+        Auf der Karte
       </button>
     </div>
     <div class="rand raster" id="entdecken-treffer"></div>
@@ -5974,7 +6073,7 @@ body.bereich-offen.detail-offen::after {
         <p class="abschnitt-unter" id="entdecken-gipfel-unter">14.560 Gipfel warten in Österreich</p>
       </div>
       <button class="chip" id="gipfel-alle" type="button">
-        <span class="emoji">🏔️</span>Alle ansehen
+        Alle ansehen
       </button>
     </div>
     <div class="reihe" id="entdecken-gipfel"></div>
@@ -6115,6 +6214,12 @@ body.bereich-offen.detail-offen::after {
     Wild Spot lebt davon, dass Leute ihre Plätze eintragen. Kennst du einen?
     Auf der Karte auf <b>+ Spot hier anlegen</b> tippen.
   </p>
+
+  <!-- Wie viel überhaupt drin ist. Stand bis zum 2026-08-16 als Kachelreihe
+       ganz oben — dort war es die erste von vier Bedienreihen und schob den
+       ersten Spot aus dem Bild. Als ruhige Zeile am Ende sagt es dasselbe,
+       nur ohne sich vorzudrängen. -->
+  <p class="rand zahlenband" id="entdecken-band" hidden></p>
   </div><!-- Ende #entdecken-standard -->
   </div><!-- Ende #entdecken-spots -->
 
@@ -6170,7 +6275,7 @@ body.bereich-offen.detail-offen::after {
     <div style="margin-bottom:26px">
 
       <div class="plus-punkt">
-        <div class="zeichen">🗺️</div>
+        <div class="zeichen"><svg viewBox="0 0 24 24"><path d="M12 3v11M8 10.5l4 4 4-4"/><path d="M4 17v2.5h16V17"/></svg></div>
         <div class="was">
           <h4>Karten für unterwegs herunterladen</h4>
           <p>Ein Gebiet zu Hause auf das Handy laden — Karte, Wege, Höhenlinien und
@@ -6181,7 +6286,7 @@ body.bereich-offen.detail-offen::after {
       </div>
 
       <div class="plus-punkt">
-        <div class="zeichen">🌙</div>
+        <div class="zeichen"><svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 019.5 4a8 8 0 1010.5 10.5Z"/></svg></div>
         <div class="was">
           <h4>Die beste Nacht der Woche</h4>
           <p>Für jeden Spot sieben Nächte im Voraus: Temperatur am Platz, Wind, Regen
@@ -6192,7 +6297,7 @@ body.bereich-offen.detail-offen::after {
       </div>
 
       <div class="plus-punkt">
-        <div class="zeichen">⚖️</div>
+        <div class="zeichen"><svg viewBox="0 0 24 24"><path d="M12 4v16M6 8h12"/><path d="M3 15l3-7 3 7a3 3 0 01-6 0Z"/><path d="M15 15l3-7 3 7a3 3 0 01-6 0Z"/></svg></div>
         <div class="was">
           <h4>Wo du sein darfst</h4>
           <p>Nationalparks, Naturschutz- und Ruhegebiete liegen als Fläche auf der
@@ -6203,7 +6308,7 @@ body.bereich-offen.detail-offen::after {
       </div>
 
       <div class="plus-punkt">
-        <div class="zeichen">🔒</div>
+        <div class="zeichen"><svg viewBox="0 0 24 24"><rect x="4.5" y="10" width="15" height="10.5" rx="2.5"/><path d="M8 10V7.5a4 4 0 018 0V10"/></svg></div>
         <div class="was">
           <h4>Geheime Spots</h4>
           <p>Deine besten Plätze musst du nicht teilen. Private Spots siehst nur du —
@@ -6214,7 +6319,7 @@ body.bereich-offen.detail-offen::after {
       </div>
 
       <div class="plus-punkt">
-        <div class="zeichen">🎯</div>
+        <div class="zeichen"><svg viewBox="0 0 24 24"><path d="M3 5.5h18M6.5 12h11M10 18.5h4"/></svg></div>
         <div class="was">
           <h4>Alle Filter auf einmal</h4>
           <p>„Über 1.500 Meter, Wasser in der Nähe, unter 90 Minuten Zustieg, nicht
@@ -6224,7 +6329,7 @@ body.bereich-offen.detail-offen::after {
       </div>
 
       <div class="plus-punkt">
-        <div class="zeichen">🧭</div>
+        <div class="zeichen"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M15 9l-2 4.5-4.5 2 2-4.5z"/></svg></div>
         <div class="was">
           <h4>Routen ohne Limit, dazu GPX</h4>
           <p>Die Wanderroute vom Parkplatz zum Spot beliebig oft berechnen und als
@@ -6234,7 +6339,7 @@ body.bereich-offen.detail-offen::after {
       </div>
 
       <div class="plus-punkt">
-        <div class="zeichen">✨</div>
+        <div class="zeichen"><svg viewBox="0 0 24 24"><path d="M12 3.5l1.9 4.6 4.6 1.9-4.6 1.9L12 16.5l-1.9-4.6L5.5 10l4.6-1.9z"/><path d="M18.5 16.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z"/></svg></div>
         <div class="was">
           <h4>Sterne, Mond und wirkliche Dunkelheit</h4>
           <p>Lichtverschmutzung am Platz, Mondphase und der Zeitpunkt, ab dem es
@@ -6243,7 +6348,7 @@ body.bereich-offen.detail-offen::after {
       </div>
 
       <div class="plus-punkt">
-        <div class="zeichen">🔔</div>
+        <div class="zeichen"><svg viewBox="0 0 24 24"><path d="M18 16V11a6 6 0 10-12 0v5l-1.5 2.5h15z"/><path d="M10 19.5a2 2 0 004 0"/></svg></div>
         <div class="was">
           <h4>Wache über deine Spots</h4>
           <p>Nachricht, wenn an einem gemerkten Spot Frost kommt, wenn jemand einen
@@ -6252,7 +6357,7 @@ body.bereich-offen.detail-offen::after {
       </div>
 
       <div class="plus-punkt">
-        <div class="zeichen">🤝</div>
+        <div class="zeichen"><svg viewBox="0 0 24 24"><circle cx="8.5" cy="8.5" r="3"/><circle cx="16" cy="9.5" r="2.4"/><path d="M3 19c0-3 2.5-4.6 5.5-4.6S14 16 14 19"/><path d="M15 14.6c3 0 6 1.3 6 4.4"/></svg></div>
         <div class="was">
           <h4>Und du hältst das Ding am Laufen</h4>
           <p>Wild Spot hat keine Werbung, verkauft keine Daten und gehört keinem

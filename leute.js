@@ -297,12 +297,20 @@
   // sich in einer Liste anders als eine Tabellenzeile mit Typ und Ziel.
   // ==========================================================================
 
+  // Ein gezeichnetes Zeichen je Art, im selben Strich wie die Legende auf der
+  // Karte — dünne Linien, runde Enden, eine Farbe. Hier standen bis zum
+  // 2026-08-16 Emojis (📷 🏔️ ⛺ ⭐ 💬); in einer Liste aus fünfzig Zeilen
+  // waren das fünfzig bunte Bildchen, die alle um Aufmerksamkeit riefen.
   const ART_ZEICHEN = {
-    beitrag:   '📷',
-    gipfel:    '🏔️',
-    spot:      '⛺',
-    bewertung: '⭐',
-    kommentar: '💬',
+    beitrag:   '<svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="14" rx="3"/>' +
+               '<circle cx="12" cy="13" r="3.4"/><path d="M9 6l1.4-2h3.2L15 6"/></svg>',
+    gipfel:    '<svg viewBox="0 0 24 24"><path d="M2 20 9 5l4.5 8L16.5 8 22 20Z"/></svg>',
+    spot:      '<svg viewBox="0 0 24 24"><path d="M12 4l8 15H4z"/><path d="M12 4v15"/>' +
+               '<path d="M4 19l8-6 8 6"/></svg>',
+    bewertung: '<svg viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.6 6 .8-4.4 4.2 1.1 6.1' +
+               '-5.3-3-5.3 3 1.1-6.1L3.4 9.9l6-.8z"/></svg>',
+    kommentar: '<svg viewBox="0 0 24 24"><path d="M20 12a7.5 7.5 0 01-10.9 6.7L4 20l1.3-4.1' +
+               'A7.5 7.5 0 1120 12z"/></svg>',
   };
 
   function satz(a) {
@@ -384,7 +392,7 @@
     z.innerHTML =
       `<button type="button" class="wer" aria-label="Profil">
          ${kopfbild(a.username, a.avatar_path, 38)}
-         <span class="zeichen">${ART_ZEICHEN[a.art] || '•'}</span>
+         <span class="zeichen">${ART_ZEICHEN[a.art] || ''}</span>
        </button>
        <div class="was">
          <p class="kopf"><b class="name">${sicher(a.username)}</b> ${satz(a)}</p>
