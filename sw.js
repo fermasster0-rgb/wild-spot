@@ -15,10 +15,12 @@
 //      → beim Installieren einmal komplett laden, danach aus dem Speicher.
 //        Die App startet dadurch auch im Flugmodus.
 //
-//   2. Kartenkacheln (basemap.at, OpenTopoMap, CARTO)
+//   2. Kartenkacheln (Maptoolkit, basemap.at, OpenTopoMap)
 //      → was einmal geladen wurde, bleibt. Kacheln ändern sich über Jahre
 //        nicht, deshalb wird zuerst im Speicher nachgesehen und gar nicht
 //        erst ins Netz gegangen. Das macht die Karte nebenbei schneller.
+//        Bei der Standardkarte gehören dazu auch Schriften und Symbole —
+//        ein Vektorstil malt seine Beschriftung selbst und braucht sie.
 //
 //   3. Alles Lebendige (Anmeldung, Spots, Bewertungen)
 //      → immer ins Netz. Aufgehobene Anmeldedaten wären ein Sicherheitsloch,
