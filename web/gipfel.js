@@ -423,8 +423,22 @@
       return kasten;
     }
 
+    // Erreichtes zuerst, dann das, wo am wenigsten fehlt. Damit steht in den
+    // ersten Zeilen das, was jemand geschafft hat — und gleich danach das,
+    // was als Nächstes drin wäre. Die Reihenfolge aus der Datenbank ist die
+    // der Definition und sagt darüber nichts.
+    const anteilVon = (a) =>
+      Math.min(1, Number(a.stand) / Math.max(1, Number(a.ziel)));
+
+    // Auf einer Kopie, nicht auf der Antwort selbst: Die kommt aus dem
+    // Zwischenspeicher von Supabase und wird womöglich noch woanders gelesen.
+    const sortiert = [...liste].sort((a, b) => {
+      if (a.erreicht !== b.erreicht) return a.erreicht ? -1 : 1;
+      return anteilVon(b) - anteilVon(a);
+    });
+
     kasten.innerHTML = '';
-    for (const a of liste) {
+    for (const a of sortiert) {
       const k = el('div');
       k.className = 'abz' + (a.erreicht ? ' erreicht' : '');
       const anteil = Math.min(100, Math.round((Number(a.stand) / Math.max(1, Number(a.ziel))) * 100));
@@ -437,6 +451,12 @@
             : `<span class="balken"><i style="width:${anteil}%"></i></span>
                <span class="stand">${zahl(a.stand)} von ${zahl(a.ziel)}</span>`}`;
       kasten.appendChild(k);
+    }
+
+    // Vier stehen da — zwei Reihen im Raster, das sieht nach Absicht aus und
+    // nicht nach abgeschnitten. Der Rest kommt auf einen Tipp.
+    if (window.WILDSPOT_KUERZEN) {
+      window.WILDSPOT_KUERZEN(kasten, { zeigen: 4, wort: 'Abzeichen' });
     }
 
     return kasten;

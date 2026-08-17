@@ -17,16 +17,51 @@
 // ============================================================================
 // 1. KARTENHINTERGRÜNDE
 //
-// basemap.at ist die offizielle österreichische Verwaltungskarte: kostenlos,
-// ohne Anmeldung, ohne Schlüssel. OpenTopoMap liefert Höhenlinien und Wege.
+// Vier Karten, drei Quellen — alle kostenlos, keine mit Anmeldung oder
+// Schlüssel:
+//
+//   Standard   Maptoolkit, weltweit, als Vektorstil (siehe gleich darunter)
+//   Gelände    basemap.at, die amtliche österreichische Karte, als Relief
+//   Satellit   basemap.at, Luftbild mit 30 cm Auflösung
+//   Wandern    OpenTopoMap, Höhenlinien und Wanderwege
 // ============================================================================
+
+// Die Standardkarte ist als einzige keine Rasterkarte, sondern ein fertiger
+// Vektorstil von Maptoolkit. Der Unterschied ist größer, als er klingt:
+//
+//   Raster    fertig gemalte Bildkacheln. Jede Zoomstufe ist ein neuer Satz
+//             Bilder, die geladen werden müssen. Dazwischen sieht man
+//             Unschärfe, und der amtliche Stil von basemap.at ist außerdem
+//             weiß-grau — beim Hinauszoomen wurde daraus eine bleiche Fläche.
+//
+//   Vektor    Punkte und Linien, die der Browser selbst zeichnet. Weniger
+//             Daten, jede Zwischenstufe scharf, und die Farben kommen aus dem
+//             Stil statt aus dem Bild. Dieser hier ist grün, hat Relief,
+//             Höhenlinien, Wälder und Hütten — und bleibt grün, egal wie weit
+//             man hinauszoomt.
+//
+// Maptoolkit ist kostenlos nutzbar (Community License, kommerziell bis 1 Mio €
+// Umsatz), braucht keinen Schlüssel und keine Anmeldung. Verlangt wird eine
+// sichtbare Nennung — sie steht in der Fußzeile.
+const MAPTOOLKIT_STIL = 'https://styles.maptoolkit.org/summer.json';
 
 const GRUNDKARTEN = [
   {
     id: 'standard',
     label: 'Standard',
-    url: 'https://mapsneu.wien.gv.at/basemap/geolandbasemap/normal/google3857/{z}/{y}/{x}.png',
-    maxzoom: 19,
+    // Kein url: dieser Stil IST der Kartenstil, nicht eine Ebene darin.
+    vektor: true,
+    // Ein gemaltes Vorschaubild statt einer geladenen Kachel — von einem
+    // Vektorstil gibt es keine einzelne Kachel, die man zeigen könnte.
+    vorschau: 'data:image/svg+xml;utf8,' + encodeURIComponent(
+      `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64">
+         <rect width="64" height="64" fill="#eef3e2"/>
+         <path d="M0 44 L14 30 L26 40 L40 22 L52 34 L64 26 L64 64 L0 64Z" fill="#cfe0b4"/>
+         <path d="M0 52 L18 40 L30 48 L46 34 L64 44 L64 64 L0 64Z" fill="#b7d196"/>
+         <path d="M8 20 q10 -8 20 0 t20 2" stroke="#a9c48a" stroke-width="1.5" fill="none"/>
+         <circle cx="46" cy="14" r="5" fill="#9fd0e8"/>
+       </svg>`),
+    maxzoom: 20,
   },
   {
     id: 'gelaende',
@@ -141,9 +176,10 @@ const OESTERREICH = [9.5, 46.3, 17.2, 49.1];
 // später über die Grenze wächst, muss hier nichts mehr geändert werden.
 const EUROPA = [-13, 33, 43, 71];
 
-// Ab diesem Zoom übernimmt basemap.at mit den guten österreichischen Karten.
-// Darunter liegt die weltweite Karte, sonst wäre außerhalb Österreichs
-// nichts als eine dunkle Fläche.
+// Ab diesem Zoom blenden sich Gelände und Satellit ein — die amtlichen Karten
+// von basemap.at, die es nur für Österreich gibt. Weiter draußen wären sie ein
+// helles Rechteck mitten im Kontinent, deshalb liegen sie dort auf null.
+// Darunter (und überall sonst) liegt die Standardkarte.
 const AT_KARTE_AB = 7.4;
 
 const cfg = window.WILDCAMP_CONFIG || {};
@@ -179,6 +215,10 @@ const sources = {};
 const rasterLayers = [];
 
 for (const g of GRUNDKARTEN) {
+  // Die Standardkarte hat keine eigene Ebene — sie ist der Stil, in den alles
+  // andere hineingelegt wird. Siehe MAPTOOLKIT_STIL weiter oben.
+  if (g.vektor) continue;
+
   sources['grund-' + g.id] = {
     type: 'raster',
     tiles: [g.url],
@@ -195,7 +235,9 @@ for (const g of GRUNDKARTEN) {
     id: 'grund-' + g.id,
     type: 'raster',
     source: 'grund-' + g.id,
-    layout: { visibility: g.id === 'standard' ? 'visible' : 'none' },
+    // Beim Start ist die Standardkarte dran, und die ist der Stil selbst —
+    // also ist hier zunächst keine dieser Ebenen sichtbar.
+    layout: { visibility: 'none' },
     // Weit draußen ausgeblendet: dort ist die Europakarte dran. basemap.at
     // liefert außerhalb Österreichs teils weiße Kacheln, die als Rechteck
     // über dem Kontinent lägen — so verschwinden sie einfach.
@@ -206,24 +248,12 @@ for (const g of GRUNDKARTEN) {
   });
 }
 
-// Die Karte für alles außerhalb Österreichs. CARTO stellt sie öffentlich
-// bereit, gebaut aus OpenStreetMap-Daten — dieselbe Quelle wie die
-// Wasserstellen, nur als fertige Kacheln.
-//
-// Sie liegt ganz unten und ist immer da. Beim Hineinzoomen legt sich
-// basemap.at darüber, weil dessen österreichische Karten deutlich besser
-// sind: Relief, Luftbild in 30 cm, amtliche Wege.
-sources['welt'] = {
-  type: 'raster',
-  tiles: [
-    'https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
-    'https://b.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
-    'https://c.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
-  ],
-  tileSize: 256,
-  maxzoom: 19,
-  attribution: '© OpenStreetMap-Mitwirkende, © CARTO',
-};
+// Eine eigene Karte für alles außerhalb Österreichs braucht es nicht mehr.
+// Früher lag hier CARTO Voyager darunter — eine beige-weiße Weltkarte, die
+// genau das Problem war: Beim Hinauszoomen wurde aus dem Land eine bleiche
+// Fläche. Der Maptoolkit-Stil deckt die ganze Welt ab und bleibt dabei grün,
+// also ist die zweite Karte ersatzlos weg. Das spart auch einen ganzen Satz
+// Kachelanfragen bei jedem Zoomen.
 
 // Geländeschummerung und Luftbild haben von Haus aus keine Ortsnamen — auf
 // einem grauen Relief weiß man dann nicht, wo man ist. basemap.at liefert
@@ -296,40 +326,17 @@ function kartenGrund() {
   return wert || '#141812';
 }
 
+// Die Karte startet direkt mit dem fremden Vektorstil. Alles Eigene — die
+// anderen drei Grundkarten, die Maske, die Wasserstellen, die Spots — kommt
+// erst dazu, wenn er geladen ist (weiter unten in karte.on('load')).
+//
+// Früher stand hier ein selbstgebauter Stil mit allen Ebenen darin. Das ging,
+// solange alle vier Karten Rasterkacheln waren; ein Vektorstil bringt aber
+// eigene Schriften, Symbole und hundert Ebenen mit, die man nicht sinnvoll
+// von Hand nachbaut.
 const karte = new maplibregl.Map({
   container: 'karte',
-  style: {
-    version: 8,
-    sources,
-    // Eine ruhige dunkle Fläche unter allem. Sie ist überall dort zu sehen,
-    // wo basemap.at aufhört — also außerhalb Österreichs.
-    layers: [
-      { id: 'hintergrund', type: 'background', paint: { 'background-color': kartenGrund() } },
-      // Zuunterst Europa, darüber die österreichischen Karten.
-      { id: 'welt', type: 'raster', source: 'welt' },
-      ...rasterLayers,
-      // Direkt über den Grundkarten, aber unter allen Datenpunkten: die
-      // Wasserstellen und Spots sollen ja nicht verdeckt werden. Die Farbe
-      // ist dieselbe wie beim Hintergrund darunter, damit man die Kante
-      // zwischen beiden nirgends sieht.
-      // Sie erscheint zusammen mit den österreichischen Karten und
-      // verschwindet mit ihnen. In der Europa-Ansicht wäre sie fehl am
-      // Platz — dort soll man ja gerade den Kontinent sehen.
-      {
-        id: 'maske',
-        type: 'fill',
-        source: 'maske',
-        // Beim Start ist "Standard" gewählt — dort ist sie nicht nötig.
-        layout: { visibility: 'none' },
-        paint: {
-          'fill-color': kartenGrund(),
-          'fill-antialias': true,
-          'fill-opacity': ['interpolate', ['linear'], ['zoom'],
-            AT_KARTE_AB - 0.4, 0, AT_KARTE_AB + 0.8, 1],
-        },
-      },
-    ],
-  },
+  style: MAPTOOLKIT_STIL,
   // Startansicht: ganz Österreich, passend zur Fenstergröße. Deshalb bounds
   // statt fixem Zoom — auf einem Handy sieht das sonst völlig anders aus.
   bounds: [[OESTERREICH[0], OESTERREICH[1]], [OESTERREICH[2], OESTERREICH[3]]],
@@ -339,6 +346,56 @@ const karte = new maplibregl.Map({
   maxZoom: 19,
   attributionControl: false,   // steht bei uns fest in der Fußzeile
 });
+
+// Die Ebenen, die zum Maptoolkit-Stil gehören. Sie werden beim Umschalten auf
+// eine andere Grundkarte gemeinsam ausgeblendet — deshalb muss man wissen,
+// welche das sind. Gefüllt wird die Liste in karte.on('load'), vor allem
+// anderen: Was danach dazukommt, ist unseres und darf nicht mit verschwinden.
+let stilEbenen = [];
+
+// Der Grund unter allem, für den Fall, dass eine der anderen Karten gewählt
+// ist und der Maptoolkit-Stil dann unsichtbar. Er muss ganz unten liegen,
+// also VOR der ersten fremden Ebene eingefügt werden.
+function grundEbeneEinhaengen() {
+  if (karte.getLayer('hintergrund')) return;
+  karte.addLayer(
+    { id: 'hintergrund', type: 'background', paint: { 'background-color': kartenGrund() } },
+    stilEbenen[0],
+  );
+}
+
+// Alles Eigene in den fremden Stil einhängen. Die Reihenfolge ist die
+// Zeichenreihenfolge: zuerst die Grundkarten, dann die Maske, dann (im
+// load-Handler weiter unten) die Punkte.
+function eigenesEinhaengen() {
+  for (const [name, quelle] of Object.entries(sources)) {
+    if (!karte.getSource(name)) karte.addSource(name, quelle);
+  }
+
+  for (const ebene of rasterLayers) {
+    if (!karte.getLayer(ebene.id)) karte.addLayer(ebene);
+  }
+
+  // Direkt über den Grundkarten, aber unter allen Datenpunkten: die
+  // Wasserstellen und Spots sollen ja nicht verdeckt werden. Die Farbe ist
+  // dieselbe wie beim Hintergrund darunter, damit man die Kante zwischen
+  // beiden nirgends sieht.
+  if (!karte.getLayer('maske')) {
+    karte.addLayer({
+      id: 'maske',
+      type: 'fill',
+      source: 'maske',
+      // Beim Start ist "Standard" gewählt — dort ist sie nicht nötig.
+      layout: { visibility: 'none' },
+      paint: {
+        'fill-color': kartenGrund(),
+        'fill-antialias': true,
+        'fill-opacity': ['interpolate', ['linear'], ['zoom'],
+          AT_KARTE_AB - 0.4, 0, AT_KARTE_AB + 0.8, 1],
+      },
+    });
+  }
+}
 
 karte.dragRotate.disable();
 karte.touchZoomRotate.disableRotation();
@@ -511,6 +568,14 @@ function symbolLayer(gruppe, quelle) {
 }
 
 karte.on('load', () => {
+  // Zuerst merken, was zum fremden Stil gehört — danach ist alles Neue
+  // unseres. Der Hintergrund des Stils zählt mit dazu: Wird auf Satellit
+  // umgeschaltet, soll auch sein Grün verschwinden.
+  stilEbenen = karte.getStyle().layers.map((l) => l.id);
+
+  grundEbeneEinhaengen();
+  eigenesEinhaengen();
+
   // Die drei OSM-Ebenen kommen UNTER die Maske ("vor der Ebene maske"
   // einfügen heißt: darunter zeichnen). Der Import aus OpenStreetMap ging
   // über ein Rechteck um Österreich, deshalb liegen ein paar hundert
@@ -727,6 +792,9 @@ let aktiveGrundkarte = 'standard';
 const VORSCHAU = { z: 13, x: 4386, y: 2868 };
 
 function vorschauAdresse(g) {
+  // Von einem Vektorstil gibt es keine Kachel zum Herzeigen — der bringt sein
+  // Vorschaubild selbst mit.
+  if (g.vorschau) return g.vorschau;
   return g.url
     .replace('{z}', VORSCHAU.z)
     .replace('{x}', VORSCHAU.x)
@@ -762,7 +830,18 @@ function grundkarteSetzen(id) {
   aktiveGrundkarte = g.id;
 
   for (const x of GRUNDKARTEN) {
+    if (x.vektor) continue;      // die hat keine eigene Ebene, siehe unten
     karte.setLayoutProperty('grund-' + x.id, 'visibility', x.id === g.id ? 'visible' : 'none');
+  }
+
+  // Die Standardkarte ist nicht eine Ebene, sondern der ganze Stil darunter.
+  // Ein- und ausgeschaltet wird sie deshalb als Gruppe. Sie einfach liegen zu
+  // lassen wäre verlockend — die anderen Karten decken sie ja ab —, aber
+  // hinter dem Luftbild würde sie weiter Kacheln nachladen, und am Rand
+  // Österreichs blitzte sie unter der Maske hervor.
+  const stilAn = g.vektor ? 'visible' : 'none';
+  for (const ebene of stilEbenen) {
+    try { karte.setLayoutProperty(ebene, 'visibility', stilAn); } catch (e) { /* Ebene weg */ }
   }
   // Beschriftung nur dort, wo der Hintergrund selbst keine hat.
   karte.setLayoutProperty('beschriftung', 'visibility', g.beschriftung ? 'visible' : 'none');
