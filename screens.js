@@ -161,6 +161,48 @@
   // davon hängt ab, ob der Knopf „Auf der Karte anzeigen" nötig ist.
   window.WILDSPOT_BEREICH_JETZT = () => aktiv;
 
+  // ==========================================================================
+  // 2b. LANGE LISTEN KURZ HALTEN
+  //
+  // Fünfzehn Abzeichen und zwölf Aktivitäten hintereinander sind keine Liste
+  // mehr, sondern eine Wand. Man scrollt daran vorbei, ohne etwas gelesen zu
+  // haben, und alles darunter — die Einstellungen, der Rechtshinweis — rückt
+  // außer Sicht.
+  //
+  // Deshalb: die ersten paar stehen da, der Rest liegt darunter und kommt auf
+  // einen Tipp. Aufgeklappt bleibt es, bis die Seite neu gebaut wird — wer
+  // alles sehen wollte, will nicht bei jedem Blick wieder klappen.
+  //
+  // Die Funktion arbeitet auf einem fertig gefüllten Kasten und rührt die
+  // Kinder selbst nicht an. Dadurch ist ihr egal, ob darin Abzeichen,
+  // Aktivitäten oder irgendwann etwas Drittes liegt.
+  window.WILDSPOT_KUERZEN = function kuerzen(kasten, {
+    zeigen = 3,          // wie viele sofort dastehen
+    wort = 'Einträge',   // „Alle 15 Abzeichen anzeigen"
+    kinder = null,       // welche Elemente zählen (sonst alle)
+  } = {}) {
+    const alle = kinder || [...kasten.children];
+    // Ein einziger Nachzügler ist keinen Knopf wert — dann lieber zeigen.
+    if (alle.length <= zeigen + 1) return kasten;
+
+    const rest = alle.slice(zeigen);
+    for (const k of rest) k.classList.add('spaeter');
+
+    const knopf = document.createElement('button');
+    knopf.type = 'button';
+    knopf.className = 'mehr-zeigen';
+    knopf.innerHTML = `Alle ${alle.length} ${wort} anzeigen
+      <span class="pfeil" aria-hidden="true">›</span>`;
+
+    knopf.addEventListener('click', () => {
+      for (const k of rest) k.classList.remove('spaeter');
+      knopf.remove();
+    });
+
+    kasten.appendChild(knopf);
+    return kasten;
+  };
+
   for (const knopf of document.querySelectorAll('.tab')) {
     knopf.addEventListener('click', () => bereichZeigen(knopf.dataset.tab));
   }

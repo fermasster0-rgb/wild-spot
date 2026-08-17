@@ -100,15 +100,19 @@
     const balken = document.createElement('button');
     balken.id = 'plus-hinweis';
     balken.type = 'button';
+    // Derselbe Gold-auf-Nacht-Ton wie die Plus-Seite: Wer den Balken antippt,
+    // landet dort — und soll die Farbe wiedererkennen, statt zu erschrecken.
     balken.style.cssText =
       'position:fixed;left:50%;transform:translateX(-50%);' +
       'top:calc(max(12px, env(safe-area-inset-top)) + 56px);z-index:78;' +
       'max-width:min(86vw,420px);padding:11px 17px;border:0;border-radius:999px;' +
-      'background:var(--orange);color:#fff;font:inherit;font-size:13px;' +
+      'background:linear-gradient(140deg,var(--plus-grund-2),var(--plus-grund));' +
+      'color:var(--plus-gold);font:inherit;font-size:13px;' +
       'font-weight:600;line-height:1.35;cursor:pointer;text-align:center;' +
-      'box-shadow:0 6px 22px var(--sch2)';
+      'box-shadow:0 6px 22px var(--sch2);' +
+      'animation:plus-balken 0.32s cubic-bezier(0.2,0.7,0.3,1) both';
     balken.innerHTML =
-      `${was} gibt es mit Plus <span style="opacity:0.8;font-weight:400">· ansehen</span>`;
+      `${was} gibt es mit Plus <span style="opacity:0.7;font-weight:400">· ansehen</span>`;
     balken.addEventListener('click', () => {
       balken.remove();
       if (window.WILDSPOT_BEREICH) window.WILDSPOT_BEREICH('plus');
@@ -132,10 +136,10 @@
       kasten.className = 'menue';
       kasten.innerHTML =
         `<div class="menue-zeile" style="cursor:default">
-           <svg viewBox="0 0 24 24" style="stroke:var(--orange)">
+           <svg viewBox="0 0 24 24" style="stroke:var(--plus-gold-2)">
              <path d="M12 2.5l2.5 6.2 6.2 2.5-6.2 2.5-2.5 6.2-2.5-6.2L3.3 11.2l6.2-2.5z"/></svg>
            <span class="was">Wild Spot Plus<small>Aktiv ${bis}</small></span>
-           <span class="wert" style="color:var(--orange)">aktiv</span>
+           <span class="wert" style="color:var(--plus-gold-2)">aktiv</span>
          </div>`;
       return kasten;
     }
@@ -144,23 +148,33 @@
     // die Menüzeilen darunter — er verkauft etwas, und das soll man sehen.
     const k = document.createElement('button');
     k.type = 'button';
+    // Ein Stück Nachthimmel im hellen Profil — dieselbe Nacht, in die der Tipp
+    // führt. Der Schein hinter dem Zeichen ist derselbe Bogen wie dort oben,
+    // nur klein.
     k.style.cssText =
+      'position:relative;overflow:hidden;' +
       'display:flex;align-items:center;gap:13px;width:100%;padding:16px;' +
       'margin-bottom:22px;border:0;border-radius:16px;cursor:pointer;' +
-      'background:linear-gradient(135deg,#1f2416,#14170f);' +
-      'color:#f4f2ea;font:inherit;text-align:left;' +
+      'background:radial-gradient(ellipse 70% 120% at 14% 0%,' +
+        'color-mix(in srgb,var(--plus-nord) 22%,transparent),transparent 62%),' +
+      'radial-gradient(ellipse 60% 110% at 74% 10%,' +
+        'color-mix(in srgb,var(--plus-nacht) 20%,transparent),transparent 66%),' +
+      'linear-gradient(135deg,var(--plus-grund-2),var(--plus-grund));' +
+      'color:var(--plus-text);font:inherit;text-align:left;' +
       '-webkit-tap-highlight-color:transparent';
     k.innerHTML =
       `<span style="display:grid;place-items:center;width:42px;height:42px;flex-shrink:0;
-                    border-radius:12px;background:rgba(238,107,23,0.18);color:var(--orange)"><svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round"><path d="M12 3.5l1.9 4.6 4.6 1.9-4.6 1.9L12 16.5l-1.9-4.6L5.5 10l4.6-1.9z"/></svg></span>
+                    border-radius:12px;background:color-mix(in srgb,var(--plus-gold) 16%,transparent);
+                    border:1px solid color-mix(in srgb,var(--plus-gold) 26%,transparent);
+                    color:var(--plus-gold)"><svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round"><path d="M12 3.5l1.9 4.6 4.6 1.9-4.6 1.9L12 16.5l-1.9-4.6L5.5 10l4.6-1.9z"/></svg></span>
        <span style="flex:1;min-width:0">
          <b style="display:block;font-size:15.5px;font-weight:800;letter-spacing:-0.02em">
            Wild Spot Plus</b>
          <small style="display:block;margin-top:3px;font-size:12.5px;line-height:1.45;
-                       color:rgba(244,242,234,0.62)">
+                       color:color-mix(in srgb,var(--plus-text) 62%,transparent)">
            Karten fürs Funkloch, die beste Nacht der Woche, und wo du sein darfst</small>
        </span>
-       <span style="flex-shrink:0;color:rgba(244,242,234,0.5);font-size:18px">›</span>`;
+       <span style="flex-shrink:0;color:color-mix(in srgb,var(--plus-gold) 70%,transparent);font-size:18px">›</span>`;
     k.addEventListener('click', () => {
       if (window.WILDSPOT_BEREICH) window.WILDSPOT_BEREICH('plus');
     });
@@ -175,31 +189,60 @@
 
   let tarif = 'jahr';
 
+  // Was in der mitlaufenden Leiste unten steht — pro Tarif einmal, damit der
+  // Preis nicht an zwei Stellen im Code steht und irgendwann auseinanderläuft.
+  const TARIFE = {
+    monat: { preis: '3,49 €',  wort: 'monatlich · jederzeit kündbar' },
+    jahr:  { preis: '24,99 €', wort: 'jährlich · 2,08 € im Monat' },
+    immer: { preis: '59 €',    wort: 'einmalig · für immer' },
+  };
+
+  function leisteBeschriften() {
+    const p = $('plus-leiste-preis');
+    const w = $('plus-leiste-wort');
+    const t = TARIFE[tarif];
+    if (!p || !w || !t) return;
+    p.textContent = t.preis;
+    w.textContent = t.wort;
+  }
+
   for (const knopf of document.querySelectorAll('#preise [data-tarif]')) {
     knopf.addEventListener('click', () => {
       tarif = knopf.dataset.tarif;
       for (const k of document.querySelectorAll('#preise [data-tarif]')) {
         k.setAttribute('aria-pressed', String(k.dataset.tarif === tarif));
       }
+      leisteBeschriften();
     });
   }
+  leisteBeschriften();
 
   // Der Kaufknopf. Solange es keine Bezahlstrecke gibt, führt er zur
   // Warteliste — und sagt auch, warum.
-  const kaufKnopf = $('plus-kaufen');
-  if (kaufKnopf) {
-    kaufKnopf.addEventListener('click', () => {
-      const kasten = $('plus-warteliste');
-      if (!kasten) return;
-      kasten.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      const feld = $('plus-mail');
-      if (feld) {
-        // Wer angemeldet ist, muss seine Adresse nicht abtippen.
-        if (!feld.value && auth.nutzer && auth.nutzer.email) feld.value = auth.nutzer.email;
-        setTimeout(() => feld.focus(), 400);
-      }
-    });
+  function zurWarteliste() {
+    const kasten = $('plus-warteliste');
+    if (!kasten) return;
+    kasten.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    // Kurz aufleuchten lassen. Ohne das landet man nach dem Scrollen vor einer
+    // Wand aus Text und sucht, was jetzt gemeint ist.
+    kasten.classList.remove('zeigt-her');
+    void kasten.offsetWidth;          // erzwingt den Neustart der Animation
+    kasten.classList.add('zeigt-her');
+
+    const feld = $('plus-mail');
+    if (feld) {
+      // Wer angemeldet ist, muss seine Adresse nicht abtippen.
+      if (!feld.value && auth.nutzer && auth.nutzer.email) feld.value = auth.nutzer.email;
+      setTimeout(() => feld.focus(), 400);
+    }
   }
+
+  const kaufKnopf = $('plus-kaufen');
+  if (kaufKnopf) kaufKnopf.addEventListener('click', zurWarteliste);
+
+  const leistenKnopf = $('plus-leiste-knopf');
+  if (leistenKnopf) leistenKnopf.addEventListener('click', zurWarteliste);
 
   function meldung(text, art) {
     const m = $('plus-meldung');
@@ -277,6 +320,10 @@
       zustand.innerHTML = '';
       kauf.hidden = false;
     }
+
+    // Wer gerade freigeschaltet wurde, soll die Kaufleiste im selben Moment
+    // loswerden und nicht erst beim nächsten Scrollen.
+    if (window.WILDSPOT_PLUS_LEISTE) window.WILDSPOT_PLUS_LEISTE();
   }
 
   // Der Punkt am Plus-Zeichen in der Leiste unten verschwindet, sobald die
@@ -294,7 +341,115 @@
   }
 
   // ==========================================================================
-  // 5. NACH AUSSEN
+  // 5. DAS LEBEN AUF DER SEITE
+  //
+  // Drei Dinge, die eine Verkaufsseite von einer Liste unterscheiden:
+  //
+  //   a) Der Kopf geht auf, wenn man die Seite öffnet.
+  //   b) Jeder Punkt kommt, wenn man bei ihm ankommt — es kommt sichtbar noch
+  //      etwas, also scrollt man weiter.
+  //   c) Der Kaufknopf ist immer erreichbar, auch mitten im Text.
+  //
+  // Alles davon ist Zugabe: Fällt das Skript aus, steht die Seite trotzdem
+  // vollständig da. Deshalb setzt erst dieser Code die Klasse „wartet" —
+  // ohne ihn wird nichts versteckt, was man nicht wieder einblenden kann.
+  // ==========================================================================
+
+  const schirm = $('schirm-plus');
+  const ruhig  = window.matchMedia
+    ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    : false;
+
+  // --- a) und b) -----------------------------------------------------------
+
+  const punkte = schirm ? [...schirm.querySelectorAll('.plus-punkt')] : [];
+
+  if (schirm && punkte.length && 'IntersectionObserver' in window && !ruhig) {
+    for (const p of punkte) p.classList.add('wartet');
+
+    const augen = new IntersectionObserver((eintraege) => {
+      for (const e of eintraege) {
+        if (!e.isIntersecting) continue;
+        // Die Verzögerung richtet sich nach der Reihenfolge im Bild, nicht nach
+        // der Position in der Liste: Wer mitten in die Seite springt, soll die
+        // drei sichtbaren Punkte nacheinander sehen und nicht nach zwei
+        // Sekunden Wartezeit den vierten.
+        const i = eintraege.filter((x) => x.isIntersecting).indexOf(e);
+        setTimeout(() => {
+          e.target.classList.remove('wartet');
+          e.target.classList.add('da');
+        }, Math.min(i, 4) * 85);
+        augen.unobserve(e.target);
+      }
+    }, { root: schirm, rootMargin: '0px 0px -12% 0px', threshold: 0.15 });
+
+    for (const p of punkte) augen.observe(p);
+  }
+
+  // Der Kopf geht auf, sobald die Seite sichtbar wird — und nur dann. Beobachtet
+  // wird das „hidden" am Schirm selbst: So ist es egal, ob jemand über die
+  // Leiste unten, über das Profil oder über eine Schranke hierher kommt.
+  if (schirm && 'MutationObserver' in window) {
+    let warOffen = !schirm.hidden;
+
+    const aufgehen = () => {
+      schirm.classList.remove('faellt-auf');
+      void schirm.offsetWidth;
+      schirm.classList.add('faellt-auf');
+      // Die Klasse wieder abnehmen, damit die Animation beim nächsten Öffnen
+      // von vorn läuft und nicht als „schon gelaufen" hängen bleibt.
+      setTimeout(() => schirm.classList.remove('faellt-auf'), 900);
+    };
+
+    new MutationObserver(() => {
+      const offen = !schirm.hidden;
+      if (offen && !warOffen) {
+        schirm.scrollTop = 0;
+        if (!ruhig) aufgehen();
+      }
+      warOffen = offen;
+    }).observe(schirm, { attributes: true, attributeFilter: ['hidden'] });
+  }
+
+  // --- c) Die mitlaufende Leiste -------------------------------------------
+  //
+  // Sie zeigt sich, sobald der Kopf oben aus dem Bild ist, und zieht sich
+  // zurück, sobald der echte Kaufknopf selbst im Bild steht. Zwei Kaufknöpfe
+  // übereinander wären albern, und ein Balken über dem, was man gerade liest,
+  // ist eine Zumutung.
+
+  const leiste = $('plus-leiste');
+
+  if (leiste && schirm && kaufKnopf && 'IntersectionObserver' in window) {
+    const himmel = schirm.querySelector('.plus-himmel');
+    let kopfDa = true;
+    let knopfDa = false;
+
+    function leisteRichten() {
+      // Wer Plus schon hat, bekommt hier nie etwas zu kaufen angeboten.
+      const soll = !hatPlus() && !kopfDa && !knopfDa;
+      leiste.hidden = false;
+      leiste.classList.toggle('da', soll);
+    }
+
+    const wache = new IntersectionObserver((eintraege) => {
+      for (const e of eintraege) {
+        if (e.target === himmel)    kopfDa  = e.isIntersecting;
+        if (e.target === kaufKnopf) knopfDa = e.isIntersecting;
+      }
+      leisteRichten();
+    }, { root: schirm, threshold: 0 });
+
+    if (himmel) wache.observe(himmel);
+    wache.observe(kaufKnopf);
+
+    // Auch nach dem Freischalten muss sie verschwinden — plusSeiteAuffrischen
+    // läuft immer dann, wenn sich am Plus-Zustand etwas geändert hat.
+    window.WILDSPOT_PLUS_LEISTE = leisteRichten;
+  }
+
+  // ==========================================================================
+  // 6. NACH AUSSEN
   // ==========================================================================
 
   window.WILDSPOT_PLUS = {

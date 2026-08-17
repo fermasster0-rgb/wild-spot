@@ -92,9 +92,32 @@
   --akzent-weich:rgba(79, 104, 20, 0.11);
   --akzent-rand: rgba(79, 104, 20, 0.42);
   --akzent-hell: #dbf0ae;   /* nur auf Fotos, deshalb hell in beiden Themen */
-  --orange:      #ee6b17;   /* der zweite Akzent: Plus, Neuigkeiten, Route */
+  /* Der zweite Akzent: Neuigkeiten, Route, Marken. War lange ein sattes
+     Signal-Orange (#ee6b17). Neben dem Oliv war das der falsche Ton — Oliv ist
+     eine gedeckte Erdfarbe, das Orange dagegen schrie wie ein Warnschild, und
+     zwischen beiden lag weder Verwandtschaft noch ein sauberer Gegensatz.
+     Kupfer liegt näher am Oliv, hat dieselbe erdige Herkunft und bleibt
+     trotzdem deutlich als „hier ist etwas Neues" lesbar. */
+  --kupfer:      #c2673c;
+  --orange:      var(--kupfer);   /* alter Name, damit nichts nachgezogen werden muss */
   --blau:        #2f7fb8;   /* Wasser */
   --braun:       #a86a2a;   /* Unterstand / Hütte */
+
+  /* ------------------------------------------------------------ Plus
+     Die Verkaufsseite hat eine eigene, kleine Farbwelt: eine Nacht draußen.
+     Dunkles Petrol als Grund, ein Polarlicht darüber, und Gold für alles,
+     was etwas wert ist. Gold statt Orange, weil Gold auf Dunkel seit jeher
+     „das Bessere" heißt — und weil es sich mit dem Oliv der App verträgt,
+     statt daneben zu stehen. Die Töne stehen hier oben und nicht verstreut
+     im Blatt, damit man sie an einer Stelle drehen kann. */
+  --plus-grund:   #0a1014;
+  --plus-grund-2: #0f171d;
+  --plus-text:    #eef2f0;
+  --plus-gold:    #f2c56b;
+  --plus-gold-2:  #d9a23f;
+  --plus-auf-gold:#1a1508;
+  --plus-nord:    #4fd3a8;   /* Polarlicht, grüner Bogen */
+  --plus-nacht:   #5b62c9;   /* Polarlicht, blauer Bogen */
 
   /* Vier Stufen Tönung, für Füllungen, Trennlinien und Zustände.
      Sie sind der Grund, warum das Umschalten überhaupt funktioniert:
@@ -124,7 +147,7 @@
   --info-text:  #3b5210;
   --blau-weich: rgba(47, 127, 184, 0.1);
   --blau-rand:  rgba(47, 127, 184, 0.3);
-  --route-weich:rgba(238, 107, 23, 0.1);
+  --route-weich:rgba(194, 103, 60, 0.1);
 
   /* Die Zeichen in der Legende — kräftiger als am Bildschirm nötig wäre,
      damit sie auf Weiß nicht verschwinden. */
@@ -133,7 +156,7 @@
   --sym-fall: #2c6fd0;
 
   --schimmer-1: rgba(79, 104, 20, 0.1);
-  --schimmer-2: rgba(238, 107, 23, 0.06);
+  --schimmer-2: rgba(194, 103, 60, 0.06);
 
   /* Die Karte außerhalb Österreichs und hinter allem: dieselbe Farbe wie
      der Grund, sonst blitzt beim Ziehen ein fremder Ton auf. */
@@ -163,7 +186,10 @@ html[data-thema="nacht"] {
   --akzent-weich:rgba(123, 182, 97, 0.14);
   --akzent-rand: rgba(123, 182, 97, 0.45);
   --akzent-hell: #b8e8a0;
-  --orange:      #f08a3c;
+  /* Nachts eine Spur heller und weniger gesättigt als am Tag — auf dunklem
+     Grund frisst sich ein satter Ton sonst in die Fläche. */
+  --kupfer:      #dd8b5f;
+  --orange:      var(--kupfer);
   --blau:        #4aa3df;
   --braun:       #c98a3f;
 
@@ -189,7 +215,7 @@ html[data-thema="nacht"] {
   --info-text:  #cbe4bb;
   --blau-weich: rgba(74, 163, 223, 0.1);
   --blau-rand:  rgba(74, 163, 223, 0.28);
-  --route-weich:rgba(226, 96, 60, 0.12);
+  --route-weich:rgba(221, 139, 95, 0.12);
 
   --sym-spot: #19c052;
   --sym-seen: #38e1d0;
@@ -3751,30 +3777,112 @@ body.parkplatz-modus .knopf-zeile { display: none; }
    Wild Spot Plus
 
    Die einzige Seite der App, die etwas verkauft. Sie darf deshalb anders
-   aussehen als der Rest — dunkel, mit einem Schimmer, wie ein Abend am
-   Lagerfeuer. Aber sie darf nicht lügen: Was noch nicht fertig ist, steht
-   als „noch nicht fertig" da.
-   ========================================================================== */
-#schirm-plus { background: #14170f; color: #f4f2ea; }
-#schirm-plus .schirm-kopf { padding-bottom: 6px; }
+   aussehen als der Rest — und sie tut es mit dem Bild, um das es hier geht:
+   eine Nacht draußen. Dunkles Petrol als Grund, ein Polarlicht darüber,
+   Sterne, und Gold für alles, was etwas wert ist.
+   Aber sie darf nicht lügen: Was noch nicht fertig ist, steht als „noch nicht
+   fertig" da.
 
-/* Der Schimmer über dem Kopf. */
+   Zur Bewegung: Alles hier atmet langsam statt zu blinken. Eine Seite, die
+   zappelt, liest niemand zu Ende. Jede Regung hört auf, sobald das Gerät
+   „weniger Bewegung" meldet — ganz unten in diesem Abschnitt steht der Schalter
+   dafür an einer Stelle, damit man ihn nicht vergessen kann.
+   ========================================================================== */
+#schirm-plus {
+  background:
+    linear-gradient(180deg, var(--plus-grund-2) 0%, var(--plus-grund) 46%);
+  color: var(--plus-text);
+}
+#schirm-plus .schirm-kopf { padding-bottom: 6px; }
+/* Platz für die mitlaufende Leiste, damit sie den letzten Absatz nicht
+   verdeckt — sie ist etwa 70 Pixel hoch. */
+#schirm-plus { padding-bottom: calc(var(--tab-h) + 96px); }
+
+/* --------------------------------------------------------- Der Nachthimmel
+
+   Drei Lagen übereinander, und keine davon ist ein Bild — die App muss offline
+   starten, eine Datei aus dem Netz kann sie das nicht:
+
+     ::before   das Polarlicht, zwei weiche Bögen, die langsam wandern
+     .sterne    ein Feld feiner Punkte, das ganz leise heller und dunkler wird
+     ::after    die Kante nach unten, damit der Himmel nicht abgeschnitten endet
+*/
 .plus-himmel {
   position: relative;
   overflow: hidden;
-  padding-bottom: 26px;
+  padding-bottom: 30px;
 }
 .plus-himmel::before {
   content: "";
   position: absolute;
-  left: 50%; top: -180px;
-  width: 560px; height: 420px;
+  /* Der Bogen steht bewusst zur Hälfte über dem oberen Rand: Man sieht sein
+     unteres Drittel, nicht den ganzen Fleck. Ein Licht, dessen Quelle man
+     nicht sieht, wirkt weit weg — ein Kreis mitten im Bild wirkt wie eine
+     Lampe hinter der Seite. */
+  left: 50%; top: -190px;
+  width: 820px; height: 470px;
   transform: translateX(-50%);
-  background: radial-gradient(ellipse at 50% 50%,
-              rgba(238, 107, 23, 0.3) 0%,
-              rgba(238, 107, 23, 0.09) 42%,
-              transparent 68%);
+  background:
+    radial-gradient(ellipse 50% 44% at 28% 66%,
+                    color-mix(in srgb, var(--plus-nord) 72%, transparent) 0%,
+                    color-mix(in srgb, var(--plus-nord) 24%, transparent) 48%,
+                    transparent 78%),
+    radial-gradient(ellipse 48% 42% at 74% 58%,
+                    color-mix(in srgb, var(--plus-nacht) 76%, transparent) 0%,
+                    color-mix(in srgb, var(--plus-nacht) 26%, transparent) 48%,
+                    transparent 78%),
+    radial-gradient(ellipse 66% 52% at 50% 48%,
+                    color-mix(in srgb, var(--plus-gold) 24%, transparent) 0%,
+                    transparent 70%);
+  filter: blur(10px);
   pointer-events: none;
+  animation: polarlicht 26s ease-in-out infinite alternate;
+}
+/* Der Bogen wandert ein Stück und wird dabei heller und wieder dunkler —
+   26 Sekunden für einen Weg. Langsam genug, dass man die Bewegung nicht
+   verfolgt, sondern nur bemerkt, dass das Bild lebt. */
+@keyframes polarlicht {
+  0%   { transform: translateX(-50%) translate(-22px, 0)    scale(1);    opacity: 0.88; }
+  50%  { transform: translateX(-50%) translate(14px, -12px) scale(1.06); opacity: 1; }
+  100% { transform: translateX(-50%) translate(26px, 6px)   scale(1.02); opacity: 0.92; }
+}
+
+/* Die Sterne. Punkte aus zwei Verlaufsebenen — die eine steht, die andere
+   verblasst und kommt wieder. Zusammen sieht das aus wie Funkeln, kostet aber
+   nichts: Es sind zwei Flächen, keine hundert Elemente. */
+.plus-sterne {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.75;
+}
+.plus-sterne::before,
+.plus-sterne::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-repeat: repeat;
+}
+.plus-sterne::before {
+  background-image:
+    radial-gradient(1.4px 1.4px at 18px 22px,  rgba(255,255,255,0.85), transparent),
+    radial-gradient(1.1px 1.1px at 96px 58px,  rgba(255,255,255,0.6),  transparent),
+    radial-gradient(1.6px 1.6px at 148px 18px, rgba(255,255,255,0.7),  transparent),
+    radial-gradient(1px 1px   at 62px 130px,   rgba(255,255,255,0.5),  transparent),
+    radial-gradient(1.3px 1.3px at 190px 96px, rgba(255,255,255,0.65), transparent);
+  background-size: 230px 170px;
+}
+.plus-sterne::after {
+  background-image:
+    radial-gradient(1.7px 1.7px at 44px 74px,   color-mix(in srgb, var(--plus-gold) 90%, white), transparent),
+    radial-gradient(1.2px 1.2px at 168px 140px, rgba(255,255,255,0.8), transparent),
+    radial-gradient(1.4px 1.4px at 118px 44px,  color-mix(in srgb, var(--plus-nord) 80%, white), transparent);
+  background-size: 260px 200px;
+  animation: funkeln 5.5s ease-in-out infinite alternate;
+}
+@keyframes funkeln {
+  from { opacity: 0.25; }
+  to   { opacity: 1; }
 }
 
 .plus-marke {
@@ -3784,9 +3892,9 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   gap: 7px;
   padding: 6px 13px 6px 9px;
   border-radius: 999px;
-  background: rgba(238, 107, 23, 0.16);
-  border: 1px solid rgba(238, 107, 23, 0.4);
-  color: #ffb479;
+  background: color-mix(in srgb, var(--plus-gold) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--plus-gold) 38%, transparent);
+  color: var(--plus-gold);
   font-size: 12px;
   font-weight: 800;
   letter-spacing: 0.04em;
@@ -3795,6 +3903,16 @@ body.parkplatz-modus .knopf-zeile { display: none; }
 .plus-marke svg {
   width: 15px; height: 15px;
   fill: currentColor;
+  /* Der Stern in der Marke dreht sich einmal ganz langsam durch — das Einzige
+     auf der Seite, das man wirklich als Bewegung wahrnimmt, und es sitzt genau
+     dort, wo der Name steht. */
+  animation: marken-stern 9s ease-in-out infinite;
+  transform-origin: center;
+}
+@keyframes marken-stern {
+  0%, 62%  { transform: rotate(0) scale(1); }
+  74%      { transform: rotate(180deg) scale(1.22); }
+  86%, 100%{ transform: rotate(360deg) scale(1); }
 }
 
 .plus-titel {
@@ -3806,13 +3924,41 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   line-height: 1.08;
   color: #fff;
 }
-.plus-titel em { font-style: normal; color: var(--orange); }
+/* Das hervorgehobene Wort bekommt keinen Block Farbe, sondern einen Verlauf,
+   der durch die Buchstaben selbst läuft — wie Licht über Metall. */
+.plus-titel em {
+  font-style: normal;
+  background: linear-gradient(100deg,
+              var(--plus-gold) 0%, #ffe6ac 38%, var(--plus-gold-2) 62%, var(--plus-gold) 100%);
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: gold-lauf 7s ease-in-out infinite;
+}
+@keyframes gold-lauf {
+  0%, 100% { background-position: 0% 0; }
+  50%      { background-position: 100% 0; }
+}
 .plus-unter {
   position: relative;
   margin: 0;
   font-size: 15.5px;
   line-height: 1.55;
-  color: rgba(244, 242, 234, 0.72);
+  color: color-mix(in srgb, var(--plus-text) 72%, transparent);
+}
+
+/* Der Kopf baut sich beim Öffnen der Seite von unten auf: Marke, Titel, Satz,
+   jeweils eine Zehntelsekunde später. Das dauert insgesamt eine halbe Sekunde
+   und ist der Unterschied zwischen „eine Seite ist da" und „eine Seite geht
+   auf". Es läuft nur beim Öffnen, nicht bei jedem Blick — plus.js setzt die
+   Klasse und nimmt sie wieder weg. */
+#schirm-plus.faellt-auf .plus-marke { animation: plus-auf 0.5s 0.02s both cubic-bezier(0.2, 0.7, 0.3, 1), marken-stern 9s ease-in-out infinite; }
+#schirm-plus.faellt-auf .plus-titel { animation: plus-auf 0.55s 0.09s both cubic-bezier(0.2, 0.7, 0.3, 1); }
+#schirm-plus.faellt-auf .plus-unter { animation: plus-auf 0.55s 0.17s both cubic-bezier(0.2, 0.7, 0.3, 1); }
+@keyframes plus-auf {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: none; }
 }
 
 /* Eine Funktion. Nummer, Titel, Satz — und ein Beispiel, das sie greifbar
@@ -3824,14 +3970,40 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   border-bottom: 1px solid rgba(255, 255, 255, 0.09);
 }
 .plus-punkt:last-child { border-bottom: 0; }
+
+/* Jeder Punkt kommt erst, wenn man bei ihm ankommt: leicht von unten, leicht
+   verzögert. Das ist der Grund, warum man weiterscrollt — es kommt sichtbar
+   noch etwas. plus.js hängt „da" an, sobald der Punkt ins Bild rutscht; ohne
+   Skript (oder mit abgeschalteter Bewegung) steht einfach alles sofort da. */
+.plus-punkt.wartet {
+  opacity: 0;
+  transform: translateY(18px);
+}
+.plus-punkt.da {
+  opacity: 1;
+  transform: none;
+  transition: opacity 0.55s ease, transform 0.55s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
 .plus-punkt .zeichen {
   display: grid;
   place-items: center;
   width: 42px; height: 42px;
   flex-shrink: 0;
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.07);
-  color: var(--orange);
+  background: color-mix(in srgb, var(--plus-gold) 12%, rgba(255, 255, 255, 0.05));
+  border: 1px solid color-mix(in srgb, var(--plus-gold) 18%, transparent);
+  color: var(--plus-gold);
+  transition: transform 0.5s cubic-bezier(0.2, 0.7, 0.3, 1), box-shadow 0.5s ease;
+}
+/* Sobald der Punkt sichtbar wird, bekommt das Zeichen kurz einen Schein —
+   als hätte es das Licht des Polarlichts abbekommen. */
+.plus-punkt.da .zeichen {
+  animation: zeichen-schein 1.1s 0.15s ease-out both;
+}
+@keyframes zeichen-schein {
+  0%   { transform: scale(0.86); box-shadow: 0 0 0 0 color-mix(in srgb, var(--plus-gold) 40%, transparent); }
+  45%  { transform: scale(1.04); box-shadow: 0 0 0 7px color-mix(in srgb, var(--plus-gold) 0%, transparent); }
+  100% { transform: scale(1);    box-shadow: 0 0 0 0 transparent; }
 }
 /* Gezeichnete Zeichen statt Emojis — dieselbe Strichstärke wie die Symbole
    auf der Karte. Emojis sahen auf jedem Gerät anders aus, und ausgerechnet
@@ -3857,17 +4029,17 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   margin: 0;
   font-size: 13.5px;
   line-height: 1.6;
-  color: rgba(244, 242, 234, 0.66);
+  color: color-mix(in srgb, var(--plus-text) 66%, transparent);
 }
 .plus-punkt .beispiel {
   margin-top: 8px;
   padding: 9px 11px;
-  border-left: 2px solid var(--orange);
+  border-left: 2px solid var(--plus-gold);
   border-radius: 0 11px 11px 0;
-  background: rgba(238, 107, 23, 0.09);
+  background: color-mix(in srgb, var(--plus-gold) 8%, transparent);
   font-size: 12.5px;
   line-height: 1.55;
-  color: rgba(255, 200, 160, 0.92);
+  color: color-mix(in srgb, var(--plus-gold) 62%, var(--plus-text));
 }
 .plus-punkt .bald {
   display: inline-block;
@@ -3903,12 +4075,24 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   text-align: left;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-  transition: border-color 0.16s, background 0.16s;
+  transition:
+    border-color 0.25s ease,
+    background 0.25s ease,
+    transform 0.25s cubic-bezier(0.2, 0.7, 0.3, 1),
+    box-shadow 0.35s ease;
 }
 .preis:hover { border-color: rgba(255, 255, 255, 0.28); }
+.preis:active { transform: scale(0.988); }
 .preis[aria-pressed="true"] {
-  border-color: var(--orange);
-  background: rgba(238, 107, 23, 0.1);
+  border-color: var(--plus-gold);
+  background: color-mix(in srgb, var(--plus-gold) 9%, transparent);
+  /* Der gewählte Tarif liegt eine Spur weiter vorne als die anderen und trägt
+     einen warmen Schein. Beides zusammen macht die Wahl auf einen Blick
+     sichtbar, ohne dass irgendwo „ausgewählt" stehen müsste. */
+  transform: translateY(-2px);
+  box-shadow:
+    0 0 0 4px color-mix(in srgb, var(--plus-gold) 11%, transparent),
+    0 10px 30px -8px color-mix(in srgb, var(--plus-gold) 26%, transparent);
 }
 .preis .kreis {
   width: 21px; height: 21px;
@@ -3916,15 +4100,22 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   border: 2px solid rgba(255, 255, 255, 0.3);
   border-radius: 50%;
   position: relative;
+  transition: border-color 0.25s ease;
 }
-.preis[aria-pressed="true"] .kreis { border-color: var(--orange); }
-.preis[aria-pressed="true"] .kreis::after {
+.preis[aria-pressed="true"] .kreis { border-color: var(--plus-gold); }
+.preis .kreis::after {
   content: "";
   position: absolute;
   inset: 3px;
   border-radius: 50%;
-  background: var(--orange);
+  background: var(--plus-gold);
+  /* Der Punkt ist immer da, nur zusammengeschrumpft. Dadurch wächst er beim
+     Umschalten heraus, statt hart aufzublitzen — der Unterschied zwischen
+     einem Schalter, der klickt, und einem, der sich anfühlt. */
+  transform: scale(0);
+  transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
+.preis[aria-pressed="true"] .kreis::after { transform: scale(1); }
 .preis .was { flex: 1; min-width: 0; }
 .preis .was b {
   display: block;
@@ -3963,8 +4154,8 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   top: -9px; right: 14px;
   padding: 3px 9px;
   border-radius: 8px;
-  background: var(--orange);
-  color: #fff;
+  background: linear-gradient(135deg, var(--plus-gold), var(--plus-gold-2));
+  color: var(--plus-auf-gold);
   font-size: 10.5px;
   font-weight: 800;
   letter-spacing: 0.04em;
@@ -3972,31 +4163,58 @@ body.parkplatz-modus .knopf-zeile { display: none; }
 }
 
 .plus-knopf {
+  position: relative;
+  overflow: hidden;
   width: 100%;
   padding: 16px;
   border: 0;
   border-radius: 999px;
-  background: var(--orange);
-  color: #fff;
+  background: linear-gradient(135deg, var(--plus-gold) 0%, var(--plus-gold-2) 100%);
+  color: var(--plus-auf-gold);
   font: inherit;
   font-size: 16.5px;
   font-weight: 800;
   letter-spacing: -0.01em;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
+  box-shadow: 0 8px 26px -10px color-mix(in srgb, var(--plus-gold) 70%, transparent);
+  transition: transform 0.2s cubic-bezier(0.2, 0.7, 0.3, 1), box-shadow 0.3s ease;
 }
-.plus-knopf:hover { filter: brightness(1.08); }
+/* Ein Lichtstreif läuft alle paar Sekunden über den Knopf. Nicht damit er
+   blinkt, sondern damit das Auge auf dem Weg nach unten einmal hängen bleibt —
+   und zwar an der einzigen Stelle, an der es etwas zu tun gibt. */
+.plus-knopf::after {
+  content: "";
+  position: absolute;
+  top: 0; bottom: 0;
+  left: -60%;
+  width: 45%;
+  background: linear-gradient(100deg, transparent, rgba(255,255,255,0.5), transparent);
+  transform: skewX(-18deg);
+  animation: knopf-glanz 4.5s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes knopf-glanz {
+  0%, 55%  { left: -60%; }
+  85%, 100%{ left: 120%; }
+}
+.plus-knopf:hover {
+  filter: brightness(1.06);
+  transform: translateY(-1px);
+  box-shadow: 0 12px 32px -10px color-mix(in srgb, var(--plus-gold) 80%, transparent);
+}
 .plus-knopf:active { transform: scale(0.99); }
 .plus-knopf:disabled { opacity: 0.55; cursor: progress; }
+.plus-knopf:disabled::after { animation: none; opacity: 0; }
 
 .plus-klein {
   margin: 12px 0 0;
   font-size: 12px;
   line-height: 1.6;
-  color: rgba(244, 242, 234, 0.5);
+  color: color-mix(in srgb, var(--plus-text) 50%, transparent);
   text-align: center;
 }
-.plus-klein a { color: rgba(244, 242, 234, 0.7); }
+.plus-klein a { color: color-mix(in srgb, var(--plus-text) 70%, transparent); }
 
 /* Der ehrliche Kasten: Bezahlen geht noch nicht. */
 .plus-ehrlich {
@@ -4020,7 +4238,7 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   margin: 0 0 11px;
   font-size: 13px;
   line-height: 1.6;
-  color: rgba(244, 242, 234, 0.66);
+  color: color-mix(in srgb, var(--plus-text) 66%, transparent);
 }
 .plus-ehrlich input {
   width: 100%;
@@ -4029,12 +4247,28 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 15px;
   background: rgba(0, 0, 0, 0.25);
-  color: #f4f2ea;
+  color: var(--plus-text);
   font: inherit;
   font-size: 15px;
+  transition: border-color 0.2s ease, box-shadow 0.25s ease;
 }
-.plus-ehrlich input:focus { outline: none; border-color: var(--orange); }
-.plus-ehrlich input::placeholder { color: rgba(244, 242, 234, 0.35); }
+.plus-ehrlich input:focus {
+  outline: none;
+  border-color: var(--plus-gold);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--plus-gold) 15%, transparent);
+}
+.plus-ehrlich input::placeholder { color: color-mix(in srgb, var(--plus-text) 35%, transparent); }
+
+/* Wer vom Kaufknopf hierher geschickt wird, soll sehen, wo er gelandet ist.
+   Der Kasten leuchtet einmal auf — danach ist er wieder ein ruhiger Kasten. */
+.plus-ehrlich.zeigt-her {
+  animation: kasten-zeigt 1.4s ease-out;
+}
+@keyframes kasten-zeigt {
+  0%   { border-color: var(--plus-gold); box-shadow: 0 0 0 0 color-mix(in srgb, var(--plus-gold) 45%, transparent); }
+  60%  { border-color: var(--plus-gold); box-shadow: 0 0 0 10px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
 
 .plus-meldung {
   display: none;
@@ -4055,13 +4289,96 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   gap: 13px;
   padding: 17px;
   border-radius: 20px;
-  background: rgba(238, 107, 23, 0.12);
-  border: 1px solid rgba(238, 107, 23, 0.32);
+  background: color-mix(in srgb, var(--plus-gold) 11%, transparent);
+  border: 1px solid color-mix(in srgb, var(--plus-gold) 30%, transparent);
   margin-bottom: 18px;
 }
 .plus-aktiv .zeichen { font-size: 27px; line-height: 1; }
 .plus-aktiv b { display: block; font-size: 16px; font-weight: 800; color: #fff; }
-.plus-aktiv span { font-size: 12.5px; color: rgba(244, 242, 234, 0.62); }
+.plus-aktiv span { font-size: 12.5px; color: color-mix(in srgb, var(--plus-text) 62%, transparent); }
+
+/* --------------------------------------------------------- Die Leiste unten
+
+   Auf der Verkaufsseite steht der Preis oben und der Knopf ganz unten. Wer in
+   der Mitte überzeugt ist, müsste erst suchen. Deshalb schiebt sich, sobald man
+   an den Preisen vorbei ist, eine schmale Leiste über die Seite: gewählter
+   Tarif links, Knopf rechts. Sie verschwindet wieder, sobald der richtige Knopf
+   selbst im Bild ist — zwei Kaufknöpfe nebeneinander wären albern. */
+.plus-leiste {
+  position: fixed;
+  left: 0; right: 0;
+  bottom: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding:
+    12px
+    max(16px, env(safe-area-inset-right))
+    calc(12px + var(--tab-h))
+    max(16px, env(safe-area-inset-left));
+  background: color-mix(in srgb, var(--plus-grund) 82%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  transform: translateY(105%);
+  transition: transform 0.35s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+/* display:flex schlägt das hidden-Attribut — ohne diese Zeile stünde die
+   Leiste da, obwohl im HTML „hidden" steht. */
+.plus-leiste[hidden] { display: none; }
+.plus-leiste.da { transform: none; }
+.plus-leiste .wahl { flex: 1; min-width: 0; }
+.plus-leiste .wahl b {
+  display: block;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+.plus-leiste .wahl small {
+  display: block;
+  margin-top: 1px;
+  font-size: 11.5px;
+  color: color-mix(in srgb, var(--plus-text) 58%, transparent);
+}
+.plus-leiste .plus-knopf {
+  width: auto;
+  flex-shrink: 0;
+  padding: 12px 22px;
+  font-size: 14.5px;
+}
+
+@media (min-width: 900px) {
+  /* Auf breiten Bildschirmen sitzt die Navigation links, nicht unten — die
+     Leiste rückt entsprechend nach und läuft nicht unter ihr durch. */
+  .plus-leiste { left: 88px; padding-bottom: 12px; }
+}
+
+/* ------------------------------------------------------------------------
+   Der eine Schalter für alle Bewegung auf dieser Seite.
+
+   Wer am Gerät „Bewegung reduzieren" eingeschaltet hat, meint es ernst — für
+   manche Menschen wird ihnen von wandernden Flächen tatsächlich schlecht.
+   Alles bleibt sichtbar, nichts bewegt sich mehr.
+   ------------------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  .plus-himmel::before,
+  .plus-sterne::after,
+  .plus-marke svg,
+  .plus-titel em,
+  .plus-knopf::after,
+  .plus-punkt.da .zeichen,
+  .plus-ehrlich.zeigt-her,
+  #schirm-plus.faellt-auf .plus-marke,
+  #schirm-plus.faellt-auf .plus-titel,
+  #schirm-plus.faellt-auf .plus-unter {
+    animation: none !important;
+  }
+  .plus-knopf::after { opacity: 0; }
+  .plus-punkt.wartet { opacity: 1; transform: none; }
+  .plus-leiste { transition: none; }
+}
 
 /* ==========================================================================
    Die Plus-Schranke
@@ -4085,14 +4402,17 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   cursor: pointer;
   margin-bottom: 10px;
 }
+/* Die Kachel trägt dieselbe Nacht wie die Plus-Seite selbst, auf die sie
+   führt — ein kleiner dunkler Fleck im hellen Blatt, den man wiedererkennt,
+   sobald man dort ankommt. */
 .schranke .zeichen {
   display: grid;
   place-items: center;
   width: 34px; height: 34px;
   flex-shrink: 0;
   border-radius: 14px;
-  background: var(--orange);
-  color: #fff;
+  background: linear-gradient(140deg, var(--plus-grund-2), var(--plus-grund));
+  color: var(--plus-gold);
 }
 .schranke .zeichen svg {
   width: 18px; height: 18px;
@@ -4102,7 +4422,7 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   stroke-linecap: round;
   stroke-linejoin: round;
 }
-.plus-aktiv .zeichen { color: var(--orange); line-height: 0; }
+.plus-aktiv .zeichen { color: var(--plus-gold); line-height: 0; }
 .schranke .was { flex: 1; min-width: 0; }
 .schranke .was b {
   display: block;
@@ -4117,6 +4437,21 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   color: var(--text-weak);
 }
 .schranke .pfeil { color: var(--text-weak); flex-shrink: 0; }
+
+/* Der kurze Hinweis-Balken oben (plus.js baut ihn). Er fällt von oben herein,
+   statt einfach dazustehen — sonst übersieht man ihn genau dann, wenn er kommt:
+   mitten im Tippen. Das translateX(-50%) muss in jedem Schritt mit, sonst
+   springt er beim Start in die linke Bildschirmhälfte. */
+@keyframes plus-balken {
+  from { opacity: 0; transform: translateX(-50%) translateY(-14px) scale(0.96); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0)     scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  @keyframes plus-balken {
+    from { opacity: 0; transform: translateX(-50%); }
+    to   { opacity: 1; transform: translateX(-50%); }
+  }
+}
 
 /* ==========================================================================
    Was der neue Unterbau am Bestehenden ändert
@@ -5038,6 +5373,56 @@ body.bereich-offen.detail-offen::after {
   gap: 10px;
   margin-bottom: 22px;
 }
+
+/* ==========================================================================
+   Lange Listen kurz halten
+
+   Die ersten paar Einträge stehen da, der Rest liegt darunter und kommt auf
+   einen Tipp (screens.js, WILDSPOT_KUERZEN). Das betrifft die Abzeichen und
+   die Aktivitätsspur im Profil — beide waren vorher so lang, dass alles
+   darunter außer Sicht rückte.
+
+   „display: none" und nicht „opacity: 0": Was nicht da ist, soll auch keinen
+   Platz brauchen und nicht mit der Tabulatortaste erreichbar sein.
+   ========================================================================== */
+.spaeter { display: none !important; }
+
+.mehr-zeigen {
+  /* Im Raster der Abzeichen läuft der Knopf über beide Spalten — sonst säße
+     er als halbe Kachel neben einem Abzeichen und sähe aus wie eines. */
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  margin-top: 2px;
+  padding: 12px 16px;
+  border: 1px solid var(--rand);
+  border-radius: 14px;
+  background: var(--flaeche);
+  color: var(--text-lese);
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.18s ease, border-color 0.18s ease;
+}
+.mehr-zeigen:hover {
+  background: var(--akzent-weich);
+  border-color: var(--akzent-rand);
+}
+.mehr-zeigen:active { transform: scale(0.995); }
+.mehr-zeigen .pfeil {
+  /* Der Pfeil zeigt nach unten, nicht nach rechts: Es geht nicht woandershin,
+     es klappt hier auf. */
+  transform: rotate(90deg);
+  font-size: 16px;
+  line-height: 1;
+  color: var(--text-weak);
+}
 .abz {
   padding: 14px 12px;
   border: 1px solid var(--rand);
@@ -5685,8 +6070,9 @@ body.bereich-offen.detail-offen::after {
     <h3>Rechtliches</h3>
     <button class="tafel-zweit" id="knopf-hinweis-nochmal">Hinweis zum Wildcampen</button>
     <p class="tafel-fuss">
-      Österreich © <a href="https://basemap.at" target="_blank" rel="noopener">basemap.at</a><br>
-      Europa © <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a><br>
+      Standardkarte © <a href="https://www.maptoolkit.org" target="_blank" rel="noopener">Maptoolkit</a><br>
+      Gelände, Satellit © <a href="https://basemap.at" target="_blank" rel="noopener">basemap.at</a><br>
+      Wanderkarte © <a href="https://opentopomap.org" target="_blank" rel="noopener">OpenTopoMap</a> (CC-BY-SA)<br>
       Daten © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap-Mitwirkende</a>
     </p>
   </div>
@@ -5706,9 +6092,11 @@ body.bereich-offen.detail-offen::after {
        Die vollständige Quellenangabe steht in der Einstellungen-Tafel. -->
   <div class="fuss">
     <span class="mitte" id="mitte" title="Anklicken zum Kopieren">–</span>
+    <!-- Maptoolkit steht zuerst: Die Standardkarte ist deren Stil, und ihre
+         Lizenz verlangt die Nennung ausdrücklich. -->
     <span class="quelle">
-      © <a href="https://basemap.at" target="_blank" rel="noopener">basemap.at</a>,
-      <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a>,
+      © <a href="https://www.maptoolkit.org" target="_blank" rel="noopener">Maptoolkit</a>,
+      <a href="https://basemap.at" target="_blank" rel="noopener">basemap.at</a>,
       <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>
     </span>
   </div>
@@ -6253,6 +6641,10 @@ body.bereich-offen.detail-offen::after {
 <div class="schirm" id="schirm-plus" hidden>
 
   <div class="plus-himmel">
+    <!-- Der Nachthimmel liegt hinter dem Text, nicht im Text: eine eigene
+         Lage, damit die Sterne nichts von der Schrift verdecken. -->
+    <div class="plus-sterne" aria-hidden="true"></div>
+
     <div class="schirm-kopf">
       <span class="plus-marke">
         <svg viewBox="0 0 24 24"><path d="M12 2l2.6 6.4L21 11l-6.4 2.6L12 20l-2.6-6.4L3 11l6.4-2.6z"/></svg>
@@ -6371,7 +6763,8 @@ body.bereich-offen.detail-offen::after {
     <div id="plus-kauf">
       <h2 style="margin:0 0 4px;font-size:22px;font-weight:800;letter-spacing:-0.03em;color:#fff">
         Was es kostet</h2>
-      <p style="margin:0 0 16px;font-size:13.5px;line-height:1.55;color:rgba(244,242,234,0.6)">
+      <p style="margin:0 0 16px;font-size:13.5px;line-height:1.55;
+                color:color-mix(in srgb, var(--plus-text) 60%, transparent)">
         Kein Probeabo, das sich von selbst verlängert. Kündigen geht jederzeit
         mit einem Tipp.</p>
 
@@ -6432,6 +6825,16 @@ body.bereich-offen.detail-offen::after {
     <p class="plus-klein" style="margin-top:22px">
       Fragen dazu? Schreib einfach an die Adresse im Rechtshinweis.
     </p>
+  </div>
+
+  <!-- Die mitlaufende Leiste. Sie steht im HTML und nicht im Skript, weil sie
+       zur Seite gehört; sichtbar wird sie erst, wenn plus.js ihr „da" gibt. -->
+  <div class="plus-leiste" id="plus-leiste" hidden>
+    <span class="wahl">
+      <b id="plus-leiste-preis">24,99 €</b>
+      <small id="plus-leiste-wort">jährlich · 2,08 € im Monat</small>
+    </span>
+    <button class="plus-knopf" id="plus-leiste-knopf" type="button">Plus holen</button>
   </div>
 </div>
 

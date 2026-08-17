@@ -35,7 +35,7 @@
 // App-Dateien weg und holt sie frisch — sonst würde am Handy ewig die alte
 // Fassung kleben. Die Kartenkacheln bleiben davon unberührt, die sind ja
 // nicht veraltet.
-const VERSION = '2026-08-16-13-39';
+const VERSION = '2026-08-17-13-10';
 
 const CACHE_APP    = `wildspot-app-${VERSION}`;
 const CACHE_KARTEN = 'wildspot-karten';   // ohne Version: bleibt über Updates
@@ -139,15 +139,21 @@ self.addEventListener('message', (event) => {
 
 // Server, von denen die Kartenkacheln kommen.
 const KARTEN_SERVER = [
-  'mapsneu.wien.gv.at',      // basemap.at: Standard, Gelände, Satellit, Beschriftung
+  // Maptoolkit: die Standardkarte. Vier Adressen, weil ein Vektorstil aus
+  // mehreren Teilen besteht — der Stil selbst, die Kacheln, die Schriften für
+  // die Beschriftung und die Symbole. Fehlt einer davon offline, fehlt genau
+  // dieser Teil: ohne Schriften eine Karte ohne Namen, ohne Kacheln eine
+  // leere Fläche.
+  'styles.maptoolkit.org',
+  'tiles.maptoolkit.org',
+  'fonts.maptoolkit.org',
+  'icons.maptoolkit.org',
+
+  'mapsneu.wien.gv.at',      // basemap.at: Gelände, Satellit, Beschriftung
   'tile.opentopomap.org',    // Wanderkarte
   'a.tile.opentopomap.org',
   'b.tile.opentopomap.org',
   'c.tile.opentopomap.org',
-  'basemaps.cartocdn.com',   // die weltweite Grundkarte
-  'a.basemaps.cartocdn.com',
-  'b.basemaps.cartocdn.com',
-  'c.basemaps.cartocdn.com',
 ];
 
 function istKarte(url) {
