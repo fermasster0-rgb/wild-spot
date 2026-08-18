@@ -68,29 +68,53 @@ const GRUNDKARTEN = [
     label: 'Gelände',
     // Schummerung des Geländes. Man sieht auf einen Blick, wo es flach ist —
     // die wichtigste Information bei der Suche nach einem Zeltplatz.
+    //
+    // Zwei Ebenen übereinander, und beide sehen gleich aus: eine graue
+    // Schummerung. In Österreich die amtliche von basemap.at, überall sonst
+    // eine, die MapLibre selbst aus Höhendaten rechnet. Der Übergang an der
+    // Grenze fällt dadurch nicht auf.
     url: 'https://mapsneu.wien.gv.at/basemap/bmapgelaende/grau/google3857/{z}/{y}/{x}.jpeg',
     maxzoom: 19,
-    beschriftung: true,
-    // Diese Kacheln sind deckend und stehen als helles Rechteck über die
-    // Grenze hinaus — hier braucht es die Maske. Das Ausland ist dadurch
-    // beim Hineinzoomen dunkel. Anders geht es nicht: ein Luftbild lässt
-    // sich nicht entlang einer Landesgrenze abschneiden.
-    maske: true,
+    schrift: true,
+    welt: 'hillshade',
+    // Der Grund, auf dem die Schummerung liegt. Ohne ihn wäre sie über dem
+    // dunklen Kartengrund kaum zu sehen — Relief braucht Licht.
+    weltGrund: '#e9e6e0',
   },
   {
     id: 'ortho',
     label: 'Satellit',
-    // Luftbild mit 30 cm Auflösung. Baumgrenze, Wasser und Wiesen sind hier
-    // direkt erkennbar.
-    url: 'https://mapsneu.wien.gv.at/basemap/bmaporthofoto30cm/normal/google3857/{z}/{y}/{x}.jpeg',
+    // EIN Luftbild für die ganze Welt — Esri World Imagery, 0,5 m in
+    // Westeuropa, in Städten bis 0,3 m.
+    //
+    // Bis 2026-08-18 lag darüber das amtliche 30-cm-Bild von basemap.at, nur
+    // für Österreich. Das ist bewusst weg, und zwar aus drei Gründen:
+    //
+    //   1. Zwei Luftbilder nebeneinander sehen nie gleich aus. Farbstärke und
+    //      Blaustich ließen sich noch herausrechnen, der Rest nicht: Kontrast
+    //      und Helligkeit unterscheiden sich je nach Aufnahmejahr mal in die
+    //      eine, mal in die andere Richtung (gemessen: Faktor 1,99 / 1,58 /
+    //      1,31 / 0,23 an vier Orten). An der Grenze blieb eine sichtbare
+    //      Kante.
+    //   2. Der Auflösungsvorteil ist keiner. Bei Zoom 17 nebeneinander
+    //      verglichen erkennt man auf beiden einzelne Bäume, Autos und Zäune.
+    //   3. basemap.at brennt Jahreszahlen ins Bild ("2021", über die ganze
+    //      Kachel verteilt). Auf einem Luftbild hat Text nichts verloren.
+    //
+    // Eine Quelle heißt: überall dasselbe Bild, keine Grenze, kein Zuschnitt,
+    // keine Farbrechnerei.
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
     maxzoom: 19,
-    beschriftung: true,
-    maske: true,
+    schrift: true,
+    // Meeresblau, solange die Kacheln laden — sonst blitzt Weiß auf.
+    weltGrund: '#0d1a24',
+    attribution: 'Esri, Vantor, Earthstar Geographics',
   },
   {
     id: 'topo',
     label: 'Wandern',
-    // OpenTopoMap: Höhenlinien, Wanderwege, Hütten.
+    // OpenTopoMap: Höhenlinien, Wanderwege, Hütten. Deckt Europa und darüber
+    // hinaus ab, braucht also nichts unter sich.
     url: 'https://a.tile.opentopomap.org/{z}/{x}/{y}.png',
     maxzoom: 17,
   },
@@ -168,6 +192,9 @@ const WEITSICHT_ARTEN = Object.entries(ARTEN)
 // und man könnte sie ohnehin nicht auseinanderhalten.
 const ZOOM_SCHWELLE = 11;
 
+// Darunter wird gar nichts mehr geladen — das ist etwa "ganz Europa im Bild".
+const WELTSICHT = 4;
+
 // Österreich: West, Süd, Ost, Nord
 const OESTERREICH = [9.5, 46.3, 17.2, 49.1];
 
@@ -214,22 +241,96 @@ function status(html, { warnung = false, dauer = 0 } = {}) {
 const sources = {};
 const rasterLayers = [];
 
+// Die weltweiten Unterlagen. Sie liegen unter den österreichischen Kacheln
+// und sind überall dort zu sehen, wo die aufhören — also im Ausland und
+// beim Hinauszoomen.
+//
+// Bis eben war das anders: Gelände und Satellit endeten an der Staatsgrenze,
+// dahinter lag eine dunkle Fläche. Wer einen Spot in Slowenien ansehen
+// wollte, sah nichts, und beim Hinauszoomen verschwand die gewählte Karte
+// ganz. Jetzt bleibt jede Karte die, die man ausgewählt hat — überall.
+//
+// Die Höhendaten für die Schummerung kommen von derselben Stelle wie die
+// Standardkarte und sind dort ohnehin schon geladen.
+sources['welt-hoehe'] = {
+  type: 'raster-dem',
+  tiles: ['https://tiles.mapterhorn.com/{z}/{x}/{y}.webp'],
+  // "terrarium" ist die Art, wie die Höhe in den Farbwerten steckt. Mit der
+  // falschen Angabe rechnet MapLibre Berge dort, wo Täler sind.
+  encoding: 'terrarium',
+  tileSize: 512,
+  maxzoom: 13,
+  attribution: '© Maptoolkit',
+};
+
+for (const g of GRUNDKARTEN) {
+  if (!g.welt) continue;
+
+  // Der Grund unter der Weltunterlage. Bei der Schummerung ist er hellgrau,
+  // damit das Relief überhaupt sichtbar wird; beim Luftbild dunkelblau,
+  // damit das Meer beim Laden nicht weiß aufblitzt.
+  rasterLayers.push({
+    id: 'weltgrund-' + g.id,
+    type: 'background',
+    layout: { visibility: 'none' },
+    paint: { 'background-color': g.weltGrund },
+  });
+
+  if (g.welt === 'hillshade') {
+    rasterLayers.push({
+      id: 'welt-' + g.id,
+      type: 'hillshade',
+      source: 'welt-hoehe',
+      layout: { visibility: 'none' },
+      paint: {
+        // Nachgestellt nach basemap.at: kein Farbstich, Licht von
+        // Nordwesten, und die Schatten kräftig genug, dass man auf einer
+        // Übersichtskarte noch sieht, wo die Kämme laufen.
+        'hillshade-shadow-color': '#4a4740',
+        'hillshade-highlight-color': '#ffffff',
+        'hillshade-accent-color': '#8a8578',
+        'hillshade-illumination-direction': 315,
+        'hillshade-exaggeration': 0.55,
+      },
+    });
+  } else {
+    sources['welt-' + g.id] = {
+      type: 'raster',
+      tiles: g.welt.tiles,
+      tileSize: 256,
+      maxzoom: g.welt.maxzoom,
+      attribution: g.welt.attribution,
+    };
+    rasterLayers.push({
+      id: 'welt-' + g.id,
+      type: 'raster',
+      source: 'welt-' + g.id,
+      layout: { visibility: 'none' },
+    });
+  }
+}
+
 for (const g of GRUNDKARTEN) {
   // Die Standardkarte hat keine eigene Ebene — sie ist der Stil, in den alles
   // andere hineingelegt wird. Siehe MAPTOOLKIT_STIL weiter oben.
   if (g.vektor) continue;
 
+  // Alles von basemap.at gibt es nur für Österreich. Diese Kacheln laufen
+  // über das eigene Protokoll, das sie an der Landesgrenze abschneidet
+  // (Abschnitt 3b), und werden auf das Rechteck um Österreich begrenzt — ohne
+  // das würde die Karte weltweit Kacheln anfordern und 404 einsammeln.
+  // Weltweite Quellen (Satellit, Wandern) brauchen beides nicht.
+  const vonBasemapAt = g.url.includes('mapsneu.wien.gv.at');
+
   sources['grund-' + g.id] = {
     type: 'raster',
-    tiles: [g.url],
+    tiles: [(vonBasemapAt ? 'atkachel://' : '') + g.url],
     tileSize: 256,
     maxzoom: g.maxzoom,
-    // basemap.at hat nur Kacheln für Österreich. Ohne diese Angabe würde die
-    // Karte auch außerhalb Kacheln anfordern und lauter 404 einsammeln.
-    ...(g.id === 'topo' ? {} : { bounds: OESTERREICH }),
-    attribution: g.id === 'topo'
+    ...(vonBasemapAt ? { bounds: OESTERREICH } : {}),
+    attribution: g.attribution ?? (g.id === 'topo'
       ? '© OpenStreetMap-Mitwirkende, SRTM | © OpenTopoMap (CC-BY-SA)'
-      : '© basemap.at',
+      : '© basemap.at'),
   };
   rasterLayers.push({
     id: 'grund-' + g.id,
@@ -238,13 +339,15 @@ for (const g of GRUNDKARTEN) {
     // Beim Start ist die Standardkarte dran, und die ist der Stil selbst —
     // also ist hier zunächst keine dieser Ebenen sichtbar.
     layout: { visibility: 'none' },
-    // Weit draußen ausgeblendet: dort ist die Europakarte dran. basemap.at
-    // liefert außerhalb Österreichs teils weiße Kacheln, die als Rechteck
-    // über dem Kontinent lägen — so verschwinden sie einfach.
-    paint: {
-      'raster-opacity': ['interpolate', ['linear'], ['zoom'],
-        AT_KARTE_AB - 0.4, 0, AT_KARTE_AB + 0.8, 1],
-    },
+    // Nur die österreichischen Karten blenden beim Hinauszoomen aus — dort
+    // übernimmt die weltweite Unterlage darunter. Eine weltweite Quelle bleibt
+    // dagegen immer sichtbar, sonst wäre die Karte draußen leer.
+    ...(vonBasemapAt ? {
+      paint: {
+        'raster-opacity': ['interpolate', ['linear'], ['zoom'],
+          AT_KARTE_AB - 0.4, 0, AT_KARTE_AB + 0.8, 1],
+      },
+    } : {}),
   });
 }
 
@@ -256,16 +359,19 @@ for (const g of GRUNDKARTEN) {
 // Kachelanfragen bei jedem Zoomen.
 
 // Geländeschummerung und Luftbild haben von Haus aus keine Ortsnamen — auf
-// einem grauen Relief weiß man dann nicht, wo man ist. basemap.at liefert
-// dafür eine durchsichtige Ebene mit Beschriftung, Grenzen und Wegen, die
-// über den Hintergrund gelegt wird.
+// einem grauen Relief oder einem Waldstück weiß man dann nicht, wo man ist.
+// Darüber liegt deshalb eine durchsichtige Ebene mit Ortsnamen, Grenzen und
+// Straßen.
+//
+// Sie kommt von Esri, nicht von basemap.at: basemap.at hat sie nur für
+// Österreich, und Ortsnamen, die an der Staatsgrenze aufhören, wären genau
+// derselbe Bruch, den wir beim Luftbild gerade beseitigt haben.
 sources['beschriftung'] = {
   type: 'raster',
-  tiles: ['https://mapsneu.wien.gv.at/basemap/bmapoverlay/normal/google3857/{z}/{y}/{x}.png'],
+  tiles: ['https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}'],
   tileSize: 256,
   maxzoom: 19,
-  bounds: OESTERREICH,
-  attribution: '© basemap.at',
+  attribution: 'Esri',
 };
 rasterLayers.push({
   id: 'beschriftung',
@@ -324,6 +430,214 @@ function kartenGrund() {
   const wert = getComputedStyle(document.documentElement)
     .getPropertyValue('--karte-grund').trim();
   return wert || '#141812';
+}
+
+// ============================================================================
+// 3b. DIE LANDESGRENZE — und warum die Karte sie kennen muss
+//
+// basemap.at hat Kacheln nur für Österreich. Angefragt werden sie aber für
+// ein RECHTECK um das Land (OESTERREICH weiter oben), denn ein Rechteck ist
+// alles, was eine Kartenquelle als Grenze versteht. In diesem Rechteck liegen
+// aber auch Slowenien, Südbayern, Westungarn und halb Tschechien.
+//
+// Für diese Kacheln antwortet der Server nicht mit "gibt es nicht", sondern
+// mit einem WEISSEN BILD. Nachgemessen: Die Kachel für den Triglav kommt mit
+// Status 200 zurück. Weil das Luftbild deckend gezeichnet wird, lag dieses
+// Weiß über der weltweiten Unterlage — das war der weiße Rand jenseits der
+// Grenze. Beim Satelliten ist das inzwischen gegenstandslos (der kommt aus
+// einer weltweiten Quelle), bei der Geländekarte und der Beschriftung nicht.
+//
+// Die Lösung: Jede Kachel wird vor dem Laden geprüft. Berührt ihr
+// Ausschnitt Österreich nicht, wird sie gar nicht erst geholt, sondern durch
+// ein durchsichtiges Bild ersetzt. Dann scheint das weltweite Luftbild durch,
+// und die amtliche Karte endet exakt an der Landesgrenze statt am Rechteck.
+// Nebenbei spart das jede Anfrage, deren Antwort ohnehin weiß wäre.
+// ============================================================================
+
+// Ein durchsichtiges Bild von 1x1 Pixel. MapLibre streckt es über die ganze
+// Kachel — heraus kommt nichts, und genau das ist der Zweck.
+const LEERE_KACHEL = 'data:image/png;base64,'
+  + 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR4nGNgAAIAAAUAAXpeqz8AAAAASUVORK5CYII=';
+
+// Die Grenze liegt ohnehin schon als Datei vor: In oesterreich-maske.geojson
+// ist Ring 0 das Weltrechteck, alles danach sind die Löcher — und die
+// Löcher SIND Österreich, mitsamt der Exklave Jungholz.
+let atRinge = null;
+let atPunkte = [];        // alle Grenzpunkte am Stück, für den zweiten Test
+
+fetch('oesterreich-maske.geojson')
+  .then((r) => r.json())
+  .then((g) => {
+    const geo = g.geometry ?? g.features?.[0]?.geometry;
+    atRinge = geo.coordinates.slice(1);
+    atPunkte = atRinge.flat();
+    grenzeNachtragen();
+  })
+  .catch(() => { atRinge = null; });
+
+// Strahlentest: Wie oft kreuzt ein Strahl nach rechts den Rand? Ungerade
+// heißt innen. Das Standardverfahren, in acht Zeilen.
+function punktImRing(lng, lat, ring) {
+  let drin = false;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const [xi, yi] = ring[i];
+    const [xj, yj] = ring[j];
+    if ((yi > lat) !== (yj > lat)
+        && lng < ((xj - xi) * (lat - yi)) / (yj - yi) + xi) {
+      drin = !drin;
+    }
+  }
+  return drin;
+}
+
+function punktInOesterreich(lng, lat) {
+  return !!atRinge && atRinge.some((ring) => punktImRing(lng, lat, ring));
+}
+
+// Aus Zoom, Zeile und Spalte das Rechteck der Kachel in Grad rechnen.
+function kachelEcken(z, y, x) {
+  const n = 2 ** z;
+  // Die Umrechnung der Zeile in einen Breitengrad ist die Mercator-Formel —
+  // sie steht so in jeder Kartenbibliothek.
+  const breite = (zeile) =>
+    (Math.atan(Math.sinh(Math.PI * (1 - (2 * zeile) / n))) * 180) / Math.PI;
+  return {
+    west: (x / n) * 360 - 180,
+    ost: ((x + 1) / n) * 360 - 180,
+    nord: breite(y),
+    sued: breite(y + 1),
+  };
+}
+
+// Zwei Tests, die sich ergaenzen — einer allein reicht nicht.
+function kachelBeruehrtOesterreich(z, y, x) {
+  const k = kachelEcken(z, y, x);
+
+  // 1. Liegt eine Ecke oder die Mitte im Land? Das trifft jede Kachel, die
+  //    ganz oder größtenteils in Österreich liegt.
+  const proben = [
+    [k.west, k.nord], [k.ost, k.nord], [k.west, k.sued], [k.ost, k.sued],
+    [(k.west + k.ost) / 2, (k.nord + k.sued) / 2],
+  ];
+  if (proben.some(([lng, lat]) => punktInOesterreich(lng, lat))) return true;
+
+  // 2. Ragt umgekehrt ein Stück Grenze in die Kachel hinein? Nötig bei
+  //    kleinen Kacheln an einem schmalen Zipfel: Dort liegt keine der fuenf
+  //    Proben im Land, und trotzdem gehört ein Teil der Kachel dazu.
+  return atPunkte.some(([lng, lat]) =>
+    lng >= k.west && lng <= k.ost && lat >= k.sued && lat <= k.nord);
+}
+
+// Die Kacheladressen von basemap.at enden auf /{z}/{y}/{x}.jpeg — Zeile vor
+// Spalte, anders als bei den meisten anderen Diensten.
+const KACHEL_ADRESSE = /\/(\d+)\/(\d+)\/(\d+)\.(?:jpe?g|png)$/;
+
+// Liegt die Kachel vollständig im Land? Dann darf sie unverändert durch —
+// das ist der Normalfall und soll nichts kosten.
+function kachelGanzInOesterreich(z, y, x) {
+  const k = kachelEcken(z, y, x);
+  const ecken = [
+    [k.west, k.nord], [k.ost, k.nord], [k.west, k.sued], [k.ost, k.sued],
+  ];
+  if (!ecken.every(([lng, lat]) => punktInOesterreich(lng, lat))) return false;
+  // Alle vier Ecken drin heißt noch nicht "ganz drin": Eine Kachel kann eine
+  // Bucht der Grenze umschließen. Deshalb zusätzlich prüfen, ob überhaupt ein
+  // Stück Grenze in ihr liegt.
+  return !atPunkte.some(([lng, lat]) =>
+    lng >= k.west && lng <= k.ost && lat >= k.sued && lat <= k.nord);
+}
+
+// Ein Ort in Grad wird zu einem Punkt auf der Kachel, gemessen in Pixeln von
+// ihrer linken oberen Ecke. Das ist die übliche Mercator-Rechnung.
+function nachKachelPixel(lng, lat, z, y, x) {
+  const welt = 256 * 2 ** z;
+  const s = Math.sin((lat * Math.PI) / 180);
+  return [
+    ((lng + 180) / 360) * welt - x * 256,
+    (0.5 - Math.log((1 + s) / (1 - s)) / (4 * Math.PI)) * welt - y * 256,
+  ];
+}
+
+// Die eigentliche Arbeit an der Kachel: Die Landesgrenze wird als Schnittform
+// darübergelegt, und nur was innerhalb liegt, wird gezeichnet. Der Rest bleibt
+// durchsichtig — dort scheint durch, was darunter liegt.
+//
+// Das betrifft nur Kacheln, die wirklich auf der Grenze liegen; das sind pro
+// Bildschirm eine Handvoll.
+async function kachelZuschneiden(blob, z, y, x) {
+  const bild = await createImageBitmap(blob);
+  const leinwand = document.createElement('canvas');
+  leinwand.width = bild.width;
+  leinwand.height = bild.height;
+
+  const stift = leinwand.getContext('2d');
+  const faktor = bild.width / 256;      // falls die Kachel größer geliefert wird
+
+  stift.beginPath();
+  for (const ring of atRinge) {
+    for (let i = 0; i < ring.length; i++) {
+      const [px, py] = nachKachelPixel(ring[i][0], ring[i][1], z, y, x);
+      if (i === 0) stift.moveTo(px * faktor, py * faktor);
+      else stift.lineTo(px * faktor, py * faktor);
+    }
+    stift.closePath();
+  }
+  stift.clip();
+  stift.drawImage(bild, 0, 0);
+  bild.close?.();
+
+  return new Promise((fertig) => leinwand.toBlob(fertig, 'image/png'));
+}
+
+// Die durchsichtige Kachel als fertige Bytes — für alles jenseits der Grenze.
+const LEERE_BYTES = Uint8Array.from(
+  atob(LEERE_KACHEL.split(',')[1]), (z) => z.charCodeAt(0)).buffer;
+
+// Das eigene Kachelprotokoll. Die Karte fragt "atkachel://https://…" an,
+// hier wird entschieden, was zurückkommt:
+//
+//   ganz im Ausland   → eine durchsichtige Kachel, ohne den Server zu fragen
+//   ganz im Inland    → das Bild unverändert, ohne jede Bearbeitung
+//   auf der Grenze    → das Bild, an der Grenze abgeschnitten
+maplibregl.addProtocol('atkachel', async (anfrage, abbruch) => {
+  const adresse = anfrage.url.replace(/^atkachel:\/\//, '');
+  const treffer = KACHEL_ADRESSE.exec(adresse);
+
+  // Ohne erkennbare Kachelnummer oder solange die Grenze noch lädt: durch.
+  if (!treffer || !atRinge) {
+    const antwort = await fetch(adresse, { signal: abbruch.signal });
+    return { data: await antwort.arrayBuffer() };
+  }
+
+  const z = Number(treffer[1]), y = Number(treffer[2]), x = Number(treffer[3]);
+  if (!kachelBeruehrtOesterreich(z, y, x)) return { data: LEERE_BYTES.slice(0) };
+
+  const antwort = await fetch(adresse, { signal: abbruch.signal });
+
+  // Ganz im Land? Dann unverändert durch — das ist der Normalfall.
+  if (kachelGanzInOesterreich(z, y, x)) return { data: await antwort.arrayBuffer() };
+
+  try {
+    const fertig = await kachelZuschneiden(await antwort.blob(), z, y, x);
+    return { data: await fertig.arrayBuffer() };
+  } catch (e) {
+    // Lieber ein Rand zu viel als eine leere Karte.
+    return { data: await (await fetch(adresse)).arrayBuffer() };
+  }
+});
+
+// Die Grenze kommt aus einer Datei, die Karte startet früher. Kacheln, die
+// in der Zwischenzeit weiß hereingekommen sind, werden hier einmal
+// weggeworfen — setTiles mit denselben Adressen leert den Zwischenspeicher.
+function grenzeNachtragen() {
+  // Nur was über atkachel:// läuft — Satellit und Beschriftung kommen von
+  // Esri und werden nicht zugeschnitten.
+  for (const name of ['grund-gelaende']) {
+    try {
+      const quelle = karte.getSource(name);
+      if (quelle?.setTiles) quelle.setTiles(quelle.tiles);
+    } catch (e) { /* Karte oder Quelle noch nicht da — dann war auch nichts da */ }
+  }
 }
 
 // Die Karte startet direkt mit dem fremden Vektorstil. Alles Eigene — die
@@ -661,95 +975,27 @@ function leer() {
 }
 
 // ============================================================================
-// 4b. DIE KARTE EINSPERREN
+// 4b. WIE WEIT DARF MAN HINAUS?
 //
-// Ohne Begrenzung kann man aus Österreich hinausschieben und landet in einer
-// dunklen Fläche — außerhalb gibt es keine Kacheln von basemap.at. Am Handy
-// passiert das schnell, weil ein Wisch dort viel weiter trägt.
+// Bis 2026-08-18: nur bis Europa. Die Karte war mit drei Fesseln eingesperrt
+// (minZoom, maxBounds und eine, die die Kartenmitte zurückholte), weil außer
+// der Standardkarte keine Karte jenseits davon etwas zeigte.
 //
-// Eine feste Grenze in Grad einzutragen funktioniert aber nicht: wie viel
-// Fläche ins Bild passt, hängt vom Seitenverhältnis ab. Auf einem hohen,
-// schmalen Handy ist der sichtbare Ausschnitt bei gleicher Breite viermal so
-// hoch wie auf einem Laptop — eine Grenze, die am PC passt, würde am Handy
-// die Startansicht zusammenquetschen.
+// Das ist vorbei: Satellit kommt aus einer weltweiten Quelle, Wandern deckt
+// die Welt ab, Gelände hat eine weltweite Schummerung darunter. Es gibt also
+// keinen Ort mehr, an dem man ins Leere schaut — und damit keinen Grund, die
+// Karte einzusperren. Sie ist jetzt frei bis zur ganzen Weltkugel.
 //
-// Drei Fesseln, die zusammenarbeiten:
-//
-//   1. minZoom — ausgerechnet, indem Österreich einmal eingepasst wird.
-//      Weiter hinaus als "ganz Österreich" braucht niemand.
-//
-//   2. maxBounds — die Fläche, die bei genau diesem minZoom zu sehen ist.
-//      Sie MUSS so groß sein: gibt man MapLibre ein kleineres Rechteck, dann
-//      zentriert es nicht etwa, sondern zoomt hinein, bis das Rechteck den
-//      Bildschirm füllt. Auf einem hohen, schmalen Handy bliebe von
-//      Österreich dann ein senkrechter Streifen übrig statt des ganzen
-//      Landes. Genau daran ist der erste Versuch gescheitert.
-//
-//   3. Weil dieses Rechteck am Handy sehr hoch ausfällt (bei "ganz
-//      Österreich" sieht man zwangsläufig viel Nord und Süd mit), käme man
-//      beim Hineinzoomen damit trotzdem bis zur Nordsee. Deshalb wird
-//      zusätzlich die KARTENMITTE im Land gehalten. Sie ist der Punkt, um
-//      den sich alles dreht — bleibt sie in Österreich, kann das Land nie
-//      ganz aus dem Bild wandern.
+// Was bleibt: Die Startansicht ist Österreich, dort liegen die Spots.
 // ============================================================================
 
 const AT_ECKEN = [[OESTERREICH[0], OESTERREICH[1]], [OESTERREICH[2], OESTERREICH[3]]];
-const EU_ECKEN = [[EUROPA[0], EUROPA[1]], [EUROPA[2], EUROPA[3]]];
 
 function begrenzungSetzen() {
-  // Alte Fesseln lösen, sonst kann die Karte beim Einpassen nicht frei
-  // arbeiten und das Ergebnis wäre von der vorigen Grenze verfälscht.
   karte.setMaxBounds(null);
-  karte.setMinZoom(2);
-
-  // Wie weit muss man heraus, damit Europa ins Bild passt? Das ist die
-  // Grenze nach außen.
-  karte.fitBounds(EU_ECKEN, { padding: 10, animate: false });
-  const europaZoom = karte.getZoom();
-
-  // Die Fläche, die man bei diesem Zoom sieht, wird zur erlaubten. Sie MUSS
-  // so bestimmt werden und nicht als festes Rechteck: gibt man MapLibre
-  // Grenzen, die kleiner sind als der Bildschirm, zoomt es hinein statt zu
-  // zentrieren — auf einem hohen Handy bliebe von Europa ein Streifen übrig.
-  const b = karte.getBounds();
-  const dx = (b.getEast() - b.getWest()) * 0.02;
-  const dy = (b.getNorth() - b.getSouth()) * 0.02;
-
-  // Ein Hauch Spielraum, sonst fühlt sich die Karte am Anschlag wie
-  // eingerastet an und ruckelt beim Zoomen mit zwei Fingern.
-  karte.setMinZoom(europaZoom - 0.15);
-
-  karte.setMaxBounds([
-    [b.getWest() - dx, b.getSouth() - dy],
-    [b.getEast() + dx, b.getNorth() + dy],
-  ]);
-
-  // Die Startansicht bleibt Österreich — dort liegen die Spots. Europa ist
-  // da, wenn man es sehen will, drängt sich aber nicht auf.
+  karte.setMinZoom(0);
   karte.fitBounds(AT_ECKEN, { padding: 20, animate: false });
 }
-
-// Die Mitte zurückholen, sobald sie Europa verlässt. Läuft bei jeder Bewegung
-// mit — dadurch fühlt es sich wie ein Anschlag an und nicht wie ein
-// Zurückspringen hinterher.
-//
-// Nötig ist das, weil die erlaubte Fläche oben aus der Bildschirmgröße
-// gerechnet wird und dabei nach oben und unten großzügiger ausfällt als
-// Europa. Ohne diese zweite Fessel käme man beim Hineinzoomen bis Grönland.
-function mitteHalten() {
-  const c = karte.getCenter();
-
-  const lng = Math.min(Math.max(c.lng, EUROPA[0]), EUROPA[2]);
-  const lat = Math.min(Math.max(c.lat, EUROPA[1]), EUROPA[3]);
-
-  // Nur eingreifen, wenn es wirklich nötig ist. Sonst würde jede Bewegung
-  // ein neues Setzen auslösen und die Karte zittern.
-  if (lng !== c.lng || lat !== c.lat) {
-    karte.setCenter([lng, lat]);
-  }
-}
-
-karte.on('move', mitteHalten);
 
 // Beim Drehen des Handys ändert sich das Seitenverhältnis komplett — dann
 // muss die Grenze neu ausgerechnet werden, sonst passt Österreich plötzlich
@@ -834,6 +1080,22 @@ function grundkarteSetzen(id) {
     karte.setLayoutProperty('grund-' + x.id, 'visibility', x.id === g.id ? 'visible' : 'none');
   }
 
+  // Und die Weltunterlage derselben Karte gleich mit. Ohne diese Schleife
+  // blieben die weltweiten Ebenen für immer unsichtbar — sie werden mit
+  // visibility 'none' angelegt und niemand schaltete sie je ein. Genau das
+  // war der Grund, warum "Satellit" an der Staatsgrenze endete und beim
+  // Hinauszoomen eine leere Fläche übrig ließ: Die basemap.at-Kacheln
+  // blenden sich ab Zoom 7,4 aus, und darunter lag nichts.
+  //
+  // Zwei Ebenen pro Karte, immer im Doppel: der Grund (Meeresblau beim
+  // Luftbild, Hellgrau beim Relief) und die Unterlage selbst darauf.
+  for (const x of GRUNDKARTEN) {
+    if (!x.welt) continue;
+    const an = x.id === g.id ? 'visible' : 'none';
+    karte.setLayoutProperty('weltgrund-' + x.id, 'visibility', an);
+    karte.setLayoutProperty('welt-' + x.id, 'visibility', an);
+  }
+
   // Die Standardkarte ist nicht eine Ebene, sondern der ganze Stil darunter.
   // Ein- und ausgeschaltet wird sie deshalb als Gruppe. Sie einfach liegen zu
   // lassen wäre verlockend — die anderen Karten decken sie ja ab —, aber
@@ -843,8 +1105,12 @@ function grundkarteSetzen(id) {
   for (const ebene of stilEbenen) {
     try { karte.setLayoutProperty(ebene, 'visibility', stilAn); } catch (e) { /* Ebene weg */ }
   }
-  // Beschriftung nur dort, wo der Hintergrund selbst keine hat.
-  karte.setLayoutProperty('beschriftung', 'visibility', g.beschriftung ? 'visible' : 'none');
+  // Beschriftung nur dort, wo der Hintergrund selbst keine hat — also auf dem
+  // Luftbild und dem Relief. Stand hier bis 2026-08-18 als g.beschriftung und
+  // lief damit ins Leere: Im Kartenstil heißt das Feld schrift, seit dem
+  // Umbau auf den Vektorstil. Deshalb stand auf dem Luftbild kein einziger
+  // Ortsname.
+  karte.setLayoutProperty('beschriftung', 'visibility', g.schrift ? 'visible' : 'none');
 
   // Die Maske nur dort, wo sie gebraucht wird. Bei "Standard" sind die
   // Kacheln außerhalb Österreichs durchsichtig und bei "Wandern" deckt
@@ -852,88 +1118,23 @@ function grundkarteSetzen(id) {
   // Kontinent verstecken, den man gerade sehen will.
   karte.setLayoutProperty('maske', 'visibility', g.maske ? 'visible' : 'none');
 
+  // Der Grund unter allem. MapLibre zeichnet nur den untersten
+  // background-Layer — die eigenen Gründe je Karte blieben also wirkungslos,
+  // und beim Rauszoomen blitzte kurz der helle Kartengrund auf, bevor das
+  // Luftbild da war. Deshalb wird dieser eine umgefärbt: beim Luftbild
+  // Meeresblau, sonst die Farbe des Stilblatts.
+  if (karte.getLayer('hintergrund')) {
+    karte.setPaintProperty('hintergrund', 'background-color', g.weltGrund ?? kartenGrund());
+  }
+
   for (const btn of grundKnoepfe.children) {
     btn.setAttribute('aria-pressed', String(btn.dataset.grund === g.id));
   }
 }
 
-// ----------------------------------------------------------------------------
-// Außerhalb Österreichs auf die Wanderkarte wechseln
-//
-// Spots lassen sich in ganz Europa setzen. Drei der vier Kartenstile kommen
-// aber von basemap.at und enden an der Staatsgrenze — bei Gelände und
-// Satellit liegt außerhalb die Maske, also eine dunkle Fläche. Wer dort einen
-// Spot eintragen will, sähe schlicht nichts.
-//
-// Deshalb schaltet die Karte selbst auf "Wandern" (OpenTopoMap), sobald die
-// Mitte Österreich verlässt. Zurück schaltet sie NICHT von allein: Wer sich
-// bewusst für einen Stil entscheidet, soll ihn behalten, und ein Hin und Her
-// an der Grenze wäre unerträglich.
-// ----------------------------------------------------------------------------
-
-// Liegt die Kartenmitte außerhalb Österreichs?
-//
-// Zwei Wege, die beide nicht taugen, und der dritte, der es tut:
-//
-//   1. Das Rechteck OESTERREICH — viel zu grob. Der Triglav in Slowenien
-//      liegt auf 46,38° und damit mitten in diesem Rechteck, obwohl er
-//      hundert Kilometer hinter der Grenze steht.
-//
-//   2. Die gezeichnete Maske abfragen (queryRenderedFeatures). Klingt
-//      elegant, ist aber unzuverlässig: Die Maske ist ein Polygon über die
-//      halbe Welt, und die Abfrage findet es nur dort, wo gerade
-//      Geometrie in der Kachel liegt. In Norwegen traf sie, in Slowenien
-//      nicht — ausprobiert und verworfen.
-//
-//   3. Selbst rechnen. Die Grenze liegt ohnehin schon als Datei vor: In
-//      oesterreich-maske.geojson ist Ring 0 das Weltrechteck, alles danach
-//      sind die Löcher — und die Löcher SIND Österreich, mitsamt Exklave.
-//      Ein Strahlentest gegen diese Ringe ist exakt und kostet nichts.
-// ----------------------------------------------------------------------------
-
-let atRinge = null;
-
-fetch('oesterreich-maske.geojson')
-  .then((r) => r.json())
-  .then((g) => {
-    const geo = g.geometry ?? g.features?.[0]?.geometry;
-    atRinge = geo.coordinates.slice(1);     // ohne das Weltrechteck
-  })
-  .catch(() => { atRinge = null; });
-
-// Strahlentest: Wie oft kreuzt ein Strahl nach rechts den Rand? Ungerade
-// heißt innen. Das Standardverfahren, in acht Zeilen.
-function punktImRing(lng, lat, ring) {
-  let drin = false;
-  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
-    const [xi, yi] = ring[i];
-    const [xj, yj] = ring[j];
-    if ((yi > lat) !== (yj > lat)
-        && lng < ((xj - xi) * (lat - yi)) / (yj - yi) + xi) {
-      drin = !drin;
-    }
-  }
-  return drin;
-}
-
-function mitteAusserhalbOesterreichs() {
-  // Solange die Grenze nicht geladen ist, lieber nichts umschalten.
-  if (!atRinge) return false;
-  const c = karte.getCenter();
-  return !atRinge.some((ring) => punktImRing(c.lng, c.lat, ring));
-}
-
-function grundkarteNachLageAnpassen() {
-  const g = GRUNDKARTEN.find((x) => x.id === aktiveGrundkarte);
-  if (!g?.maske) return;            // Standard und Wandern zeigen überall etwas
-  if (!mitteAusserhalbOesterreichs()) return;
-
-  grundkarteSetzen('topo');
-  status('Außerhalb Österreichs auf <b>Wandern</b> gewechselt — '
-    + 'Gelände und Satellit gibt es nur fürs Inland.', { dauer: 5000 });
-}
-
-karte.on('moveend', grundkarteNachLageAnpassen);
+// Die Landesgrenze und der Zuschnitt der amtlichen Kacheln stehen weiter
+// oben, gleich vor dem Aufbau der Karte — sie werden schon beim ersten
+// Kachelaufruf gebraucht.
 
 // ============================================================================
 // 5b. DIE ZWEI TAFELN OBEN
@@ -1128,6 +1329,16 @@ async function punkteLaden() {
   if (!karte.getSource('wasser')) return;           // Karte noch nicht fertig
 
   const zoom = karte.getZoom();
+
+  // Ganz draußen gar nichts holen. Seit man bis zur Weltkugel hinauszoomen
+  // kann, wäre die Abfrage sonst über einen halben Erdball — für Punkte, die
+  // bei dieser Größe ohnehin alle aufeinanderliegen.
+  if (zoom < WELTSICHT) {
+    for (const gruppe of OSM_EBENEN) karte.getSource(gruppe)?.setData(leer());
+    letzteBbox = null;
+    status('');
+    return;
+  }
 
   // Weit draußen nur die Bergseen holen — sonst kämen zehntausende Brunnen.
   const modus = zoom < ZOOM_SCHWELLE ? 'nur-seen' : 'alles';
