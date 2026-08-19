@@ -811,6 +811,10 @@ const SPOT_FARBEN = {
   'spot':         '#00a63c',   // noch nicht bewertet oder gut
   'spot-mittel':  '#e09a12',
   'spot-schwach': '#cc5a28',
+  // Handverlesen. Gold, wie alles an Plus — und das einzige Zeichen auf der
+  // Karte, das keine Bewertung ausdrückt, sondern ein Urteil. Es steht
+  // deshalb über allen anderen (siehe symbolAusdruck).
+  'spot-vip':     '#d9a23f',
 };
 
 // Das Zeichen wird zweimal übereinander gezeichnet: zuerst dick in Weiß,
@@ -866,7 +870,11 @@ function symbolAusdruck(gruppe) {
 
   if (gruppe !== 'spot') return 'sym-' + gruppe;
 
+  // Handverlesen schlägt die Bewertung. Ein ausgesuchter Platz mit zwei
+  // Sternen bleibt ein ausgesuchter Platz — die Sterne kommen von Leuten, die
+  // dort waren, die Auszeichnung von jemandem, der weiß, wovon er redet.
   return ['case',
+    ['==', ['get', 'vip'], true], 'sym-spot-vip',
     ['==', ['get', 'rating_count'], 0], 'sym-spot',
     ['<', ['get', 'avg_stars'], 2.5], 'sym-spot-schwach',
     ['<', ['get', 'avg_stars'], 4], 'sym-spot-mittel',
@@ -1293,6 +1301,56 @@ for (const gruppe of [...OSM_EBENEN, 'spots']) {
   };
 }
 
+// ----------------------------------------------------------------------------
+// Nur die handverlesenen
+//
+// Kein eigener Datenabruf: Die Punkte liegen längst da, sie werden nur
+// ausgeblendet. Das wirkt sofort und funktioniert auch ohne Empfang — genau
+// wie bei den Filterchips (screens.js).
+//
+// Die Einstellung wird bewusst NICHT gemerkt. Wer die App aufmacht, soll die
+// ganze Karte sehen; ein stiller Filter, der von gestern übrig ist, lässt eine
+// leere Karte wie einen Fehler aussehen.
+// ----------------------------------------------------------------------------
+
+let nurVip = false;
+
+function vipFilterAnwenden() {
+  if (!karte.getLayer('spots-symbol')) return;
+  const grund = ['!', ['has', 'point_count']];
+  karte.setFilter('spots-symbol',
+    nurVip ? ['all', grund, ['==', ['get', 'vip'], true]] : grund);
+}
+
+{
+  const knopf = document.getElementById('knopf-nur-vip');
+  if (knopf) {
+    knopf.onclick = () => {
+      // Ohne Plus führt der Schalter dorthin, wo man es bekommt, statt
+      // einfach nichts zu tun.
+      if (window.WILDSPOT_PLUS && !window.WILDSPOT_PLUS.hat()) {
+        window.WILDSPOT_PLUS.schranke('Handverlesene Spots');
+        return;
+      }
+
+      nurVip = !nurVip;
+      knopf.setAttribute('aria-pressed', String(nurVip));
+
+      // Die Spots-Ebene muss dafür an sein — sonst tippt man auf einen
+      // Schalter, der sichtbar nichts bewirkt.
+      if (nurVip && !ebenen.spots) {
+        ebenen.spots = true;
+        const spotKnopf = document.getElementById('knopf-spots');
+        if (spotKnopf) spotKnopf.setAttribute('aria-pressed', 'true');
+        ebenenAnwenden();
+        spotsLaden();
+      }
+
+      vipFilterAnwenden();
+    };
+  }
+}
+
 // ============================================================================
 // 7. PUNKTE AUS DER DATENBANK HOLEN
 //
@@ -1573,6 +1631,10 @@ async function spotsLaden() {
         water_nearby: s.water_nearby,
         above_treeline: s.above_treeline,
         elevation_m: s.elevation_m,
+        // Handverlesen (db/023). Steuert das goldene Zeichen und den Schalter
+        // „Nur handverlesene" in der Ebenentafel.
+        vip: s.vip === true,
+        vip_notiz: s.vip_notiz || '',
         // Alles ab hier hängt am Punkt, damit die Filterchips (screens.js)
         // ohne neue Abfrage arbeiten können: Sie blenden Punkte aus, statt
         // sie neu zu holen — das geht sofort und auch ohne Netz.

@@ -131,6 +131,9 @@ const ANZEIGE = [
 const SPALTEN = [
   'id', 'name', 'description', 'created_by', 'created_at',
   'avg_stars', 'rating_count',
+  // Handverlesen (db/023). Steht oben im Blatt als Zeile und unten als
+  // Schalter für Admins.
+  'vip', 'vip_notiz',
   // Der Parkplatz und die dazu gerechnete Wanderroute (route.js). Sie stehen
   // hier statt in ANZEIGE, weil sie keine Merkmalszeile bekommen, sondern
   // einen eigenen Block mit Linie auf der Karte.
@@ -336,6 +339,53 @@ detailKoord.onclick = koordinatenKopieren;
 // ============================================================================
 // 3. ÖFFNEN
 // ============================================================================
+
+// ----------------------------------------------------------------------------
+// Auszeichnen und zurücknehmen — nur für Admins
+//
+// Die Datenbank lässt niemanden sonst daran (Trigger vip_nur_admin in
+// db/023); dieser Knopf ist die Bedienung dazu, nicht die Absicherung.
+// ----------------------------------------------------------------------------
+
+function vipVerdrahten(spot) {
+  const knopf = document.getElementById('vip-schalten');
+  const feld  = document.getElementById('vip-notiz');
+  if (!knopf) return;
+
+  knopf.addEventListener('click', async () => {
+    const auth = window.WILDCAMP_AUTH;
+    const an = spot.vip === true;
+    knopf.disabled = true;
+
+    try {
+      const { error } = await auth.client
+        .from('spots')
+        .update({
+          vip: !an,
+          // Beim Zurücknehmen die Notiz mit wegräumen — eine Begründung ohne
+          // Auszeichnung wäre ein Rest, der beim nächsten Mal verwirrt.
+          vip_notiz: an ? null : (feld ? feld.value.trim() || null : null),
+        })
+        .eq('id', spot.id);
+      if (error) throw error;
+
+      spot.vip = !an;
+      spot.vip_notiz = an ? null : (feld ? feld.value.trim() : null);
+
+      status(an ? 'Auszeichnung zurückgenommen.' : 'Als handverlesen ausgezeichnet.',
+             { dauer: 3000 });
+
+      // Die Karte muss das goldene Zeichen sofort zeigen oder verlieren.
+      if (typeof spotsLaden === 'function') spotsLaden();
+
+      // Das Blatt neu aufbauen, damit Band und Knopf zum neuen Stand passen.
+      spotDetailOeffnen(spot.id, spot.name, offenerSpot.lat, offenerSpot.lng);
+    } catch (err) {
+      knopf.disabled = false;
+      status('Hat nicht geklappt: ' + (err.message || err), { dauer: 5000 });
+    }
+  });
+}
 
 async function spotDetailOeffnen(id, name, lat, lng) {
   offenerSpot = { id, lat, lng };
@@ -607,6 +657,26 @@ function zeichnen(spot, kommentare, meineSterne, fotos = []) {
     teile.push(window.wetterPlatzhalter());
   }
 
+  // ------------------------------------------------------- Handverlesen -----
+  // Weit oben, gleich nach den Bedingungen: Wer ein Blatt aufmacht und dieses
+  // Zeichen sieht, liest den Rest anders. Die Notiz ist der eigentliche Wert —
+  // ohne sie ist es nur ein Abzeichen.
+  if (spot.vip === true) {
+    teile.push(
+      '<div class="vip-band">',
+      '<span class="vip-zeichen" aria-hidden="true">' +
+      '<svg viewBox="0 0 24 24"><path d="M12 3.5l1.9 4.6 4.6 1.9-4.6 1.9L12 16.5l-1.9-4.6L5.5 10l4.6-1.9z"/></svg>' +
+      '</span>',
+      '<div>',
+      '<b>Handverlesen</b>',
+      spot.vip_notiz
+        ? `<p>${escapeHtml(spot.vip_notiz)}</p>`
+        : '<p>Von jemandem ausgesucht, der dort übernachtet hat.</p>',
+      '</div>',
+      '</div>'
+    );
+  }
+
   // -------------------------------------------------------- Beschreibung -----
   if (spot.description) {
     teile.push('<h3>Beschreibung</h3>');
@@ -742,7 +812,35 @@ function zeichnen(spot, kommentare, meineSterne, fotos = []) {
     );
   }
 
+  // ------------------------------------------------------ Auszeichnen -----
+  // Nur für Admins. Ohne diesen Kasten wäre „handverlesen" eine Spalte in der
+  // Datenbank, die niemand füllen kann — und ein Versprechen auf der
+  // Plus-Seite, das ins Leere geht.
+  //
+  // Die Notiz ist Pflicht in der Sache, wenn auch nicht im Formular: Eine
+  // Auszeichnung ohne Begründung ist für den, der sie liest, wertlos.
+  const istAdmin = angemeldet && window.WILDCAMP_AUTH.nutzer.istAdmin === true;
+  if (istAdmin) {
+    const an = spot.vip === true;
+    teile.push(
+      '<h3>Handverlesen</h3>',
+      '<div class="vip-kasten">',
+      `<p class="vip-stand">${an
+        ? 'Dieser Spot ist ausgezeichnet — er steht in Gold auf der Karte.'
+        : 'Noch nicht ausgezeichnet.'}</p>`,
+      '<label class="vip-feld">Warum dieser Platz?',
+      `<textarea id="vip-notiz" rows="3" maxlength="400" ` +
+      `placeholder="Ein Satz von jemandem, der dort war.">${escapeHtml(spot.vip_notiz || '')}</textarea>`,
+      '</label>',
+      `<button type="button" class="${an ? 'gefahr' : 'zweit'}" id="vip-schalten">` +
+      `${an ? 'Auszeichnung zurücknehmen' : 'Als handverlesen auszeichnen'}</button>`,
+      '</div>'
+    );
+  }
+
   detailKoerper.innerHTML = teile.join('');
+
+  if (istAdmin) vipVerdrahten(spot);
 
   verdrahten(spot, meineSterne, fotos.length, meiner);
 
