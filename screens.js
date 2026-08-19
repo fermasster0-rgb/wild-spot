@@ -1322,27 +1322,32 @@
     rand.className = 'rand';
     kasten.appendChild(rand);
 
-    // -------------------------------------------------------- Die Zahlen
+    // ============================================================ REIHENFOLGE
+    //
+    // Die Seite ist von oben nach unten nach Häufigkeit sortiert, nicht nach
+    // Schauwert:
+    //
+    //   1. Wer bin ich          — Bild, Name, Follower
+    //   2. Meine Zahlen         — kurz, der Rest hinter einem Knopf
+    //   3. Plus                 — das Angebot, solange man noch oben ist
+    //   4. Einstellungen        — Aussehen, Karte offline, App installieren
+    //   5. Sammlung             — Abzeichen, Gipfel, Aktivität
+    //   6. Wissen, Abmelden, Fassung
+    //
+    // Vorher standen Abzeichen, Gipfel und Aktivität vor den Einstellungen.
+    // Wer nur von hell auf dunkel schalten oder nachsehen wollte, was offline
+    // liegt, musste an allem vorbeiwischen — und das sind die zwei Sachen, die
+    // man draußen wirklich braucht.
+    // ==========================================================================
+
+    // ----------------------------------------------------- Wer bin ich
     if (auth.nutzer) {
       bildKnopfVerdrahten();
       const ich = auth.nutzer.id;
 
-      // Alle Zahlen auf einmal — Gipfel, Plätze, Nächte, Gipfelmeter, Fotos,
-      // Bewertungen. Und darunter ehrlich das, was noch nicht geht:
-      // Kilometer und Zeit (siehe gipfel.js).
-      const zahlenPlatz = el('div');
-      zahlenPlatz.innerHTML =
-        '<div class="platzhalter" style="height:150px;border-radius:16px;margin-bottom:14px"></div>';
-      rand.appendChild(zahlenPlatz);
-
-      if (window.WILDSPOT_GIPFEL) {
-        window.WILDSPOT_GIPFEL.statistikBauen(ich, { ichSelbst: true })
-          .then((e) => zahlenPlatz.replaceWith(e))
-          .catch(() => {});
-      }
-
-      // Die Folgezeile ist jetzt anklickbar: Hinter „12 Follower" liegt die
-      // Liste der zwölf. Vorher war es eine Zahl, die nichts tat.
+      // Die Folgezeile steht direkt unter dem Namen — sie gehört zur Person,
+      // nicht zu den Leistungen. Anklickbar: Hinter „12 Follower" liegt die
+      // Liste der zwölf.
       const folgen = el('div');
       folgen.className = 'folge-zeile klickbar';
       folgen.innerHTML =
@@ -1372,43 +1377,18 @@
         if (p.avatar_path !== undefined) auth.nutzer.avatarPfad = p.avatar_path;
       }).catch(() => {});
 
-      // ------------------------------------------------------- Abzeichen
-      rand.appendChild(abschnittKopf('Abzeichen',
-        'Was du schon geschafft hast — und was als Nächstes drin wäre'));
+      // -------------------------------------------------------- Die Zahlen
+      // Kompakt: vier Kacheln, der Rest hinter „Alle Zahlen anzeigen“
+      // (siehe gipfel.js).
+      const zahlenPlatz = el('div');
+      zahlenPlatz.innerHTML =
+        '<div class="platzhalter" style="height:96px;border-radius:16px;margin-bottom:14px"></div>';
+      rand.appendChild(zahlenPlatz);
 
-      const abzPlatz = el('div');
-      abzPlatz.innerHTML =
-        '<div class="platzhalter" style="height:120px;border-radius:16px"></div>';
-      rand.appendChild(abzPlatz);
       if (window.WILDSPOT_GIPFEL) {
-        window.WILDSPOT_GIPFEL.abzeichenBauen(ich)
-          .then((e) => abzPlatz.replaceWith(e)).catch(() => {});
-      }
-
-      // --------------------------------------------------- Meine Gipfel
-      rand.appendChild(abschnittKopf('Deine Gipfel',
-        'Antippen öffnet den Gipfel — dort steht, wer sonst schon oben war'));
-
-      const gipfelPlatz = el('div');
-      gipfelPlatz.innerHTML =
-        '<div class="platzhalter" style="height:80px;border-radius:16px"></div>';
-      rand.appendChild(gipfelPlatz);
-      if (window.WILDSPOT_GIPFEL) {
-        window.WILDSPOT_GIPFEL.meineGipfelBauen(ich, { ichSelbst: true })
-          .then((e) => gipfelPlatz.replaceWith(e)).catch(() => {});
-      }
-
-      // ------------------------------------------------ Letzte Aktivität
-      rand.appendChild(abschnittKopf('Deine letzte Aktivität',
-        'Alles, was du eingetragen hast, in einer Spur'));
-
-      const aktPlatz = el('div');
-      aktPlatz.innerHTML =
-        '<div class="platzhalter" style="height:80px;border-radius:16px"></div>';
-      rand.appendChild(aktPlatz);
-      if (window.WILDSPOT_LEUTE) {
-        window.WILDSPOT_LEUTE.aktivitaetBauen(ich, 10)
-          .then((e) => aktPlatz.replaceWith(e)).catch(() => {});
+        window.WILDSPOT_GIPFEL.statistikBauen(ich, { ichSelbst: true, kompakt: true })
+          .then((e) => zahlenPlatz.replaceWith(e))
+          .catch(() => {});
       }
     } else {
       const k = el('button');
@@ -1480,6 +1460,52 @@
     }
 
     rand.appendChild(menue1);
+
+    // ============================================================== Sammlung
+    // Abzeichen, Gipfel und die Spur der eigenen Einträge. Zum Stöbern, nicht
+    // zum Erledigen — deshalb hinter den Einstellungen.
+    if (auth.nutzer) {
+      const ich = auth.nutzer.id;
+
+      // ------------------------------------------------------- Abzeichen
+      rand.appendChild(abschnittKopf('Abzeichen',
+        'Was du schon geschafft hast — und was als Nächstes drin wäre'));
+
+      const abzPlatz = el('div');
+      abzPlatz.innerHTML =
+        '<div class="platzhalter" style="height:120px;border-radius:16px"></div>';
+      rand.appendChild(abzPlatz);
+      if (window.WILDSPOT_GIPFEL) {
+        window.WILDSPOT_GIPFEL.abzeichenBauen(ich)
+          .then((e) => abzPlatz.replaceWith(e)).catch(() => {});
+      }
+
+      // --------------------------------------------------- Meine Gipfel
+      rand.appendChild(abschnittKopf('Deine Gipfel',
+        'Antippen öffnet den Gipfel — dort steht, wer sonst schon oben war'));
+
+      const gipfelPlatz = el('div');
+      gipfelPlatz.innerHTML =
+        '<div class="platzhalter" style="height:80px;border-radius:16px"></div>';
+      rand.appendChild(gipfelPlatz);
+      if (window.WILDSPOT_GIPFEL) {
+        window.WILDSPOT_GIPFEL.meineGipfelBauen(ich, { ichSelbst: true })
+          .then((e) => gipfelPlatz.replaceWith(e)).catch(() => {});
+      }
+
+      // ------------------------------------------------ Letzte Aktivität
+      rand.appendChild(abschnittKopf('Deine letzte Aktivität',
+        'Alles, was du eingetragen hast, in einer Spur'));
+
+      const aktPlatz = el('div');
+      aktPlatz.innerHTML =
+        '<div class="platzhalter" style="height:80px;border-radius:16px"></div>';
+      rand.appendChild(aktPlatz);
+      if (window.WILDSPOT_LEUTE) {
+        window.WILDSPOT_LEUTE.aktivitaetBauen(ich, 10)
+          .then((e) => aktPlatz.replaceWith(e)).catch(() => {});
+      }
+    }
 
     // ------------------------------------------------------------- Wissen
     const menue2 = el('div');

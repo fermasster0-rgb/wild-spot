@@ -444,11 +444,11 @@
 
     for (const a of data) kasten.appendChild(aktivitaetZeile(a));
 
-    // Die neuesten drei stehen da, der Rest liegt darunter. Eine Spur ist
-    // etwas, das man überfliegt — dafür reichen drei Zeilen, und wer wirklich
+    // Die neuesten zwei stehen da, der Rest liegt darunter. Eine Spur ist
+    // etwas, das man überfliegt — dafür reichen zwei Zeilen, und wer wirklich
     // zurückschauen will, tippt einmal.
     if (window.WILDSPOT_KUERZEN) {
-      window.WILDSPOT_KUERZEN(kasten, { zeigen: 3, wort: 'Einträge' });
+      window.WILDSPOT_KUERZEN(kasten, { zeigen: 2, wort: 'Einträge' });
     }
 
     return kasten;
