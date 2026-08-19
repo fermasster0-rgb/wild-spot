@@ -4502,6 +4502,192 @@ body.parkplatz-modus .knopf-zeile { display: none; }
 @media (prefers-reduced-motion: reduce) {
   .plus-angebot { transition: none; transform: none; }
 }
+
+/* --- Das große Angebot ----------------------------------------------------
+
+   Die laute Fassung desselben Angebots, die zuerst kommt. Sie füllt den
+   Bildschirm, weil sie das soll — aber sie kommt höchstens alle zwei Wochen
+   und nach zwei Absagen nie wieder (plus.js). */
+.plus-gross-hg {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: grid;
+  place-items: center;
+  padding:
+    max(20px, env(safe-area-inset-top))
+    max(20px, env(safe-area-inset-right))
+    max(20px, env(safe-area-inset-bottom))
+    max(20px, env(safe-area-inset-left));
+  background: rgba(6, 10, 13, 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  opacity: 0;
+  transition: opacity 0.24s ease;
+}
+.plus-gross-hg.da { opacity: 1; }
+
+.plus-gross-box {
+  position: relative;
+  width: 100%;
+  max-width: 380px;
+  max-height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 30px 24px 22px;
+  border-radius: 24px;
+  border: 1px solid color-mix(in srgb, var(--plus-gold) 24%, transparent);
+  background: linear-gradient(180deg, var(--plus-grund-2) 0%, var(--plus-grund) 60%);
+  color: var(--plus-text);
+  text-align: center;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+  transform: translateY(14px) scale(0.97);
+  transition: transform 0.32s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+.plus-gross-hg.da .plus-gross-box { transform: none; }
+
+/* Derselbe Polarlichtbogen wie auf der Plus-Seite, nur als stiller Schein
+   hinter dem Zeichen. */
+.plus-gross-box .gross-schein {
+  position: absolute;
+  top: -40px; left: 50%;
+  width: 260px; height: 180px;
+  transform: translateX(-50%);
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 50% 60% at 50% 50%,
+      color-mix(in srgb, var(--plus-nord) 40%, transparent) 0%,
+      transparent 70%);
+  filter: blur(18px);
+}
+
+.plus-gross-box .gross-zu {
+  position: absolute;
+  top: 10px; right: 12px;
+  width: 34px; height: 34px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.07);
+  color: color-mix(in srgb, var(--plus-text) 60%, transparent);
+  font: inherit;
+  font-size: 19px;
+  line-height: 1;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.plus-gross-box .gross-zeichen {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 56px; height: 56px;
+  margin: 0 auto 14px;
+  border-radius: 17px;
+  background: color-mix(in srgb, var(--plus-gold) 15%, transparent);
+  border: 1px solid color-mix(in srgb, var(--plus-gold) 28%, transparent);
+  color: var(--plus-gold);
+}
+.plus-gross-box .gross-zeichen svg {
+  width: 27px; height: 27px;
+  fill: none; stroke: currentColor;
+  stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round;
+}
+
+.plus-gross-box .gross-ueber {
+  margin: 0 0 10px;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--plus-text) 55%, transparent);
+}
+.plus-gross-box .gross-preis {
+  margin: 0;
+  line-height: 1.05;
+}
+.plus-gross-box .gross-preis b {
+  display: block;
+  font-size: 54px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: var(--plus-gold);
+}
+.plus-gross-box .gross-preis span {
+  display: block;
+  margin-top: 6px;
+  font-size: 15px;
+  font-weight: 600;
+}
+.plus-gross-box .gross-unter {
+  margin: 8px 0 20px;
+  font-size: 12.5px;
+  color: color-mix(in srgb, var(--plus-text) 58%, transparent);
+}
+
+.plus-gross-box .gross-liste {
+  margin: 0 0 22px;
+  padding: 0;
+  list-style: none;
+  text-align: left;
+}
+.plus-gross-box .gross-liste li {
+  position: relative;
+  padding: 7px 0 7px 26px;
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: color-mix(in srgb, var(--plus-text) 88%, transparent);
+}
+/* Der Haken davor ist gezeichnet und kein Zeichen aus der Schrift — so sieht
+   er auf jedem Gerät gleich aus. */
+.plus-gross-box .gross-liste li::before {
+  content: '';
+  position: absolute;
+  left: 4px; top: 13px;
+  width: 10px; height: 6px;
+  border-left: 2px solid var(--plus-gold);
+  border-bottom: 2px solid var(--plus-gold);
+  transform: rotate(-45deg);
+}
+
+.plus-gross-box .gross-haupt {
+  display: block;
+  width: 100%;
+  padding: 15px;
+  border: 0;
+  border-radius: 14px;
+  background: linear-gradient(140deg, var(--plus-gold), var(--plus-gold-2));
+  color: #23180a;
+  font: inherit;
+  font-size: 15.5px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.plus-gross-box .gross-spaeter {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+  padding: 12px;
+  border: 0;
+  background: none;
+  color: color-mix(in srgb, var(--plus-text) 55%, transparent);
+  font: inherit;
+  font-size: 13.5px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+@media (hover: hover) {
+  .plus-gross-box .gross-haupt:hover { filter: brightness(1.07); }
+  .plus-gross-box .gross-spaeter:hover { color: var(--plus-text); }
+  .plus-gross-box .gross-zu:hover { color: var(--plus-text); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .plus-gross-hg, .plus-gross-box { transition: none; }
+  .plus-gross-hg { opacity: 1; }
+  .plus-gross-box { transform: none; }
+}
 .plus-leiste .wahl b {
   display: block;
   font-size: 15px;
