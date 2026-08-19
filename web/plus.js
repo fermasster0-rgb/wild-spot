@@ -449,6 +449,100 @@
   }
 
   // ==========================================================================
+  // 5b. DAS ANGEBOT — der erste Monat für 1 €
+  //
+  // Ein Balken unten, der nach einer Weile hereinfährt. Er soll den ersten
+  // Schritt kosten lassen, was er wert ist: fast nichts.
+  //
+  // Die Regeln drumherum sind wichtiger als der Balken selbst. Werbung, die
+  // bei jedem Start aufpoppt, ist der schnellste Weg, eine App loszuwerden:
+  //
+  //   - Nur wer kein Plus hat. Wer zahlt, bekommt nie wieder ein Angebot.
+  //   - Nicht beim allerersten Start. Da läuft die Einführung, und wer die
+  //     App noch nicht kennt, weiß gar nicht, wofür er zahlen soll.
+  //   - Nicht auf der Plus-Seite. Dort steht das Angebot ohnehin groß.
+  //   - Höchstens alle drei Tage.
+  //   - Wer ihn dreimal weggetippt hat, sieht ihn nicht mehr. Ein Nein, das
+  //     man dreimal sagen muss, ist schon eines zu viel.
+  // ==========================================================================
+
+  const ANGEBOT_ZULETZT  = 'wildspot-angebot-zuletzt';
+  const ANGEBOT_WEGGETIPPT = 'wildspot-angebot-weg';
+  const ANGEBOT_WARTEN   = 15000;                 // 15 Sekunden
+  const ANGEBOT_PAUSE    = 3 * 24 * 60 * 60 * 1000;  // drei Tage
+  const ANGEBOT_GENUG    = 3;                     // so oft darf man Nein sagen
+
+  function darfAngebotZeigen() {
+    if (hatPlus()) return false;
+
+    // Die Einführung läuft noch, oder sie war noch nie zu Ende.
+    try {
+      if (localStorage.getItem('wildspot-intro-gesehen') !== 'ja') return false;
+    } catch (e) { return false; }
+
+    const intro = $('intro');
+    if (intro && !intro.hidden) return false;
+
+    try {
+      if (Number(localStorage.getItem(ANGEBOT_WEGGETIPPT) || 0) >= ANGEBOT_GENUG) return false;
+      const zuletzt = Number(localStorage.getItem(ANGEBOT_ZULETZT) || 0);
+      if (zuletzt && Date.now() - zuletzt < ANGEBOT_PAUSE) return false;
+    } catch (e) { return false; }
+
+    // Nicht ins eigene Schaufenster stellen.
+    const plusSchirm = $('schirm-plus');
+    if (plusSchirm && !plusSchirm.hidden) return false;
+
+    return true;
+  }
+
+  function angebotZeigen() {
+    if (!darfAngebotZeigen()) return;
+    if ($('plus-angebot')) return;
+
+    try { localStorage.setItem(ANGEBOT_ZULETZT, String(Date.now())); } catch (e) {}
+
+    const balken = document.createElement('div');
+    balken.id = 'plus-angebot';
+    balken.className = 'plus-angebot';
+    balken.innerHTML =
+      `<button type="button" class="angebot-haupt">
+         <span class="zeichen" aria-hidden="true">
+           <svg viewBox="0 0 24 24"><path d="M12 3.5l1.9 4.6 4.6 1.9-4.6 1.9L12 16.5l-1.9-4.6L5.5 10l4.6-1.9z"/></svg>
+         </span>
+         <span class="text">
+           <b>Ersten Monat um 1 €</b>
+           <small>Alle Karten, offline und ohne Werbung — danach 3,49 €, jederzeit kündbar</small>
+         </span>
+         <span class="pfeil" aria-hidden="true">›</span>
+       </button>
+       <button type="button" class="angebot-zu" aria-label="Angebot schließen">×</button>`;
+
+    balken.querySelector('.angebot-haupt').addEventListener('click', () => {
+      balken.remove();
+      if (window.WILDSPOT_BEREICH) window.WILDSPOT_BEREICH('plus');
+    });
+
+    balken.querySelector('.angebot-zu').addEventListener('click', () => {
+      balken.classList.remove('da');
+      setTimeout(() => balken.remove(), 260);
+      try {
+        const weg = Number(localStorage.getItem(ANGEBOT_WEGGETIPPT) || 0) + 1;
+        localStorage.setItem(ANGEBOT_WEGGETIPPT, String(weg));
+      } catch (e) {}
+    });
+
+    document.body.appendChild(balken);
+    // Erst im nächsten Bild die Klasse setzen, sonst fährt er nicht herein,
+    // sondern steht einfach da.
+    requestAnimationFrame(() => balken.classList.add('da'));
+  }
+
+  // Der Zeitgeber läuft einmal pro Sitzung. plusHolen() ist beim Start noch
+  // unterwegs — deshalb wird erst beim Ablauf entschieden, nicht jetzt.
+  setTimeout(angebotZeigen, ANGEBOT_WARTEN);
+
+  // ==========================================================================
   // 6. NACH AUSSEN
   // ==========================================================================
 
