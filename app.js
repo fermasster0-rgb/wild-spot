@@ -45,6 +45,13 @@
 // sichtbare Nennung — sie steht in der Fußzeile.
 const MAPTOOLKIT_STIL = 'https://styles.maptoolkit.org/summer.json';
 
+// plus: true heißt "die gibt es nur mit Wild Spot Plus". Standard bleibt für
+// alle frei — eine brauchbare Karte muss jeder haben, sonst ist die App ohne
+// Abo wertlos und niemand kommt weit genug, um Plus überhaupt zu wollen.
+//
+// Gesperrt wird an genau zwei Stellen: hier steht, welche Karte es betrifft,
+// und grundkarteSetzen() lässt sie nicht durch. Das Schloss auf der Vorschau
+// ist reine Anzeige (CSS, .stil-plus) — es entscheidet nichts.
 const GRUNDKARTEN = [
   {
     id: 'standard',
@@ -66,6 +73,7 @@ const GRUNDKARTEN = [
   {
     id: 'gelaende',
     label: 'Gelände',
+    plus: true,
     // Schummerung des Geländes. Man sieht auf einen Blick, wo es flach ist —
     // die wichtigste Information bei der Suche nach einem Zeltplatz.
     //
@@ -84,6 +92,7 @@ const GRUNDKARTEN = [
   {
     id: 'ortho',
     label: 'Satellit',
+    plus: true,
     // EIN Luftbild für die ganze Welt — Esri World Imagery, 0,5 m in
     // Westeuropa, in Städten bis 0,3 m.
     //
@@ -113,6 +122,7 @@ const GRUNDKARTEN = [
   {
     id: 'topo',
     label: 'Wandern',
+    plus: true,
     // OpenTopoMap: Höhenlinien, Wanderwege, Hütten. Deckt Europa und darüber
     // hinaus ab, braucht also nichts unter sich.
     url: 'https://a.tile.opentopomap.org/{z}/{x}/{y}.png',
@@ -197,6 +207,23 @@ const WELTSICHT = 4;
 
 // Österreich: West, Süd, Ost, Nord
 const OESTERREICH = [9.5, 46.3, 17.2, 49.1];
+
+// Die Mitte von Österreich — der Punkt, um den die Startansicht liegt.
+const AT_MITTE = [
+  (OESTERREICH[0] + OESTERREICH[2]) / 2,
+  (OESTERREICH[1] + OESTERREICH[3]) / 2,
+];
+
+// Wie weit die Karte beim Öffnen draußen steht: weit genug, um halb Europa
+// und die Kontinente daneben zu sehen. Von dort zoomt man hinein.
+//
+// Ein fester Zoom und keine bounds — bounds richtet sich nach der
+// Fenstergröße und käme auf jedem Gerät anders heraus.
+//
+// Die eigenen Spots werden auch so weit draußen geladen (spotsLaden fragt
+// nach dem sichtbaren Ausschnitt, ohne Zoomgrenze). Nur die OSM-Punkte
+// — Wasser, Klos, Feuerstellen — bleiben bis WELTSICHT aus.
+const START_ZOOM = 2.9;
 
 // So weit darf man hinaus. Die Spots liegen vorerst alle in Österreich, aber
 // die Karte darum herum zu sehen hilft beim Einordnen — und wenn das Projekt
@@ -651,12 +678,11 @@ function grenzeNachtragen() {
 const karte = new maplibregl.Map({
   container: 'karte',
   style: MAPTOOLKIT_STIL,
-  // Startansicht: ganz Österreich, passend zur Fenstergröße. Deshalb bounds
-  // statt fixem Zoom — auf einem Handy sieht das sonst völlig anders aus.
-  bounds: [[OESTERREICH[0], OESTERREICH[1]], [OESTERREICH[2], OESTERREICH[3]]],
-  fitBoundsOptions: { padding: 24 },
+  // Startansicht: weit draußen über der Mitte Österreichs (siehe START_ZOOM).
+  center: AT_MITTE,
+  zoom: START_ZOOM,
   // minZoom und maxBounds werden nicht hier festgelegt, sondern unten in
-  // begrenzungSetzen() ausgerechnet — sie hängen von der Fenstergröße ab.
+  // begrenzungSetzen().
   maxZoom: 19,
   attributionControl: false,   // steht bei uns fest in der Fußzeile
 });
@@ -959,9 +985,8 @@ karte.on('load', () => {
     },
   });
 
-  // Startansicht setzen und die Karte gleichzeitig einsperren. Beim Erzeugen
-  // der Karte steht die endgültige Fenstergröße noch nicht fest — ohne das
-  // bliebe Österreich vor allem am Handy kleiner als der Platz hergibt.
+  // Die Karte darf überallhin — nur einmal aufheben, was MapLibre von sich
+  // aus mitbringt. Die Startansicht steht schon im Konstruktor oben.
   begrenzungSetzen();
 
   ebenenAnwenden();
@@ -986,27 +1011,24 @@ function leer() {
 // keinen Ort mehr, an dem man ins Leere schaut — und damit keinen Grund, die
 // Karte einzusperren. Sie ist jetzt frei bis zur ganzen Weltkugel.
 //
-// Was bleibt: Die Startansicht ist Österreich, dort liegen die Spots.
+// Was bleibt: Die Startansicht liegt über Österreich, dort liegen die Spots —
+// nur weit genug draußen, dass man den halben Erdteil dazu sieht (START_ZOOM).
 // ============================================================================
-
-const AT_ECKEN = [[OESTERREICH[0], OESTERREICH[1]], [OESTERREICH[2], OESTERREICH[3]]];
 
 function begrenzungSetzen() {
   karte.setMaxBounds(null);
   karte.setMinZoom(0);
-  karte.fitBounds(AT_ECKEN, { padding: 20, animate: false });
 }
 
-// Beim Drehen des Handys ändert sich das Seitenverhältnis komplett — dann
-// muss die Grenze neu ausgerechnet werden, sonst passt Österreich plötzlich
-// nicht mehr ins Bild. Kurz abwarten: der Browser meldet die neue Größe
+// Beim Drehen des Handys ändert sich das Seitenverhältnis komplett. Die
+// Grenzen hängen zwar an nichts mehr, was sich dabei ändert — aber die
+// aktuelle Ansicht wird sicherheitshalber gehalten, damit ein Drehen nie
+// irgendwo anders landet. Kurz abwarten: der Browser meldet die neue Größe
 // manchmal, bevor sie wirklich steht.
 let dreh = null;
 window.addEventListener('resize', () => {
   clearTimeout(dreh);
   dreh = setTimeout(() => {
-    // Die aktuelle Ansicht merken und danach wiederherstellen — sonst würde
-    // jedes Drehen zurück auf ganz Österreich springen.
     const mitte = karte.getCenter();
     const zoom = karte.getZoom();
 
@@ -1063,6 +1085,34 @@ for (const g of GRUNDKARTEN) {
   name.textContent = g.label;
   b.appendChild(name);
 
+  // Das Abzeichen auf gesperrten Karten. Es steht dauerhaft da — auch für
+  // Angemeldete ohne Plus —, damit man vor dem Antippen sieht, woran man ist,
+  // statt erst danach eine Absage zu bekommen.
+  //
+  // Es nennt das Produkt beim Namen statt nur ein Schloss zu zeigen: "Plus"
+  // sagt, was man braucht, ein Schloss sagt nur, dass etwas zu ist. Der Funke
+  // davor ist derselbe wie auf der Plus-Seite und im Profil.
+  //
+  // Oben rechts, weil unten über die ganze Breite der Kartenname liegt.
+  //
+  // Ein <i> und kein <span>: .stil span ist genau dieser Namensbalken, da
+  // würde sich ein zweiter span hineinsetzen.
+  if (g.plus) {
+    b.classList.add('stil-plus');
+
+    const zeichen = document.createElement('i');
+    zeichen.className = 'stil-plus-zeichen';
+    zeichen.setAttribute('aria-hidden', 'true');
+    zeichen.innerHTML =
+      '<svg viewBox="0 0 24 24">' +
+      '<path d="M12 3.5l1.9 4.6 4.6 1.9-4.6 1.9L12 16.5l-1.9-4.6L5.5 10l4.6-1.9z"/>' +
+      '</svg>Plus';
+    b.appendChild(zeichen);
+
+    // Für Screenreader gehört das in den Namen, nicht in ein Bild ohne Text.
+    b.setAttribute('aria-label', g.label + ' — nur mit Plus');
+  }
+
   b.dataset.grund = g.id;
   b.onclick = () => grundkarteSetzen(g.id);
   grundKnoepfe.appendChild(b);
@@ -1073,6 +1123,19 @@ for (const g of GRUNDKARTEN) {
 function grundkarteSetzen(id) {
   const g = GRUNDKARTEN.find((x) => x.id === id);
   if (!g) return;
+
+  // Die eine Stelle, an der die Sperre wirklich greift. Alles andere — das
+  // Schloss, der Schleier über der Vorschau — ist Anzeige und lässt sich im
+  // Browser wegräumen; hier kommt trotzdem niemand vorbei.
+  //
+  // Kein Plus-Modul geladen heißt: nicht sperren. Ein Fehler beim Laden von
+  // plus.js darf nicht dazu führen, dass zahlende Nutzer plötzlich vor
+  // verschlossenen Karten stehen.
+  if (g.plus && window.WILDSPOT_PLUS && !window.WILDSPOT_PLUS.hat()) {
+    window.WILDSPOT_PLUS.schranke('Die Karte ' + g.label);
+    return;
+  }
+
   aktiveGrundkarte = g.id;
 
   for (const x of GRUNDKARTEN) {

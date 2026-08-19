@@ -632,6 +632,54 @@ html { background: var(--unterkante); }
 .stil[aria-pressed="true"] { border-color: var(--gruen); }
 .stil[aria-pressed="true"] span { color: var(--akzent-hell); }
 
+/* --- Karten, die es nur mit Plus gibt ------------------------------------ */
+
+/* Die Vorschau bleibt sichtbar, wird aber blasser: Man soll sehen, was man
+   bekommt, und zugleich merken, dass es noch nicht einem gehört. Nur Farbe
+   wegnehmen und nicht verwischen — sonst erkennt man die Karte nicht mehr
+   und der Reiz ist weg. */
+.stil-plus img { filter: saturate(0.5) brightness(0.74); }
+
+/* Das Abzeichen oben rechts, in Plus-Gold auf Plus-Nacht. Dieselben zwei
+   Farben wie die Plus-Seite und der Streifen im Profil — wer das Zeichen
+   einmal gesehen hat, weiß hier sofort, worum es geht.
+
+   Es steht oben, weil unten über die ganze Breite der Kartenname liegt. */
+.stil-plus-zeichen {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 7px 3px 5px;
+  border-radius: 999px;
+  background: linear-gradient(140deg, var(--plus-grund-2), var(--plus-grund));
+  border: 1px solid color-mix(in srgb, var(--plus-gold) 42%, transparent);
+  color: var(--plus-gold);
+  /* <i> steht sonst kursiv da. */
+  font-style: normal;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  line-height: 1;
+  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.4);
+}
+.stil-plus-zeichen svg {
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
+  /* Gefüllt und nicht als Kontur: Bei 10 Pixeln bliebe von einer Strichzeichnung
+     nur ein Fleck übrig. */
+  fill: currentColor;
+}
+
+/* Wer Plus hat, sieht nichts von alldem — plus.js setzt hat-plus am body,
+   sobald das Datum aus profiles.plus_until in der Zukunft liegt. */
+body.hat-plus .stil-plus-zeichen { display: none; }
+body.hat-plus .stil-plus img { filter: none; }
+
 /* ---------------------------------------------------------- Ebenenwahl --- */
 .schalter { display: flex; flex-direction: column; }
 
