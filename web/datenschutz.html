@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="de-AT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Datenschutz — Wild Spot</title>
+<style>
+  :root { color-scheme: light dark; }
+  body {
+    margin: 0 auto;
+    padding: 28px 20px 80px;
+    max-width: 680px;
+    font: 16px/1.65 system-ui, -apple-system, "Segoe UI", sans-serif;
+    color: #23261f;
+    background: #f6f5f0;
+  }
+  @media (prefers-color-scheme: dark) {
+    body { color: #e8e9e3; background: #12140f; }
+    a { color: #9fd08a; }
+    .kasten { background: #1b1e17; border-color: #2c3126; }
+  }
+  h1 { font-size: 26px; letter-spacing: -0.03em; margin: 0 0 6px; }
+  h2 { font-size: 18px; letter-spacing: -0.02em; margin: 32px 0 8px; }
+  p, li { margin: 0 0 10px; }
+  ul { padding-left: 20px; }
+  .unter { color: #6b7065; margin-bottom: 26px; }
+  .kasten {
+    padding: 14px 16px;
+    margin: 18px 0;
+    border: 1px solid #ddd9cc;
+    border-left: 3px solid #c2673c;
+    border-radius: 10px;
+    background: #fff;
+  }
+  .zurueck { display: inline-block; margin-bottom: 20px; text-decoration: none; }
+  table { width: 100%; border-collapse: collapse; margin: 10px 0 18px; }
+  td { padding: 7px 0; border-bottom: 1px solid #ddd9cc; vertical-align: top; }
+  td:first-child { width: 38%; font-weight: 600; padding-right: 12px; }
+</style>
+</head>
+<body>
+
+<a class="zurueck" href="./">← Zurück zu Wild Spot</a>
+
+<h1>Datenschutz</h1>
+<p class="unter">Was Wild Spot über dich speichert, warum, und wie du es wieder loswirst.</p>
+
+<div class="kasten">
+  <b>Dieser Text ist ein Entwurf.</b>
+  Die mit <b>[…]</b> markierten Angaben müssen noch eingetragen werden, und der
+  ganze Text gehört einmal von jemandem geprüft, der dafür geradesteht. Er ist
+  nach bestem Wissen geschrieben, aber er ist keine Rechtsberatung.
+</div>
+
+<h2>Wer verantwortlich ist</h2>
+<table>
+  <tr><td>Verantwortlich</td><td>[Vor- und Nachname]</td></tr>
+  <tr><td>Anschrift</td><td>[Straße, PLZ Ort, Österreich]</td></tr>
+  <tr><td>E-Mail</td><td>[kontakt@…]</td></tr>
+</table>
+
+<h2>Der kurze Überblick</h2>
+<ul>
+  <li><b>Ohne Konto</b> speichert Wild Spot nichts über dich — die Karte kannst
+      du ansehen, ohne dich anzumelden.</li>
+  <li><b>Mit Konto</b> werden deine E-Mail-Adresse, dein Benutzername und das
+      gespeichert, was du selbst einträgst.</li>
+  <li>Es gibt <b>keine Werbung</b>, kein Verfolgen über andere Seiten hinweg und
+      keine Weitergabe an Dritte zu Werbezwecken.</li>
+</ul>
+
+<h2>Welche Daten und wozu</h2>
+
+<table>
+  <tr>
+    <td>E-Mail-Adresse</td>
+    <td>Für die Anmeldung und zum Zurücksetzen des Passworts. Ohne sie gibt es
+        kein Konto.</td>
+  </tr>
+  <tr>
+    <td>Benutzername, Profilbild</td>
+    <td>Damit andere sehen, von wem ein Spot oder eine Bewertung stammt. Beides
+        ist freiwillig änderbar.</td>
+  </tr>
+  <tr>
+    <td>Deine Einträge</td>
+    <td>Spots, Bewertungen, Kommentare, Fotos. Sie sind für andere sichtbar —
+        das ist der Zweck der App. Ausgenommen sind Spots, die du als geheim
+        anlegst: Die sieht nur, wem du einen Link schickst.</td>
+  </tr>
+  <tr>
+    <td>Dein Standort</td>
+    <td>Nur, wenn du ihn selbst freigibst, und nur solange die App offen ist.
+        Er wird <b>nicht gespeichert</b> und nicht übertragen — die Karte
+        zeichnet damit nur den Punkt, an dem du gerade stehst.</td>
+  </tr>
+  <tr>
+    <td>Offline-Karten</td>
+    <td>Kartenteile und gemerkte Spots liegen im Speicher deines Geräts, damit
+        die App ohne Empfang funktioniert. Sie verlassen dein Gerät nicht und
+        lassen sich in der App jederzeit löschen.</td>
+  </tr>
+</table>
+
+<h2>Rechtsgrundlage</h2>
+<p>
+  Die Verarbeitung stützt sich auf <b>Art. 6 Abs. 1 lit. b DSGVO</b> — sie ist
+  nötig, damit die App das tut, wofür du sie benutzt. Für den Standortzugriff
+  gilt <b>lit. a</b>: Du gibst ihn ausdrücklich frei und kannst das jederzeit
+  zurücknehmen.
+</p>
+
+<h2>Wer die Daten sonst noch sieht</h2>
+<p>
+  Wild Spot betreibt keine eigenen Server. Für Speicherung und Anmeldung wird
+  <b>Supabase</b> eingesetzt (Auftragsverarbeiter, Server in der EU). Die App
+  selbst liegt auf <b>GitHub Pages</b>.
+</p>
+<p>Beim Benutzen der Karte werden außerdem Adressen dieser Dienste aufgerufen:</p>
+<ul>
+  <li><b>Maptoolkit, basemap.at, OpenTopoMap, Esri</b> — die Kartenbilder</li>
+  <li><b>Open-Meteo</b> — die Wettervorhersage für einen Spot</li>
+  <li><b>OpenStreetMap</b> — Wasserstellen, Gipfel, Schutzgebiete</li>
+</ul>
+<p>
+  Diese Dienste sehen dabei technisch bedingt deine IP-Adresse — wie bei jedem
+  Aufruf einer Internetseite. Es werden ihnen keine Kontodaten übermittelt.
+</p>
+
+<h2>Wie lange</h2>
+<p>
+  Solange dein Konto besteht. Löschst du es, verschwinden E-Mail-Adresse,
+  Benutzername, Profilbild, deine Bewertungen und Kommentare. Spots, die du
+  eingetragen hast, bleiben ohne Namensnennung auf der Karte, wenn andere sie
+  bereits gemerkt oder bewertet haben — sag Bescheid, wenn du auch das nicht
+  willst.
+</p>
+
+<h2>Deine Rechte</h2>
+<p>
+  Du hast das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der
+  Verarbeitung, Datenübertragbarkeit und Widerspruch. Eine Nachricht an die
+  oben genannte E-Mail-Adresse genügt.
+</p>
+<p>
+  Wenn du meinst, dass etwas nicht in Ordnung ist, kannst du dich bei der
+  <b>Österreichischen Datenschutzbehörde</b> beschweren (dsb.gv.at).
+</p>
+
+<h2>Kinder</h2>
+<p>
+  Ein Konto setzt ein Alter von mindestens 14 Jahren voraus. Wild Spot fragt
+  das Alter nicht ab und kann es nicht prüfen.
+</p>
+
+<h2>Änderungen</h2>
+<p>
+  Ändert sich etwas an der App, ändert sich dieser Text mit. Stand:
+  <b>[Datum eintragen]</b>.
+</p>
+
+</body>
+</html>

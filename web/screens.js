@@ -1732,7 +1732,10 @@
       'style="color:inherit">OpenStreetMap</a>, Wetter von ' +
       '<a href="https://open-meteo.com" target="_blank" rel="noopener" ' +
       'style="color:inherit">Open-Meteo</a>.<br>' +
-      'Die Spots kommen von Leuten wie dir.';
+      'Die Spots kommen von Leuten wie dir.<br>' +
+      // Muss von jeder Seite aus erreichbar sein — und für den Play Store ist
+      // eine verlinkte Datenschutzerklärung Bedingung, nicht Kür.
+      '<a href="datenschutz.html" style="color:inherit">Datenschutz</a>';
     rand.appendChild(fuss);
   }
 
