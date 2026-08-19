@@ -42,6 +42,16 @@
   let plusTarif = null;
 
   function hatPlus() {
+    // Wer die App verwaltet, hat Plus. Nicht als Geschenk, sondern aus
+    // Notwendigkeit: Ein Admin, der die gesperrten Funktionen nicht sehen
+    // kann, prüft blind — er würde jeden Fehler darin erst von Nutzern
+    // erfahren.
+    //
+    // In der Datenbank steht dasselbe (db/023 setzt plus_until für Admins).
+    // Diese Zeile hier wirkt zusätzlich sofort, ohne dass ein frisch
+    // ernannter Admin auf den nächsten Lauf warten muss.
+    if (auth.nutzer && auth.nutzer.istAdmin === true) return true;
+
     return plusBis instanceof Date && plusBis.getTime() > Date.now();
   }
 
