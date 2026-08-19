@@ -5545,39 +5545,56 @@ body.bereich-offen.detail-offen::after {
 .zahlen.vier .zahl-kachel.gross b { font-size: 26px; }
 .zahl-kachel b small { font-size: 12px; font-weight: 700; opacity: 0.6; }
 
-.bald-kasten {
-  margin: -8px 0 22px;
-  padding: 16px;
-  border: 1px dashed var(--rand);
-  border-radius: 18px;
+/* Hier stand der Kasten über Kilometer und Zeit („zählt Wild Spot noch nicht
+   mit"). Er ist samt seinen Zahlen weg — ein Absatz Erklärung über etwas, das
+   es nicht gibt, ganz oben im Profil. */
+
+/* --- Zugeklappte Abschnitte ----------------------------------------------
+
+   Abzeichen, Gipfel und Aktivität sind zum Stöbern da, nicht zum Erledigen.
+   Sie stehen deshalb zu und machen sich erst auf, wenn man sie antippt. */
+.klapp { margin-bottom: 10px; }
+.klapp-kopf {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 16px;
+  border: 0;
+  border-radius: 16px;
+  background: var(--flaeche);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
-.bald-zahlen {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin-bottom: 12px;
-  text-align: center;
+.klapp-kopf .titel {
+  flex: 1;
+  min-width: 0;
 }
-.bald-zahlen b {
+.klapp-kopf .titel b {
   display: block;
-  font-size: 17px;
+  font-size: 15px;
   font-weight: 800;
-  color: var(--text-weak);
-  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
 }
-.bald-zahlen span {
+.klapp-kopf .titel small {
   display: block;
   margin-top: 2px;
-  font-size: 11px;
+  font-size: 12px;
+  line-height: 1.45;
   color: var(--text-weak);
 }
-.bald-kasten p {
-  margin: 0;
-  font-size: 12.5px;
-  line-height: 1.6;
+.klapp-kopf .klapp-pfeil {
+  flex-shrink: 0;
+  font-size: 18px;
   color: var(--text-weak);
+  transform: rotate(90deg);
+  transition: transform 0.2s ease;
 }
-.bald-kasten p b { color: var(--text); }
+.klapp-kopf[aria-expanded="true"] .klapp-pfeil { transform: rotate(-90deg); }
+.klapp-inhalt { padding-top: 12px; }
 
 .profil-abschnitt { margin: 4px 0 12px; }
 .profil-abschnitt .abschnitt-titel { margin-bottom: 2px; }
