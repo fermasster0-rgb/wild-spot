@@ -4394,6 +4394,114 @@ body.parkplatz-modus .knopf-zeile { display: none; }
 .plus-leiste[hidden] { display: none; }
 .plus-leiste.da { transform: none; }
 .plus-leiste .wahl { flex: 1; min-width: 0; }
+
+/* --- Das Angebot: erster Monat um 1 € -------------------------------------
+
+   Fährt nach einer Weile über der Tab-Leiste herein. Bewusst eine schwebende
+   Karte und nicht die volle Breite wie die Kaufleiste oben: Die Kaufleiste
+   gehört zur Plus-Seite und darf dort dominieren, dieses hier drängt sich in
+   eine Ansicht, in der man etwas anderes vorhatte. Es soll auffallen und
+   trotzdem beiseitezuschieben sein.
+
+   Wann er erscheint und wie oft, steht in plus.js. */
+.plus-angebot {
+  position: fixed;
+  left: max(12px, env(safe-area-inset-left));
+  right: max(12px, env(safe-area-inset-right));
+  bottom: calc(12px + var(--tab-h));
+  z-index: 70;
+  max-width: 440px;
+  margin: 0 auto;
+  display: flex;
+  align-items: stretch;
+  border-radius: 18px;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 70% 130% at 12% 0%,
+      color-mix(in srgb, var(--plus-nord) 20%, transparent), transparent 60%),
+    linear-gradient(140deg, var(--plus-grund-2), var(--plus-grund));
+  border: 1px solid color-mix(in srgb, var(--plus-gold) 30%, transparent);
+  box-shadow: 0 12px 34px var(--sch2);
+  /* Weit genug nach unten, dass auch der Schatten aus dem Bild ist. */
+  transform: translateY(calc(100% + 40px));
+  transition: transform 0.42s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+.plus-angebot.da { transform: none; }
+
+.plus-angebot .angebot-haupt {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 6px 13px 14px;
+  border: 0;
+  background: none;
+  color: var(--plus-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.plus-angebot .zeichen {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: 11px;
+  background: color-mix(in srgb, var(--plus-gold) 16%, transparent);
+  border: 1px solid color-mix(in srgb, var(--plus-gold) 26%, transparent);
+  color: var(--plus-gold);
+}
+.plus-angebot .zeichen svg {
+  width: 18px; height: 18px;
+  fill: none; stroke: currentColor;
+  stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round;
+}
+.plus-angebot .text { flex: 1; min-width: 0; }
+.plus-angebot .text b {
+  display: block;
+  font-size: 14.5px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--plus-gold);
+}
+.plus-angebot .text small {
+  display: block;
+  margin-top: 2px;
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: color-mix(in srgb, var(--plus-text) 66%, transparent);
+}
+.plus-angebot .pfeil {
+  flex-shrink: 0;
+  font-size: 18px;
+  color: color-mix(in srgb, var(--plus-text) 50%, transparent);
+}
+
+/* Das Schließen ist bewusst kein winziges Kreuzchen in der Ecke: Wer das
+   Angebot nicht will, soll es ohne Zielen wegbekommen. */
+.plus-angebot .angebot-zu {
+  flex-shrink: 0;
+  width: 42px;
+  border: 0;
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  background: none;
+  color: color-mix(in srgb, var(--plus-text) 55%, transparent);
+  font: inherit;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+@media (hover: hover) {
+  .plus-angebot .angebot-zu:hover { color: var(--plus-text); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .plus-angebot { transition: none; transform: none; }
+}
 .plus-leiste .wahl b {
   display: block;
   font-size: 15px;
