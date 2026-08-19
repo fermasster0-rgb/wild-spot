@@ -466,16 +466,17 @@
   // 6. DIE ZAHLEN
   // ==========================================================================
 
-  // kompakt: true zeigt nur die vier Zahlen, die etwas über den Menschen
-  // sagen — Gipfel, Plätze, Nächte, Spots. Die anderen vier und der Kasten
-  // über Kilometer und Zeit liegen hinter einem Knopf.
+  // kompakt: true zeigt nur die vier Zahlen, die wirklich etwas über den
+  // Menschen sagen — Gipfel, Plätze, Nächte, Spots. Mehr braucht das eigene
+  // Profil nicht.
   //
-  // Grund: Auf dem Handy stehen acht Kacheln in vier Reihen. Zusammen mit dem
-  // Erklärkasten darunter füllte das den ganzen ersten Bildschirm, und alles,
-  // was man wirklich oft braucht, war zweimal Wischen entfernt. Wer die
-  // ganzen Zahlen sehen will, tippt einmal — wer sein Profil aufmacht, um das
-  // Aussehen umzustellen, muss nicht daran vorbeiscrollen.
-  async function statistikBauen(wessenId, { ichSelbst = false, kompakt = false } = {}) {
+  // Hier standen einmal acht Kacheln (dazu Gipfelmeter, höchster Punkt, Fotos,
+  // Bewertungen) und darunter ein Kasten über Kilometer und Zeit, die es noch
+  // nicht gibt. Auf dem Handy waren das vier Reihen plus ein Absatz Text —
+  // der ganze erste Bildschirm, bevor irgendetwas Nützliches kam. Sie
+  // aufklappbar zu machen war ein Zwischenschritt; weglassen ist besser.
+  // Vier Zahlen reichen.
+  async function statistikBauen(wessenId, { kompakt = false } = {}) {
     const kasten = el('div');
     kasten.innerHTML =
       '<div class="platzhalter" style="height:88px;border-radius:16px"></div>';
@@ -490,61 +491,33 @@
 
     const einzahl = (n, eins, viele) => (Number(n) === 1 ? eins : viele);
 
-    kasten.innerHTML =
-      `<div class="zahlen vier">
-         <div class="zahl-kachel gross"><b>${zahl(s.gipfel)}</b>
-           <span>${einzahl(s.gipfel, 'Gipfel', 'Gipfel')} gesammelt</span></div>
-         <div class="zahl-kachel"><b>${zahl(s.plaetze)}</b>
-           <span>${einzahl(s.plaetze, 'Platz besucht', 'Plätze besucht')}</span></div>
-         <div class="zahl-kachel"><b>${zahl(s.naechte)}</b>
-           <span>${einzahl(s.naechte, 'Nacht draußen', 'Nächte draußen')}</span></div>
-         <div class="zahl-kachel"><b>${zahl(s.spots_gelegt)}</b>
-           <span>Spots eingetragen</span></div>
-         <div class="zahl-kachel${kompakt ? ' spaeter' : ''}"><b>${zahl(s.gipfel_meter)}<small> m</small></b>
-           <span>Gipfelmeter gesammelt</span></div>
-         <div class="zahl-kachel${kompakt ? ' spaeter' : ''}"><b>${s.gipfel_hoechster ? zahl(s.gipfel_hoechster) + ' m' : '–'}</b>
-           <span>höchster Punkt</span></div>
-         <div class="zahl-kachel${kompakt ? ' spaeter' : ''}"><b>${zahl(s.fotos)}</b><span>Fotos</span></div>
-         <div class="zahl-kachel${kompakt ? ' spaeter' : ''}"><b>${zahl(s.bewertungen)}</b><span>Bewertungen</span></div>
-       </div>`;
+    // Die vier, die immer dastehen.
+    const kacheln = [
+      `<div class="zahl-kachel gross"><b>${zahl(s.gipfel)}</b>
+         <span>${einzahl(s.gipfel, 'Gipfel', 'Gipfel')} gesammelt</span></div>`,
+      `<div class="zahl-kachel"><b>${zahl(s.plaetze)}</b>
+         <span>${einzahl(s.plaetze, 'Platz besucht', 'Plätze besucht')}</span></div>`,
+      `<div class="zahl-kachel"><b>${zahl(s.naechte)}</b>
+         <span>${einzahl(s.naechte, 'Nacht draußen', 'Nächte draußen')}</span></div>`,
+      `<div class="zahl-kachel"><b>${zahl(s.spots_gelegt)}</b>
+         <span>Spots eingetragen</span></div>`,
+    ];
 
-    // Die beiden Zahlen, die es noch nicht gibt. Sie stehen trotzdem da —
-    // aber ehrlich beschriftet, statt als 0 km zu lügen.
-    if (ichSelbst) {
-      const bald = el('div');
-      bald.className = 'bald-kasten' + (kompakt ? ' spaeter' : '');
-      bald.innerHTML =
-        `<div class="bald-zahlen">
-           <div><b>${Number(s.km) > 0 ? zahl(s.km) + ' km' : '– km'}</b><span>zurückgelegt</span></div>
-           <div><b>${Number(s.stunden) > 0 ? zahl(s.stunden) + ' h' : '– h'}</b><span>unterwegs</span></div>
-           <div><b>${Number(s.aufstieg_m) > 0 ? zahl(s.aufstieg_m) + ' m' : '– m'}</b><span>Aufstieg</span></div>
-         </div>
-         <p><b>Kilometer und Zeit zählt Wild Spot noch nicht mit.</b>
-            Eine Webseite darf im Hintergrund nicht dauerhaft mitschreiben —
-            sobald der Bildschirm aus ist, würde die Hälfte der Strecke fehlen.
-            Alles dafür ist vorbereitet: Sobald es Wild Spot als echte App gibt,
-            stehen die Zahlen hier, rückwirkend ab der ersten aufgezeichneten Tour.</p>`;
-      kasten.appendChild(bald);
+    // Im fremden Profil (feed.js) stehen weiterhin alle acht — dort ist die
+    // Statistik der Grund, warum man hinsieht, und sie steht nicht zwischen
+    // den eigenen Einstellungen.
+    if (!kompakt) {
+      kacheln.push(
+        `<div class="zahl-kachel"><b>${zahl(s.gipfel_meter)}<small> m</small></b>
+           <span>Gipfelmeter gesammelt</span></div>`,
+        `<div class="zahl-kachel"><b>${s.gipfel_hoechster ? zahl(s.gipfel_hoechster) + ' m' : '–'}</b>
+           <span>höchster Punkt</span></div>`,
+        `<div class="zahl-kachel"><b>${zahl(s.fotos)}</b><span>Fotos</span></div>`,
+        `<div class="zahl-kachel"><b>${zahl(s.bewertungen)}</b><span>Bewertungen</span></div>`,
+      );
     }
 
-    // Der Knopf, der das Zugeklappte aufmacht. Er steht außerhalb des Rasters,
-    // damit er über die volle Breite läuft und nicht als neunte Kachel gelesen
-    // wird.
-    if (kompakt) {
-      const versteckt = kasten.querySelectorAll('.spaeter');
-      if (versteckt.length) {
-        const knopf = el('button');
-        knopf.type = 'button';
-        knopf.className = 'mehr-zeigen';
-        knopf.innerHTML =
-          'Alle Zahlen anzeigen <span class="pfeil" aria-hidden="true">›</span>';
-        knopf.addEventListener('click', () => {
-          for (const v of versteckt) v.classList.remove('spaeter');
-          knopf.remove();
-        });
-        kasten.appendChild(knopf);
-      }
-    }
+    kasten.innerHTML = `<div class="zahlen vier">${kacheln.join('')}</div>`;
 
     return kasten;
   }

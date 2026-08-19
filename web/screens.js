@@ -1386,7 +1386,7 @@
       rand.appendChild(zahlenPlatz);
 
       if (window.WILDSPOT_GIPFEL) {
-        window.WILDSPOT_GIPFEL.statistikBauen(ich, { ichSelbst: true, kompakt: true })
+        window.WILDSPOT_GIPFEL.statistikBauen(ich, { kompakt: true })
           .then((e) => zahlenPlatz.replaceWith(e))
           .catch(() => {});
       }
@@ -1463,47 +1463,43 @@
 
     // ============================================================== Sammlung
     // Abzeichen, Gipfel und die Spur der eigenen Einträge. Zum Stöbern, nicht
-    // zum Erledigen — deshalb hinter den Einstellungen.
+    // zum Erledigen — deshalb hinter den Einstellungen und zugeklappt. Wer
+    // hinsehen will, tippt einmal; wer sein Profil wegen einer Einstellung
+    // aufmacht, wischt nicht an drei Listen vorbei.
     if (auth.nutzer) {
       const ich = auth.nutzer.id;
 
       // ------------------------------------------------------- Abzeichen
-      rand.appendChild(abschnittKopf('Abzeichen',
-        'Was du schon geschafft hast — und was als Nächstes drin wäre'));
-
-      const abzPlatz = el('div');
+      const abzPlatz = klappAbschnitt(rand, 'Abzeichen',
+        'Was du schon geschafft hast — und was als Nächstes drin wäre');
       abzPlatz.innerHTML =
         '<div class="platzhalter" style="height:120px;border-radius:16px"></div>';
-      rand.appendChild(abzPlatz);
       if (window.WILDSPOT_GIPFEL) {
         window.WILDSPOT_GIPFEL.abzeichenBauen(ich)
-          .then((e) => abzPlatz.replaceWith(e)).catch(() => {});
+          .then((e) => { abzPlatz.innerHTML = ''; abzPlatz.appendChild(e); })
+          .catch(() => {});
       }
 
       // --------------------------------------------------- Meine Gipfel
-      rand.appendChild(abschnittKopf('Deine Gipfel',
-        'Antippen öffnet den Gipfel — dort steht, wer sonst schon oben war'));
-
-      const gipfelPlatz = el('div');
+      const gipfelPlatz = klappAbschnitt(rand, 'Deine Gipfel',
+        'Antippen öffnet den Gipfel — dort steht, wer sonst schon oben war');
       gipfelPlatz.innerHTML =
         '<div class="platzhalter" style="height:80px;border-radius:16px"></div>';
-      rand.appendChild(gipfelPlatz);
       if (window.WILDSPOT_GIPFEL) {
         window.WILDSPOT_GIPFEL.meineGipfelBauen(ich, { ichSelbst: true })
-          .then((e) => gipfelPlatz.replaceWith(e)).catch(() => {});
+          .then((e) => { gipfelPlatz.innerHTML = ''; gipfelPlatz.appendChild(e); })
+          .catch(() => {});
       }
 
       // ------------------------------------------------ Letzte Aktivität
-      rand.appendChild(abschnittKopf('Deine letzte Aktivität',
-        'Alles, was du eingetragen hast, in einer Spur'));
-
-      const aktPlatz = el('div');
+      const aktPlatz = klappAbschnitt(rand, 'Deine letzte Aktivität',
+        'Alles, was du eingetragen hast, in einer Spur');
       aktPlatz.innerHTML =
         '<div class="platzhalter" style="height:80px;border-radius:16px"></div>';
-      rand.appendChild(aktPlatz);
       if (window.WILDSPOT_LEUTE) {
         window.WILDSPOT_LEUTE.aktivitaetBauen(ich, 10)
-          .then((e) => aktPlatz.replaceWith(e)).catch(() => {});
+          .then((e) => { aktPlatz.innerHTML = ''; aktPlatz.appendChild(e); })
+          .catch(() => {});
       }
     }
 
@@ -1691,6 +1687,43 @@
       `<h2 class="abschnitt-titel">${sicher(titel)}</h2>` +
       (unter ? `<p class="abschnitt-unter">${sicher(unter)}</p>` : '');
     return k;
+  }
+
+  // Ein Abschnitt, der zusteht und sich beim Antippen aufmacht. Für alles,
+  // was zum Stöbern da ist und nicht zum Erledigen — es soll den Weg zu den
+  // Einstellungen nicht verstellen.
+  //
+  // Gibt den Kasten zurück, in den der Inhalt gehört; der Kopf hängt schon
+  // davor. Der Inhalt wird trotzdem sofort gebaut und nicht erst beim
+  // Aufklappen: Er kommt aus Abfragen, die ohnehin nebenher laufen, und ein
+  // Abschnitt, der beim Antippen erst zu laden beginnt, fühlt sich zäh an.
+  function klappAbschnitt(rand, titel, unter) {
+    const s = el('section');
+    s.className = 'klapp';
+
+    const kopf = el('button');
+    kopf.type = 'button';
+    kopf.className = 'klapp-kopf';
+    kopf.setAttribute('aria-expanded', 'false');
+    kopf.innerHTML =
+      `<span class="titel"><b>${sicher(titel)}</b>` +
+      (unter ? `<small>${sicher(unter)}</small>` : '') +
+      `</span><span class="klapp-pfeil" aria-hidden="true">›</span>`;
+
+    const inhalt = el('div');
+    inhalt.className = 'klapp-inhalt';
+    inhalt.hidden = true;
+
+    kopf.addEventListener('click', () => {
+      const auf = inhalt.hidden;
+      inhalt.hidden = !auf;
+      kopf.setAttribute('aria-expanded', String(auf));
+    });
+
+    s.appendChild(kopf);
+    s.appendChild(inhalt);
+    rand.appendChild(s);
+    return inhalt;
   }
 
   function menueZeile(svg, titel, unter, tat) {
