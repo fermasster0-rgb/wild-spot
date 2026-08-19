@@ -4643,6 +4643,62 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   color: color-mix(in srgb, var(--plus-text) 80%, transparent);
 }
 
+/* --- Ein Gebiet im Voraus laden ------------------------------------------- */
+
+.gebiet-kasten {
+  padding: 15px;
+  border-radius: 16px;
+  border: 1px solid color-mix(in srgb, var(--plus-gold) 26%, transparent);
+  background: color-mix(in srgb, var(--plus-gold) 7%, transparent);
+}
+.gebiet-kopf {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 13px;
+}
+.gebiet-zeichen {
+  display: grid;
+  place-items: center;
+  width: 34px; height: 34px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--plus-gold) 18%, transparent);
+  color: var(--plus-gold-2);
+}
+.gebiet-zeichen svg {
+  width: 18px; height: 18px;
+  fill: none; stroke: currentColor;
+  stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round;
+}
+.gebiet-kopf b { display: block; font-size: 14.5px; font-weight: 800; }
+.gebiet-kopf small {
+  display: block;
+  margin-top: 3px;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--text-weak);
+}
+
+/* Der Fortschritt. Ein Strich, der voll wird — mehr braucht es nicht, und
+   Prozentzahlen im Knopf liest ohnehin niemand. */
+.gebiet-balken {
+  height: 6px;
+  margin-bottom: 12px;
+  border-radius: 999px;
+  background: var(--t2);
+  overflow: hidden;
+}
+.gebiet-balken[hidden] { display: none; }
+.gebiet-balken i {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--plus-gold-2), var(--plus-gold));
+  transition: width 0.25s ease;
+}
+
 /* --- Geheime Spots -------------------------------------------------------- */
 
 /* Das Band im Spot-Blatt. Gedeckt und nicht golden: Geheim ist kein Orden,
