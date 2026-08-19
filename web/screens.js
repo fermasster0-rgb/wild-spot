@@ -1901,5 +1901,17 @@
   // ohnehin auf die Karte, teilen.js öffnet dann das Blatt dazu.
   let anfang = 'karte';
 
+  // Die Kurzbefehle der installierten App (manifest.webmanifest, "shortcuts").
+  //
+  // Android und Windows zeigen sie beim langen Antippen des App-Symbols:
+  // „Karte" und „Merkliste" springen dann direkt dorthin. Ohne diese Zeilen
+  // wäre der Kurzbefehl eine Adresse, die niemand liest — die App ginge
+  // trotzdem auf der Karte auf, und beim Merkliste-Kurzbefehl fragte man sich,
+  // warum er nichts tut.
+  try {
+    const los = new URLSearchParams(location.search).get('los');
+    if (los && BEREICHE.includes(los)) anfang = los;
+  } catch (e) {}
+
   bereichZeigen(anfang, { merken: false });
 })();
