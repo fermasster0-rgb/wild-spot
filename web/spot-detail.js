@@ -134,6 +134,9 @@ const SPALTEN = [
   // Handverlesen (db/023). Steht oben im Blatt als Zeile und unten als
   // Schalter für Admins.
   'vip', 'vip_notiz',
+  // Geheime Spots (db/025). share_token kommt nur beim eigenen Spot zurück —
+  // bei fremden greift die Leseregel, und die Spalte bleibt leer.
+  'privat', 'share_token',
   // Der Parkplatz und die dazu gerechnete Wanderroute (route.js). Sie stehen
   // hier statt in ANZEIGE, weil sie keine Merkmalszeile bekommen, sondern
   // einen eigenen Block mit Linie auf der Karte.
@@ -387,6 +390,38 @@ function vipVerdrahten(spot) {
   });
 }
 
+// ----------------------------------------------------------------------------
+// Die Angaben zu einem Spot holen
+//
+// Der Normalfall ist die Ansicht spots_with_rating. Für einen geheimen Spot,
+// den jemand über einen Freigabelink öffnet, greift dort aber die Leseregel:
+// Er ist für einen Fremden schlicht nicht vorhanden, das Blatt bliebe leer.
+//
+// Steht ein Schlüssel in der Adresse, wird deshalb zuerst über ihn gefragt
+// (db/026). Bei einem öffentlichen Spot liefert dieser Weg dasselbe, es
+// schadet also nichts — nur wenn kein Schlüssel da ist, geht es direkt zur
+// Ansicht.
+// ----------------------------------------------------------------------------
+async function spotAngabenHolen(auth, id) {
+  // Der Schlüssel kommt von teilen.js, das ihn beim Laden der Seite
+  // festgehalten hat. Nicht aus location.search lesen: Die Adresszeile wird
+  // beim Öffnen eines Spots neu geschrieben, der Schlüssel steht dann nicht
+  // mehr darin.
+  const gueltig = typeof window.spotStartToken === 'function'
+    ? window.spotStartToken() : null;
+
+  if (gueltig) {
+    const token = gueltig;
+    const { data, error } = await auth.client.rpc('spot_detail_per_token', { token });
+    const zeile = Array.isArray(data) ? data[0] : data;
+    // Die ID muss zum Schlüssel passen, sonst hat jemand einen fremden
+    // Schlüssel an eine andere ID gehängt.
+    if (!error && zeile && zeile.id === id) return { data: zeile, error: null };
+  }
+
+  return auth.client.from('spots_with_rating').select(SPALTEN).eq('id', id).single();
+}
+
 async function spotDetailOeffnen(id, name, lat, lng) {
   offenerSpot = { id, lat, lng };
 
@@ -419,7 +454,7 @@ async function spotDetailOeffnen(id, name, lat, lng) {
     // Alles gleichzeitig holen — nacheinander wäre es viermal so lang.
     // Die eigene Bewertung gibt es nur, wenn überhaupt jemand angemeldet ist.
     const [spotAntwort, kommentare, fotos, meineSterne] = await Promise.all([
-      auth.client.from('spots_with_rating').select(SPALTEN).eq('id', id).single(),
+      spotAngabenHolen(auth, id),
       kommentareHolen(id),
       fotosHolen(id),
       auth.nutzer ? meineBewertungHolen(id, auth.nutzer.id) : Promise.resolve(null),
@@ -430,12 +465,32 @@ async function spotDetailOeffnen(id, name, lat, lng) {
 
     if (spotAntwort.error) throw spotAntwort.error;
 
+    // Jetzt erst steht fest, ob der Spot geheim ist. Der Teilen-Knopf bekommt
+    // den Schlüssel nachgereicht, damit der Link auch aufgeht — ohne ihn wäre
+    // er für jeden anderen eine Sackgasse.
+    if (spotAntwort.data?.privat && spotAntwort.data?.share_token
+        && typeof window.teilenAnmelden === 'function') {
+      window.teilenAnmelden(id, spotAntwort.data.share_token);
+    }
+
     zeichnen(spotAntwort.data, kommentare, meineSterne, fotos);
   } catch (err) {
     if (!offenerSpot || offenerSpot.id !== id) return;
-    detailKoerper.innerHTML =
-      '<p class="detail-leer">Die Angaben konnten nicht geladen werden.<br>' +
-      escapeHtml(err.message || String(err)) + '</p>';
+
+    // Kein Treffer heißt hier fast immer: Der Spot ist geheim (db/025) und
+    // dieser Link hat keinen Schlüssel dafür. Das ist kein Fehler, sondern
+    // die Absicht — und soll auch so klingen. Der Name steht trotzdem oben,
+    // weil er aus dem Offline-Speicher des Geräts stammt: Wer den Platz
+    // früher einmal gesehen hat, hat ihn dort liegen. Nachträglich aus einem
+    // fremden Handy löschen lässt sich das nicht.
+    const nichtSichtbar = /PGRST116|not acceptable|0 rows|multiple \(or no\) rows/i
+      .test(String(err?.code || '') + ' ' + String(err?.message || ''));
+
+    detailKoerper.innerHTML = nichtSichtbar
+      ? '<p class="detail-leer">Dieser Spot ist nicht öffentlich. Wer ihn ' +
+        'eingetragen hat, kann einen Freigabelink schicken — nur damit geht er auf.</p>'
+      : '<p class="detail-leer">Die Angaben konnten nicht geladen werden.<br>' +
+        escapeHtml(err.message || String(err)) + '</p>';
   }
 }
 window.spotDetailOeffnen = spotDetailOeffnen;
@@ -655,6 +710,24 @@ function zeichnen(spot, kommentare, meineSterne, fotos = []) {
   // Detailansicht soll nicht auf einen fremden Server warten.
   if (typeof window.wetterPlatzhalter === 'function') {
     teile.push(window.wetterPlatzhalter());
+  }
+
+  // ------------------------------------------------------------- Geheim -----
+  // Nur der Besitzer bekommt diesen Spot überhaupt zu sehen (db/025) — die
+  // Zeile ist also immer für ihn. Sie erinnert daran, dass hier etwas steht,
+  // das sonst niemand sieht, und wie man es trotzdem herzeigt.
+  if (spot.privat === true) {
+    teile.push(
+      '<div class="geheim-band">',
+      '<span class="geheim-zeichen" aria-hidden="true">' +
+      '<svg viewBox="0 0 24 24"><rect x="4.5" y="10" width="15" height="10.5" rx="2.5"/>' +
+      '<path d="M8 10V7.5a4 4 0 018 0V10"/></svg>' +
+      '</span>',
+      '<div><b>Nur für dich</b>' +
+      '<p>Dieser Spot steht auf keiner fremden Karte. Über den Teilen-Knopf oben ' +
+      'bekommst du einen Link, mit dem auch andere hinschauen können.</p></div>',
+      '</div>'
+    );
   }
 
   // ------------------------------------------------------- Handverlesen -----

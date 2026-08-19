@@ -4643,6 +4643,82 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   color: color-mix(in srgb, var(--plus-text) 80%, transparent);
 }
 
+/* --- Geheime Spots -------------------------------------------------------- */
+
+/* Das Band im Spot-Blatt. Gedeckt und nicht golden: Geheim ist kein Orden,
+   sondern ein Zustand — der Hinweis soll erinnern, nicht feiern. */
+.geheim-band {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 0 0 18px;
+  padding: 13px 15px;
+  border-radius: 16px;
+  border: 1px solid var(--rand);
+  background: var(--t1);
+}
+.geheim-band .geheim-zeichen {
+  display: grid;
+  place-items: center;
+  width: 32px; height: 32px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  background: var(--t2);
+  color: var(--text-weak);
+}
+.geheim-band .geheim-zeichen svg {
+  width: 17px; height: 17px;
+  fill: none; stroke: currentColor;
+  stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round;
+}
+.geheim-band b { display: block; font-size: 14px; font-weight: 800; }
+.geheim-band p {
+  margin: 3px 0 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--text-weak);
+}
+
+/* Die Zeile im Formular, direkt über dem Speichern-Knopf. */
+.geheim-feld { margin-bottom: 18px; }
+.geheim-hinweis {
+  margin: 7px 0 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--text-weak);
+}
+.geheim-hinweis:empty { display: none; }
+.geheim-hinweis.mit-plus {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 11px 12px;
+  border-radius: 13px;
+  border: 1px solid color-mix(in srgb, var(--plus-gold) 30%, transparent);
+  background: color-mix(in srgb, var(--plus-gold) 8%, transparent);
+}
+.geheim-hinweis .gh-zeichen {
+  flex-shrink: 0;
+  color: var(--plus-gold-2);
+  line-height: 0;
+  margin-top: 1px;
+}
+.geheim-hinweis .gh-zeichen svg {
+  width: 16px; height: 16px;
+  fill: none; stroke: currentColor;
+  stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round;
+}
+.geheim-hinweis .gh-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--plus-gold-2);
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 /* Der Kasten, mit dem ein Admin auszeichnet. Bewusst schlicht — er steht ganz
    unten bei den anderen Verwaltungsknöpfen und soll nichts verkaufen. */
 .vip-kasten {
@@ -6776,6 +6852,22 @@ body.bereich-offen.detail-offen::after {
       <!-- Die Attributgruppen baut spot-form.js hier hinein -->
       <div id="spot-gruppen"></div>
 
+      <!-- Geheim oder nicht. Steht bewusst als Letztes, direkt über dem
+           Speichern-Knopf: Es ist die Entscheidung, die man trifft, wenn alles
+           andere dasteht — und die man dann noch einmal überdenkt.
+
+           data-feld="privat" reicht, damit spot-form.js den Wert von selbst
+           mitspeichert (EINZELFELDER). "false"/"true" als Text ist dasselbe
+           Muster wie bei allen anderen Ja-Nein-Feldern. -->
+      <div id="spot-geheim" class="geheim-feld">
+        <label for="spot-privat">Wer sieht diesen Spot?</label>
+        <select id="spot-privat" data-feld="privat">
+          <option value="false">Alle — er kommt auf die Karte</option>
+          <option value="true">Nur ich — geheim</option>
+        </select>
+        <p class="geheim-hinweis" id="spot-geheim-hinweis"></p>
+      </div>
+
       <button type="submit" class="haupt" id="spot-speichern">Spot speichern</button>
       <!-- Am Handy ist das Formular länger als der Bildschirm. Wer unten
            angekommen ist und es sich anders überlegt, soll nicht erst wieder
@@ -7299,8 +7391,9 @@ body.bereich-offen.detail-offen::after {
         <div class="zeichen"><svg viewBox="0 0 24 24"><rect x="4.5" y="10" width="15" height="10.5" rx="2.5"/><path d="M8 10V7.5a4 4 0 018 0V10"/></svg></div>
         <div class="was">
           <h4>Geheime Spots</h4>
-          <p>Deine besten Plätze musst du nicht teilen. Private Spots siehst nur du —
-             oder wer einen Link von dir bekommt.</p>
+          <p>Deine besten Plätze musst du nicht teilen. Ein geheimer Spot steht auf
+             keiner fremden Karte — nur du siehst ihn, und wer einen Link von dir
+             bekommt.</p>
           <div class="beispiel">Der Grund, warum viele ihre Plätze gar nicht erst
              eintragen. Jetzt gibt es keinen mehr.</div>
         </div>

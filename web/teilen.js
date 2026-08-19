@@ -39,11 +39,51 @@
   // 1. DEN LINK BAUEN
   // --------------------------------------------------------------------------
 
-  function linkZu(id) {
+  // Der Schlüssel für geheime Spots. Er hängt am Link und nicht am Spot: Ein
+  // geheimer Platz ist über seine ID allein nicht zu öffnen (db/025), sonst
+  // käme jeder heran, der irgendwann einmal einen Link bekommen hat.
+  const FELD_TOKEN = 't';
+
+  // Der Schlüssel aus der Adresse, mit der die Seite geöffnet wurde — sofort
+  // beim Laden festgehalten.
+  //
+  // Das ist keine Vorsicht, sondern nötig: Sobald ein Spot aufgeht, schreibt
+  // teilenAnmelden die Adresszeile neu, und zwar zunächst ohne Schlüssel (den
+  // kennt es erst, wenn die Angaben geladen sind). Wer ihn später aus
+  // location.search lesen will, findet nichts mehr. Genau daran ist der erste
+  // Anlauf gescheitert: Das Blatt ging auf und blieb leer.
+  const START_TOKEN = (() => {
+    const t = new URLSearchParams(location.search).get(FELD_TOKEN);
+    return t && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(t)
+      ? t : null;
+  })();
+  window.spotStartToken = () => START_TOKEN;
+
+  // Und aus demselben Grund die ID. Das war ein Wettlauf, den dieses Modul
+  // verlieren konnte:
+  //
+  //   screens.js zeigt beim Start den ersten Bereich an und räumt dabei ein
+  //   etwaiges Spot-Blatt weg — das ruft teilenAbmelden, und das setzt die
+  //   Adresszeile zurück. Hier unten wird aber erst gearbeitet, wenn die Karte
+  //   fertig geladen ist. Wer dann die Adresse liest, findet nichts mehr.
+  //
+  // Solange die Karte schnell stand, gewann meist dieses Modul. Seit sie weit
+  // draußen startet (Zoom 2.9, halbe Weltkarte) dauert das Laden länger, und
+  // geteilte Links liefen ins Leere — die Karte flog nirgendwohin, das Blatt
+  // blieb leer. Beides einmal beim Laden festhalten beendet das Rennen.
+  const START_ID = (() => {
+    const id = new URLSearchParams(location.search).get(FELD);
+    return id && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
+      ? id : null;
+  })();
+
+  function linkZu(id, token) {
     // Ein abschließendes "index.html" fliegt raus: Der Link soll aussehen wie
     // die Adresse, die man ohnehin herumreicht — nicht wie ein Dateipfad.
     const pfad = location.pathname.replace(/index\.html$/, '');
-    return `${location.origin}${pfad}?${FELD}=${encodeURIComponent(id)}`;
+    let adresse = `${location.origin}${pfad}?${FELD}=${encodeURIComponent(id)}`;
+    if (token) adresse += `&${FELD_TOKEN}=${encodeURIComponent(token)}`;
+    return adresse;
   }
   window.spotLink = linkZu;
 
@@ -58,19 +98,25 @@
   // bei jedem Neuzeichnen ersetzt wird, und braucht deshalb sein eigenes
   // Gedächtnis.
   let offeneId = null;
+  let offenesToken = null;
 
-  window.teilenAnmelden = function teilenAnmelden(id) {
+  window.teilenAnmelden = function teilenAnmelden(id, token) {
     offeneId = id || null;
+    // Das Token kommt erst nach, wenn die Angaben geladen sind — beim Öffnen
+    // steht nur die ID fest. Ein späterer Aufruf ohne Token darf einen schon
+    // gesetzten Schlüssel deshalb nicht wegwerfen.
+    offenesToken = token || (id === offeneId ? offenesToken : null);
     if (knopf) knopf.hidden = !offeneId;
 
     // Die Adresszeile mitführen: Wer den Link lieber von dort kopiert oder die
     // Seite neu lädt, bekommt denselben Spot. replaceState statt pushState —
     // sonst müsste man sich durch jeden angesehenen Spot zurücktippen.
-    if (offeneId) adresseSetzen(linkZu(offeneId));
+    if (offeneId) adresseSetzen(linkZu(offeneId, offenesToken));
   };
 
   window.teilenAbmelden = function teilenAbmelden() {
     offeneId = null;
+    offenesToken = null;
     if (knopf) knopf.hidden = true;
 
     // Zurück auf die nackte Adresse — sonst zeigt ein neu geladenes Fenster
@@ -87,12 +133,15 @@
   if (knopf) {
     knopf.onclick = async () => {
       if (!offeneId) return;
-      const adresse = linkZu(offeneId);
+      const adresse = linkZu(offeneId, offenesToken);
 
       try {
         await navigator.clipboard.writeText(adresse);
-        status('Link kopiert — wer ihn öffnet, landet direkt bei diesem Spot.',
-               { dauer: 3500 });
+        status(offenesToken
+          ? 'Link kopiert. Der Spot bleibt geheim — nur wer genau diesen Link '
+            + 'hat, sieht ihn.'
+          : 'Link kopiert — wer ihn öffnet, landet direkt bei diesem Spot.',
+               { dauer: 4500 });
       } catch {
         // Ohne Zwischenablage (älterer Browser, unsichere Verbindung) hilft
         // nur: den Link zeigen, damit man ihn von Hand nehmen kann.
@@ -107,6 +156,10 @@
   // 3. EINEN GETEILTEN LINK ÖFFNEN
   // --------------------------------------------------------------------------
 
+  // Wird nicht mehr aufgerufen — START_ID oben hat sie ersetzt, weil die
+  // Adresse zum Zeitpunkt der Auswertung längst zurückgesetzt sein kann.
+  // Sie bleibt als Beschreibung dessen stehen, was als ID durchgeht.
+  // eslint-disable-next-line no-unused-vars
   function idAusAdresse() {
     const id = new URLSearchParams(location.search).get(FELD);
     if (!id) return null;
@@ -132,7 +185,27 @@
     }
   }
 
+  // Der Schlüssel aus der Adresse, falls einer mitgeschickt wurde. Dasselbe
+  // Muster wie bei der ID: Was aus einer fremden Adresse kommt, wird geprüft,
+  // bevor es in eine Abfrage geht.
   async function ausDatenbank(id) {
+    // Mit Schlüssel zuerst über den Schlüssel: Nur dieser Weg kommt an einen
+    // geheimen Spot heran (db/025, spot_per_token). Bei einem öffentlichen
+    // Spot liefert er dasselbe, es schadet also nichts.
+    const token = START_TOKEN;
+    if (token) {
+      const { data, error } = await window.WILDCAMP_AUTH.client
+        .rpc('spot_per_token', { token });
+      if (!error) {
+        const s = Array.isArray(data) ? data[0] : data;
+        // Die ID im Link muss zum Schlüssel passen — sonst hat jemand einen
+        // fremden Schlüssel an eine andere ID gehängt.
+        if (s && s.id === id) {
+          return { id: s.id, name: s.name, lat: Number(s.lat), lng: Number(s.lng) };
+        }
+      }
+    }
+
     const { data, error } = await window.WILDCAMP_AUTH.client
       .rpc('spot_by_id', { spot_id: id });
     if (error) throw error;
@@ -184,7 +257,7 @@
   }
 
   async function geteiltenSpotOeffnen() {
-    const id = idAusAdresse();
+    const id = START_ID;
     if (!id) return;
 
     let spot = ausSpeicher(id);
@@ -243,7 +316,7 @@
     geteiltenSpotOeffnen();
   }
 
-  if (idAusAdresse()) {
+  if (START_ID) {
     if (karte.loaded()) starten();
     else karte.once('idle', starten);
   }
