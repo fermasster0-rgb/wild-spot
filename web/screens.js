@@ -1720,17 +1720,18 @@
     if (aktiv === 'profil') profilFuellen();
   });
 
-  // Wo es losgeht. Wer zuletzt auf der Karte war, will beim nächsten Mal
-  // wieder die Karte sehen — vermutlich steht er gerade draußen.
-  let anfang = 'entdecken';
-  try {
-    const gemerkt = localStorage.getItem(SPEICHER_TAB);
-    if (BEREICHE.includes(gemerkt)) anfang = gemerkt;
-  } catch (e) {}
-
-  // Ein geteilter Link auf einen Spot gehört auf die Karte, egal was zuletzt
-  // offen war (teilen.js öffnet dann das Blatt).
-  if (new URLSearchParams(location.search).has('spot')) anfang = 'karte';
+  // Wo es losgeht: immer die Karte. Sie ist das Herz der App — wer sie
+  // öffnet, steht meistens draußen und will sehen, was um ihn herum ist.
+  //
+  // Vorher wurde der zuletzt offene Bereich wiederhergestellt (aus
+  // SPEICHER_TAB). Das führte dazu, dass man nach einem Blick ins Profil
+  // beim nächsten Öffnen wieder im Profil landete. Gemerkt wird der Bereich
+  // weiterhin (bereichZeigen schreibt ihn), nur der Start hängt nicht mehr
+  // daran.
+  //
+  // Ein geteilter Link auf einen Spot ändert daran nichts — der gehört
+  // ohnehin auf die Karte, teilen.js öffnet dann das Blatt dazu.
+  let anfang = 'karte';
 
   bereichZeigen(anfang, { merken: false });
 })();
