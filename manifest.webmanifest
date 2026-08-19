@@ -1,4 +1,5 @@
 {
+  "id": "/wild-spot/",
   "name": "Wild Spot — Wildcampen in Österreich und Europa",
   "short_name": "Wild Spot",
   "description": "Karte mit Wildcampspots in ganz Europa, dazu Bergseen, Wasserfälle und Trinkwasser in Österreich. Funktioniert auch ohne Empfang.",
@@ -33,6 +34,23 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
+    }
+  ],
+
+  "shortcuts": [
+    {
+      "name": "Karte",
+      "short_name": "Karte",
+      "description": "Direkt zur Karte mit allen Spots",
+      "url": "./?los=karte",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Merkliste",
+      "short_name": "Merkliste",
+      "description": "Deine gemerkten Plätze und Offline-Karten",
+      "url": "./?los=merken",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
     }
   ]
 }
