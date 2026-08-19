@@ -37,16 +37,20 @@
 // App-Dateien weg und holt sie frisch — sonst würde am Handy ewig die alte
 // Fassung kleben. Die Kartenkacheln bleiben davon unberührt, die sind ja
 // nicht veraltet.
-const VERSION = '2026-08-19-12-44';
+const VERSION = '2026-08-19-12-58';
 
 const CACHE_APP    = `wildspot-app-${VERSION}`;
 const CACHE_KARTEN = 'wildspot-karten';   // ohne Version: bleibt über Updates
 const CACHE_FOTOS  = 'wildspot-fotos';
 
-// Wie viel darf liegen bleiben. Eine Kachel ist etwa 20–40 KB, 1500 Stück
-// sind also grob 45 MB — genug für mehrere Wandergebiete, wenig genug, dass
-// es auf keinem Handy auffällt.
-const MAX_KACHELN = 1500;
+// Wie viel darf liegen bleiben. Eine Kachel ist etwa 20–40 KB.
+//
+// 4000 Stück sind grob 120 MB. Vorher standen hier 1500 — das reichte, solange
+// nur liegen blieb, was man beim Herumschauen ohnehin geladen hatte. Seit man
+// ein Gebiet gezielt im Voraus holen kann (offline.js), sind gut tausend
+// Kacheln auf einen Schlag da: Bei der alten Grenze hätte der Speicher genau
+// das wieder hinausgeworfen, was man gerade fürs Wochenende geladen hat.
+const MAX_KACHELN = 4000;
 const MAX_FOTOS   = 200;
 
 // ----------------------------------------------------------------------------
@@ -151,11 +155,20 @@ const KARTEN_SERVER = [
   'fonts.maptoolkit.org',
   'icons.maptoolkit.org',
 
-  'mapsneu.wien.gv.at',      // basemap.at: Gelände, Satellit, Beschriftung
+  'mapsneu.wien.gv.at',      // basemap.at: Gelände, Beschriftung
   'tile.opentopomap.org',    // Wanderkarte
   'a.tile.opentopomap.org',
   'b.tile.opentopomap.org',
   'c.tile.opentopomap.org',
+
+  // Diese beiden fehlten bis 2026-08-19, und zwar unbemerkt: Ihre Kacheln
+  // wurden geladen, aber nie aufgehoben. Der Satellit war offline also nie
+  // da, und dem Gelände fehlte die Schummerung — beides sah nach einem
+  // Fehler in der Karte aus und war in Wirklichkeit eine Lücke in dieser
+  // Liste. Aufgefallen ist es erst, als das Vorausladen zählte, wie viele
+  // Kacheln tatsächlich im Speicher ankommen (offline.js).
+  'server.arcgisonline.com', // Esri World Imagery: das Luftbild
+  'tiles.mapterhorn.com',    // Höhendaten für die Schummerung
 ];
 
 function istKarte(url) {

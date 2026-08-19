@@ -228,4 +228,173 @@
     setTimeout(speicherAnzeigen, 50);
   });
   speicherAnzeigen();
+
+  // ==========================================================================
+  // EIN GEBIET IM VORAUS LADEN
+  //
+  // Bisher blieb liegen, was man einmal angesehen hat — man musste die Gegend
+  // zu Hause abfahren und hoffen. Hier wird sie gezielt geholt: den sichtbaren
+  // Ausschnitt einmal in allen Zoomstufen, die man draußen braucht.
+  //
+  // ----------------------------------------------------------------------------
+  // Woher die Adressen kommen
+  //
+  // Nicht aus einer eigenen Liste, sondern aus der laufenden Karte:
+  // karte.getStyle().sources kennt jede Quelle, die gerade gezeichnet wird —
+  // samt Kachelvorlage. Damit lädt dieser Code die Karte vor, die der Nutzer
+  // tatsächlich eingestellt hat, ohne dass hier jemals ein Kartendienst
+  // eingetragen werden muss. Eine Liste hier würde beim nächsten Kartenwechsel
+  // stillschweigend das Falsche laden.
+  //
+  // ----------------------------------------------------------------------------
+  // Warum Zoom 10 bis 15
+  //
+  // Darunter sieht man Landschaft, aber keinen Weg; darüber wird die Zahl der
+  // Kacheln unbrauchbar groß (jede Stufe vervierfacht sie). 15 ist nah genug,
+  // um einen Steig zu erkennen — und das ist es, wofür man offline eine Karte
+  // dabeihat.
+  // ==========================================================================
+
+  // Jede Stufe vervierfacht die Zahl der Kacheln. 14 ist nah genug, um einen
+  // Steig zu erkennen; 15 wäre schöner und würde denselben Ausschnitt viermal
+  // so teuer machen.
+  const ZOOM_VON = 11;
+  const ZOOM_BIS = 14;
+  const HOECHSTENS = 2500;   // darüber wird abgelehnt statt lange geladen
+
+  // Slippy-Map-Rechnung: Längengrad und Breitengrad in Kachelnummern.
+  function kachelX(lng, z) {
+    return Math.floor(((lng + 180) / 360) * Math.pow(2, z));
+  }
+  function kachelY(lat, z) {
+    const r = (lat * Math.PI) / 180;
+    return Math.floor(
+      ((1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2) * Math.pow(2, z));
+  }
+
+  // Alle Kacheladressen für einen Ausschnitt, über alle Zoomstufen.
+  //
+  // Zwei Feinheiten, die beim Prüfen aufgefallen sind:
+  //
+  //   1. Nur SICHTBARE Quellen. Die Karte führt alle vier Grundkarten
+  //      gleichzeitig mit, drei davon ausgeblendet. Über getStyle().sources
+  //      wären also immer alle vier geladen worden — vierfaches Datenvolumen
+  //      für Karten, die man gar nicht eingestellt hat.
+  //
+  //   2. Die Vorlagen über karte.getSource() holen, nicht aus getStyle().
+  //      Die Standardkarte ist ein Vektorstil, dessen Quellen erst zur
+  //      Laufzeit aus einer TileJSON-Datei aufgelöst werden. Im Stil steht
+  //      dort nur eine Adresse, keine Kachelvorlage — genau die wichtigste
+  //      Karte wäre stillschweigend übersprungen worden.
+  function adressenFuerGebiet(karte) {
+    const b = karte.getBounds();
+    const stil = karte.getStyle();
+    const vorlagen = [];
+
+    const sichtbar = new Set();
+    for (const ebene of stil?.layers || []) {
+      if (!ebene.source) continue;
+      try {
+        if (karte.getLayoutProperty(ebene.id, 'visibility') !== 'none') {
+          sichtbar.add(ebene.source);
+        }
+      } catch { /* Ebene inzwischen weg */ }
+    }
+
+    for (const name of sichtbar) {
+      const quelle = karte.getSource(name);
+      // Nur echte Kachelquellen. Was die Karte sonst noch führt — die eigenen
+      // Punkte, die Maske, die Route — sind GeoJSON-Quellen ohne Vorlage und
+      // fallen hier von selbst heraus.
+      if (!Array.isArray(quelle?.tiles) || !quelle.tiles.length) continue;
+      vorlagen.push({
+        vorlage: quelle.tiles[0],
+        minzoom: Number.isFinite(quelle.minzoom) ? quelle.minzoom : 0,
+        maxzoom: Number.isFinite(quelle.maxzoom) ? quelle.maxzoom : 22,
+      });
+    }
+
+    const adressen = new Set();
+
+    for (const { vorlage, minzoom, maxzoom } of vorlagen) {
+      for (let z = ZOOM_VON; z <= ZOOM_BIS; z++) {
+        // Über die Grenze der Quelle hinaus gibt es nichts zu holen — die
+        // Karte selbst zeigt dort die letzte vorhandene Stufe vergrößert.
+        if (z < minzoom || z > maxzoom) continue;
+
+        const x1 = kachelX(b.getWest(), z);
+        const x2 = kachelX(b.getEast(), z);
+        const y1 = kachelY(b.getNorth(), z);
+        const y2 = kachelY(b.getSouth(), z);
+
+        for (let x = Math.min(x1, x2); x <= Math.max(x1, x2); x++) {
+          for (let y = Math.min(y1, y2); y <= Math.max(y1, y2); y++) {
+            adressen.add(vorlage
+              .replace('{z}', z).replace('{x}', x).replace('{y}', y)
+              .replace('{ratio}', '').replace('{a-c}', 'a'));
+          }
+        }
+      }
+    }
+
+    return [...adressen];
+  }
+
+  // Holen heißt hier nur: einmal anfragen. Der Service Worker fängt jede
+  // Kartenanfrage ab und legt sie in seinen Speicher (sw.js, istKarte) — es
+  // braucht also keinen zweiten Weg, der dasselbe noch einmal verwaltet.
+  //
+  // Acht gleichzeitig: genug, dass es zügig geht, wenig genug, dass kein
+  // Kartendienst die Anfragen für einen Angriff hält.
+  async function adressenHolen(adressen, melden) {
+    let fertig = 0, misslungen = 0;
+    const reihe = [...adressen];
+
+    async function arbeiter() {
+      while (reihe.length) {
+        const adresse = reihe.pop();
+        try {
+          const antwort = await fetch(adresse, { mode: 'cors', credentials: 'omit' });
+          if (!antwort.ok) misslungen++;
+        } catch {
+          misslungen++;
+        }
+        fertig++;
+        if (fertig % 10 === 0 || !reihe.length) melden(fertig, adressen.length, misslungen);
+      }
+    }
+
+    await Promise.all(Array.from({ length: 8 }, arbeiter));
+    return { fertig, misslungen };
+  }
+
+  // Die Karte ist in app.js ein top-level const und liegt damit im globalen
+  // Bereich, aber NICHT auf window — deshalb dieser Umweg statt window.karte.
+  function dieKarte() {
+    return typeof karte !== 'undefined' ? karte : null;
+  }
+
+  // Nach außen für screens.js — dort sitzt der Knopf.
+  window.WILDSPOT_GEBIET = {
+    // Wie viele Kacheln der aktuelle Ausschnitt bedeutet. Damit kann der Knopf
+    // vorher sagen, worauf man sich einlässt.
+    schaetzen() {
+      const k = dieKarte();
+      if (!k) return { anzahl: 0, zuGross: true };
+      const anzahl = adressenFuerGebiet(k).length;
+      return { anzahl, zuGross: anzahl > HOECHSTENS };
+    },
+
+    async laden(melden) {
+      const k = dieKarte();
+      if (!k) throw new Error('Die Karte ist noch nicht bereit.');
+      const adressen = adressenFuerGebiet(k);
+      if (!adressen.length) throw new Error('Für diesen Ausschnitt gibt es nichts zu laden.');
+      if (adressen.length > HOECHSTENS) {
+        throw new Error('Der Ausschnitt ist zu groß. Zoom ein Stück näher heran '
+          + 'und lade lieber zwei Gebiete nacheinander.');
+      }
+      return adressenHolen(adressen, melden || (() => {}));
+    },
+  };
 })();

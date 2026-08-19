@@ -1190,6 +1190,94 @@
     }
   }
 
+  // ==========================================================================
+  // Der Kasten zum Vorausladen (nur mit Plus)
+  //
+  // Geladen wird immer der Ausschnitt, der gerade auf der Karte steht. Das ist
+  // die einzige Angabe, die man ohne Erklärung versteht: Was du siehst, nimmst
+  // du mit. Ein eigener Auswahlrahmen wäre genauer und würde niemand bedienen.
+  //
+  // Deshalb steht auch die Zahl der Kacheln dabei und nicht nur "laden": Ein
+  // Vorgang, der eine Minute dauert und Datenvolumen kostet, soll vorher
+  // sagen, worauf man sich einlässt.
+  // ==========================================================================
+  function gebietKasten() {
+    const kasten = el('div');
+    kasten.className = 'gebiet-kasten';
+
+    const schaetzung = window.WILDSPOT_GEBIET.schaetzen();
+
+    kasten.innerHTML =
+      '<div class="gebiet-kopf">' +
+      '<span class="gebiet-zeichen" aria-hidden="true">' +
+      '<svg viewBox="0 0 24 24"><path d="M12 3v11M8 10.5l4 4 4-4"/>' +
+      '<path d="M4 17v2.5h16V17"/></svg></span>' +
+      '<div><b>Dieses Gebiet mitnehmen</b>' +
+      '<small id="gebiet-stand"></small></div>' +
+      '</div>' +
+      '<div class="gebiet-balken" id="gebiet-balken" hidden><i></i></div>' +
+      '<button type="button" class="oliv-knopf voll" id="gebiet-laden">Gebiet laden</button>';
+
+    const stand  = kasten.querySelector('#gebiet-stand');
+    const knopf  = kasten.querySelector('#gebiet-laden');
+    const balken = kasten.querySelector('#gebiet-balken');
+
+    function standSetzen() {
+      const s = window.WILDSPOT_GEBIET.schaetzen();
+      if (s.zuGross) {
+        stand.textContent = 'Der Ausschnitt auf der Karte ist zu groß — '
+          + 'zoom näher heran.';
+        knopf.disabled = true;
+      } else if (!s.anzahl) {
+        stand.textContent = 'Öffne zuerst die Karte und stell den Ausschnitt ein.';
+        knopf.disabled = true;
+      } else {
+        // Grob gerechnet mit 30 KB je Kachel — genauer geht es vorher nicht,
+        // und eine Zahl mit Nachkommastellen wäre hier eine Scheingenauigkeit.
+        const mb = Math.max(1, Math.round((s.anzahl * 30) / 1024));
+        stand.textContent = `Der Ausschnitt auf der Karte: rund ${s.anzahl} `
+          + `Kartenteile, etwa ${mb} MB.`;
+        knopf.disabled = false;
+      }
+    }
+
+    standSetzen();
+
+    knopf.addEventListener('click', async () => {
+      knopf.disabled = true;
+      balken.hidden = false;
+      const strich = balken.querySelector('i');
+
+      try {
+        const ergebnis = await window.WILDSPOT_GEBIET.laden((fertig, gesamt) => {
+          strich.style.width = Math.round((fertig / gesamt) * 100) + '%';
+          stand.textContent = `${fertig} von ${gesamt} Kartenteilen geladen …`;
+        });
+
+        // Misslungene Kacheln sind normal: Nicht jeder Kartendienst hat für
+        // jede Stelle in jeder Zoomstufe ein Bild. Verschwiegen würde es
+        // trotzdem nicht — wer 40 Fehler hat, soll es wissen.
+        stand.textContent = ergebnis.misslungen
+          ? `Fertig — ${ergebnis.fertig - ergebnis.misslungen} Kartenteile liegen `
+            + `jetzt am Gerät (${ergebnis.misslungen} waren nicht verfügbar).`
+          : `Fertig — ${ergebnis.fertig} Kartenteile liegen jetzt am Gerät.`;
+
+        knopf.textContent = 'Noch ein Gebiet laden';
+        knopf.disabled = false;
+        strich.style.width = '100%';
+
+        // Die Zahlen oben im Reiter stimmen jetzt nicht mehr.
+        if (welcheListe === 'offline') merklisteFuellen();
+      } catch (err) {
+        stand.textContent = err.message || 'Das hat nicht geklappt.';
+        knopf.disabled = false;
+        balken.hidden = true;
+      }
+    });
+
+    return kasten;
+  }
+
   // Der Offline-Reiter. Er zeigt, was gespeichert ist — und was Plus daraus
   // machen würde.
   async function offlineZeigen(kasten) {
@@ -1231,8 +1319,13 @@
       $('off-mb').textContent = '–';
     }
 
-    // Die Plus-Schranke: ein Gebiet im Voraus laden.
-    if (window.WILDSPOT_PLUS) {
+    // Ein Gebiet im Voraus laden. Mit Plus der echte Knopf, ohne Plus die
+    // Schranke davor.
+    const hatPlus = !!(window.WILDSPOT_PLUS && window.WILDSPOT_PLUS.hat());
+
+    if (hatPlus && window.WILDSPOT_GEBIET) {
+      kasten.appendChild(gebietKasten());
+    } else if (window.WILDSPOT_PLUS) {
       kasten.appendChild(window.WILDSPOT_PLUS.schrankeBauen(
         '<svg viewBox="0 0 24 24"><path d="M12 3v11M8 10.5l4 4 4-4"/>' +
         '<path d="M4 17v2.5h16V17"/></svg>',
@@ -1245,10 +1338,12 @@
     const hinweis = el('p');
     hinweis.className = 'abschnitt-unter';
     hinweis.style.marginTop = '14px';
-    hinweis.innerHTML =
-      '<b>So geht es heute schon:</b> Die Gegend zu Hause einmal auf der Karte ' +
-      'abfahren und dabei ein- und auszoomen. Was du gesehen hast, bleibt ' +
-      'liegen und ist unterwegs da.';
+    hinweis.innerHTML = hatPlus
+      ? '<b>Und nebenbei:</b> Was du auf der Karte anschaust, bleibt ohnehin '
+        + 'liegen. Das Vorausladen ist für die Gegend, in der du noch nicht warst.'
+      : '<b>So geht es heute schon:</b> Die Gegend zu Hause einmal auf der Karte '
+        + 'abfahren und dabei ein- und auszoomen. Was du gesehen hast, bleibt '
+        + 'liegen und ist unterwegs da.';
     kasten.appendChild(hinweis);
 
     const leeren = el('button');
