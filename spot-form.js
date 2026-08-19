@@ -346,6 +346,10 @@ function spotBearbeiten(spot, lat, lng) {
     el.value = (wert === null || wert === undefined) ? '' : String(wert);
   }
 
+  // Sperre und Hinweis am Geheim-Feld nachziehen — der Wert allein sagt
+  // nichts darüber, ob man ihn ändern darf.
+  geheimFeldRichten(spot.privat);
+
   // Die Mehrfachauswahlen sind Listen — Jahreszeiten, Fischarten.
   for (const feld of MEHRFACH_FELDER) {
     const liste = Array.isArray(spot[feld]) ? spot[feld] : [];
@@ -386,6 +390,13 @@ function spotFensterSchliessen() {
 
 document.getElementById('spot-schliessen').onclick = spotFensterSchliessen;
 document.getElementById('spot-abbrechen').onclick  = spotFensterSchliessen;
+
+// Beim Umschalten den Hinweis mitziehen: Wer "Nur ich" wählt, soll im selben
+// Moment lesen, dass er den Platz trotzdem per Link zeigen kann.
+{
+  const feld = document.getElementById('spot-privat');
+  if (feld) feld.addEventListener('change', () => geheimFeldRichten(feld.value));
+}
 spotHg.onclick = (e) => { if (e.target === spotHg) spotFensterSchliessen(); };
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' && !spotHg.hidden) spotFensterSchliessen();
@@ -701,6 +712,62 @@ function spotFormularLeeren() {
   }
   for (const el of spotForm.querySelectorAll('input[type="checkbox"]')) el.checked = false;
   for (const d of spotForm.querySelectorAll('details')) d.open = false;
+
+  // Das Geheim-Feld steht nicht in GRUPPEN und bekäme oben sonst einen leeren
+  // Wert — dann stünde die Klappliste auf gar nichts.
+  geheimFeldRichten(false);
+}
+
+// ----------------------------------------------------------------------------
+// Geheim oder für alle
+//
+// Ohne Plus lässt sich "Nur ich" nicht wählen. Die Zeile verschwindet dabei
+// nicht, sondern wird gesperrt und erklärt — eine Funktion, von der man nichts
+// weiß, kauft niemand.
+//
+// Ein bereits geheimer Spot bleibt geheim, auch wenn Plus ausgelaufen ist. Ihn
+// beim nächsten Bearbeiten stillschweigend öffentlich zu machen, wäre der
+// schlimmste denkbare Fehler an dieser Stelle: Der Platz wäre weg, und niemand
+// hätte es gewollt.
+// ----------------------------------------------------------------------------
+function geheimFeldRichten(wert) {
+  const feld    = document.getElementById('spot-privat');
+  const hinweis = document.getElementById('spot-geheim-hinweis');
+  if (!feld) return;
+
+  const istGeheim = wert === true || wert === 'true';
+  const hatPlus = !!(window.WILDSPOT_PLUS && window.WILDSPOT_PLUS.hat());
+
+  feld.value = istGeheim ? 'true' : 'false';
+
+  const geheimOption = feld.querySelector('option[value="true"]');
+  if (geheimOption) geheimOption.disabled = !hatPlus && !istGeheim;
+
+  if (!hinweis) return;
+
+  if (!hatPlus && !istGeheim) {
+    hinweis.className = 'geheim-hinweis mit-plus';
+    hinweis.innerHTML =
+      '<span class="gh-zeichen" aria-hidden="true">' +
+      '<svg viewBox="0 0 24 24"><path d="M12 3.5l1.9 4.6 4.6 1.9-4.6 1.9L12 16.5l-1.9-4.6L5.5 10l4.6-1.9z"/></svg>' +
+      '</span>Geheime Spots gibt es mit Plus — deine besten Plätze bleiben dann dir. ' +
+      '<button type="button" class="gh-link" id="geheim-zu-plus">Ansehen</button>';
+
+    const knopf = document.getElementById('geheim-zu-plus');
+    if (knopf) {
+      knopf.addEventListener('click', () => {
+        spotFensterSchliessen();
+        if (window.WILDSPOT_BEREICH) window.WILDSPOT_BEREICH('plus');
+      });
+    }
+    return;
+  }
+
+  hinweis.className = 'geheim-hinweis';
+  hinweis.textContent = istGeheim
+    ? 'Nur du siehst ihn auf der Karte. Über den Teilen-Knopf bekommst du einen '
+      + 'Link, mit dem auch andere hinschauen können.'
+    : '';
 }
 
 function spotFehlerText(err) {
