@@ -303,8 +303,12 @@
         return;
       }
 
+      // Dasselbe Versprechen wie im Angebotsfenster und auf der Seite darüber:
+      // ein Euro. Hier stand einmal "gratis" — zwei Preise für dieselbe Sache
+      // in derselben App fallen auf und kosten mehr Vertrauen, als der
+      // stärkere Anreiz einbringt.
       meldung('Steht. Du bekommst zum Start den Gründerpreis und den ersten ' +
-              'Monat gratis — und sonst keine Post.', 'ok');
+              'Monat um 1 € — und sonst keine Post.', 'ok');
       feld.value = '';
       try { localStorage.setItem('wildspot-vorgemerkt', '1'); } catch (e) {}
     });
