@@ -4820,6 +4820,7 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   color: var(--text-weak);
 }
 .schalter-vip .sym.vip { stroke: #d9a23f; }
+.schalter-vip .sym.schutz { stroke: #c62828; }
 
 /* --- Das große Angebot ----------------------------------------------------
 
@@ -6628,6 +6629,16 @@ body.bereich-offen.detail-offen::after {
         <span class="name">Spots</span><i class="pille"></i>
       </button>
 
+      <!-- Wo eigene Regeln gelten. Steht bei den Spots, weil es dieselbe
+           Frage beantwortet: Kann ich hier bleiben? -->
+      <button id="knopf-schutz" aria-pressed="false" class="schalter-vip">
+        <svg class="sym schutz" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 3l7.5 3v6c0 4.2-3 7.6-7.5 9-4.5-1.4-7.5-4.8-7.5-9V6z"/>
+        </svg>
+        <span class="name">Schutzgebiete<small>Nationalparks und Naturschutz als Fläche</small></span>
+        <i class="pille"></i>
+      </button>
+
       <!-- Nur die handverlesenen zeigen. Der Schalter steht direkt unter den
            Spots, weil er nichts anderes tut, als sie einzugrenzen. Ohne Plus
            führt er auf die Plus-Seite (plus.js entscheidet, app.js fragt). -->
@@ -7435,11 +7446,11 @@ body.bereich-offen.detail-offen::after {
       <div class="plus-punkt">
         <div class="zeichen"><svg viewBox="0 0 24 24"><path d="M12 4v16M6 8h12"/><path d="M3 15l3-7 3 7a3 3 0 01-6 0Z"/><path d="M15 15l3-7 3 7a3 3 0 01-6 0Z"/></svg></div>
         <div class="was">
-          <h4>Wo du sein darfst</h4>
-          <p>Nationalparks, Naturschutz- und Ruhegebiete liegen als Fläche auf der
-             Karte, dazu die Regel des Bundeslands. Rot heißt: hier nicht.</p>
+          <h4>Wo eigene Regeln gelten</h4>
+          <p>Über 800 Nationalparks und Naturschutzgebiete liegen als Fläche auf der
+             Karte — ein Schalter, und du siehst, ob deine Wiese darin liegt.</p>
           <div class="beispiel">Eine Verwaltungsstrafe im Nationalpark kostet mehr als
-             Plus in zehn Jahren.</div>
+             Plus in zehn Jahren. Die Grenzen sind eine Hilfe, keine Rechtsauskunft.</div>
         </div>
       </div>
 

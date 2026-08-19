@@ -450,6 +450,13 @@ sources['spots'] = {
   data: { type: 'FeatureCollection', features: [] },
 };
 
+// Die Schutzgebiete (db/027). Anfangs leer — sie werden erst geholt, wenn
+// jemand den Schalter umlegt, und nur für den sichtbaren Ausschnitt.
+sources['schutzgebiete'] = {
+  type: 'geojson',
+  data: { type: 'FeatureCollection', features: [] },
+};
+
 // Die Farbe unter allem. Sie steht im Stilblatt (--karte-grund) und wechselt
 // dort mit Tag und Nacht — hier wird sie nur ausgelesen. Zwei Stellen fuer
 // dieselbe Farbe waeren zwei Stellen, an denen man sie vergessen kann.
@@ -965,6 +972,51 @@ karte.on('load', () => {
   // braun bei schwach.
   karte.addLayer(symbolLayer('spot', 'spots'));
 
+  // ------------------------------------------------------ Schutzgebiete -----
+  //
+  // Die Flächen liegen UNTER allen Punkten: Sie sind Hintergrund, keine
+  // Meldung. Ein Spot, der von einer roten Fläche verdeckt wird, wäre genau
+  // das Gegenteil von hilfreich.
+  //
+  // Rot, aber sehr blass. Kräftiger wäre lesbarer und würde die Karte darunter
+  // unbrauchbar machen — man muss ja weiterhin sehen, wo der Bach läuft. Die
+  // Kante ist deshalb deutlicher als die Fläche: Es geht um "drin oder
+  // draußen", und das entscheidet sich am Rand.
+  if (!karte.getLayer('schutz-flaeche')) {
+    karte.addLayer({
+      id: 'schutz-flaeche',
+      type: 'fill',
+      source: 'schutzgebiete',
+      layout: { visibility: 'none' },
+      paint: {
+        'fill-color': [
+          'match', ['get', 'art'],
+          'nationalpark', '#c62828',
+          'naturschutz',  '#e05a2b',
+          '#d8862b',
+        ],
+        'fill-opacity': 0.14,
+      },
+    }, 'spots-symbol');
+
+    karte.addLayer({
+      id: 'schutz-rand',
+      type: 'line',
+      source: 'schutzgebiete',
+      layout: { visibility: 'none' },
+      paint: {
+        'line-color': [
+          'match', ['get', 'art'],
+          'nationalpark', '#b71c1c',
+          'naturschutz',  '#d2481f',
+          '#c2761c',
+        ],
+        'line-width': ['interpolate', ['linear'], ['zoom'], 8, 1, 14, 2.2],
+        'line-opacity': 0.75,
+      },
+    }, 'spots-symbol');
+  }
+
   // Die Zeichen werden aus der Legende gebaut. Das geht erst hier: vorher
   // steht der Kartenstil noch nicht, und addImage bräuchte ihn.
   for (const gruppe of OSM_EBENEN) symbolLaden(gruppe, gruppe, SYMBOL_FARBE[gruppe]);
@@ -1302,6 +1354,89 @@ for (const gruppe of [...OSM_EBENEN, 'spots']) {
 }
 
 // ----------------------------------------------------------------------------
+// Schutzgebiete
+//
+// Sie werden nur geholt, wenn der Schalter an ist — und nur für den sichtbaren
+// Ausschnitt. Ganz Österreich auf einmal wären mehrere Megabyte Umrisse für
+// eine Frage, die immer nur lautet: "Ist DIESE Wiese hier drin?"
+//
+// Der Zoom geht in die Abfrage ein, weil die Datenbank die Umrisse danach
+// glättet (db/027). Weit draußen braucht niemand jeden Zacken.
+// ----------------------------------------------------------------------------
+
+let schutzAn = false;
+let schutzLaeuft = false;
+let schutzLetzte = '';
+
+async function schutzgebieteLaden() {
+  if (!schutzAn || schutzLaeuft) return;
+  if (!karte.getSource('schutzgebiete')) return;
+
+  const b = karte.getBounds();
+  const zoom = Math.round(karte.getZoom());
+
+  // Derselbe Ausschnitt wie beim letzten Mal? Dann gibt es nichts zu tun.
+  // Ohne diese Bremse fragt jedes Wischen erneut ab.
+  const merkmal = [zoom, b.getSouth().toFixed(2), b.getWest().toFixed(2),
+                   b.getNorth().toFixed(2), b.getEast().toFixed(2)].join('|');
+  if (merkmal === schutzLetzte) return;
+
+  schutzLaeuft = true;
+  try {
+    const { data, error } = await auth.client.rpc('schutzgebiete_in_bbox', {
+      min_lat: b.getSouth(), min_lng: b.getWest(),
+      max_lat: b.getNorth(), max_lng: b.getEast(),
+      zoom,
+    });
+    if (error) throw error;
+
+    karte.getSource('schutzgebiete')?.setData(
+      data || { type: 'FeatureCollection', features: [] });
+    schutzLetzte = merkmal;
+  } catch (e) {
+    // Ohne Netz bleibt liegen, was zuletzt da war. Eine Fehlermeldung wäre
+    // hier falsch: Die Karte funktioniert weiter, nur diese eine Ebene ist
+    // nicht frisch.
+  } finally {
+    schutzLaeuft = false;
+  }
+}
+
+function schutzAnwenden() {
+  for (const ebene of ['schutz-flaeche', 'schutz-rand']) {
+    if (karte.getLayer(ebene)) {
+      karte.setLayoutProperty(ebene, 'visibility', schutzAn ? 'visible' : 'none');
+    }
+  }
+}
+
+{
+  const knopf = document.getElementById('knopf-schutz');
+  if (knopf) {
+    knopf.onclick = () => {
+      if (window.WILDSPOT_PLUS && !window.WILDSPOT_PLUS.hat()) {
+        window.WILDSPOT_PLUS.schranke('Schutzgebiete auf der Karte');
+        return;
+      }
+
+      schutzAn = !schutzAn;
+      knopf.setAttribute('aria-pressed', String(schutzAn));
+      schutzAnwenden();
+
+      if (schutzAn) {
+        schutzgebieteLaden();
+        // Einmal beim Einschalten sagen, was die Farbe bedeutet — und was
+        // sie nicht bedeutet. Ohne diesen Satz liest man eine rote Fläche
+        // als Verbotsschild, und das ist sie nicht.
+        status('Rot heißt: hier gelten eigene Regeln. Die Grenzen kommen aus '
+             + 'OpenStreetMap und sind eine Hilfe, keine Rechtsauskunft.',
+               { dauer: 7000 });
+      }
+    };
+  }
+}
+
+// ----------------------------------------------------------------------------
 // Nur die handverlesenen
 //
 // Kein eigener Datenabruf: Die Punkte liegen längst da, sie werden nur
@@ -1551,7 +1686,13 @@ async function punkteLaden() {
 // Nach dem Bewegen kurz warten — sonst würde jede Zwischenposition abgefragt.
 karte.on('moveend', () => {
   clearTimeout(ladeTimer);
-  ladeTimer = setTimeout(() => { punkteLaden(); spotsLaden(); }, 350);
+  ladeTimer = setTimeout(() => {
+    punkteLaden();
+    spotsLaden();
+    // Nur wenn der Schalter an ist — die Funktion prüft das selbst und
+    // erkennt auch, wenn der Ausschnitt derselbe geblieben ist.
+    schutzgebieteLaden();
+  }, 350);
 });
 
 // ============================================================================
