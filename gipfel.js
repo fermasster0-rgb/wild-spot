@@ -492,8 +492,13 @@
     const einzahl = (n, eins, viele) => (Number(n) === 1 ? eins : viele);
 
     // Die vier, die immer dastehen.
+    //
+    // Im eigenen Profil sind alle vier gleich gestaltet. Die erste Kachel war
+    // grün abgesetzt (Klasse „gross“) — das ergab Sinn, solange acht Kacheln
+    // dastanden und eine davon der Ankerpunkt war. Bei vier gleichrangigen
+    // Zahlen sieht dieselbe Hervorhebung nur noch willkürlich aus.
     const kacheln = [
-      `<div class="zahl-kachel gross"><b>${zahl(s.gipfel)}</b>
+      `<div class="zahl-kachel${kompakt ? '' : ' gross'}"><b>${zahl(s.gipfel)}</b>
          <span>${einzahl(s.gipfel, 'Gipfel', 'Gipfel')} gesammelt</span></div>`,
       `<div class="zahl-kachel"><b>${zahl(s.plaetze)}</b>
          <span>${einzahl(s.plaetze, 'Platz besucht', 'Plätze besucht')}</span></div>`,

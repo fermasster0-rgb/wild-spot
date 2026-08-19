@@ -326,7 +326,7 @@ html { background: var(--unterkante); }
   box-shadow: 0 4px 20px var(--sch1);
   transition: background 0.15s, border-color 0.15s;
 }
-.werkzeug:hover { background: var(--t3); }
+@media (hover: hover) { .werkzeug:hover { background: var(--t3); } }
 .werkzeug[aria-expanded="true"] {
   background: var(--gruen);
   border-color: var(--gruen);
@@ -422,7 +422,7 @@ html { background: var(--unterkante); }
   cursor: pointer;
   padding: 0;
 }
-#suche-leeren:hover { background: var(--t4); color: var(--text); }
+@media (hover: hover) { #suche-leeren:hover { background: var(--t4); color: var(--text); } }
 #suche-leeren[hidden] { display: none; }
 
 /* ------------------------------------------------------------- Trefferliste */
@@ -466,7 +466,7 @@ html { background: var(--unterkante); }
   text-align: left;
   cursor: pointer;
 }
-.suche-treffer button:hover { background: var(--t2); }
+@media (hover: hover) { .suche-treffer button:hover { background: var(--t2); } }
 
 .suche-treffer .sym { width: 17px; height: 17px; }
 .suche-treffer .wo { flex: 1; min-width: 0; }
@@ -559,13 +559,13 @@ html { background: var(--unterkante); }
   color: var(--auf-akzent);
   font-weight: 600;
 }
-.tafel-haupt:hover { filter: brightness(1.08); }
+@media (hover: hover) { .tafel-haupt:hover { filter: brightness(1.08); } }
 .tafel-zweit {
   border: 1px solid var(--rand);
   background: var(--t1);
   color: var(--text);
 }
-.tafel-zweit:hover { background: var(--t3); }
+@media (hover: hover) { .tafel-zweit:hover { background: var(--t3); } }
 
 .kontozeile {
   display: flex;
@@ -615,7 +615,7 @@ html { background: var(--unterkante); }
   display: block;
   transition: transform 0.25s;
 }
-.stil:hover img { transform: scale(1.06); }
+@media (hover: hover) { .stil:hover img { transform: scale(1.06); } }
 .stil span {
   position: absolute;
   left: 0; right: 0; bottom: 0;
@@ -797,7 +797,7 @@ body.hat-plus .stil-plus img { filter: none; }
   align-items: center;
   gap: 7px;
 }
-.breit:hover { filter: brightness(1.08); }
+@media (hover: hover) { .breit:hover { filter: brightness(1.08); } }
 .breit .plus { font-size: 18px; line-height: 1; margin-top: -2px; }
 
 .rund {
@@ -815,7 +815,7 @@ body.hat-plus .stil-plus img { filter: none; }
   box-shadow: 0 4px 20px var(--sch1);
   transition: background 0.15s;
 }
-.rund:hover { background: var(--t2); }
+@media (hover: hover) { .rund:hover { background: var(--t2); } }
 .rund:disabled { opacity: 0.5; cursor: progress; }
 
 /* ==========================================================================
@@ -1038,7 +1038,7 @@ body.hat-plus .stil-plus img { filter: none; }
   cursor: pointer;
   transition: border-color 0.15s, background 0.15s, transform 0.12s;
 }
-.intro-wahl button:hover { background: var(--t2); }
+@media (hover: hover) { .intro-wahl button:hover { background: var(--t2); } }
 .intro-wahl button:active { transform: scale(0.985); }
 .intro-wahl button[aria-pressed="true"] {
   border-color: var(--gruen);
@@ -1119,7 +1119,7 @@ body.hat-plus .stil-plus img { filter: none; }
   cursor: pointer;
   transition: filter 0.15s, opacity 0.2s;
 }
-.intro-haupt:hover { filter: brightness(1.07); }
+@media (hover: hover) { .intro-haupt:hover { filter: brightness(1.07); } }
 .intro-haupt:disabled { opacity: 0.35; cursor: default; }
 .intro-haupt[hidden] { display: none; }
 
@@ -1133,7 +1133,7 @@ body.hat-plus .stil-plus img { filter: none; }
   font-size: 14px;
   cursor: pointer;
 }
-.intro-flach:hover { color: var(--text); }
+@media (hover: hover) { .intro-flach:hover { color: var(--text); } }
 .intro-flach[hidden] { display: none; }
 
 /* Wer Bewegung im System abgestellt hat, bekommt keine. */
@@ -1277,7 +1277,7 @@ body.hat-plus .stil-plus img { filter: none; }
   cursor: pointer;
   text-decoration: underline;
 }
-.login-box .flach:hover { color: var(--text); }
+@media (hover: hover) { .login-box .flach:hover { color: var(--text); } }
 
 #login-google {
   width: 100%;
@@ -1465,9 +1465,9 @@ body.hat-plus .stil-plus img { filter: none; }
   line-height: 1;
   cursor: pointer;
 }
-#login-schliessen:hover, #spot-schliessen:hover,
+@media (hover: hover) { #login-schliessen:hover, #spot-schliessen:hover,
 #verfassen-zu:hover, #person-zu:hover, #filter-zu:hover, #gipfel-zu:hover,
-#gipfelliste-zu:hover, #leute-hg-zu:hover { background: var(--t3); color: var(--text); }
+#gipfelliste-zu:hover, #leute-hg-zu:hover { background: var(--t3); color: var(--text); } }
 
 /* ==========================================================================
    Spot-Detail — die Seitenleiste rechts
@@ -1516,7 +1516,7 @@ body.detail-offen .unten { right: 404px; }
   font-variant-numeric: tabular-nums;
   cursor: pointer;
 }
-.detail-kopf .koord:hover { color: var(--text); }
+@media (hover: hover) { .detail-kopf .koord:hover { color: var(--text); } }
 
 #detail-zu {
   position: absolute;
@@ -1531,7 +1531,7 @@ body.detail-offen .unten { right: 404px; }
   cursor: pointer;
   z-index: 1;
 }
-#detail-zu:hover { background: var(--t3); color: var(--text); }
+@media (hover: hover) { #detail-zu:hover { background: var(--t3); color: var(--text); } }
 
 /* Der Teilen-Knopf sitzt links neben dem Schließen — dieselbe Ecke, in der
    ihn jeder sucht. Bewusst genauso unauffällig: Er ist nützlich, aber nicht
@@ -1549,7 +1549,7 @@ body.detail-offen .unten { right: 404px; }
   cursor: pointer;
   z-index: 1;
 }
-#detail-teilen:hover { background: var(--t3); color: var(--text); }
+@media (hover: hover) { #detail-teilen:hover { background: var(--t3); color: var(--text); } }
 #detail-teilen[hidden] { display: none; }
 
 /* Das Herz. Dieselbe Form wie seine beiden Nachbarn, damit die Ecke ruhig
@@ -1575,7 +1575,7 @@ body.detail-offen .unten { right: 404px; }
   stroke-width: 1.9;
   stroke-linejoin: round;
 }
-#detail-merken:hover { background: var(--t3); color: var(--text); }
+@media (hover: hover) { #detail-merken:hover { background: var(--t3); color: var(--text); } }
 #detail-merken:active { transform: scale(0.85); }
 #detail-merken[aria-pressed="true"] { color: var(--gefahr); }
 #detail-merken[aria-pressed="true"] svg { fill: currentColor; }
@@ -1618,7 +1618,7 @@ body.detail-offen .unten { right: 404px; }
   stroke-linecap: round;
   stroke-linejoin: round;
 }
-.zur-karte:hover { filter: brightness(1.1); }
+@media (hover: hover) { .zur-karte:hover { filter: brightness(1.1); } }
 .zur-karte:active { transform: scale(0.985); }
 
 /* Der scrollende Teil. Alles Lange landet hier drin. */
@@ -1723,7 +1723,7 @@ body.detail-offen .unten { right: 404px; }
   display: block;
   transition: transform 0.25s;
 }
-.foto:hover img { transform: scale(1.04); }
+@media (hover: hover) { .foto:hover img { transform: scale(1.04); } }
 
 .foto-weg {
   position: absolute;
@@ -1739,8 +1739,8 @@ body.detail-offen .unten { right: 404px; }
   opacity: 0;
   transition: opacity 0.15s, background 0.15s;
 }
-.foto-feld:hover .foto-weg { opacity: 1; }
-.foto-weg:hover { background: rgba(200, 70, 50, 0.9); }
+@media (hover: hover) { .foto-feld:hover .foto-weg { opacity: 1; } }
+@media (hover: hover) { .foto-weg:hover { background: rgba(200, 70, 50, 0.9); } }
 /* Auf dem Handy gibt es kein Darüberfahren — dort immer sichtbar. */
 @media (hover: none) {
   .foto-weg { opacity: 0.85; }
@@ -1782,7 +1782,7 @@ body.detail-offen .unten { right: 404px; }
   cursor: pointer;
   margin-bottom: 8px;
 }
-.zweit:hover { background: var(--t3); }
+@media (hover: hover) { .zweit:hover { background: var(--t3); } }
 .zweit:disabled { opacity: 0.55; cursor: progress; }
 
 /* Der Sterneschnitt ganz oben — die eine Zahl, die man zuerst sucht. */
@@ -1822,10 +1822,10 @@ body.detail-offen .unten { right: 404px; }
   font-weight: 500;
   line-height: 1.25;
 }
-.weg-knopf:hover {
+@media (hover: hover) { .weg-knopf:hover {
   background: var(--t3);
   border-color: var(--t4);
-}
+} }
 .weg-knopf .sym { line-height: 0; color: var(--text-weak); }
 .weg-knopf .sym svg {
   width: 20px; height: 20px;
@@ -1854,10 +1854,10 @@ body.detail-offen .unten { right: 404px; }
   cursor: pointer;
   transition: transform 0.1s, color 0.12s;
 }
-.meine-sterne button:hover { transform: scale(1.15); }
+@media (hover: hover) { .meine-sterne button:hover { transform: scale(1.15); } }
 .meine-sterne button.an { color: var(--stern); }
-.meine-sterne:hover button { color: var(--stern-leer); }
-.meine-sterne:hover button.bis-hier { color: var(--stern); }
+@media (hover: hover) { .meine-sterne:hover button { color: var(--stern-leer); } }
+@media (hover: hover) { .meine-sterne:hover button.bis-hier { color: var(--stern); } }
 
 /* Ein Kommentar. Das Besuchsdatum steht bewusst prominent — ohne das ist
    „Bach war trocken" wertlos. */
@@ -1895,7 +1895,7 @@ body.detail-offen .unten { right: 404px; }
   text-decoration: underline;
   padding: 0;
 }
-.kommentar .weg:hover { color: var(--fehl-text); }
+@media (hover: hover) { .kommentar .weg:hover { color: var(--fehl-text); } }
 
 /* Das Formular für einen neuen Kommentar. */
 .detail-koerper textarea,
@@ -1951,7 +1951,7 @@ body.detail-offen .unten { right: 404px; }
   font-size: 13.5px;
   cursor: pointer;
 }
-.gefahr:hover { background: var(--fehl-weich); }
+@media (hover: hover) { .gefahr:hover { background: var(--fehl-weich); } }
 .gefahr:disabled { opacity: 0.55; cursor: progress; }
 
 .loeschfrage {
@@ -1980,7 +1980,7 @@ body.detail-offen .unten { right: 404px; }
   color: #fff;
   font-weight: 600;
 }
-.loeschfrage-knoepfe .gefahr:hover { background: var(--gefahr-hover); }
+@media (hover: hover) { .loeschfrage-knoepfe .gefahr:hover { background: var(--gefahr-hover); } }
 
 .detail-leer {
   font-size: 13px;
@@ -2000,7 +2000,7 @@ body.detail-offen .unten { right: 404px; }
   text-decoration: underline;
   cursor: pointer;
 }
-.detail-flach:hover { color: var(--text); }
+@media (hover: hover) { .detail-flach:hover { color: var(--text); } }
 
 /* Die Meldung im Panel — gleiche Sprache wie im Anmeldefenster. */
 .detail-meldung {
@@ -2179,7 +2179,7 @@ body.detail-offen .unten { right: 404px; }
   border-color: var(--akzent-rand);
   cursor: pointer;
 }
-.neue-fassung:hover { border-color: var(--gruen); }
+@media (hover: hover) { .neue-fassung:hover { border-color: var(--gruen); } }
 
 /* Die Anleitung fürs iPhone in den Einstellungen. */
 #install-anleitung {
@@ -2509,7 +2509,7 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   line-height: 1;
   flex-shrink: 0;
 }
-.admin-zu:hover { background: var(--t1); }
+@media (hover: hover) { .admin-zu:hover { background: var(--t1); } }
 
 .admin-reiter {
   display: flex;
@@ -2538,7 +2538,7 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   cursor: pointer;
   white-space: nowrap;
 }
-.admin-reiter button:hover { color: var(--text); }
+@media (hover: hover) { .admin-reiter button:hover { color: var(--text); } }
 .admin-reiter button[aria-selected="true"] {
   color: var(--text);
   border-bottom-color: var(--gruen);
@@ -2638,9 +2638,9 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   min-height: 36px;   /* Daumenbreite, nicht Mauszeigerbreite */
   cursor: pointer;
 }
-.admin-zeile button:hover { background: var(--t1); }
+@media (hover: hover) { .admin-zeile button:hover { background: var(--t1); } }
 .admin-zeile button.admin-gefahr { color: var(--fehl-text); border-color: var(--fehl-rand); }
-.admin-zeile button.admin-gefahr:hover { background: var(--fehl-weich); }
+@media (hover: hover) { .admin-zeile button.admin-gefahr:hover { background: var(--fehl-weich); } }
 
 /* Wird beim Löschen an die Zeile geheftet: erst bestätigen, dann weg. */
 .admin-zeile.fragt { border-color: var(--fehl-rand); }
@@ -2719,7 +2719,7 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   border: 1px solid var(--akzent-rand);
   color: var(--gruen);
 }
-#knopf-admin:hover { background: var(--akzent-weich); }
+@media (hover: hover) { #knopf-admin:hover { background: var(--akzent-weich); } }
 
 /* ##########################################################################
    ##                                                                      ##
@@ -3073,7 +3073,7 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   display: block;
   transition: transform 0.35s cubic-bezier(0.2, 0.7, 0.3, 1);
 }
-.spotkarte:hover .bild img { transform: scale(1.05); }
+@media (hover: hover) { .spotkarte:hover .bild img { transform: scale(1.05); } }
 .spotkarte:active { transform: scale(0.985); }
 
 /* Kein Foto da: statt eines grauen Lochs ein Zelt auf Farbverlauf. Sieht
@@ -3268,7 +3268,7 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   transition: background 0.14s, border-color 0.14s, color 0.14s;
 }
 .chip .emoji { font-size: 15px; line-height: 1; }
-.chip:hover { border-color: var(--t4); }
+@media (hover: hover) { .chip:hover { border-color: var(--t4); } }
 .chip[aria-pressed="true"] {
   background: var(--gruen);
   border-color: var(--gruen);
@@ -3447,7 +3447,7 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   stroke-width: 2;
   stroke-linecap: round;
 }
-.such-knopf:hover { border-color: var(--t4); }
+@media (hover: hover) { .such-knopf:hover { border-color: var(--t4); } }
 
 /* ==========================================================================
    Lesbares — die Hinweiskarten auf der Entdecken-Seite
@@ -3571,7 +3571,7 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
-.oliv-knopf:hover { filter: brightness(1.1); }
+@media (hover: hover) { .oliv-knopf:hover { filter: brightness(1.1); } }
 .oliv-knopf:active { transform: scale(0.98); }
 .oliv-knopf.voll { width: 100%; }
 .oliv-knopf:disabled { opacity: 0.5; cursor: progress; }
@@ -3623,7 +3623,7 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   stroke-width: 1.9;
   stroke-linejoin: round;
 }
-.merken-knopf:hover { background: var(--t2); }
+@media (hover: hover) { .merken-knopf:hover { background: var(--t2); } }
 .merken-knopf:active { transform: scale(0.85); }
 .merken-knopf[aria-pressed="true"] { color: var(--gefahr); }
 .merken-knopf[aria-pressed="true"] svg { fill: currentColor; }
@@ -3761,7 +3761,7 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   -webkit-tap-highlight-color: transparent;
 }
 .menue-zeile:last-child { border-bottom: 0; }
-.menue-zeile:hover { background: var(--t1); }
+@media (hover: hover) { .menue-zeile:hover { background: var(--t1); } }
 .menue-zeile > svg:first-child {
   width: 21px; height: 21px;
   flex-shrink: 0;
@@ -4129,7 +4129,7 @@ body.parkplatz-modus .knopf-zeile { display: none; }
     transform 0.25s cubic-bezier(0.2, 0.7, 0.3, 1),
     box-shadow 0.35s ease;
 }
-.preis:hover { border-color: rgba(255, 255, 255, 0.28); }
+@media (hover: hover) { .preis:hover { border-color: rgba(255, 255, 255, 0.28); } }
 .preis:active { transform: scale(0.988); }
 .preis[aria-pressed="true"] {
   border-color: var(--plus-gold);
@@ -4246,11 +4246,11 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   0%, 55%  { left: -60%; }
   85%, 100%{ left: 120%; }
 }
-.plus-knopf:hover {
+@media (hover: hover) { .plus-knopf:hover {
   filter: brightness(1.06);
   transform: translateY(-1px);
   box-shadow: 0 12px 32px -10px color-mix(in srgb, var(--plus-gold) 80%, transparent);
-}
+} }
 .plus-knopf:active { transform: scale(0.99); }
 .plus-knopf:disabled { opacity: 0.55; cursor: progress; }
 .plus-knopf:disabled::after { animation: none; opacity: 0; }
@@ -4709,7 +4709,7 @@ body.bereich-offen.detail-offen::after {
   line-height: 1;
   cursor: pointer;
 }
-.beitrag-mehr:hover { background: var(--t1); color: var(--text); }
+@media (hover: hover) { .beitrag-mehr:hover { background: var(--t1); color: var(--text); } }
 
 /* Das kleine Menü hinter den drei Punkten. */
 .beitrag-menue {
@@ -4736,7 +4736,7 @@ body.bereich-offen.detail-offen::after {
   text-align: left;
   cursor: pointer;
 }
-.beitrag-menue button:hover { background: var(--t1); }
+@media (hover: hover) { .beitrag-menue button:hover { background: var(--t1); } }
 .beitrag-menue button.gefaehrlich { color: var(--fehl-text); }
 
 .beitrag-bild {
@@ -4788,7 +4788,7 @@ body.bereich-offen.detail-offen::after {
   text-align: left;
   cursor: pointer;
 }
-.beitrag-spot:hover { background: var(--t2); }
+@media (hover: hover) { .beitrag-spot:hover { background: var(--t2); } }
 .beitrag-spot svg {
   width: 18px; height: 18px;
   flex-shrink: 0;
@@ -4836,7 +4836,7 @@ body.bereich-offen.detail-offen::after {
   stroke-width: 1.9;
   stroke-linejoin: round;
 }
-.mag:hover { background: var(--t1); }
+@media (hover: hover) { .mag:hover { background: var(--t1); } }
 .mag:active { transform: scale(0.9); }
 .mag[aria-pressed="true"] { color: var(--gefahr); }
 .mag[aria-pressed="true"] svg { fill: currentColor; }
@@ -4921,7 +4921,7 @@ body.bereich-offen.detail-offen::after {
   font-weight: 600;
   cursor: pointer;
 }
-.bild-waehlen:hover { border-color: var(--gruen); color: var(--gruen); }
+@media (hover: hover) { .bild-waehlen:hover { border-color: var(--gruen); color: var(--gruen); } }
 .bild-waehlen svg {
   width: 22px; height: 22px;
   fill: none;
@@ -5056,7 +5056,7 @@ body.bereich-offen.detail-offen::after {
   text-align: left;
   cursor: pointer;
 }
-.leute-treffer:hover { background: var(--t1); }
+@media (hover: hover) { .leute-treffer:hover { background: var(--t1); } }
 
 /* -------------------------------------------------------- Ein Profil --- */
 .person-box { max-width: 480px; }
@@ -5263,7 +5263,7 @@ body.bereich-offen.detail-offen::after {
   text-align: left;
   cursor: pointer;
 }
-.gipfelzeile:hover { border-color: var(--t4); }
+@media (hover: hover) { .gipfelzeile:hover { border-color: var(--t4); } }
 .gipfelzeile .zeichen { flex-shrink: 0; }
 .gipfelzeile .wo { flex: 1; min-width: 0; }
 .gipfelzeile .wo b {
@@ -5397,7 +5397,7 @@ body.bereich-offen.detail-offen::after {
   cursor: pointer;
 }
 .flach-knopf.voll { width: 100%; }
-.flach-knopf:hover { border-color: var(--t4); }
+@media (hover: hover) { .flach-knopf:hover { border-color: var(--t4); } }
 .oliv-knopf.still { background: var(--t2); color: var(--text); }
 
 /* ==========================================================================
@@ -5460,10 +5460,10 @@ body.bereich-offen.detail-offen::after {
   -webkit-tap-highlight-color: transparent;
   transition: background 0.18s ease, border-color 0.18s ease;
 }
-.mehr-zeigen:hover {
+@media (hover: hover) { .mehr-zeigen:hover {
   background: var(--akzent-weich);
   border-color: var(--akzent-rand);
-}
+} }
 .mehr-zeigen:active { transform: scale(0.995); }
 .mehr-zeigen .pfeil {
   /* Der Pfeil zeigt nach unten, nicht nach rechts: Es geht nicht woandershin,
@@ -5611,7 +5611,7 @@ body.bereich-offen.detail-offen::after {
   padding: 6px 4px;
   border-radius: 10px;
 }
-.folge-zeile.klickbar button:hover { background: var(--t1); color: var(--text); }
+@media (hover: hover) { .folge-zeile.klickbar button:hover { background: var(--t1); color: var(--text); } }
 .folge-zeile.klickbar b { color: var(--text); font-weight: 700; }
 
 /* ==========================================================================
