@@ -472,7 +472,17 @@
   const ANGEBOT_PAUSE    = 3 * 24 * 60 * 60 * 1000;  // drei Tage
   const ANGEBOT_GENUG    = 3;                     // so oft darf man Nein sagen
 
-  function darfAngebotZeigen() {
+  // Das große Fenster ist die laute Fassung desselben Angebots. Es kommt
+  // zuerst und viel seltener: Ein Vollbild, das man wegklicken muss, verzeiht
+  // man einmal — beim dritten Mal löscht man die App.
+  const GROSS_ZULETZT = 'wildspot-angebot-gross-zuletzt';
+  const GROSS_WEG     = 'wildspot-angebot-gross-weg';
+  const GROSS_PAUSE   = 14 * 24 * 60 * 60 * 1000;   // zwei Wochen
+  const GROSS_GENUG   = 2;                          // zweimal Nein reicht
+  const GROSS_DANACH  = 4000;                       // dann kommt der Balken
+
+  // Die Bedingungen, die für beide gelten.
+  function grundsaetzlichErlaubt() {
     if (hatPlus()) return false;
 
     // Die Einführung läuft noch, oder sie war noch nie zu Ende.
@@ -483,12 +493,6 @@
     const intro = $('intro');
     if (intro && !intro.hidden) return false;
 
-    try {
-      if (Number(localStorage.getItem(ANGEBOT_WEGGETIPPT) || 0) >= ANGEBOT_GENUG) return false;
-      const zuletzt = Number(localStorage.getItem(ANGEBOT_ZULETZT) || 0);
-      if (zuletzt && Date.now() - zuletzt < ANGEBOT_PAUSE) return false;
-    } catch (e) { return false; }
-
     // Nicht ins eigene Schaufenster stellen.
     const plusSchirm = $('schirm-plus');
     if (plusSchirm && !plusSchirm.hidden) return false;
@@ -496,8 +500,38 @@
     return true;
   }
 
-  function angebotZeigen() {
-    if (!darfAngebotZeigen()) return;
+  function darfBalkenZeigen() {
+    if (!grundsaetzlichErlaubt()) return false;
+    try {
+      if (Number(localStorage.getItem(ANGEBOT_WEGGETIPPT) || 0) >= ANGEBOT_GENUG) return false;
+      const zuletzt = Number(localStorage.getItem(ANGEBOT_ZULETZT) || 0);
+      if (zuletzt && Date.now() - zuletzt < ANGEBOT_PAUSE) return false;
+    } catch (e) { return false; }
+    return true;
+  }
+
+  function darfGrossZeigen() {
+    if (!grundsaetzlichErlaubt()) return false;
+    try {
+      if (Number(localStorage.getItem(GROSS_WEG) || 0) >= GROSS_GENUG) return false;
+      const zuletzt = Number(localStorage.getItem(GROSS_ZULETZT) || 0);
+      if (zuletzt && Date.now() - zuletzt < GROSS_PAUSE) return false;
+    } catch (e) { return false; }
+    return true;
+  }
+
+  // ohnePause: Nach dem großen Fenster soll der Balken auch dann kommen, wenn
+  // seine Drei-Tage-Frist noch läuft — er ist dann die leise Fortsetzung
+  // desselben Angebots, nicht ein zweites.
+  function angebotZeigen({ ohnePause = false } = {}) {
+    if (ohnePause) {
+      if (!grundsaetzlichErlaubt()) return;
+      try {
+        if (Number(localStorage.getItem(ANGEBOT_WEGGETIPPT) || 0) >= ANGEBOT_GENUG) return;
+      } catch (e) { return; }
+    } else if (!darfBalkenZeigen()) {
+      return;
+    }
     if ($('plus-angebot')) return;
 
     try { localStorage.setItem(ANGEBOT_ZULETZT, String(Date.now())); } catch (e) {}
@@ -538,9 +572,92 @@
     requestAnimationFrame(() => balken.classList.add('da'));
   }
 
+  // --------------------------------------------------------------------------
+  // Das große Fenster
+  // --------------------------------------------------------------------------
+
+  function grossZeigen() {
+    if (!darfGrossZeigen()) return;
+    if ($('plus-gross')) return;
+
+    try { localStorage.setItem(GROSS_ZULETZT, String(Date.now())); } catch (e) {}
+
+    const hg = document.createElement('div');
+    hg.id = 'plus-gross';
+    hg.className = 'plus-gross-hg';
+    hg.setAttribute('role', 'dialog');
+    hg.setAttribute('aria-modal', 'true');
+    hg.setAttribute('aria-label', 'Wild Spot Plus — Angebot');
+    hg.innerHTML =
+      `<div class="plus-gross-box">
+         <div class="gross-schein" aria-hidden="true"></div>
+         <button type="button" class="gross-zu" aria-label="Schließen">×</button>
+
+         <span class="gross-zeichen" aria-hidden="true">
+           <svg viewBox="0 0 24 24"><path d="M12 3.5l1.9 4.6 4.6 1.9-4.6 1.9L12 16.5l-1.9-4.6L5.5 10l4.6-1.9z"/></svg>
+         </span>
+
+         <p class="gross-ueber">Wild Spot Plus</p>
+         <p class="gross-preis"><b>1 €</b><span>für den ersten Monat</span></p>
+         <p class="gross-unter">Danach 3,49 € im Monat. Jederzeit kündbar.</p>
+
+         <ul class="gross-liste">
+           <li>Alle vier Karten — Gelände, Satellit und Wandern</li>
+           <li>Ganze Gebiete vorab laden, fürs Funkloch</li>
+           <li>Mehrere Filter gleichzeitig</li>
+           <li>Die beste Nacht der Woche, für jeden Spot</li>
+         </ul>
+
+         <button type="button" class="gross-haupt">Für 1 € starten</button>
+         <button type="button" class="gross-spaeter">Vielleicht später</button>
+       </div>`;
+
+    // Schließen — und danach die leise Fassung nachschieben. Wer das große
+    // Fenster wegklickt, hat nicht unbedingt Nein zum Angebot gesagt, sondern
+    // zum Moment. Der Balken lässt ihm die Wahl, ohne ihn aufzuhalten.
+    const schliessen = (zaehlen) => {
+      if (zaehlen) {
+        try {
+          const weg = Number(localStorage.getItem(GROSS_WEG) || 0) + 1;
+          localStorage.setItem(GROSS_WEG, String(weg));
+        } catch (e) {}
+      }
+      hg.classList.remove('da');
+      setTimeout(() => hg.remove(), 240);
+      document.removeEventListener('keydown', beiTaste);
+      setTimeout(() => angebotZeigen({ ohnePause: true }), GROSS_DANACH);
+    };
+
+    function beiTaste(e) { if (e.key === 'Escape') schliessen(true); }
+
+    hg.querySelector('.gross-haupt').addEventListener('click', () => {
+      hg.classList.remove('da');
+      setTimeout(() => hg.remove(), 240);
+      document.removeEventListener('keydown', beiTaste);
+      if (window.WILDSPOT_BEREICH) window.WILDSPOT_BEREICH('plus');
+    });
+
+    hg.querySelector('.gross-zu').addEventListener('click', () => schliessen(true));
+    hg.querySelector('.gross-spaeter').addEventListener('click', () => schliessen(true));
+
+    // Klick daneben schließt auch — aber ohne als Absage zu zählen. Danebenzu
+    // tippen ist oft ein Versehen.
+    hg.addEventListener('click', (e) => { if (e.target === hg) schliessen(false); });
+    document.addEventListener('keydown', beiTaste);
+
+    document.body.appendChild(hg);
+    requestAnimationFrame(() => hg.classList.add('da'));
+  }
+
   // Der Zeitgeber läuft einmal pro Sitzung. plusHolen() ist beim Start noch
   // unterwegs — deshalb wird erst beim Ablauf entschieden, nicht jetzt.
-  setTimeout(angebotZeigen, ANGEBOT_WARTEN);
+  //
+  // Erst das große Fenster, und nur wenn das gerade nicht dran ist, der
+  // Balken. Beides gleichzeitig wäre eine Belagerung.
+  setTimeout(() => {
+    if (darfGrossZeigen()) grossZeigen();
+    else angebotZeigen();
+  }, ANGEBOT_WARTEN);
 
   // ==========================================================================
   // 6. NACH AUSSEN
