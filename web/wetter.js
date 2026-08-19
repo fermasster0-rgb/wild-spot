@@ -80,9 +80,79 @@
 
   // Holt die Vorhersage und füllt den Platzhalter. Fehler sind hier nie
   // schlimm: Dann steht eben kein Wetter da, der Rest der Seite bleibt heil.
+  // ==========================================================================
+  // Welche Nacht ist die richtige?
+  //
+  // Für eine Nacht draußen zählt anderes als für einen Tag draußen. Die
+  // Reihenfolge ist bewusst diese:
+  //
+  //   1. Trocken. Nasses Zelt und nasser Schlafsack verderben alles andere,
+  //      und zwar bis zum nächsten Tag.
+  //   2. Windstill. Wind kühlt aus und macht Lärm — man schläft nicht.
+  //   3. Warm genug. Unter null wird es eine Frage der Ausrüstung.
+  //   4. Klar. Der Grund, warum man überhaupt draußen schläft.
+  //
+  // Es sind Abzüge von hundert, keine Punkte: So sieht man dem Ergebnis an,
+  // was der Nacht fehlt, statt nur eine Zahl zu bekommen.
+  // ==========================================================================
+  function nachtBewerten(t, i) {
+    const regen  = Number(t.precipitation_sum?.[i]) || 0;
+    const wind   = Number(t.wind_speed_10m_max?.[i]) || 0;
+    const kalt   = Number(t.temperature_2m_min?.[i]);
+    const code   = Number(t.weather_code?.[i]) || 0;
+
+    let punkte = 100;
+
+    // Regen: schon ein halber Millimeter ist eine nasse Nacht.
+    if (regen >= 5)        punkte -= 60;
+    else if (regen >= 1)   punkte -= 38;
+    else if (regen >= 0.2) punkte -= 18;
+
+    // Wind: ab 25 km/h steht kein Zelt mehr ruhig.
+    if (wind >= 40)      punkte -= 30;
+    else if (wind >= 25) punkte -= 16;
+    else if (wind >= 15) punkte -= 6;
+
+    // Kälte: unter null braucht es Ausrüstung, die nicht jeder hat.
+    if (Number.isFinite(kalt)) {
+      if (kalt <= -5)     punkte -= 26;
+      else if (kalt <= 0) punkte -= 14;
+      else if (kalt <= 3) punkte -= 6;
+    }
+
+    // Klar ist ein Gewinn, nicht nur die Abwesenheit von Regen.
+    if (code === 0)      punkte += 8;
+    else if (code <= 2)  punkte += 4;
+
+    return punkte;
+  }
+
+  // Was der Nacht fehlt, in einem Halbsatz — damit die Empfehlung begründet
+  // ist und nicht behauptet.
+  function nachtGrund(t, i) {
+    const regen = Number(t.precipitation_sum?.[i]) || 0;
+    const wind  = Number(t.wind_speed_10m_max?.[i]) || 0;
+    const kalt  = Number(t.temperature_2m_min?.[i]);
+
+    const gut = [];
+    if (regen < 0.2) gut.push('trocken');
+    if (wind < 15)   gut.push('windstill');
+    if (Number.isFinite(kalt) && kalt > 3) gut.push('mild');
+    if (Number(t.weather_code?.[i]) === 0) gut.push('klar');
+
+    if (!gut.length) return 'die brauchbarste der Woche';
+    return gut.join(', ');
+  }
+
   window.wetterLaden = async function wetterLaden(lat, lng, hoehe) {
     const block = document.getElementById('wetter-block');
     if (!block) return;
+
+    // Mit Plus sieben Nächte, ohne Plus drei. Die Zahl steht hier und nicht
+    // weiter unten, weil sie in die Adresse muss — es werden gar nicht erst
+    // mehr Tage geholt, als gezeigt werden dürfen.
+    const hatPlus = !!(window.WILDSPOT_PLUS && window.WILDSPOT_PLUS.hat());
+    const tage = hatPlus ? 7 : 3;
 
     try {
       const felder = [
@@ -93,7 +163,7 @@
 
       let adresse = 'https://api.open-meteo.com/v1/forecast'
         + `?latitude=${lat.toFixed(4)}&longitude=${lng.toFixed(4)}`
-        + `&daily=${felder}&timezone=Europe%2FVienna&forecast_days=3`;
+        + `&daily=${felder}&timezone=Europe%2FVienna&forecast_days=${tage}`;
 
       // Die echte Höhe des Spots, falls bekannt — siehe Kopf der Datei.
       if (Number.isFinite(hoehe)) adresse += `&elevation=${Math.round(hoehe)}`;
@@ -120,7 +190,37 @@
         );
       }
 
-      // ---- Drei Tage in je einer Zeile ----
+      // ---- Die beste Nacht der Woche (nur mit Plus) ----
+      //
+      // Erst ab der zweiten Nacht: Die kommende steht schon groß darüber, und
+      // „die beste Nacht ist heute" wäre keine Auskunft, sondern eine
+      // Wiederholung.
+      let besteNacht = -1;
+      if (hatPlus && t.time.length > 3) {
+        let bestesErgebnis = -Infinity;
+        for (let i = 0; i < t.time.length - 1; i++) {
+          const p = nachtBewerten(t, i);
+          if (p > bestesErgebnis) { bestesErgebnis = p; besteNacht = i; }
+        }
+        if (besteNacht >= 0) {
+          zeilen.push(
+            '<div class="wetter-beste">',
+            '<span class="wb-zeichen" aria-hidden="true">',
+            '<svg viewBox="0 0 24 24"><path d="M12 3.5l1.9 4.6 4.6 1.9-4.6 1.9L12 16.5l-1.9-4.6L5.5 10l4.6-1.9z"/></svg>',
+            '</span>',
+            '<div>',
+            `<b>Beste Nacht: ${tagName(t.time[besteNacht], besteNacht)}</b>`,
+            `<span>${escapeHtml(nachtGrund(t, besteNacht))}` +
+            (Number.isFinite(t.temperature_2m_min?.[besteNacht])
+              ? ` · ${Math.round(t.temperature_2m_min[besteNacht])} °C` : '') +
+            '</span>',
+            '</div>',
+            '</div>'
+          );
+        }
+      }
+
+      // ---- Die Tage in je einer Zeile ----
       zeilen.push('<div class="wetter-tage">');
       for (let i = 0; i < t.time.length; i++) {
         const regen = t.precipitation_sum?.[i];
@@ -133,7 +233,7 @@
           : 'trocken';
 
         zeilen.push(
-          '<div class="wetter-tag">',
+          `<div class="wetter-tag${i === besteNacht ? ' ist-beste' : ''}">`,
           `<span class="wt-tag">${tagName(t.time[i], i)}</span>`,
           `<span class="wt-bild" title="${escapeHtml(codeText(t.weather_code?.[i]))}">`
           + `${codeZeichen(t.weather_code?.[i])}</span>`,
@@ -157,11 +257,37 @@
         );
       }
 
+      // ---- Was ohne Plus fehlt ----
+      //
+      // Kein Schloss und keine leere Fläche, sondern ein Satz darunter. Wer
+      // drei Tage sieht, weiß sonst gar nicht, dass es sieben gäbe — und ein
+      // Angebot, das man nicht kennt, nimmt niemand an.
+      if (!hatPlus) {
+        zeilen.push(
+          '<button type="button" class="wetter-mehr" id="wetter-mehr">',
+          '<span class="wm-zeichen" aria-hidden="true">',
+          '<svg viewBox="0 0 24 24"><path d="M12 3.5l1.9 4.6 4.6 1.9-4.6 1.9L12 16.5l-1.9-4.6L5.5 10l4.6-1.9z"/></svg>',
+          '</span>',
+          '<span class="wm-text"><b>Sieben Nächte statt drei</b>',
+          '<small>Mit Plus siehst du die ganze Woche — und welche Nacht davon '
+          + 'die richtige ist.</small></span>',
+          '<span class="wm-pfeil" aria-hidden="true">›</span>',
+          '</button>'
+        );
+      }
+
       zeilen.push('<p class="wetter-quelle">Vorhersage von Open-Meteo'
         + (Number.isFinite(hoehe) ? `, gerechnet für ${Math.round(hoehe)} m` : '')
         + '. Im Gebirge kann das Wetter kleinräumig anders sein.</p>');
 
       block.innerHTML = zeilen.join('');
+
+      const mehr = document.getElementById('wetter-mehr');
+      if (mehr) {
+        mehr.addEventListener('click', () => {
+          if (window.WILDSPOT_BEREICH) window.WILDSPOT_BEREICH('plus');
+        });
+      }
     } catch (e) {
       // Kein Netz ist der wahrscheinlichste Fall — am Berg der Normalzustand.
       const ohneNetz = !navigator.onLine || /abort|timeout|failed|network/i.test(String(e));
