@@ -26,10 +26,12 @@
 //      → immer ins Netz. Aufgehobene Anmeldedaten wären ein Sicherheitsloch,
 //        aufgehobene Bewertungen wären schlicht falsch.
 //
-// Was das NICHT kann: ein Gebiet im Voraus herunterladen ("Karte für die Tour
-// speichern"). Der Speicher füllt sich nur mit dem, was man angeschaut hat.
-// Wer die Tour vorher zu Hause auf der Karte abfährt, hat sie am Berg — wer
-// blind hinfährt, nicht. Das Vorausladen wäre ein eigener Schritt.
+// Ein Gebiet im Voraus laden kann dieser Teil weiterhin nicht von sich aus —
+// und er muss es auch nicht. Seit 2026-08-19 gibt es dafür einen Knopf in der
+// Merkliste (offline.js, WILDSPOT_GEBIET): Der ruft die Kacheln des sichtbaren
+// Ausschnitts einfach der Reihe nach ab. Jede dieser Anfragen läuft ohnehin
+// hier durch und bleibt liegen. Es braucht also keinen zweiten Speicher und
+// keine Absprache zwischen beiden — nur genug Platz, siehe MAX_KACHELN.
 // ============================================================================
 
 // Die Version wird beim Veröffentlichen automatisch neu gesetzt
@@ -37,7 +39,7 @@
 // App-Dateien weg und holt sie frisch — sonst würde am Handy ewig die alte
 // Fassung kleben. Die Kartenkacheln bleiben davon unberührt, die sind ja
 // nicht veraltet.
-const VERSION = '2026-08-19-12-58';
+const VERSION = '2026-08-19-12-59';
 
 const CACHE_APP    = `wildspot-app-${VERSION}`;
 const CACHE_KARTEN = 'wildspot-karten';   // ohne Version: bleibt über Updates
