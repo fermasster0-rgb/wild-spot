@@ -1574,9 +1574,20 @@
       try {
         for (const reg of await navigator.serviceWorker.getRegistrations()) {
           await reg.update();
+
+          // update() holt die neue Fassung nur herein — übernehmen tut sie
+          // von selbst nichts, sie stellt sich in die Warteschlange. Ohne
+          // diesen Anstoß lädt die Seite gleich neu und bekommt trotzdem
+          // wieder die alten Dateien aus dem Speicher der alten Fassung.
+          // Genau daran scheiterte das Auffrischen bisher.
+          if (reg.waiting) reg.waiting.postMessage('jetzt-uebernehmen');
         }
       } catch (e) {}
-      setTimeout(() => location.reload(true), 900);
+
+      // Übernimmt die neue Fassung, lädt der controllerchange-Griff in
+      // offline.js ohnehin neu. Dieser Zeitgeber ist nur das Netz darunter,
+      // falls es gar nichts Neues gab.
+      setTimeout(() => location.reload(true), 1200);
     });
 
     const menue0 = el('div');

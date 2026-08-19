@@ -30,7 +30,20 @@
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', async () => {
       try {
-        const reg = await navigator.serviceWorker.register('./sw.js');
+        // updateViaCache: 'none' ist hier der entscheidende Teil.
+        //
+        // GitHub Pages schickt auf jede Datei "Cache-Control: max-age=600"
+        // mit — auch auf sw.js. Ohne diese Angabe darf der Browser den
+        // Service Worker also zehn Minuten lang aus seinem eigenen Speicher
+        // nehmen, statt beim Server nachzufragen. Er merkt dann schlicht
+        // nicht, dass es eine neue Fassung gibt, und am Handy bleibt die alte
+        // App stehen, obwohl längst veröffentlicht wurde.
+        //
+        // 'none' heißt: die Datei sw.js wird beim Prüfen immer frisch geholt.
+        // Nur diese eine Datei — für alles andere bleibt der Speicher wie er
+        // ist, sonst wäre die App offline nicht mehr brauchbar.
+        const reg = await navigator.serviceWorker.register('./sw.js',
+                                                           { updateViaCache: 'none' });
 
         // Kommt eine neue Fassung, wartet sie zunächst nur. Ohne Hinweis
         // bliebe am Handy ewig die alte kleben — die klassische Falle bei
@@ -43,6 +56,23 @@
               neueFassungAnbieten(reg);
             }
           });
+        });
+
+        // Beim Zurückkommen in die App nachsehen, ob es etwas Neues gibt.
+        //
+        // Eine installierte App wird selten wirklich neu geladen — man
+        // schiebt sie in den Hintergrund und holt sie wieder hervor. Ohne
+        // diese Prüfung fragt der Browser von sich aus nur beim Anmelden des
+        // Service Workers nach, also praktisch nie.
+        //
+        // Höchstens alle zwei Minuten, damit nicht jeder Blick auf die App
+        // eine Anfrage auslöst.
+        let zuletzt = Date.now();
+        document.addEventListener('visibilitychange', () => {
+          if (document.visibilityState !== 'visible') return;
+          if (Date.now() - zuletzt < 120000) return;
+          zuletzt = Date.now();
+          reg.update().catch(() => {});
         });
       } catch (err) {
         console.warn('Service Worker nicht angemeldet:', err);
