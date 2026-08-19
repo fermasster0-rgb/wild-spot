@@ -200,6 +200,80 @@
   // Gibt den fertigen HTML-Block zurück — oder einen leeren Text, wenn es für
   // diesen Betrachter nichts zu zeigen gibt. Alles steckt schon im Spot,
   // nichts muss nachgeladen werden.
+  // ==========================================================================
+  // Die Route mitnehmen — als GPX
+  //
+  // GPX ist das Format, das jedes Wandergerät liest: Garmin, Suunto, Komoot,
+  // OsmAnd. Es ist schlichtes XML, deshalb wird es hier von Hand gebaut statt
+  // mit einer Bibliothek — die wäre größer als die Datei, die sie erzeugt.
+  //
+  // Geschrieben wird eine Route (<rte>) und keine aufgezeichnete Spur
+  // (<trk>): Es ist ein Weg, den man vor sich hat, nicht einer, den man
+  // gegangen ist. Dazu zwei Wegpunkte, damit Anfang und Ziel benannt sind.
+  // ==========================================================================
+
+  function gpxBauen(spot) {
+    const linie = spot.route_line || [];
+    const name = String(spot.name || 'Spot');
+
+    // & < > " müssen in XML maskiert werden, sonst zerfällt die Datei am
+    // ersten Spotnamen mit einem Kaufmanns-Und.
+    const x = (s) => String(s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+
+    const punkte = linie
+      .map(([lng, lat]) => `    <rtept lat="${Number(lat).toFixed(6)}" lon="${Number(lng).toFixed(6)}"/>`)
+      .join('\n');
+
+    return `<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="Wild Spot" xmlns="http://www.topografix.com/GPX/1/1">
+  <metadata>
+    <name>${x(name)}</name>
+    <desc>Vom Parkplatz zum Spot. Gehzeit etwa ${Math.round(Number(spot.route_minutes) || 0)} Minuten.</desc>
+  </metadata>
+  <wpt lat="${Number(spot.parking_lat).toFixed(6)}" lon="${Number(spot.parking_lng).toFixed(6)}">
+    <name>Parkplatz</name>
+  </wpt>
+  <wpt lat="${Number(spot.lat ?? linie[linie.length - 1]?.[1]).toFixed(6)}" lon="${Number(spot.lng ?? linie[linie.length - 1]?.[0]).toFixed(6)}">
+    <name>${x(name)}</name>
+  </wpt>
+  <rte>
+    <name>${x(name)}</name>
+${punkte}
+  </rte>
+</gpx>
+`;
+  }
+
+  function gpxMitnehmen(spot) {
+    // Ohne Plus führt der Knopf dorthin, wo man es bekommt.
+    if (window.WILDSPOT_PLUS && !window.WILDSPOT_PLUS.hat()) {
+      window.WILDSPOT_PLUS.schranke('Die Route als GPX');
+      return;
+    }
+
+    if (!Array.isArray(spot?.route_line) || spot.route_line.length < 2) return;
+
+    const datei = new Blob([gpxBauen(spot)], { type: 'application/gpx+xml' });
+    const adresse = URL.createObjectURL(datei);
+
+    // Ein Dateiname, den man im Downloads-Ordner wiedererkennt.
+    const sauber = String(spot.name || 'route')
+      .replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-|-$/g, '').toLowerCase();
+
+    const a = document.createElement('a');
+    a.href = adresse;
+    a.download = `wild-spot-${sauber || 'route'}.gpx`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    // Die Adresse wieder freigeben — sonst bleibt die Datei im Speicher des
+    // Browsers liegen, solange die Seite offen ist.
+    setTimeout(() => URL.revokeObjectURL(adresse), 4000);
+  }
+
   window.routeHtml = function routeHtml(spot, darfAendern) {
     const hatParkplatz = Number.isFinite(spot?.parking_lat) && Number.isFinite(spot?.parking_lng);
     const hatRoute = Array.isArray(spot?.route_line) && spot.route_line.length > 1
@@ -223,6 +297,15 @@
         Number.isFinite(ab) ? `<div><b>↘ ${Math.round(ab)} m</b><span>bergab</span></div>` : '',
         '</div>',
         '<button type="button" class="zweit" id="route-zeigen">Route auf der Karte ansehen</button>',
+        // Die Route mitnehmen — für Uhr, Garmin oder eine andere App. Der
+        // Knopf steht auch ohne Plus da und führt dann zur Plus-Seite: Ein
+        // Knopf, den man nicht sieht, verkauft nichts.
+        '<button type="button" class="zweit" id="route-gpx">' +
+        '<span class="gpx-gold" aria-hidden="true">' +
+        '<svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;' +
+        'stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round">' +
+        '<path d="M12 3.5l1.9 4.6 4.6 1.9-4.6 1.9L12 16.5l-1.9-4.6L5.5 10l4.6-1.9z"/></svg>' +
+        '</span>Als GPX mitnehmen</button>',
         '<p class="route-quelle">Gemessen über Wanderwege aus OpenStreetMap ' +
         '(OpenRouteService, Profil <i>foot-hiking</i>)' +
         (datum(spot.route_updated_at) ? ' am ' + datum(spot.route_updated_at) : '') +
@@ -376,6 +459,9 @@
   window.routeVerdrahten = function routeVerdrahten(spot) {
     const zeigen = document.getElementById('route-zeigen');
     if (zeigen) zeigen.onclick = insBildHolen;
+
+    const gpx = document.getElementById('route-gpx');
+    if (gpx) gpx.onclick = () => gpxMitnehmen(spot);
 
     const setzen = document.getElementById('park-setzen');
     if (setzen) setzen.onclick = () => modusStarten(spot);
