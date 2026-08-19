@@ -5444,7 +5444,9 @@ body.bereich-offen.detail-offen::after {
   justify-content: center;
   gap: 6px;
   width: 100%;
-  margin-top: 2px;
+  /* Unten Luft, weil direkt danach der nächste Abschnitt anfängt — ohne sie
+     klebte der Knopf am Plus-Streifen und las sich wie ein Teil davon. */
+  margin: 2px 0 22px;
   padding: 12px 16px;
   border: 1px solid var(--rand);
   border-radius: 14px;

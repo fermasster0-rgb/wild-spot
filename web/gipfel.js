@@ -466,7 +466,16 @@
   // 6. DIE ZAHLEN
   // ==========================================================================
 
-  async function statistikBauen(wessenId, { ichSelbst = false } = {}) {
+  // kompakt: true zeigt nur die vier Zahlen, die etwas über den Menschen
+  // sagen — Gipfel, Plätze, Nächte, Spots. Die anderen vier und der Kasten
+  // über Kilometer und Zeit liegen hinter einem Knopf.
+  //
+  // Grund: Auf dem Handy stehen acht Kacheln in vier Reihen. Zusammen mit dem
+  // Erklärkasten darunter füllte das den ganzen ersten Bildschirm, und alles,
+  // was man wirklich oft braucht, war zweimal Wischen entfernt. Wer die
+  // ganzen Zahlen sehen will, tippt einmal — wer sein Profil aufmacht, um das
+  // Aussehen umzustellen, muss nicht daran vorbeiscrollen.
+  async function statistikBauen(wessenId, { ichSelbst = false, kompakt = false } = {}) {
     const kasten = el('div');
     kasten.innerHTML =
       '<div class="platzhalter" style="height:88px;border-radius:16px"></div>';
@@ -491,19 +500,19 @@
            <span>${einzahl(s.naechte, 'Nacht draußen', 'Nächte draußen')}</span></div>
          <div class="zahl-kachel"><b>${zahl(s.spots_gelegt)}</b>
            <span>Spots eingetragen</span></div>
-         <div class="zahl-kachel"><b>${zahl(s.gipfel_meter)}<small> m</small></b>
+         <div class="zahl-kachel${kompakt ? ' spaeter' : ''}"><b>${zahl(s.gipfel_meter)}<small> m</small></b>
            <span>Gipfelmeter gesammelt</span></div>
-         <div class="zahl-kachel"><b>${s.gipfel_hoechster ? zahl(s.gipfel_hoechster) + ' m' : '–'}</b>
+         <div class="zahl-kachel${kompakt ? ' spaeter' : ''}"><b>${s.gipfel_hoechster ? zahl(s.gipfel_hoechster) + ' m' : '–'}</b>
            <span>höchster Punkt</span></div>
-         <div class="zahl-kachel"><b>${zahl(s.fotos)}</b><span>Fotos</span></div>
-         <div class="zahl-kachel"><b>${zahl(s.bewertungen)}</b><span>Bewertungen</span></div>
+         <div class="zahl-kachel${kompakt ? ' spaeter' : ''}"><b>${zahl(s.fotos)}</b><span>Fotos</span></div>
+         <div class="zahl-kachel${kompakt ? ' spaeter' : ''}"><b>${zahl(s.bewertungen)}</b><span>Bewertungen</span></div>
        </div>`;
 
     // Die beiden Zahlen, die es noch nicht gibt. Sie stehen trotzdem da —
     // aber ehrlich beschriftet, statt als 0 km zu lügen.
     if (ichSelbst) {
       const bald = el('div');
-      bald.className = 'bald-kasten';
+      bald.className = 'bald-kasten' + (kompakt ? ' spaeter' : '');
       bald.innerHTML =
         `<div class="bald-zahlen">
            <div><b>${Number(s.km) > 0 ? zahl(s.km) + ' km' : '– km'}</b><span>zurückgelegt</span></div>
@@ -516,6 +525,25 @@
             Alles dafür ist vorbereitet: Sobald es Wild Spot als echte App gibt,
             stehen die Zahlen hier, rückwirkend ab der ersten aufgezeichneten Tour.</p>`;
       kasten.appendChild(bald);
+    }
+
+    // Der Knopf, der das Zugeklappte aufmacht. Er steht außerhalb des Rasters,
+    // damit er über die volle Breite läuft und nicht als neunte Kachel gelesen
+    // wird.
+    if (kompakt) {
+      const versteckt = kasten.querySelectorAll('.spaeter');
+      if (versteckt.length) {
+        const knopf = el('button');
+        knopf.type = 'button';
+        knopf.className = 'mehr-zeigen';
+        knopf.innerHTML =
+          'Alle Zahlen anzeigen <span class="pfeil" aria-hidden="true">›</span>';
+        knopf.addEventListener('click', () => {
+          for (const v of versteckt) v.classList.remove('spaeter');
+          knopf.remove();
+        });
+        kasten.appendChild(knopf);
+      }
     }
 
     return kasten;
