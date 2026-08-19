@@ -39,7 +39,7 @@
 // App-Dateien weg und holt sie frisch — sonst würde am Handy ewig die alte
 // Fassung kleben. Die Kartenkacheln bleiben davon unberührt, die sind ja
 // nicht veraltet.
-const VERSION = '2026-08-19-15-45';
+const VERSION = '2026-08-19-15-49';
 
 const CACHE_APP    = `wildspot-app-${VERSION}`;
 const CACHE_KARTEN = 'wildspot-karten';   // ohne Version: bleibt über Updates
@@ -87,6 +87,7 @@ const APP_DATEIEN = [
   './admin.js',
   './oesterreich-maske.geojson',
   './manifest.webmanifest',
+  './datenschutz.html',
   './icon-192.png',
   './icon-512.png',
   './icon-maskable-512.png',
