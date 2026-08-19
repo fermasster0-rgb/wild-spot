@@ -1586,8 +1586,11 @@
 
       // Übernimmt die neue Fassung, lädt der controllerchange-Griff in
       // offline.js ohnehin neu. Dieser Zeitgeber ist nur das Netz darunter,
-      // falls es gar nichts Neues gab.
-      setTimeout(() => location.reload(true), 1200);
+      // falls es gar nichts Neues gab — und er wird abgeräumt, sobald die
+      // Übernahme greift. Sonst lüde die Seite zweimal hintereinander.
+      const spaeter = setTimeout(() => location.reload(), 1200);
+      navigator.serviceWorker?.addEventListener('controllerchange',
+        () => clearTimeout(spaeter), { once: true });
     });
 
     const menue0 = el('div');

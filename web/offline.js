@@ -80,8 +80,33 @@
     });
 
     // Nach dem Übernehmen einmal neu laden, damit die neuen Dateien greifen.
+    //
+    // Die Abfrage davor ist wichtig, und sie hat gefehlt: Beim allerersten
+    // Aufruf — und nach jedem Leeren des Speichers — gibt es noch keinen
+    // Service Worker. Dann läuft folgendes ab:
+    //
+    //   Seite lädt → sw.js meldet sich an → install → skipWaiting →
+    //   activate → clients.claim() übernimmt die offene Seite →
+    //   controllerchange feuert → und hier wurde blind neu geladen.
+    //
+    // Die App lud also jedes erste Mal doppelt. Sichtbar als kurzes Flackern
+    // und eine zweite Start-Animation.
+    //
+    // Neu laden muss man nur, wenn die Seite vorher schon von einem Service
+    // Worker bedient wurde — nur dann liegen alte Dateien im Zugriff, die
+    // durch neue ersetzt gehören. Beim ersten Mal kam ohnehin alles frisch
+    // aus dem Netz, da gibt es nichts aufzufrischen.
+    //
+    // Übersprungen wird deshalb genau EIN Wechsel: der von "noch kein Service
+    // Worker" auf "der erste hat übernommen". Jeder weitere ist ein echtes
+    // Update und muss neu laden. Würde man stattdessen den Zustand vom
+    // Seitenstart festhalten, bliebe ein Update wirkungslos, das in derselben
+    // Sitzung nach der Erstinstallation hereinkommt — die App liefe mit
+    // neuen Dateien im Speicher und alten im Fenster weiter.
+    let hatController = !!navigator.serviceWorker.controller;
     let laedtNeu = false;
     navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!hatController) { hatController = true; return; }
       if (laedtNeu) return;
       laedtNeu = true;
       window.location.reload();
