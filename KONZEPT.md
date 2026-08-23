@@ -510,6 +510,21 @@ diese Entscheidung keine Arbeit verloren.
       wiese Weißbach, drei Flächen im Naturpark Ötscher-Tormäuer und die
       Stellplätze am Bärentrail im Waldviertel. Das war es.
 
+- [x] **61 Spots in Österreich** (2026-08-23) — recherchiert nach
+      Bundesländern, weil das Zeltrecht Landesrecht ist. Von 85 gefundenen
+      Plätzen blieben nach zwei Filtern 61: heraus flogen Campingplätze mit
+      Rezeption und Schutzhäuser, in denen man im Bett statt im Zelt schläft
+      (beides führt die Karte schon als Ebene "Unterkünfte"), sowie acht
+      Plätze ohne brauchbares Foto.
+
+      Was übrig bleibt, ist das, was es in Österreich wirklich gibt:
+      15 Biwakschachteln, die Zeltflächen der Nationalparks und Naturparks,
+      und Hochlagen über der Waldgrenze, wo das Landesrecht es zulässt.
+      28 der 61 liegen über 2.000 m — das ist kein Zufall, sondern die
+      direkte Folge des Forstgesetzes.
+
+      Damit stehen **162 Spots** auf der Karte.
+
 - [ ] **Die Routen regelmäßig nachrechnen lassen** — setzt jemand anderes
       einen Parkplatz, erscheint seine Route erst, wenn
       `node scripts/routen-rechnen.mjs` gelaufen ist. Bei einer Handvoll Spots
