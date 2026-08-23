@@ -444,6 +444,72 @@ diese Entscheidung keine Arbeit verloren.
       Aufklappen der Leiste schiebt die Karte selbst noch zur Seite; passiert
       das mitten im Flug, bricht es ihn ab. Erst fliegen, dann aufklappen.
 
+- [x] **Die recherchierten Spots sind auf der Karte** (2026-08-23,
+      `scripts/spots-importieren.mjs`, Migrationen 031–033) — 88 Plätze aus
+      Norwegen und Schweden, jeder mit Foto, Parkplatz und Regel vor Ort. Aus
+      14 Spots wurden 102.
+
+      Die Recherche lag seit Mitte August fertig in `scripts/` und kam nie in
+      die Datenbank: Es fehlte schlicht das letzte Skript. Es ist wiederholbar
+      gebaut — jeder Spot trägt einen `import_key`, ein zweiter Lauf frischt
+      auf, statt zu verdoppeln. Beim ersten Versuch tat er genau das nicht,
+      weil der Wächter aus Migration 032 `auth.uid()` prüfte und bei einer
+      direkten Datenbankverbindung niemanden fand; 033 stellt das richtig.
+
+      Die Bilder liegen im eigenen Speicher, nicht als Link auf Wikimedia:
+      Ein fremder Server darf abschalten, und verlinkte Bilder wären offline
+      nicht da. Dazu Migration 031, die den Bildnachweis am Foto festhält —
+      CC BY und CC BY-SA gelten nur mit Nennung von Fotograf, Lizenz und
+      Fundstelle.
+
+- [x] **Spots, die im Wasser lagen, ans Ufer geholt** (`scripts/ufer-pruefen.mjs`)
+      — 18 der 88 saßen auf der Wasserfläche statt am Ufer. Kein Zufall: Die
+      Koordinaten stammen aus Wikipedia, und dort steht bei einer Bucht oder
+      einem See die Koordinate des Gewässers. Für einen Artikel richtig, für
+      einen Zeltplatz falsch.
+
+      Geprüft wird über die Karte selbst — OpenTopoMap zeichnet Wasser in genau
+      einem Farbton, und das Pixel unter dem Spot beantwortet die Frage
+      eindeutig. Overpass ist von hier aus gar nicht erreichbar und Nominatim
+      steigt nach sechzig Abfragen aus; beide waren die naheliegenderen Wege
+      und beide gingen nicht.
+
+- [x] **Die Rechtslage in Österreich, Bundesland für Bundesland** (2026-08-23)
+      — recherchiert im Zuge der Österreich-Spots, und das Ergebnis ändert die
+      Sicht auf den eigenen Heimatmarkt. Österreich hat kein Jedermannsrecht;
+      geregelt wird das Zelten von den Ländern, und die Unterschiede sind
+      größer als erwartet:
+
+      | Land | Was gilt | Grundlage |
+      |---|---|---|
+      | **Steiermark** | Ödland über der Baumgrenze ist frei — der liberalste Fall | § 3 Wegfreiheitsgesetz Bergland 1922 |
+      | **Oberösterreich** | Alpines Ödland über der Baumgrenze frei begehbar, Lagern eingeschlossen | OÖ Tourismusgesetz 2018 |
+      | **Vorarlberg** | Kein landesweites Verbot; untersagen darf nur die Gemeinde | § 14 Campingplatzgesetz |
+      | **Tirol** | Kampieren verboten, aber Biwakieren im hochalpinen Gelände ausgenommen | § 1 Abs. 2 Tiroler Campinggesetz 2001 |
+      | **Salzburg** | Über der Waldgrenze weder verboten noch erlaubt — geduldet | Wegefreiheitsgesetz 1920, § 24 NSchG |
+      | **Kärnten** | Zelten in der freien Landschaft verboten, bis 3.630 € | § 15 K-NSG 2002 |
+      | **Niederösterreich** | Verboten, bis 14.500 € | § 6 Z 3 NÖ NSchG 2000 |
+      | **Burgenland** | Verboten, bis 3.600 € | § 12 Abs. 1 Bgld NSchLPflG |
+
+      Dazu bundesweit § 33 Abs. 3 Forstgesetz: Den Wald betreten darf jeder,
+      "Lagern bei Dunkelheit, Zelten" ist ausdrücklich ausgenommen. Im Wald
+      geht also nirgends etwas ohne den Grundeigentümer — die freien Plätze
+      liegen praktisch alle oberhalb der Waldgrenze.
+
+      Für die App heißt das zweierlei. Erstens: Das Plus-Versprechen "Wo du
+      sein darfst" ist in Österreich mehr wert als anderswo, weil die Antwort
+      hier tatsächlich niemand kennt. Zweitens: Rund um Wien gibt es fast
+      nichts. Rax und Schneeberg, die Hausberge, liegen im Quellschutzgebiet
+      der I. Hochquellenleitung und gehören der Stadt Wien — Zelten und Feuer
+      verboten. Die nächste legale Möglichkeit sind die drei Zeltflächen im
+      Naturpark Ötscher-Tormäuer.
+
+      Offizielle Trekkingcamps, wie sie das Briefing vermutet hatte, gibt es
+      in Österreich fast nicht: zwei im Nationalpark Kalkalpen (Steyrsteg und
+      Weißwasser), die Zeltwiese der Gjaid Alm am Dachstein, die ÖAV-Ferien-
+      wiese Weißbach, drei Flächen im Naturpark Ötscher-Tormäuer und die
+      Stellplätze am Bärentrail im Waldviertel. Das war es.
+
 - [ ] **Die Routen regelmäßig nachrechnen lassen** — setzt jemand anderes
       einen Parkplatz, erscheint seine Route erst, wenn
       `node scripts/routen-rechnen.mjs` gelaufen ist. Bei einer Handvoll Spots

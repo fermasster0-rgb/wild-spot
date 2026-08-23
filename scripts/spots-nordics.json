@@ -2,8 +2,8 @@
   {
     "name": "Kvalvika – Bucht hinter dem Ryten",
     "region": "Lofoten",
-    "lat": 68.079,
-    "lng": 13.08,
+    "lat": 68.07507,
+    "lng": 13.08888,
     "parking_lat": 68.1112,
     "parking_lng": 13.247,
     "access": "kurze_wanderung",
@@ -30,7 +30,7 @@
     "bekannt": "Sehr bekannt – von Juni bis August stehen hier oft ein Dutzend Zelte.",
     "regel": "Jedermannsrecht gilt: höchstens zwei Nächte, mindestens 150 m von Häusern. Offenes Feuer ist von 15. April bis 15. September verboten.",
     "elevation_m": 0,
-    "koordinaten_quelle": "no.wikipedia: Kvalvika (Flakstad)",
+    "koordinaten_quelle": "no.wikipedia: Kvalvika (Flakstad), 573 m ans Ufer gerückt (Kartenprüfung)",
     "land": "Norwegen",
     "ortsname": "Kvalvika",
     "foto": {
@@ -363,8 +363,8 @@
   {
     "name": "Ersfjord – Hang über dem Strand",
     "region": "Senja",
-    "lat": 69.5065,
-    "lng": 17.4175,
+    "lat": 69.4801,
+    "lng": 17.397,
     "parking_lat": 69.503,
     "parking_lng": 17.4085,
     "access": "kurze_wanderung",
@@ -403,13 +403,14 @@
       "punkte": 40
     },
     "foto_quelle": "geo",
-    "elevation_m": 100
+    "elevation_m": 0,
+    "koordinaten_quelle": "OpenStreetMap: Ersfjordstranda, bestätigt durch Foto-Median"
   },
   {
     "name": "Grøtfjord auf Kvaløya",
     "region": "Troms",
-    "lat": 69.76637,
-    "lng": 18.49548,
+    "lat": 69.76496,
+    "lng": 18.48115,
     "parking_lat": 69.7565,
     "parking_lng": 18.464,
     "access": "auto",
@@ -435,8 +436,8 @@
     "text": "Weite Bucht mit hellem Sand eine Autostunde westlich von Tromsø. Im Winter ein bekannter Platz für Nordlichter, im Sommer für die Mitternachtssonne.",
     "bekannt": "Bei Tromsø-Besuchern beliebt, aber selten überfüllt.",
     "regel": "Jedermannsrecht gilt: höchstens zwei Nächte, 150 m Abstand zu den Häusern der Siedlung. Feuerverbot 15. April bis 15. September.",
-    "elevation_m": 0,
-    "koordinaten_quelle": "no.wikipedia: Grøtfjorden",
+    "elevation_m": 7,
+    "koordinaten_quelle": "no.wikipedia: Grøtfjorden, 573 m ans Ufer gerückt (Kartenprüfung)",
     "land": "Norwegen",
     "ortsname": "Grøtfjord",
     "foto": {
@@ -547,8 +548,8 @@
   {
     "name": "Bessvatnet unter dem Besseggen",
     "region": "Jotunheimen",
-    "lat": 61.52306,
-    "lng": 8.77556,
+    "lat": 61.52642,
+    "lng": 8.77378,
     "parking_lat": 61.4938,
     "parking_lng": 8.7845,
     "access": "lange_wanderung",
@@ -574,7 +575,7 @@
     "bekannt": "Teil der bekanntesten Bergwanderung des Landes.",
     "regel": "Jedermannsrecht gilt: höchstens zwei Nächte. Der Grat ist bei Nässe heikel – nicht in der Dämmerung queren.",
     "elevation_m": 1371,
-    "koordinaten_quelle": "no.wikipedia: Bessvatnet",
+    "koordinaten_quelle": "no.wikipedia: Bessvatnet, 385 m ans Ufer gerückt (Kartenprüfung)",
     "land": "Norwegen",
     "ortsname": "Bessvatnet",
     "foto": {
@@ -685,8 +686,8 @@
   {
     "name": "Bygdin-Nordufer",
     "region": "Jotunheimen",
-    "lat": 61.3486,
-    "lng": 8.4986,
+    "lat": 61.34202,
+    "lng": 8.50101,
     "parking_lat": 61.339,
     "parking_lng": 8.706,
     "access": "kurze_wanderung",
@@ -713,7 +714,7 @@
     "bekannt": "Weniger bekannt als der Gjende nebenan – oft menschenleer.",
     "regel": "Jedermannsrecht gilt: höchstens zwei Nächte, Abstand zu den Hütten am Südufer.",
     "elevation_m": 1055,
-    "koordinaten_quelle": "no.wikipedia: Bygdin",
+    "koordinaten_quelle": "no.wikipedia: Bygdin, 745 m ans Ufer gerückt (Kartenprüfung)",
     "land": "Norwegen",
     "ortsname": "Bygdin",
     "foto": {
@@ -1053,13 +1054,13 @@
       "punkte": 32
     },
     "foto_quelle": "name",
-    "elevation_m": 1034
+    "elevation_m": 1255
   },
   {
     "name": "Hochebene über dem Vøringsfossen",
     "region": "Hardangervidda",
-    "lat": 60.42689,
-    "lng": 7.25114,
+    "lat": 60.42665,
+    "lng": 7.25093,
     "parking_lat": 60.4275,
     "parking_lng": 7.247,
     "access": "kurze_wanderung",
@@ -1084,8 +1085,8 @@
     "text": "Oberhalb des 182 m tief stürzenden Vøringsfossen, wo der Bjoreio über die Kante der Hardangervidda fällt. Der Punkt liegt abseits der neuen Aussichtsplattformen im offenen Fjell.",
     "bekannt": "Der bekannteste Wasserfall Norwegens.",
     "regel": "Auf den Plattformen und Parkplätzen ist Übernachten nicht erlaubt; im Gelände dahinter gilt das Jedermannsrecht. Abstand zur ungesicherten Abbruchkante halten.",
-    "elevation_m": 485,
-    "koordinaten_quelle": "no.wikipedia: Vøringsfossen",
+    "elevation_m": 642,
+    "koordinaten_quelle": "no.wikipedia: Vøringsfossen, 30 m ans Ufer gerückt (Kartenprüfung)",
     "land": "Norwegen",
     "ortsname": "Vøringsfossen",
     "foto": {
@@ -1198,8 +1199,8 @@
   {
     "name": "Lovatnet bei Loen",
     "region": "Nordfjord",
-    "lat": 61.83,
-    "lng": 6.94,
+    "lat": 61.82749,
+    "lng": 6.93267,
     "parking_lat": 61.841,
     "parking_lng": 6.882,
     "access": "auto",
@@ -1227,7 +1228,7 @@
     "bekannt": "Bekanntes Fotomotiv, vor allem seit der Skylift in Loen gebaut wurde.",
     "regel": "Jedermannsrecht gilt: höchstens zwei Nächte, Abstand zu Höfen und Ferienhäusern. Feuerverbot 15. April bis 15. September.",
     "elevation_m": 35,
-    "koordinaten_quelle": "no.wikipedia: Lovatnet",
+    "koordinaten_quelle": "no.wikipedia: Lovatnet, 475 m ans Ufer gerückt (Kartenprüfung)",
     "land": "Norwegen",
     "ortsname": "Lovatnet",
     "foto": {
@@ -1617,8 +1618,8 @@
   {
     "name": "Saltstraumen bei Bodø",
     "region": "Nordland",
-    "lat": 67.23056,
-    "lng": 14.61389,
+    "lat": 67.2309,
+    "lng": 14.61177,
     "parking_lat": 67.234,
     "parking_lng": 14.6255,
     "access": "auto",
@@ -1644,7 +1645,7 @@
     "bekannt": "Weltrekordhalter und feste Größe auf jeder Nordland-Route.",
     "regel": "Jedermannsrecht gilt im offenen Gelände, nicht auf den Parkflächen an der Brücke. Kein Süßwasser direkt am Sund.",
     "elevation_m": 0,
-    "koordinaten_quelle": "no.wikipedia: Saltstraumen",
+    "koordinaten_quelle": "no.wikipedia: Saltstraumen, 98 m ans Ufer gerückt (Kartenprüfung)",
     "land": "Norwegen",
     "ortsname": "Saltstraumen",
     "foto": {
@@ -1663,8 +1664,8 @@
   {
     "name": "Holandsfjorden vor dem Svartisen",
     "region": "Nordland",
-    "lat": 66.69906,
-    "lng": 13.74928,
+    "lat": 66.70213,
+    "lng": 13.75149,
     "parking_lat": 66.677,
     "parking_lng": 13.748,
     "access": "kurze_wanderung",
@@ -1689,8 +1690,8 @@
     "text": "Der Engabreen, eine Zunge des zweitgrößten Gletschers Norwegens, reicht fast bis zum Fjord hinunter. Rundgeschliffene Felsen und Moränenflächen davor, erreichbar per Boot über den Fjord.",
     "bekannt": "Bekannt als der Gletscher, der dem Meer am nächsten kommt.",
     "regel": "Jedermannsrecht gilt. Nicht auf die Gletscherzunge oder unter Eisabbrüche gehen. Feuerverbot 15. April bis 15. September.",
-    "elevation_m": 9,
-    "koordinaten_quelle": "no.wikipedia: Engabreen",
+    "elevation_m": 25,
+    "koordinaten_quelle": "no.wikipedia: Engabreen, 354 m ans Ufer gerückt (Kartenprüfung)",
     "land": "Norwegen",
     "ortsname": "Engabreen",
     "foto": {
@@ -1891,52 +1892,6 @@
     "foto_quelle": "name"
   },
   {
-    "name": "Altevatnet bei Innset",
-    "region": "Troms",
-    "lat": 68.52,
-    "lng": 19.55,
-    "parking_lat": 68.786,
-    "parking_lng": 19.492,
-    "access": "auto",
-    "hike_minutes": 15,
-    "above_treeline": true,
-    "has_lake": true,
-    "water_nearby": true,
-    "water_type": "see",
-    "water_distance_m": 80,
-    "water_reliable": "ganzjaehrig",
-    "ground_type": "moor",
-    "exposure": "exponiert",
-    "firewood_available": "keins",
-    "fire_allowed": "unklar",
-    "shelter_nearby": "nichts",
-    "mobile_signal": "schwach",
-    "discreet": "sehr",
-    "legal_status": "erlaubt",
-    "season": [
-      "sommer"
-    ],
-    "text": "Langgestreckter See im Grenzfjell des Bardu, über die Stichstraße ab Setermoen bis ans Ufer befahrbar. Zwergbirken, Seenketten und viel Platz – Ausgangspunkt in den Nationalpark Øvre Dividal.",
-    "bekannt": "In Nordnorwegen als Angel- und Wandergebiet bekannt, bei Reisenden kaum.",
-    "regel": "Jedermannsrecht gilt: höchstens zwei Nächte. Rentierherden ausweichen.",
-    "elevation_m": 479,
-    "koordinaten_quelle": "no.wikipedia: Altevatnet",
-    "land": "Norwegen",
-    "ortsname": "Altevatnet",
-    "foto": {
-      "titel": "Utsikt mot fjellene sør for Altevatnet fra Sandvika (NRA S-1709 B0993d ).jpg",
-      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Utsikt_mot_fjellene_s%C3%B8r_for_Altevatnet_fra_Sandvika_%28NRA_S-1709_B0993d_%29.jpg/1920px-Utsikt_mot_fjellene_s%C3%B8r_for_Altevatnet_fra_Sandvika_%28NRA_S-1709_B0993d_%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-      "lizenz": "Public domain",
-      "autor": "Unknown authorUnknown author",
-      "beschreibung": "Bildet er hentet fra Arkivverket. Utsikt mot fjällen söder om Altevandet från Sandviken",
-      "seite": "https://commons.wikimedia.org/wiki/File:Utsikt_mot_fjellene_s%C3%B8r_for_Altevatnet_fra_Sandvika_(NRA_S-1709_B0993d_).jpg",
-      "rang": 1,
-      "breit": true,
-      "punkte": 44
-    },
-    "foto_quelle": "name"
-  },
-  {
     "name": "Mollisfossen im Reisadalen",
     "region": "Troms",
     "lat": 69.36155,
@@ -1985,8 +1940,8 @@
   {
     "name": "Abiskojaure am Kungsleden",
     "region": "Lappland",
-    "lat": 68.29645,
-    "lng": 18.6186,
+    "lat": 68.29287,
+    "lng": 18.62208,
     "parking_lat": 68.3585,
     "parking_lng": 18.7825,
     "access": "lange_wanderung",
@@ -2012,7 +1967,7 @@
     "bekannt": "Startetappe des bekanntesten Fernwanderwegs Schwedens.",
     "regel": "Im Nationalpark Abisko darf nur an den ausgewiesenen Plätzen gezeltet werden – Turiststation, Nissonjohka und Abiskojaure. Offenes Feuer nur an den vorhandenen Feuerstellen.",
     "elevation_m": 485,
-    "koordinaten_quelle": "sv.wikipedia: Abiskojaure",
+    "koordinaten_quelle": "sv.wikipedia: Abiskojaure, 425 m ans Ufer gerückt (Kartenprüfung)",
     "land": "Schweden",
     "ortsname": "Abiskojaure",
     "foto": {
@@ -2586,8 +2541,8 @@
   {
     "name": "Rogen an der Grenze",
     "region": "Härjedalen",
-    "lat": 62.33,
-    "lng": 12.25,
+    "lat": 62.32975,
+    "lng": 12.25418,
     "parking_lat": 62.2985,
     "parking_lng": 12.5085,
     "access": "lange_wanderung",
@@ -2614,7 +2569,7 @@
     "bekannt": "Unter Kanufahrern ein Begriff, sonst still.",
     "regel": "Im Naturreservat Rogen gilt das Jedermannsrecht. Feuer nur an vorhandenen Feuerstellen und nie bei Waldbrandgefahr.",
     "elevation_m": 757,
-    "koordinaten_quelle": "no.wikipedia: Rogen",
+    "koordinaten_quelle": "no.wikipedia: Rogen, 219 m ans Ufer gerückt (Kartenprüfung)",
     "land": "Schweden",
     "ortsname": "Rogen naturreservat",
     "foto": {
@@ -2706,7 +2661,7 @@
     "text": "Mit 93 m der höchste Wasserfall Schwedens, davon 70 m im freien Fall. Oberhalb liegt die Hochebene des Fulufjället mit »Old Tjikko«, einer Fichte, deren Wurzelwerk als 9.500 Jahre alt gilt.",
     "bekannt": "Der bekannteste Wasserfall des Landes.",
     "regel": "Im Nationalpark Fulufjället darf auf dem gesamten Fjell gezeltet werden, außer in Zone 4 – dort nur an ausgewiesenen Plätzen. Offenes Feuer nur an den Feuerstellen.",
-    "elevation_m": 795,
+    "elevation_m": 771,
     "koordinaten_quelle": "no.wikipedia: Njupeskär",
     "land": "Schweden",
     "ortsname": "Njupeskär",
@@ -3097,8 +3052,8 @@
   {
     "name": "Färnebofjärden am Dalälven",
     "region": "Gästrikland",
-    "lat": 60.21,
-    "lng": 16.8,
+    "lat": 60.21023,
+    "lng": 16.79376,
     "parking_lat": 60.2145,
     "parking_lng": 16.7685,
     "access": "kurze_wanderung",
@@ -3126,7 +3081,7 @@
     "bekannt": "Als Biosphärenreservat und Vogelgebiet bekannt.",
     "regel": "Im Nationalpark Färnebofjärden ist Zelten für zwei Nächte erlaubt, offenes Feuer nur an den Feuerstellen. Im Frühjahr steht das Gelände oft unter Wasser.",
     "elevation_m": 54,
-    "koordinaten_quelle": "no.wikipedia: Färnebofjärden",
+    "koordinaten_quelle": "no.wikipedia: Färnebofjärden, 345 m ans Ufer gerückt (Kartenprüfung)",
     "land": "Schweden",
     "ortsname": "Färnebofjärden",
     "foto": {
@@ -3145,8 +3100,8 @@
   {
     "name": "Djurö im Vänern",
     "region": "Vänern",
-    "lat": 58.85,
-    "lng": 13.46667,
+    "lat": 58.85001,
+    "lng": 13.4652,
     "parking_lat": 58.9985,
     "parking_lng": 13.5385,
     "access": "lange_wanderung",
@@ -3171,8 +3126,8 @@
     "text": "Inselgruppe mitten im Vänern, dem größten See der EU, nur mit dem eigenen Boot erreichbar. Auf den Inseln lebt eine verwilderte Damhirschherde seit dem 17. Jahrhundert.",
     "bekannt": "Unter Seglern bekannt, sonst kaum.",
     "regel": "Im Nationalpark Djurö ist Zelten für zwei Nächte erlaubt, offenes Feuer verboten. Anlanden nur außerhalb der Vogelschutzzonen (1. April bis 15. Juli).",
-    "elevation_m": 50,
-    "koordinaten_quelle": "sv.wikipedia: Djurö skärgård",
+    "elevation_m": 54,
+    "koordinaten_quelle": "sv.wikipedia: Djurö skärgård, 84 m ans Ufer gerückt (Kartenprüfung)",
     "land": "Schweden",
     "ortsname": "Djurö Vänern",
     "foto": {
@@ -3239,8 +3194,8 @@
   {
     "name": "Björnö in den Stockholmer Schären",
     "region": "Stockholm",
-    "lat": 59.21678,
-    "lng": 18.5649,
+    "lat": 59.21582,
+    "lng": 18.5632,
     "parking_lat": 59.2925,
     "parking_lng": 18.5385,
     "access": "kurze_wanderung",
@@ -3266,7 +3221,7 @@
     "bekannt": "Bei Stockholmern sehr bekannt, an Sommerwochenenden voll.",
     "regel": "Im Naturreservat ist Zelten für eine Nacht abseits der Badeplätze geduldet. Offenes Feuer nur an den Feuerstellen. Kein Süßwasser – Vorrat mitnehmen.",
     "elevation_m": 0,
-    "koordinaten_quelle": "sv.wikipedia: Björnö naturreservat, Värmdö kommun",
+    "koordinaten_quelle": "sv.wikipedia: Björnö naturreservat, Värmdö kommun, 144 m ans Ufer gerückt (Kartenprüfung)",
     "land": "Schweden",
     "ortsname": "Björnö",
     "foto": {
@@ -3419,8 +3374,8 @@
   {
     "name": "Åsnen im südschwedischen Seenland",
     "region": "Småland",
-    "lat": 56.63333,
-    "lng": 14.73333,
+    "lat": 56.62999,
+    "lng": 14.73653,
     "parking_lat": 56.6265,
     "parking_lng": 14.6985,
     "access": "kurze_wanderung",
@@ -3448,7 +3403,7 @@
     "bekannt": "Jüngster Nationalpark Schwedens.",
     "regel": "Im Nationalpark Åsnen ist Zelten nur an den ausgewiesenen Plätzen erlaubt, offenes Feuer nur an den Feuerstellen. Rund um den Park gilt das Jedermannsrecht.",
     "elevation_m": 137,
-    "koordinaten_quelle": "no.wikipedia: Åsnen",
+    "koordinaten_quelle": "no.wikipedia: Åsnen, 422 m ans Ufer gerückt (Kartenprüfung)",
     "land": "Schweden",
     "ortsname": "Åsnen",
     "foto": {
@@ -3796,8 +3751,8 @@
   {
     "name": "Hornborgasjön in Västergötland",
     "region": "Västergötland",
-    "lat": 58.31667,
-    "lng": 13.55,
+    "lat": 58.31325,
+    "lng": 13.55893,
     "parking_lat": 58.3165,
     "parking_lng": 13.5585,
     "access": "auto",
@@ -3825,7 +3780,7 @@
     "bekannt": "In ganz Schweden bekannt – im April fahren Tausende hin.",
     "regel": "Naturschutzgebiet: eine Nacht abseits der Beobachtungsplätze ist geduldet, während der Kranichwochen im April gelten Betretungssperren. Vögel nicht aufscheuchen.",
     "elevation_m": 119,
-    "koordinaten_quelle": "no.wikipedia: Hornborgasjön",
+    "koordinaten_quelle": "no.wikipedia: Hornborgasjön, 648 m ans Ufer gerückt (Kartenprüfung)",
     "land": "Schweden",
     "ortsname": "Hornborgasjön",
     "foto": {
@@ -3844,8 +3799,8 @@
   {
     "name": "Muddus – Urwald und Moor",
     "region": "Lappland",
-    "lat": 66.8944,
-    "lng": 20.1611,
+    "lat": 66.89457,
+    "lng": 20.15948,
     "parking_lat": 66.8785,
     "parking_lng": 20.2085,
     "access": "kurze_wanderung",
@@ -3871,7 +3826,7 @@
     "bekannt": "Weltnaturerbe, aber weit weniger besucht als Sarek oder Abisko.",
     "regel": "Im Nationalpark Muddus ist das Betreten des Kerngebiets vom 15. März bis 31. Juli untersagt, um die Vogelwelt zu schützen. Außerhalb dieser Zeit ist Zelten in den freigegebenen Bereichen erlaubt.",
     "elevation_m": 383,
-    "koordinaten_quelle": "no.wikipedia: Muddus",
+    "koordinaten_quelle": "no.wikipedia: Muddus, 71 m ans Ufer gerückt (Kartenprüfung)",
     "land": "Schweden",
     "ortsname": "Muddus",
     "foto": {
@@ -4027,8 +3982,8 @@
   {
     "name": "Tyresta bei Stockholm",
     "region": "Stockholm",
-    "lat": 59.18306,
-    "lng": 18.31167,
+    "lat": 59.18228,
+    "lng": 18.31545,
     "parking_lat": 59.1785,
     "parking_lng": 18.2285,
     "access": "kurze_wanderung",
@@ -4056,7 +4011,7 @@
     "bekannt": "Bekanntestes Wandergebiet der Hauptstadt.",
     "regel": "Achtung: Im Nationalpark Tyresta sind Zelten und offenes Feuer untersagt. Im angrenzenden Naturreservat ist Zelten für eine Nacht erlaubt – dorthin ausweichen.",
     "elevation_m": 36,
-    "koordinaten_quelle": "no.wikipedia: Stensjön (Tyresta)",
+    "koordinaten_quelle": "no.wikipedia: Stensjön (Tyresta), 235 m ans Ufer gerückt (Kartenprüfung)",
     "land": "Schweden",
     "ortsname": "Tyresta",
     "foto": {

@@ -1,275 +1,467 @@
-Stand: 2026-08-14
-Kandidaten: 89
-Mit Foto (kommen auf die Karte): 88
-  davon Norwegen: 43
-  davon Schweden: 45
-Ohne Foto (fallen raus): 1
+Stand: 2026-08-23
+Länder: 3
+Kandidaten: 157
+Mit Foto (kommen auf die Karte): 148
+Ohne Foto (fallen raus): 9
+
+--- Je Land ---
+  Norwegen        42 auf der Karte, 0 ohne Foto
+  Schweden        45 auf der Karte, 1 ohne Foto
+  Österreich      61 auf der Karte, 8 ohne Foto
 
 --- Rausgefallen ---
-Schweden  Blå Jungfrun in der Ostsee — kein brauchbares Foto
+Schweden       Blå Jungfrun in der Ostsee — kein brauchbares Foto
+Österreich     Wiesenkamm am Ameringkogel — kein brauchbares Foto
+Österreich     Böseckhütte über dem Mölltal — kein brauchbares Foto
+Österreich     Kaponig-Biwak am Reißeck-Höhenweg — kein brauchbares Foto
+Österreich     Hauersee unter dem Luibiskogel — kein brauchbares Foto
+Österreich     Obstansersee am Karnischen Kamm — kein brauchbares Foto
+Österreich     Sudetendeutsche Hütte über Matrei — kein brauchbares Foto
+Österreich     Peter-Käß-Hütte am Verbellner Winterjöchle — kein brauchbares Foto
+Österreich     Schadonapass bei der Biberacher Hütte — kein brauchbares Foto
 
 --- Aufgenommen ---
-Norwegen     0 m  Kvalvika – Bucht hinter dem Ryten
-          Foto: Ryten Kvalvika Lofoten tunliweb.jpg
-                CC BY-SA 4.0, Svein-Magne Tunli - tunliweb.no — geo, 41 Punkte
-Norwegen   481 m  Ryten – Plateau über Kvalvika
-          Foto: View from Ryten toward Fredvang Bridges, Lofoten, Norway.jpg
-                CC BY-SA 2.0, Christoph Strässler — geo, 40 Punkte
-Norwegen    25 m  Bunes – Strand im Reinefjord
-          Foto: Bunesfjorden III (30683181367).jpg
-                CC BY 2.0, Robert Anders from Hamburg, Germany — geo, 42 Punkte
-Norwegen   203 m  Offersøykammen – Aussichtsrücken
-          Foto: Offersøykammen depuis Tussan.jpg
-                CC BY-SA 4.0, Patrice78500 — geo, 41 Punkte
-Norwegen     9 m  Mannen – Hang über dem Haukland-Strand
-          Foto: Hauklandstrand 03.jpg
-                CC BY 2.0, Sberla_ — geo, 42 Punkte
-Norwegen     2 m  Nesland bei Nusfjord
-          Foto: Village of Nusfjord - 2013.08 - panoramio.jpg
-                CC BY 3.0, rheins — geo, 42 Punkte
-Norwegen   432 m  Segla – Sattel unter dem Gipfel
-          Foto: View from a ridge between Segla and Hesten, Senja, Norway, 2014 August.jpg
-                CC BY-SA 4.0, Ximonic (Simo Räsänen) — geo, 41 Punkte
-Norwegen     0 m  Tungeneset – Felsrücken hinter dem Rastplatz
-          Foto: Life-buoy in Tungeneset, Senja, Troms, Norway, 2014 August.jpg
-                CC BY-SA 4.0, Ximonic (Simo Räsänen) — geo, 41 Punkte
-Norwegen   100 m  Ersfjord – Hang über dem Strand
-          Foto: Ersfjorden-2011.jpg
-                CC BY-SA 3.0, Bjørn Christian Tørrissen — geo, 40 Punkte
-Norwegen     0 m  Grøtfjord auf Kvaløya
-          Foto: Panorama Grøtfjord - panoramio.jpg
-                CC BY 3.0, Roger Johansen — geo, 42 Punkte
-Norwegen   294 m  Steindalsbreen in den Lyngenalpen
-          Foto: View towards Steindalsbreen from Falsnesfjellet.jpg
-                CC BY 4.0, Antti Leppänen — name, 43 Punkte
-Norwegen   986 m  Gjende-Ostufer bei Gjendesheim
-          Foto: Gjendesheim , Norway (14845641912).jpg
-                CC BY 2.0, Nick from Bristol, UK — geo, 42 Punkte
-Norwegen  1371 m  Bessvatnet unter dem Besseggen
-          Foto: Bessvatnet 01.jpg
-                CC BY-SA 2.0, a.froese — geo, 40 Punkte
-Norwegen  1407 m  Leirvatnet bei Leirvassbu
-          Foto: 33715936453 Jpg (247969027).jpeg
-                CC BY 3.0, Christer Gundersen — geo, 32 Punkte
-Norwegen  1406 m  Fantesteinen am Sognefjellet
-          Foto: Sognefjellet - panoramio.jpg
-                CC BY 3.0, Pietro Valocchi — geo, 42 Punkte
-Norwegen  1055 m  Bygdin-Nordufer
-          Foto: Jotunheimen, Sæterliv ved Bygdin - no-nb digifoto 20160229 00013 NB NS NM 08140.jpg
-                Public domain, Narve Skarpmoen — name, 44 Punkte
-Norwegen  1165 m  Rondvassbu im Rondane
-          Foto: Rondvatnet 001.jpg
-                CC BY-SA 4.0, Spike — geo, 31 Punkte
-Norwegen   974 m  Høvringen am Rondane-Westrand
-          Foto: Ved Høvringen mot Smiubæljen - no-nb digifoto 20150206 00068 NB MIT FNR 15933.jpg
-                Public domain, Jac Brun — name, 44 Punkte
-Norwegen  2240 m  Snøheim-Ebene im Dovrefjell
-          Foto: Snøheim.JPG
-                CC BY-SA 3.0, Inge Angård — name, 40 Punkte
-Norwegen   668 m  Elgå am Femunden
-          Foto: Fra Sollerøen mot Elgaaen. G.H. 1. aug. 1933. - no-nb digifoto 20160211 00517 bldsa GH01 00085.jpg
-                Public domain, Gunnar Holmsen — name, 44 Punkte
-Norwegen  1125 m  Røvollen in der Femundsmarka
-          Foto: Femundsmarka, Norway - Telt.jpg
-                Public domain, Sondrekv — name, 44 Punkte
-Norwegen  1111 m  Trolltunga – Hochebene vor der Felszunge
-          Foto: Trolltunga, Odda, Norway (Unsplash).jpg
-                CC0, Wolf Vandierendonck wolf_ — geo, 45 Punkte
-Norwegen  1034 m  Dyranut auf der Hardangervidda
-          Foto: Hardangervidda 20150723 170645.jpg
-                CC BY 2.0, Elena Giglia from Torino, Italia — name, 32 Punkte
-Norwegen   485 m  Hochebene über dem Vøringsfossen
-          Foto: Waterfall Vøringsfossen - 2013.08 - panoramio.jpg
-                CC BY 3.0, rheins — geo, 42 Punkte
-Norwegen   614 m  Aurlandsfjellet – Hochebene am Snøvegen
-          Foto: P1000461Stegastein.JPG
-                CC BY 3.0, G.Lanting — geo, 42 Punkte
-Norwegen     0 m  Bakka am Nærøyfjord
-          Foto: Bakkavegen Fv 5623 at Bakka by Nærøyfjorden, Aurland, Vestland, Norway, 2025 June.jpg
-                CC BY-SA 4.0, Ximonic (Simo Räsänen) — geo, 41 Punkte
-Norwegen    35 m  Lovatnet bei Loen
-          Foto: Lovatnet Kjenndalskruna 1777a.JPG
-                CC BY-SA 4.0, BjørnN — geo, 41 Punkte
-Norwegen   631 m  Nigardsbreen im Jostedal
-          Foto: Nigardsbreen DN.jpg
-                CC0, Dimitri Neyt — geo, 45 Punkte
-Norwegen   517 m  Trollstigen – Hochebene am Pass
-          Foto: Trollstigen 05.jpg
-                CC BY 2.0, Laurent de Walick from The Hague, The Netherlands — geo, 42 Punkte
-Norwegen    16 m  Askvågen an der Atlantikstraße
-          Foto: Averøy Atlanterhavsvegen lub 2025-07-26 img30 Lyngholmen.jpg
-                CC BY 4.0, Lukas Beck — geo, 43 Punkte
-Norwegen  1374 m  Dalsnibba-Hochebene über Geiranger
-          Foto: Geirangerfjorden view from Dalsnibba - panoramio.jpg
-                CC BY 3.0, Roger Husvik — geo, 42 Punkte
-Norwegen   618 m  Preikestolen – Hochebene hinter der Kanzel
-          Foto: Preikestolen - 2013.08.jpg
-                CC BY 3.0, rheins — geo, 42 Punkte
-Norwegen  1074 m  Kjerag-Plateau über Lysebotn
-          Foto: Fjordberge Am Kjeragbolten (215896811).jpeg
-                CC BY 3.0, Heike Kranacher — geo, 42 Punkte
-Norwegen    46 m  Månafossen im Frafjord
-          Foto: MånafossenMay2016.jpg
-                CC BY-SA 4.0, Elinazariel — geo, 36 Punkte
-Norwegen   782 m  Hovden im oberen Setesdal
-          Foto: Hovden, Setesdal - no-nb digifoto 20151116 00017 NB MIT FNR 12896.jpg
-                Public domain, Unknown authorUnknown author — name, 44 Punkte
-Norwegen     0 m  Saltstraumen bei Bodø
-          Foto: Swirling waters of Saltstraumen - panoramio.jpg
-                CC BY 3.0, Honza and Ivana Ebr — geo, 42 Punkte
-Norwegen     9 m  Holandsfjorden vor dem Svartisen
-          Foto: Engabreen Glacier (55026838807).jpg
-                CC BY 4.0, David Stanley from Nanaimo, Canada — geo, 43 Punkte
-Norwegen   220 m  Torghatten auf Helgeland
-          Foto: Torghatten Mountain, Southwest view 20150606 1.jpg
-                CC BY-SA 4.0, DXR — geo, 41 Punkte
-Norwegen   131 m  Runde – Vogelfelsen am Atlantik
-          Foto: Runde, Norway - panoramio.jpg
-                CC BY 3.0, Kovacs Bela-Hungary — geo, 42 Punkte
-Norwegen   680 m  Romsdalseggen über Åndalsnes
-          Foto: NVIO hosts Marines (5738041).jpg
-                Public domain, U.S. Marine Corps photo by Staff Sgt. Brytani Musick — name, 34 Punkte
-Norwegen   277 m  Buer im Folgefonna
-          Foto: Buerbreen i Hardanger.jpg
-                CC BY-SA 4.0, JoarOyg — name, 41 Punkte
-Norwegen   479 m  Altevatnet bei Innset
-          Foto: Utsikt mot fjellene sør for Altevatnet fra Sandvika (NRA S-1709 B0993d ).jpg
-                Public domain, Unknown authorUnknown author — name, 44 Punkte
-Norwegen   337 m  Mollisfossen im Reisadalen
-          Foto: Mollisfossen in Reisa.jpg
-                CC BY 2.0, pululante — name, 42 Punkte
-Schweden   485 m  Abiskojaure am Kungsleden
-          Foto: Abiskojaurestugan 001.jpg
-                CC0, Funkjoker23 — geo, 45 Punkte
-Schweden   787 m  Alesjaure am Kungsleden
-          Foto: Alesjaurestugan 001.jpg
-                CC0, Funkjoker23 — geo, 45 Punkte
-Schweden   972 m  Lapporten von Björkliden
-          Foto: Lapporten x Helmer Osslund.jpg
-                Public domain, Helmer Osslund — name, 44 Punkte
-Schweden  2077 m  Kebnekaise Fjällstation
-          Foto: Kebnekaise old peak cottage.jpg
-                CC0, Grapetonix — geo, 45 Punkte
-Schweden  1020 m  Skierfe über dem Rapadalen
-          Foto: Skierfe - panoramio.jpg
-                CC BY 3.0, Arend Veenhuizen — name, 42 Punkte
-Schweden   651 m  Staloluokta im Padjelanta
-          Foto: Ringed crow.jpg
-                CC BY-SA 2.0, user:oskila — geo, 30 Punkte
-Schweden   459 m  Ritsem am Akkajaure
-          Foto: Áhkká massif seen from the Akkajaure reservoir (DSCF0890).jpg
-                CC BY 4.0, Trougnouf (Benoit Brummer) — geo, 43 Punkte
-Schweden   320 m  Kvikkjokk am Kungsleden
-          Foto: Kvikkjokks kyrka 2006.jpg
-                Public domain, Ojan — geo, 44 Punkte
-Schweden   457 m  Hemavan im Vindelfjällen
-          Foto: BAe ATP, Hemavan airport.jpg
-                Public domain, Magnus Bäck — geo, 44 Punkte
-Schweden   417 m  Ammarnäs am Vindelälven
-          Foto: Vindelforsen Ammarnäs - panoramio.jpg
-                CC BY 3.0, jorgen-soderstrom@br… — geo, 42 Punkte
-Schweden  1710 m  Sylarna in Jämtland
-          Foto: Blockfält.jpg
-                CC BY-SA 4.0, Dan Frendin — geo, 31 Punkte
-Schweden  1070 m  Blåhammaren über Storlien
-          Foto: Blåhammaren - panoramio.jpg
-                CC BY-SA 3.0, Haakon Wibe — geo, 40 Punkte
-Schweden  1780 m  Helags unter dem Gletscher
-          Foto: Hiking in the Scandinavian Mountains (Unsplash).jpg
-                CC0, nina lindgren ninalindgren — geo, 35 Punkte
-Schweden   757 m  Rogen an der Grenze
-          Foto: Rogen (31157908691).jpg
-                CC BY 2.0, Robert Anders from Hamburg, Germany — geo, 42 Punkte
-Schweden  1275 m  Sonfjället – Bärenberg
-          Foto: Hiker in Sonfjället.jpg
-                CC BY-SA 4.0, Andreaze — geo, 41 Punkte
-Schweden   795 m  Njupeskär im Fulufjället
-          Foto: Njupeskär Fulufjället.jpg
-                CC BY-SA 2.0, m.prinke — geo, 40 Punkte
-Schweden   763 m  Grövelsjön am Grenzfjell
-          Foto: 16001000324164-Grövelsjön-Riksantikvarieämbetet.jpg
-                Public domain, Sigge Heed — name, 44 Punkte
-Schweden  1122 m  Städjan über Idre
-          Foto: Städjan-Nipfjällets Naturreservat 003.jpg
-                CC0, Albertyanks — geo, 45 Punkte
-Schweden   264 m  Slåttdalsskrevan im Skuleskogen
-          Foto: Slåttdalsskrevan 10 juli 2024.jpg
-                CC0, This image was produced by me, David Castor (user:dcastor). The pictures I submit to the Wikipedia Project are released to the public domain. This gives you the right to use them in any way you like, without any kind of notification. This said, I would still appreciate to be mentioned as the originator whenever you think it complies well with your use of the picture. A message to me about how it has been used would also be welcome. You are obviously not required to respond to these wishes of mine, just in a friendly manner encouraged to. (All my photos are placed in Category:Images by David Castor or a subcategory thereof.) — geo, 45 Punkte
-Schweden    20 m  Rotsidan bei Nordingrå
-          Foto: Rotsidan.jpg
-                CC BY-SA 4.0, Gotogo — geo, 41 Punkte
-Schweden   229 m  Skuleberget über der Bucht
-          Foto: Skuleberget.JPG
-                Public domain, Babben (Babiarne) — geo, 44 Punkte
-Schweden    34 m  Ulvön in der Ostsee
-          Foto: South Ulvön Island (53467929917).jpg
-                CC BY 2.0, David Stanley from Nanaimo, Canada — geo, 42 Punkte
-Schweden   187 m  Stenkälla im Tiveden
-          Foto: Huvudentrén Tivedens nationalpark 01.jpg
-                CC BY-SA 4.0, Jan Ainali — geo, 41 Punkte
-Schweden   210 m  Stora Bör im Glaskogen
-          Foto: Gulls at Stora Gla, Glaskogen Nature Reserve.jpg
-                CC BY-SA 4.0, MWolf89 — geo, 41 Punkte
-Schweden    54 m  Färnebofjärden am Dalälven
-          Foto: Färnebofjärden old mill Gysinge.jpg
-                CC BY-SA 3.0, Mickaël Delcey (Silverkey) — name, 40 Punkte
-Schweden    50 m  Djurö im Vänern
-          Foto: Fyren på Djurö.jpg
-                CC BY 2.0, Torbjörn Einarsson from Stockholm, Sweden — geo, 42 Punkte
-Schweden    85 m  Baldersnäs in Dalsland
-          Foto: Fra Dalslands canal III. Hovedgaarden Baldersnæs.jpg
-                Public domain, Unknown authorUnknown author — name, 34 Punkte
-Schweden     0 m  Björnö in den Stockholmer Schären
-          Foto: Björnö Värmdö 03.jpg
-                CC BY-SA 4.0, Sniper Zeta — geo, 41 Punkte
-Schweden     6 m  Langhammars auf Fårö
-          Foto: Röse vid Langhammars RAÄ-nr Fårö 166.1 L1977.3716.jpg
-                CC BY 4.0, Ny Björn Gustafsson — geo, 43 Punkte
-Schweden     0 m  Neptuni Åkrar auf Öland
-          Foto: 1043Öland Neptuni åkrar.jpg
-                CC BY-SA 4.0, L.G.foto — geo, 41 Punkte
-Schweden    29 m  Stora Alvaret auf Öland
-          Foto: Stora Alvaret Windmill 1.jpg
-                CC BY 2.0, Allie_Caulfield from Germany — name, 42 Punkte
-Schweden   137 m  Åsnen im südschwedischen Seenland
-          Foto: Åsnen lake.jpg
-                CC BY 2.0, Tristan Ferne — name, 42 Punkte
-Schweden    47 m  Stenshuvud an der Ostküste
-          Foto: Skåne 2017-05-12 (35286892406).jpg
-                CC BY-SA 2.0, Guillaume Baviere from Uppsala, Sweden — geo, 30 Punkte
-Schweden   143 m  Kopparhatten im Söderåsen
-          Foto: Uitzicht vanaf Kopparhatten in Söderåsen (30939938562).jpg
-                CC BY 2.0, m66roepers from Nederland — geo, 42 Punkte
-Schweden    54 m  Kullaberg an der Landspitze
-          Foto: Kullaberg 01 november 2023 bild 6.jpg
-                CC0, This image was produced by me, David Castor (user:dcastor). The pictures I submit to the Wikipedia Project are released to the public domain. This gives you the right to use them in any way you like, without any kind of notification. This said, I would still appreciate to be mentioned as the originator whenever you think it complies well with your use of the picture. A message to me about how it has been used would also be welcome. You are obviously not required to respond to these wishes of mine, just in a friendly manner encouraged to. (All my photos are placed in Category:Images by David Castor or a subcategory thereof.) — geo, 45 Punkte
-Schweden   166 m  Store Mosse – Hochmoor
-          Foto: Store Mosse Lilla Lövö circuit.jpg
-                CC BY 2.0, stachelbeer — geo, 42 Punkte
-Schweden   106 m  Visingsö im Vättern
-          Foto: Brahekyrkan, Visingsö.jpg
-                CC0, L'imaginaire — geo, 45 Punkte
-Schweden   712 m  Töfsingdalen bei Idre
-          Foto: Töfsingdalens nationalpark, Forest hill.jpg
-                CC BY-SA 4.0, Isaksko — name, 41 Punkte
-Schweden   374 m  Björnlandet in Västerbotten
-          Foto: Guldstjärna Björnlandet.jpg
-                CC BY-SA 4.0, Johan Spaedtke — geo, 41 Punkte
-Schweden   119 m  Hornborgasjön in Västergötland
-          Foto: Naturum Hornborgasjön 2.jpg
-                CC BY-SA 4.0, Västgöten — geo, 41 Punkte
-Schweden   383 m  Muddus – Urwald und Moor
-          Foto: Bog around lake in Muddus.jpg
-                CC BY 4.0, Laponiatjuottjudus (Laponia management) — name, 43 Punkte
-Schweden   755 m  Nipfjället bei Idre
-          Foto: Städjan-Nipfjällets a.jpg
-                Public domain, Albertyanks Albert Jankowski, E.P. — name, 44 Punkte
-Schweden   643 m  Vålådalen in Jämtland
-          Foto: Valadalenmain.JPG
-                Public domain, Mikepopstar — geo, 44 Punkte
-Schweden    24 m  Gotska Sandön in der Ostsee
-          Foto: Säludden, Gotska Sandön.jpg
-                CC BY 2.0, Per-Olof Forsberg — geo, 42 Punkte
-Schweden    36 m  Tyresta bei Stockholm
-          Foto: Tyresta Firearea 2008.jpg
-                CC0, Ny vara — geo, 45 Punkte
+Österreich      792 m  Zeltwiese der Ötscher-Basis Wienerbruck
+               Foto: Stausee Wienerbruck.jpg
+                     CC0, Rasey — geo, 45 Punkte
+Österreich      538 m  Zeltplatz Erlaufboden im Naturpark Ötscher
+               Foto: Angerbach Erlaufboden.jpg
+                     CC BY 4.0, Linie29 — geo, 43 Punkte
+Österreich      894 m  Schutzhaus Vorderötscher in den Ötschergräben
+               Foto: Ötschergräben Greimelbach 01.JPG
+                     CC BY-SA 4.0, Uoaei1 — geo, 41 Punkte
+Österreich      554 m  Zeltplatz Hohe Wand Blick in Maiersdorf
+               Foto: Hohe Wand bei Gasthof Postl, Sky Walk - panoramio.jpg
+                     CC BY 3.0, Franz Fiala — geo, 42 Punkte
+Österreich      320 m  Zeltplatz beim Waldbad Hardegg
+               Foto: PodyjiHardegg.jpg
+                     Public domain, Martin Vavřík — name, 44 Punkte
+Österreich      828 m  Zeltplatz am Badeteich Arbesbach
+               Foto: Arbesbach Hammerschmiede 6472.JPG
+                     CC BY-SA 4.0, Karl Gruber — name, 41 Punkte
+Norwegen          0 m  Kvalvika – Bucht hinter dem Ryten
+               Foto: Ryten Kvalvika Lofoten tunliweb.jpg
+                     CC BY-SA 4.0, Svein-Magne Tunli - tunliweb.no — geo, 41 Punkte
+Norwegen        481 m  Ryten – Plateau über Kvalvika
+               Foto: View from Ryten toward Fredvang Bridges, Lofoten, Norway.jpg
+                     CC BY-SA 2.0, Christoph Strässler — geo, 40 Punkte
+Norwegen         25 m  Bunes – Strand im Reinefjord
+               Foto: Bunesfjorden III (30683181367).jpg
+                     CC BY 2.0, Robert Anders from Hamburg, Germany — geo, 42 Punkte
+Norwegen        215 m  Offersøykammen – Aussichtsrücken
+               Foto: Offersøykammen depuis Tussan.jpg
+                     CC BY-SA 4.0, Patrice78500 — geo, 41 Punkte
+Norwegen          9 m  Mannen – Hang über dem Haukland-Strand
+               Foto: Hauklandstrand 03.jpg
+                     CC BY 2.0, Sberla_ — geo, 42 Punkte
+Norwegen          2 m  Nesland bei Nusfjord
+               Foto: Village of Nusfjord - 2013.08 - panoramio.jpg
+                     CC BY 3.0, rheins — geo, 42 Punkte
+Norwegen        538 m  Segla – Sattel unter dem Gipfel
+               Foto: View from a ridge between Segla and Hesten, Senja, Norway, 2014 August.jpg
+                     CC BY-SA 4.0, Ximonic (Simo Räsänen) — geo, 41 Punkte
+Norwegen          0 m  Tungeneset – Felsrücken hinter dem Rastplatz
+               Foto: Life-buoy in Tungeneset, Senja, Troms, Norway, 2014 August.jpg
+                     CC BY-SA 4.0, Ximonic (Simo Räsänen) — geo, 41 Punkte
+Norwegen          0 m  Ersfjord – Hang über dem Strand
+               Foto: Ersfjorden-2011.jpg
+                     CC BY-SA 3.0, Bjørn Christian Tørrissen — geo, 40 Punkte
+Norwegen          6 m  Grøtfjord auf Kvaløya
+               Foto: Panorama Grøtfjord - panoramio.jpg
+                     CC BY 3.0, Roger Johansen — geo, 42 Punkte
+Norwegen        294 m  Steindalsbreen in den Lyngenalpen
+               Foto: View towards Steindalsbreen from Falsnesfjellet.jpg
+                     CC BY 4.0, Antti Leppänen — name, 43 Punkte
+Norwegen        986 m  Gjende-Ostufer bei Gjendesheim
+               Foto: Gjendesheim , Norway (14845641912).jpg
+                     CC BY 2.0, Nick from Bristol, UK — geo, 42 Punkte
+Norwegen       1373 m  Bessvatnet unter dem Besseggen
+               Foto: Bessvatnet 01.jpg
+                     CC BY-SA 2.0, a.froese — geo, 40 Punkte
+Norwegen       1407 m  Leirvatnet bei Leirvassbu
+               Foto: 33715936453 Jpg (247969027).jpeg
+                     CC BY 3.0, Christer Gundersen — geo, 32 Punkte
+Norwegen       1406 m  Fantesteinen am Sognefjellet
+               Foto: Sognefjellet - panoramio.jpg
+                     CC BY 3.0, Pietro Valocchi — geo, 42 Punkte
+Norwegen       1055 m  Bygdin-Nordufer
+               Foto: Jotunheimen, Sæterliv ved Bygdin - no-nb digifoto 20160229 00013 NB NS NM 08140.jpg
+                     Public domain, Narve Skarpmoen — name, 44 Punkte
+Norwegen       1165 m  Rondvassbu im Rondane
+               Foto: Rondvatnet 001.jpg
+                     CC BY-SA 4.0, Spike — geo, 31 Punkte
+Norwegen        974 m  Høvringen am Rondane-Westrand
+               Foto: Ved Høvringen mot Smiubæljen - no-nb digifoto 20150206 00068 NB MIT FNR 15933.jpg
+                     Public domain, Jac Brun — name, 44 Punkte
+Norwegen       2240 m  Snøheim-Ebene im Dovrefjell
+               Foto: Snøheim.JPG
+                     CC BY-SA 3.0, Inge Angård — name, 40 Punkte
+Norwegen        668 m  Elgå am Femunden
+               Foto: Fra Sollerøen mot Elgaaen. G.H. 1. aug. 1933. - no-nb digifoto 20160211 00517 bldsa GH01 00085.jpg
+                     Public domain, Gunnar Holmsen — name, 44 Punkte
+Norwegen       1125 m  Røvollen in der Femundsmarka
+               Foto: Femundsmarka, Norway - Telt.jpg
+                     Public domain, Sondrekv — name, 44 Punkte
+Norwegen       1111 m  Trolltunga – Hochebene vor der Felszunge
+               Foto: Trolltunga, Odda, Norway (Unsplash).jpg
+                     CC0, Wolf Vandierendonck wolf_ — geo, 45 Punkte
+Norwegen       1255 m  Dyranut auf der Hardangervidda
+               Foto: Hardangervidda 20150723 170645.jpg
+                     CC BY 2.0, Elena Giglia from Torino, Italia — name, 32 Punkte
+Norwegen        642 m  Hochebene über dem Vøringsfossen
+               Foto: Waterfall Vøringsfossen - 2013.08 - panoramio.jpg
+                     CC BY 3.0, rheins — geo, 42 Punkte
+Norwegen        614 m  Aurlandsfjellet – Hochebene am Snøvegen
+               Foto: P1000461Stegastein.JPG
+                     CC BY 3.0, G.Lanting — geo, 42 Punkte
+Norwegen          0 m  Bakka am Nærøyfjord
+               Foto: Bakkavegen Fv 5623 at Bakka by Nærøyfjorden, Aurland, Vestland, Norway, 2025 June.jpg
+                     CC BY-SA 4.0, Ximonic (Simo Räsänen) — geo, 41 Punkte
+Norwegen         57 m  Lovatnet bei Loen
+               Foto: Lovatnet Kjenndalskruna 1777a.JPG
+                     CC BY-SA 4.0, BjørnN — geo, 41 Punkte
+Norwegen        631 m  Nigardsbreen im Jostedal
+               Foto: Nigardsbreen DN.jpg
+                     CC0, Dimitri Neyt — geo, 45 Punkte
+Norwegen        517 m  Trollstigen – Hochebene am Pass
+               Foto: Trollstigen 05.jpg
+                     CC BY 2.0, Laurent de Walick from The Hague, The Netherlands — geo, 42 Punkte
+Norwegen         16 m  Askvågen an der Atlantikstraße
+               Foto: Averøy Atlanterhavsvegen lub 2025-07-26 img30 Lyngholmen.jpg
+                     CC BY 4.0, Lukas Beck — geo, 43 Punkte
+Norwegen       1374 m  Dalsnibba-Hochebene über Geiranger
+               Foto: Geirangerfjorden view from Dalsnibba - panoramio.jpg
+                     CC BY 3.0, Roger Husvik — geo, 42 Punkte
+Norwegen        618 m  Preikestolen – Hochebene hinter der Kanzel
+               Foto: Preikestolen - 2013.08.jpg
+                     CC BY 3.0, rheins — geo, 42 Punkte
+Norwegen       1074 m  Kjerag-Plateau über Lysebotn
+               Foto: Fjordberge Am Kjeragbolten (215896811).jpeg
+                     CC BY 3.0, Heike Kranacher — geo, 42 Punkte
+Norwegen         46 m  Månafossen im Frafjord
+               Foto: MånafossenMay2016.jpg
+                     CC BY-SA 4.0, Elinazariel — geo, 36 Punkte
+Norwegen        782 m  Hovden im oberen Setesdal
+               Foto: Hovden, Setesdal - no-nb digifoto 20151116 00017 NB MIT FNR 12896.jpg
+                     Public domain, Unknown authorUnknown author — name, 44 Punkte
+Norwegen          0 m  Saltstraumen bei Bodø
+               Foto: Swirling waters of Saltstraumen - panoramio.jpg
+                     CC BY 3.0, Honza and Ivana Ebr — geo, 42 Punkte
+Norwegen         25 m  Holandsfjorden vor dem Svartisen
+               Foto: Engabreen Glacier (55026838807).jpg
+                     CC BY 4.0, David Stanley from Nanaimo, Canada — geo, 43 Punkte
+Norwegen        220 m  Torghatten auf Helgeland
+               Foto: Torghatten Mountain, Southwest view 20150606 1.jpg
+                     CC BY-SA 4.0, DXR — geo, 41 Punkte
+Norwegen        131 m  Runde – Vogelfelsen am Atlantik
+               Foto: Runde, Norway - panoramio.jpg
+                     CC BY 3.0, Kovacs Bela-Hungary — geo, 42 Punkte
+Norwegen        680 m  Romsdalseggen über Åndalsnes
+               Foto: NVIO hosts Marines (5738041).jpg
+                     Public domain, U.S. Marine Corps photo by Staff Sgt. Brytani Musick — name, 34 Punkte
+Norwegen        277 m  Buer im Folgefonna
+               Foto: Buerbreen i Hardanger.jpg
+                     CC BY-SA 4.0, JoarOyg — name, 41 Punkte
+Norwegen        337 m  Mollisfossen im Reisadalen
+               Foto: Mollisfossen in Reisa.jpg
+                     CC BY 2.0, pululante — name, 42 Punkte
+Österreich      978 m  Biwakplatz Steyrsteg im Nationalpark Kalkalpen
+               Foto: Krumme Steyrling in Nationalpark Kalkalpen 2022-08-04 01.jpg
+                     CC0, Leonhard Lenz — geo, 45 Punkte
+Österreich      614 m  Biwakplatz Weißwasser im Nationalpark Kalkalpen
+               Foto: Former railway track, Reichraminger Hintergebirge.jpg
+                     CC BY-SA 4.0, Herzi Pinki — geo, 41 Punkte
+Österreich     1745 m  Zeltplatz der Gjaid Alm am Dachsteinplateau
+               Foto: Gjaidalm alpine valley.jpg
+                     CC0, Mojmir Churavy — geo, 45 Punkte
+Österreich     1571 m  Uwe-Anderle-Biwak im Sengsengebirge
+               Foto: Roßleithen Bärnriedlau front.jpg
+                     CC BY-SA 3.0 at, Isiwal — geo, 30 Punkte
+Österreich     1756 m  Höllengebirge-Plateau bei der Rieder Hütte
+               Foto: Skitour Höllengebirge 20060115a.jpg
+                     CC BY 4.0, Tigerente — name, 43 Punkte
+Österreich     1568 m  Karstplateau beim Hochleckenhaus
+               Foto: Steinbach am Attersee - Hochleckenhaus.JPG
+                     CC BY-SA 4.0, C.Stadler/Bwag — geo, 31 Punkte
+Österreich     1710 m  Welser Hütte am Fuß des Großen Priel
+               Foto: Grünau i Almtal Welserhütte Haupteingang.jpg
+                     CC BY-SA 4.0, Isiwal — geo, 41 Punkte
+Österreich     2438 m  Wildalmkirchl-Biwak im Steinernen Meer
+               Foto: 200909 Wildalmkirchl.jpg
+                     CC0, Wolfgang Stanglmeier at German Wikipedia — geo, 35 Punkte
+Österreich     1894 m  Bertgenhütte im Schneekar am Hochkönig
+               Foto: WW-Dienten am Hochkönig-156.JPG
+                     CC0, Schermy — geo, 45 Punkte
+Österreich     1753 m  Ludwig-Rieger-Biwak in den Loferer Steinbergen
+               Foto: Sankt Martin bei Lofer Maria Kirchental Wallfahrtskirche-9778.jpg
+                     CC BY-SA 4.0, Isiwal — geo, 31 Punkte
+Österreich     2649 m  Ali-Lanti-Biwak über dem Gasteinertal
+               Foto: Glocknergruppe&GoldberggruppeFromEast Panorama.jpg
+                     CC BY-SA 3.0, Herzi Pinki — name, 40 Punkte
+Österreich      681 m  Ferienwiese Weißbach im Naturpark
+               Foto: AUT — Bundesland Salzburg — Bezirk ZE — Weißbach bei Lofer — Oberweißbach 1 (Pfarrhof · Jahreszahlen) 2024-06-12 Mattes.jpg
+                     Public domain, User:Mateus2019 — geo, 44 Punkte
+Österreich     2196 m  Lungauer Klaffersee in den Schladminger Tauern
+               Foto: Oberer Klaffersee.jpg
+                     CC BY-SA 3.0 at, Gerdsch — geo, 40 Punkte
+Österreich     2099 m  Oberer Wirpitschsee über Weißpriach
+               Foto: Wirpitschsee, obere-weißpriach 29648 2016-07-10.JPG
+                     CC BY-SA 3.0, Ewald Gabardi — name, 40 Punkte
+Österreich     2012 m  Blausee bei Obertauern
+               Foto: Obertauern und Felseralm.jpg
+                     CC0, fl.schmitt — geo, 45 Punkte
+Österreich     2075 m  Oberer Bockhartsee in Sportgastein
+               Foto: Unterer Bockhartsee - panoramio.jpg
+                     CC BY 3.0, Mannertheman — geo, 42 Punkte
+Schweden        485 m  Abiskojaure am Kungsleden
+               Foto: Abiskojaurestugan 001.jpg
+                     CC0, Funkjoker23 — geo, 45 Punkte
+Schweden        787 m  Alesjaure am Kungsleden
+               Foto: Alesjaurestugan 001.jpg
+                     CC0, Funkjoker23 — geo, 45 Punkte
+Schweden        972 m  Lapporten von Björkliden
+               Foto: Lapporten x Helmer Osslund.jpg
+                     Public domain, Helmer Osslund — name, 44 Punkte
+Schweden       2077 m  Kebnekaise Fjällstation
+               Foto: Kebnekaise old peak cottage.jpg
+                     CC0, Grapetonix — geo, 45 Punkte
+Schweden       1020 m  Skierfe über dem Rapadalen
+               Foto: Skierfe - panoramio.jpg
+                     CC BY 3.0, Arend Veenhuizen — name, 42 Punkte
+Schweden        651 m  Staloluokta im Padjelanta
+               Foto: Ringed crow.jpg
+                     CC BY-SA 2.0, user:oskila — geo, 30 Punkte
+Schweden        459 m  Ritsem am Akkajaure
+               Foto: Áhkká massif seen from the Akkajaure reservoir (DSCF0890).jpg
+                     CC BY 4.0, Trougnouf (Benoit Brummer) — geo, 43 Punkte
+Schweden        322 m  Kvikkjokk am Kungsleden
+               Foto: Kvikkjokks kyrka 2006.jpg
+                     Public domain, Ojan — geo, 44 Punkte
+Schweden        457 m  Hemavan im Vindelfjällen
+               Foto: BAe ATP, Hemavan airport.jpg
+                     Public domain, Magnus Bäck — geo, 44 Punkte
+Schweden        417 m  Ammarnäs am Vindelälven
+               Foto: Vindelforsen Ammarnäs - panoramio.jpg
+                     CC BY 3.0, jorgen-soderstrom@br… — geo, 42 Punkte
+Schweden       1649 m  Sylarna in Jämtland
+               Foto: Blockfält.jpg
+                     CC BY-SA 4.0, Dan Frendin — geo, 31 Punkte
+Schweden       1070 m  Blåhammaren über Storlien
+               Foto: Blåhammaren - panoramio.jpg
+                     CC BY-SA 3.0, Haakon Wibe — geo, 40 Punkte
+Schweden       1772 m  Helags unter dem Gletscher
+               Foto: Hiking in the Scandinavian Mountains (Unsplash).jpg
+                     CC0, nina lindgren ninalindgren — geo, 35 Punkte
+Schweden        757 m  Rogen an der Grenze
+               Foto: Rogen (31157908691).jpg
+                     CC BY 2.0, Robert Anders from Hamburg, Germany — geo, 42 Punkte
+Schweden       1273 m  Sonfjället – Bärenberg
+               Foto: Hiker in Sonfjället.jpg
+                     CC BY-SA 4.0, Andreaze — geo, 41 Punkte
+Schweden        795 m  Njupeskär im Fulufjället
+               Foto: Njupeskär Fulufjället.jpg
+                     CC BY-SA 2.0, m.prinke — geo, 40 Punkte
+Schweden        763 m  Grövelsjön am Grenzfjell
+               Foto: 16001000324164-Grövelsjön-Riksantikvarieämbetet.jpg
+                     Public domain, Sigge Heed — name, 44 Punkte
+Schweden       1122 m  Städjan über Idre
+               Foto: Städjan-Nipfjällets Naturreservat 003.jpg
+                     CC0, Albertyanks — geo, 45 Punkte
+Schweden        264 m  Slåttdalsskrevan im Skuleskogen
+               Foto: Slåttdalsskrevan 10 juli 2024.jpg
+                     CC0, This image was produced by me, David Castor (user:dcastor). The pictures I submit to the Wikipedia Project are released to the public domain. This gives you the right to use them in any way you like, without any kind of notification. This said, I would still appreciate to be mentioned as the originator whenever you think it complies well with your use of the picture. A message to me about how it has been used would also be welcome. You are obviously not required to respond to these wishes of mine, just in a friendly manner encouraged to. (All my photos are placed in Category:Images by David Castor or a subcategory thereof.) — geo, 45 Punkte
+Schweden         20 m  Rotsidan bei Nordingrå
+               Foto: Rotsidan.jpg
+                     CC BY-SA 4.0, Gotogo — geo, 41 Punkte
+Schweden        229 m  Skuleberget über der Bucht
+               Foto: Skuleberget.JPG
+                     Public domain, Babben (Babiarne) — geo, 44 Punkte
+Schweden         34 m  Ulvön in der Ostsee
+               Foto: South Ulvön Island (53467929917).jpg
+                     CC BY 2.0, David Stanley from Nanaimo, Canada — geo, 42 Punkte
+Schweden        187 m  Stenkälla im Tiveden
+               Foto: Huvudentrén Tivedens nationalpark 01.jpg
+                     CC BY-SA 4.0, Jan Ainali — geo, 41 Punkte
+Schweden        210 m  Stora Bör im Glaskogen
+               Foto: Gulls at Stora Gla, Glaskogen Nature Reserve.jpg
+                     CC BY-SA 4.0, MWolf89 — geo, 41 Punkte
+Schweden         54 m  Färnebofjärden am Dalälven
+               Foto: Färnebofjärden old mill Gysinge.jpg
+                     CC BY-SA 3.0, Mickaël Delcey (Silverkey) — name, 40 Punkte
+Schweden         54 m  Djurö im Vänern
+               Foto: Fyren på Djurö.jpg
+                     CC BY 2.0, Torbjörn Einarsson from Stockholm, Sweden — geo, 42 Punkte
+Schweden         81 m  Baldersnäs in Dalsland
+               Foto: Fra Dalslands canal III. Hovedgaarden Baldersnæs.jpg
+                     Public domain, Unknown authorUnknown author — name, 34 Punkte
+Schweden         16 m  Björnö in den Stockholmer Schären
+               Foto: Björnö Värmdö 03.jpg
+                     CC BY-SA 4.0, Sniper Zeta — geo, 41 Punkte
+Schweden          6 m  Langhammars auf Fårö
+               Foto: Röse vid Langhammars RAÄ-nr Fårö 166.1 L1977.3716.jpg
+                     CC BY 4.0, Ny Björn Gustafsson — geo, 43 Punkte
+Schweden          0 m  Neptuni Åkrar auf Öland
+               Foto: 1043Öland Neptuni åkrar.jpg
+                     CC BY-SA 4.0, L.G.foto — geo, 41 Punkte
+Schweden         29 m  Stora Alvaret auf Öland
+               Foto: Stora Alvaret Windmill 1.jpg
+                     CC BY 2.0, Allie_Caulfield from Germany — name, 42 Punkte
+Schweden        137 m  Åsnen im südschwedischen Seenland
+               Foto: Åsnen lake.jpg
+                     CC BY 2.0, Tristan Ferne — name, 42 Punkte
+Schweden         47 m  Stenshuvud an der Ostküste
+               Foto: Skåne 2017-05-12 (35286892406).jpg
+                     CC BY-SA 2.0, Guillaume Baviere from Uppsala, Sweden — geo, 30 Punkte
+Schweden        143 m  Kopparhatten im Söderåsen
+               Foto: Uitzicht vanaf Kopparhatten in Söderåsen (30939938562).jpg
+                     CC BY 2.0, m66roepers from Nederland — geo, 42 Punkte
+Schweden         54 m  Kullaberg an der Landspitze
+               Foto: Kullaberg 01 november 2023 bild 6.jpg
+                     CC0, This image was produced by me, David Castor (user:dcastor). The pictures I submit to the Wikipedia Project are released to the public domain. This gives you the right to use them in any way you like, without any kind of notification. This said, I would still appreciate to be mentioned as the originator whenever you think it complies well with your use of the picture. A message to me about how it has been used would also be welcome. You are obviously not required to respond to these wishes of mine, just in a friendly manner encouraged to. (All my photos are placed in Category:Images by David Castor or a subcategory thereof.) — geo, 45 Punkte
+Schweden        166 m  Store Mosse – Hochmoor
+               Foto: Store Mosse Lilla Lövö circuit.jpg
+                     CC BY 2.0, stachelbeer — geo, 42 Punkte
+Schweden        106 m  Visingsö im Vättern
+               Foto: Brahekyrkan, Visingsö.jpg
+                     CC0, L'imaginaire — geo, 45 Punkte
+Schweden        712 m  Töfsingdalen bei Idre
+               Foto: Töfsingdalens nationalpark, Forest hill.jpg
+                     CC BY-SA 4.0, Isaksko — name, 41 Punkte
+Schweden        374 m  Björnlandet in Västerbotten
+               Foto: Guldstjärna Björnlandet.jpg
+                     CC BY-SA 4.0, Johan Spaedtke — geo, 41 Punkte
+Schweden        119 m  Hornborgasjön in Västergötland
+               Foto: Naturum Hornborgasjön 2.jpg
+                     CC BY-SA 4.0, Västgöten — geo, 41 Punkte
+Schweden        383 m  Muddus – Urwald und Moor
+               Foto: Bog around lake in Muddus.jpg
+                     CC BY 4.0, Laponiatjuottjudus (Laponia management) — name, 43 Punkte
+Schweden        755 m  Nipfjället bei Idre
+               Foto: Städjan-Nipfjällets a.jpg
+                     Public domain, Albertyanks Albert Jankowski, E.P. — name, 44 Punkte
+Schweden        643 m  Vålådalen in Jämtland
+               Foto: Valadalenmain.JPG
+                     Public domain, Mikepopstar — geo, 44 Punkte
+Schweden         24 m  Gotska Sandön in der Ostsee
+               Foto: Säludden, Gotska Sandön.jpg
+                     CC BY 2.0, Per-Olof Forsberg — geo, 42 Punkte
+Schweden         36 m  Tyresta bei Stockholm
+               Foto: Tyresta Firearea 2008.jpg
+                     CC0, Ny vara — geo, 45 Punkte
+Österreich     1922 m  Giglachseen – Hochtal der Schladminger Tauern
+               Foto: Unterer Giglachsee from Znachspitz-Ignaz Mattis Huette.jpg
+                     CC BY 2.5, Herzi Pinki — geo, 42 Punkte
+Österreich     1984 m  Sundlsee im Pletzenkar
+               Foto: Pletzen Gipfelkreuz Sundlsee.jpg
+                     CC BY-SA 4.0, Schreckgespenst — geo, 41 Punkte
+Österreich     1955 m  Goldlacke unter dem Seckauer Zinken
+               Foto: Seckauer Zinken 20160528.jpg
+                     CC BY-SA 4.0, Uoaei1 — geo, 41 Punkte
+Österreich     1694 m  Kleiner Scheibelsee bei der Edelrautehütte
+               Foto: Großer Scheibelsee mit Hauseck 2.jpg
+                     CC BY-SA 4.0, MakiWolf — geo, 41 Punkte
+Österreich     2234 m  Toni-Adam-Biwak am Grimming
+               Foto: Biwakschachtel am Grimming 20160922 181614.jpg
+                     CC BY-SA 4.0, Fichtenspargel — geo, 41 Punkte
+Österreich     2136 m  Fleischer-Biwak am Hochschwab
+               Foto: Hochschwab and clouds.jpg
+                     CC BY 3.0, Doronenko — geo, 42 Punkte
+Österreich     1980 m  Speikkogel auf der Gleinalpe
+               Foto: Ochsenkogel Gleinalpe 3.jpg
+                     CC BY-SA 4.0, Liuthalas — geo, 41 Punkte
+Österreich     1838 m  Handalm nördlich der Weinebene
+               Foto: Handalm Gipfelplateau3.jpg
+                     CC BY-SA 3.0, Josef Moser — geo, 40 Punkte
+Österreich     1889 m  Hochfläche bei der Klosterneuburger Hütte
+               Foto: Klosterneuburger Huette.jpg
+                     CC BY-SA 4.0, Herzi Pinki — geo, 41 Punkte
+Österreich     1800 m  Reißkofel-Biwak
+               Foto: 9632 Kirchbach, Reißkofel 2022-10-31.jpg
+                     CC0, Hangman'sDeath — geo, 45 Punkte
+Österreich     2795 m  Kieler Wetterhütte unter der Fatlarspitze
+               Foto: Kieler Wetterhütte unter der Fatlarspitze (Mitte).jpg
+                     CC BY-SA 4.0, 32-Fuß-Freak — name, 41 Punkte
+Österreich     2587 m  Augsburger Biwak an der Parseierscharte
+               Foto: Parseierspitze erster Schnee.jpg
+                     CC BY 4.0, Simon Höger — geo, 43 Punkte
+Österreich     2012 m  Lorea-Hütte über dem Fernpass
+               Foto: Loreakopf Panorama.jpg
+                     CC0, Jensibua — geo, 45 Punkte
+Österreich     1991 m  Breitenkopfhütte im Igelskar
+               Foto: Breitenkopfhuette.jpg
+                     CC BY-SA 4.0, Wetze — name, 36 Punkte
+Österreich     2402 m  Forchheimer Biwak am Geigenkamm
+               Foto: Silberschneid, Geigenkamm.jpg
+                     CC BY-SA 3.0, Herzi Pinki — name, 40 Punkte
+Österreich     3233 m  Rheinland-Pfalz-Biwak am Mainzer Höhenweg
+               Foto: Rheinland-Pfalz-Biwak.jpg
+                     CC BY-SA 2.0 de, Hejkal — name, 30 Punkte
+Österreich     2364 m  Winnebachsee im Sulztal
+               Foto: Winnebachseehütte, Längenfeld, Austria (Unsplash).jpg
+                     CC0, Paul Gilmore paulgilmore_ — geo, 45 Punkte
+Österreich     2120 m  Rastkogelhütte am Sidanjoch
+               Foto: Rastkogelhütte.jpg
+                     CC BY-SA 4.0, Jörg Braukmann — geo, 41 Punkte
+Österreich     2127 m  Aschaffenburger Biwak am Weißkarjöchl
+               Foto: Ansicht Zillertaler Alpen Klaussee.jpg
+                     CC BY-SA 4.0, Rainerhaufe — name, 41 Punkte
+Österreich     2179 m  Greizer Hütte im oberen Floitengrund
+               Foto: Greizer Hütte im Juli 2024.jpg
+                     CC0, Mirmok12 — geo, 40 Punkte
+Österreich     2492 m  Schwarzsee-Biwak in den Villgratener Bergen
+               Foto: Schwarzsee Villgratner Berge.jpg
+                     CC BY-SA 4.0, Hermann Hammer — geo, 41 Punkte
+Österreich     2634 m  Arnsteiger Biwakschachtel bei der Bocksteinscharte
+               Foto: Matrei and Schobergruppe from beneath Malhamspitzen.jpg
+                     CC BY-SA 4.0, Tadeáš Gregor — name, 41 Punkte
+Österreich     2252 m  Laserzsee in den Lienzer Dolomiten
+               Foto: Die Karlsbader Hütte (Alpenvereinshütte). Innenansichten 3.jpg
+                     CC BY-SA 4.0, Ирина Шатова — geo, 26 Punkte
+Österreich     2554 m  Barmer Hütte in der Rieserfernergruppe
+               Foto: Barmer Hütte, 2021.jpg
+                     CC BY-SA 4.0, DiskoDieter — geo, 41 Punkte
+Österreich     2315 m  Das Biwak am Stierlochkopf
+               Foto: Lech, Blick Richtung Südwest, Stierlochkopf - panoramio (3).jpg
+                     CC BY 3.0, qwesy qwesy — name, 42 Punkte
+Österreich     2343 m  Klostertaler Umwelthütte in der Silvretta
+               Foto: 1974 Klostertaler Hütte.jpg
+                     CC BY 3.0 de, Im Auftrag hochgeladen von FkMohr (Sektionsmitglied) — geo, 42 Punkte
+Österreich     2400 m  Neue Reutlinger Hütte im Verwall
+               Foto: Silbertal Neue Reutlinger Hütte Schrägluftbild.jpg
+                     CC BY-SA 4.0, Herbert Heim — geo, 41 Punkte
+Österreich     1683 m  Madrisahütte über Gargellen
+               Foto: Sonne hinter Madrisa.jpg
+                     CC BY-SA 4.0, Reinhard Müller — geo, 41 Punkte
+Österreich     1826 m  Zeltwiese am Zeinissee
+               Foto: Alpengasthof Zeinisjoch und Haus Zeinissee von Südwesten.jpg
+                     CC BY-SA 4.0, Reinhard Müller — geo, 41 Punkte
+Österreich     2104 m  Tilisunasee im Rätikon
+               Foto: Tilisunasee.JPG
+                     CC BY-SA 2.5, böhringer friedrich — geo, 40 Punkte
+Österreich     1612 m  Sarotlatal unter der Sarotlahütte
+               Foto: Sarotlaalpe mit Sarotlahütte.jpg
+                     CC BY-SA 3.0 at, Feel free to use my photos, but please mention me as the author and if you want send me a message. or (rufre@lenz-nenning.at) — geo, 40 Punkte
+Österreich     2118 m  Butzensee im Lechquellengebirge
+               Foto: Schröcken Butzensee Schrägluftbild.jpg
+                     CC BY-SA 4.0, Herbert Heim — geo, 41 Punkte
+Österreich     1786 m  Formarinsee unter der Roten Wand
+               Foto: Formarinsee - panoramio.jpg
+                     CC BY 3.0, qwesy qwesy — geo, 42 Punkte
+Österreich     1818 m  Spullersee am Spullerschafberg
+               Foto: Speicher Spullersee Panorama.jpg
+                     CC BY-SA 2.5, böhringer friedrich — geo, 40 Punkte
+Österreich     2171 m  Ochsental unter der Wiesbadener Hütte
+               Foto: Wiesbadener Hütte 02.jpg
+                     CC BY-SA 4.0, Basotxerri — geo, 41 Punkte
+Österreich     1656 m  Garneratal bei der Tübinger Hütte
+               Foto: Tübinger Hütte (um 1910).jpg
+                     Public domain, Unknown authorUnknown author — name, 44 Punkte
+Österreich     2059 m  Fiderepasshütte über dem Kleinwalsertal
+               Foto: Fiderepasshütte Abendsonne.jpg
+                     CC BY 4.0, F30 — geo, 43 Punkte
+Österreich     1382 m  Nenzinger Himmel im Gamperdonatal
+               Foto: Fundelkopf vom Nenzinger Himmel.jpg
+                     CC BY-SA 4.0, Reinhard Müller — geo, 41 Punkte
+Österreich     1663 m  Breithornhütte über Sonntag im Walsertal
+               Foto: Breithorn mit Blickrichtung Westen.jpg
+                     CC BY-SA 4.0, Cheetwhite — geo, 41 Punkte

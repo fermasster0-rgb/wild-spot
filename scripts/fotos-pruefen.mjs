@@ -257,6 +257,16 @@ const LAND_NAME = {
   rumaenien: 'Rumänien',
   oesterreich: 'Österreich',
   tschechien: 'Tschechien',
+
+  // Österreich wurde nach Bundesländern recherchiert, weil das Zeltrecht hier
+  // Landesrecht ist und sich von Land zu Land unterscheidet — von "über der
+  // Waldgrenze frei" in der Steiermark bis "überall verboten" in Kärnten.
+  // Auf der Karte ist das trotzdem ein Land.
+  tirol: 'Österreich',
+  'salzburg-ooe': 'Österreich',
+  'steiermark-kaernten': 'Österreich',
+  vorarlberg: 'Österreich',
+  niederoesterreich: 'Österreich',
 };
 
 function landAusDateiname(datei) {

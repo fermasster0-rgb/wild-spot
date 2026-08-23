@@ -1725,6 +1725,25 @@ body.detail-offen .unten { right: 404px; }
 }
 @media (hover: hover) { .foto:hover img { transform: scale(1.04); } }
 
+/* Bildnachweis. Steht unter Fotos, die nicht von einem Nutzer stammen,
+   sondern aus einer freien Quelle: CC BY und CC BY-SA verlangen den Namen
+   des Fotografen, die Lizenz und einen Weg zurück zur Quelle. Bewusst klein
+   und blass — es ist eine Pflichtangabe, keine Bildunterschrift. */
+.foto-nachweis {
+  display: block;
+  margin: 3px 2px 0;
+  font-size: 10px;
+  line-height: 1.3;
+  color: var(--text-weak);
+  opacity: 0.75;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.foto-nachweis a { color: inherit; text-decoration: underline; }
+/* Unter dem großen ersten Bild ist Platz für den ganzen Namen. */
+.galerie .foto-feld:first-child .foto-nachweis { font-size: 11px; white-space: normal; }
+
 .foto-weg {
   position: absolute;
   top: 5px; right: 5px;

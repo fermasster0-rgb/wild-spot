@@ -2,8 +2,8 @@
   {
     "name": "Kvalvika – Bucht hinter dem Ryten",
     "region": "Lofoten",
-    "lat": 68.079,
-    "lng": 13.08,
+    "lat": 68.07507,
+    "lng": 13.08888,
     "parking_lat": 68.1112,
     "parking_lng": 13.247,
     "access": "kurze_wanderung",
@@ -30,7 +30,7 @@
     "bekannt": "Sehr bekannt – von Juni bis August stehen hier oft ein Dutzend Zelte.",
     "regel": "Jedermannsrecht gilt: höchstens zwei Nächte, mindestens 150 m von Häusern. Offenes Feuer ist von 15. April bis 15. September verboten.",
     "elevation_m": 0,
-    "koordinaten_quelle": "no.wikipedia: Kvalvika (Flakstad)"
+    "koordinaten_quelle": "no.wikipedia: Kvalvika (Flakstad), 573 m ans Ufer gerückt (Kartenprüfung)"
   },
   {
     "name": "Ryten – Plateau über Kvalvika",
@@ -251,8 +251,8 @@
   {
     "name": "Ersfjord – Hang über dem Strand",
     "region": "Senja",
-    "lat": 69.5065,
-    "lng": 17.4175,
+    "lat": 69.4801,
+    "lng": 17.397,
     "parking_lat": 69.503,
     "parking_lng": 17.4085,
     "access": "kurze_wanderung",
@@ -276,13 +276,15 @@
     ],
     "text": "Grashang oberhalb des goldenen Sandstrands von Ersfjord. Von oben sieht man über die ganze Bucht; unten gibt es Toiletten am Parkplatz.",
     "bekannt": "Einer der bekanntesten Strände Nordnorwegens.",
-    "regel": "Am Strand und auf dem Parkplatz ist Zelten und Übernachten untersagt. Der Punkt liegt darüber im offenen Gelände, wo das Jedermannsrecht gilt. Feuerverbot 15. April bis 15. September."
+    "regel": "Am Strand und auf dem Parkplatz ist Zelten und Übernachten untersagt. Der Punkt liegt darüber im offenen Gelände, wo das Jedermannsrecht gilt. Feuerverbot 15. April bis 15. September.",
+    "elevation_m": 0,
+    "koordinaten_quelle": "OpenStreetMap: Ersfjordstranda, bestätigt durch Foto-Median"
   },
   {
     "name": "Grøtfjord auf Kvaløya",
     "region": "Troms",
-    "lat": 69.76637,
-    "lng": 18.49548,
+    "lat": 69.76496,
+    "lng": 18.48115,
     "parking_lat": 69.7565,
     "parking_lng": 18.464,
     "access": "auto",
@@ -308,8 +310,8 @@
     "text": "Weite Bucht mit hellem Sand eine Autostunde westlich von Tromsø. Im Winter ein bekannter Platz für Nordlichter, im Sommer für die Mitternachtssonne.",
     "bekannt": "Bei Tromsø-Besuchern beliebt, aber selten überfüllt.",
     "regel": "Jedermannsrecht gilt: höchstens zwei Nächte, 150 m Abstand zu den Häusern der Siedlung. Feuerverbot 15. April bis 15. September.",
-    "elevation_m": 0,
-    "koordinaten_quelle": "no.wikipedia: Grøtfjorden"
+    "elevation_m": 7,
+    "koordinaten_quelle": "no.wikipedia: Grøtfjorden, 573 m ans Ufer gerückt (Kartenprüfung)"
   },
   {
     "name": "Steindalsbreen in den Lyngenalpen",
@@ -378,8 +380,8 @@
   {
     "name": "Bessvatnet unter dem Besseggen",
     "region": "Jotunheimen",
-    "lat": 61.52306,
-    "lng": 8.77556,
+    "lat": 61.52642,
+    "lng": 8.77378,
     "parking_lat": 61.4938,
     "parking_lng": 8.7845,
     "access": "lange_wanderung",
@@ -405,7 +407,7 @@
     "bekannt": "Teil der bekanntesten Bergwanderung des Landes.",
     "regel": "Jedermannsrecht gilt: höchstens zwei Nächte. Der Grat ist bei Nässe heikel – nicht in der Dämmerung queren.",
     "elevation_m": 1371,
-    "koordinaten_quelle": "no.wikipedia: Bessvatnet"
+    "koordinaten_quelle": "no.wikipedia: Bessvatnet, 385 m ans Ufer gerückt (Kartenprüfung)"
   },
   {
     "name": "Leirvatnet bei Leirvassbu",
@@ -474,8 +476,8 @@
   {
     "name": "Bygdin-Nordufer",
     "region": "Jotunheimen",
-    "lat": 61.3486,
-    "lng": 8.4986,
+    "lat": 61.34202,
+    "lng": 8.50101,
     "parking_lat": 61.339,
     "parking_lng": 8.706,
     "access": "kurze_wanderung",
@@ -502,7 +504,7 @@
     "bekannt": "Weniger bekannt als der Gjende nebenan – oft menschenleer.",
     "regel": "Jedermannsrecht gilt: höchstens zwei Nächte, Abstand zu den Hütten am Südufer.",
     "elevation_m": 1055,
-    "koordinaten_quelle": "no.wikipedia: Bygdin"
+    "koordinaten_quelle": "no.wikipedia: Bygdin, 745 m ans Ufer gerückt (Kartenprüfung)"
   },
   {
     "name": "Rondvassbu im Rondane",
@@ -729,13 +731,14 @@
     ],
     "text": "Mitten auf Europas größter Hochebene, auf 1.250 m an der Straße von Eidfjord nach Geilo. Flache Weite mit Wollgras, Seen und dem größten Wildrentierbestand Europas.",
     "bekannt": "Die Hardangervidda ist ein Begriff, dieser Punkt daran nicht.",
-    "regel": "Im Nationalpark gilt das Jedermannsrecht. Von April bis Juni ist die Kalbungszeit der Wildrentiere – dann größeren Abstand halten. Feuer verboten."
+    "regel": "Im Nationalpark gilt das Jedermannsrecht. Von April bis Juni ist die Kalbungszeit der Wildrentiere – dann größeren Abstand halten. Feuer verboten.",
+    "elevation_m": 1255
   },
   {
     "name": "Hochebene über dem Vøringsfossen",
     "region": "Hardangervidda",
-    "lat": 60.42689,
-    "lng": 7.25114,
+    "lat": 60.42665,
+    "lng": 7.25093,
     "parking_lat": 60.4275,
     "parking_lng": 7.247,
     "access": "kurze_wanderung",
@@ -760,8 +763,8 @@
     "text": "Oberhalb des 182 m tief stürzenden Vøringsfossen, wo der Bjoreio über die Kante der Hardangervidda fällt. Der Punkt liegt abseits der neuen Aussichtsplattformen im offenen Fjell.",
     "bekannt": "Der bekannteste Wasserfall Norwegens.",
     "regel": "Auf den Plattformen und Parkplätzen ist Übernachten nicht erlaubt; im Gelände dahinter gilt das Jedermannsrecht. Abstand zur ungesicherten Abbruchkante halten.",
-    "elevation_m": 485,
-    "koordinaten_quelle": "no.wikipedia: Vøringsfossen"
+    "elevation_m": 642,
+    "koordinaten_quelle": "no.wikipedia: Vøringsfossen, 30 m ans Ufer gerückt (Kartenprüfung)"
   },
   {
     "name": "Aurlandsfjellet – Hochebene am Snøvegen",
@@ -832,8 +835,8 @@
   {
     "name": "Lovatnet bei Loen",
     "region": "Nordfjord",
-    "lat": 61.83,
-    "lng": 6.94,
+    "lat": 61.82749,
+    "lng": 6.93267,
     "parking_lat": 61.841,
     "parking_lng": 6.882,
     "access": "auto",
@@ -861,7 +864,7 @@
     "bekannt": "Bekanntes Fotomotiv, vor allem seit der Skylift in Loen gebaut wurde.",
     "regel": "Jedermannsrecht gilt: höchstens zwei Nächte, Abstand zu Höfen und Ferienhäusern. Feuerverbot 15. April bis 15. September.",
     "elevation_m": 35,
-    "koordinaten_quelle": "no.wikipedia: Lovatnet"
+    "koordinaten_quelle": "no.wikipedia: Lovatnet, 475 m ans Ufer gerückt (Kartenprüfung)"
   },
   {
     "name": "Nigardsbreen im Jostedal",
@@ -1125,8 +1128,8 @@
   {
     "name": "Saltstraumen bei Bodø",
     "region": "Nordland",
-    "lat": 67.23056,
-    "lng": 14.61389,
+    "lat": 67.2309,
+    "lng": 14.61177,
     "parking_lat": 67.234,
     "parking_lng": 14.6255,
     "access": "auto",
@@ -1152,13 +1155,13 @@
     "bekannt": "Weltrekordhalter und feste Größe auf jeder Nordland-Route.",
     "regel": "Jedermannsrecht gilt im offenen Gelände, nicht auf den Parkflächen an der Brücke. Kein Süßwasser direkt am Sund.",
     "elevation_m": 0,
-    "koordinaten_quelle": "no.wikipedia: Saltstraumen"
+    "koordinaten_quelle": "no.wikipedia: Saltstraumen, 98 m ans Ufer gerückt (Kartenprüfung)"
   },
   {
     "name": "Holandsfjorden vor dem Svartisen",
     "region": "Nordland",
-    "lat": 66.69906,
-    "lng": 13.74928,
+    "lat": 66.70213,
+    "lng": 13.75149,
     "parking_lat": 66.677,
     "parking_lng": 13.748,
     "access": "kurze_wanderung",
@@ -1183,8 +1186,8 @@
     "text": "Der Engabreen, eine Zunge des zweitgrößten Gletschers Norwegens, reicht fast bis zum Fjord hinunter. Rundgeschliffene Felsen und Moränenflächen davor, erreichbar per Boot über den Fjord.",
     "bekannt": "Bekannt als der Gletscher, der dem Meer am nächsten kommt.",
     "regel": "Jedermannsrecht gilt. Nicht auf die Gletscherzunge oder unter Eisabbrüche gehen. Feuerverbot 15. April bis 15. September.",
-    "elevation_m": 9,
-    "koordinaten_quelle": "no.wikipedia: Engabreen"
+    "elevation_m": 25,
+    "koordinaten_quelle": "no.wikipedia: Engabreen, 354 m ans Ufer gerückt (Kartenprüfung)"
   },
   {
     "name": "Torghatten auf Helgeland",
@@ -1313,38 +1316,6 @@
     "regel": "Jedermannsrecht gilt. Die Gletscherzunge nicht ohne Ausrüstung betreten.",
     "elevation_m": 277,
     "koordinaten_quelle": "Commons-Median aus 4 Fotos"
-  },
-  {
-    "name": "Altevatnet bei Innset",
-    "region": "Troms",
-    "lat": 68.52,
-    "lng": 19.55,
-    "parking_lat": 68.786,
-    "parking_lng": 19.492,
-    "access": "auto",
-    "hike_minutes": 15,
-    "above_treeline": true,
-    "has_lake": true,
-    "water_nearby": true,
-    "water_type": "see",
-    "water_distance_m": 80,
-    "water_reliable": "ganzjaehrig",
-    "ground_type": "moor",
-    "exposure": "exponiert",
-    "firewood_available": "keins",
-    "fire_allowed": "unklar",
-    "shelter_nearby": "nichts",
-    "mobile_signal": "schwach",
-    "discreet": "sehr",
-    "legal_status": "erlaubt",
-    "season": [
-      "sommer"
-    ],
-    "text": "Langgestreckter See im Grenzfjell des Bardu, über die Stichstraße ab Setermoen bis ans Ufer befahrbar. Zwergbirken, Seenketten und viel Platz – Ausgangspunkt in den Nationalpark Øvre Dividal.",
-    "bekannt": "In Nordnorwegen als Angel- und Wandergebiet bekannt, bei Reisenden kaum.",
-    "regel": "Jedermannsrecht gilt: höchstens zwei Nächte. Rentierherden ausweichen.",
-    "elevation_m": 479,
-    "koordinaten_quelle": "no.wikipedia: Altevatnet"
   },
   {
     "name": "Mollisfossen im Reisadalen",

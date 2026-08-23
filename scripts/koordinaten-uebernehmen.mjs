@@ -24,6 +24,14 @@ const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const VON_HAND = {
   'Ryten – Plateau über Kvalvika': { lat: 68.0868, lng: 13.0917, elevation_m: 481 },
   'Steindalsbreen in den Lyngenalpen': { lat: 69.5450, lng: 20.1900, elevation_m: 294 },
+
+  // Nachgetragen am 2026-08-23: Diese beiden waren die einzigen Kandidaten
+  // ganz ohne geprüfte Quelle — ihre Koordinate war noch die erste Schätzung
+  // aus der Recherche. OpenStreetMap kennt beide Orte, und bei Ersfjord zeigt
+  // der Foto-Median auf denselben Punkt. Ohne diesen Eintrag würde ein
+  // erneuter Lauf die alten Werte zurückschreiben.
+  'Ersfjord – Hang über dem Strand': { lat: 69.4801, lng: 17.3970, elevation_m: 0 },
+  'Dyranut auf der Hardangervidda': { lat: 60.36824, lng: 7.50358, elevation_m: 1245 },
 };
 
 // Wörter, die eine Höhenlage versprechen. Steht so eines im Namen und die
