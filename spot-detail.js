@@ -575,7 +575,7 @@ async function kommentareHolen(spotId) {
 async function fotosHolen(spotId) {
   const { data, error } = await window.WILDCAMP_AUTH.client
     .from('spot_photos')
-    .select('id, storage_path, uploaded_by, sort_order')
+    .select('id, storage_path, uploaded_by, sort_order, autor, lizenz, quelle_url')
     .eq('spot_id', spotId)
     .order('sort_order', { ascending: true })
     .order('created_at', { ascending: true });
@@ -590,6 +590,24 @@ function fotoAdresse(pfad) {
   return window.WILDCAMP_AUTH.client.storage
     .from('spot-photos')
     .getPublicUrl(pfad).data.publicUrl;
+}
+
+// Der Bildnachweis unter einem Foto.
+//
+// Nutzerfotos haben keinen — man muss sich nicht selbst nennen. Er erscheint
+// nur bei Bildern aus einer freien Quelle (Wikimedia Commons), und dort ist
+// er Pflicht: CC BY und CC BY-SA gelten nur, solange Fotograf, Lizenz und
+// Fundstelle genannt sind. Ohne diese Zeile wäre das Bild schlicht unerlaubt
+// verwendet.
+function nachweis(f) {
+  if (!f.autor && !f.lizenz) return '';
+
+  const text = escapeHtml([f.autor, f.lizenz].filter(Boolean).join(' · '));
+  const innen = f.quelle_url
+    ? `<a href="${escapeHtml(f.quelle_url)}" target="_blank" rel="noopener noreferrer">${text}</a>`
+    : text;
+
+  return `<span class="foto-nachweis" title="${text}">Foto: ${innen}</span>`;
 }
 
 async function meineBewertungHolen(spotId, nutzerId) {
@@ -665,6 +683,7 @@ function zeichnen(spot, kommentare, meineSterne, fotos = []) {
         // der Knopf, und die Datenbank würde es ohnehin nicht zulassen.
         meins ? `<button type="button" class="foto-weg" data-foto="${f.id}" ` +
                 `data-pfad="${escapeHtml(f.storage_path)}" title="Foto löschen">×</button>` : '',
+        nachweis(f),
         '</div>'
       );
     }

@@ -422,6 +422,22 @@ die Datenbank würde es auch gar nicht erlauben.
 Der Speicherort ist mit `db/008-fotos.sql` eingerichtet und muss nicht von
 Hand im Dashboard angelegt werden.
 
+### Bildnachweis
+
+Unter manchen Fotos steht eine kleine Zeile: *Foto: Name · CC BY-SA 4.0*, mit
+Link zur Quelle. Sie erscheint nur bei Bildern, die nicht von einem Nutzer
+stammen, sondern aus einer freien Quelle — bei den eingespielten Spots sind
+das Fotos von Wikimedia Commons.
+
+Das ist keine Höflichkeit, sondern die Bedingung: CC BY und CC BY-SA erlauben
+die Verwendung nur, solange Fotograf, Lizenz und Fundstelle genannt sind. Die
+drei Angaben stehen in `spot_photos` (`db/031-bildnachweis.sql`) direkt an dem
+Bild, um das es geht — in einer Fußnote am Seitenende gingen sie beim nächsten
+Umbau verloren.
+
+Wer selbst ein Foto hochlädt, bekommt keine solche Zeile. Man muss sich nicht
+selbst nennen.
+
 ---
 
 ## Am Handy ausprobieren
