@@ -754,7 +754,7 @@ body.hat-plus .stil-plus img { filter: none; }
 .schalter button[aria-pressed="false"] .name { color: var(--text-weak); }
 
 /* ==========================================================================
-   Alles Untere in einer Spalte: Statusmeldung, Positionsknopf, Fußzeile.
+   Alles Untere in einer Spalte: Statusmeldung und Positionsknopf.
    Gestapelt statt einzeln positioniert — so kann sich auf einem schmalen
    Handybildschirm nichts überlappen, egal wie lang eine Meldung wird.
    ========================================================================== */
@@ -818,26 +818,72 @@ body.hat-plus .stil-plus img { filter: none; }
 @media (hover: hover) { .rund:hover { background: var(--t2); } }
 .rund:disabled { opacity: 0.5; cursor: progress; }
 
-/* Fadenkreuz in der Kartenmitte — der Punkt, an dem "Spot hier anlegen" den
-   neuen Platz setzt. Deshalb bleibt es, auch seit die Koordinatenzeile weg
-   ist: Es zeigt nicht Zahlen an, sondern die Stelle, die der Knopf meint. */
-.fadenkreuz {
-  position: absolute;
-  left: 50%; top: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 5;
-  pointer-events: none;
-  width: 26px; height: 26px;
-  opacity: 0.75;
+/* ==========================================================================
+   Die Nadel — erscheint, wo man auf der Karte gedrückt hält (nadel.js)
+
+   Bis 2026-08-24 stand hier ein Fadenkreuz fest in der Bildmitte: Man schob
+   die Karte, bis die Stelle darunter lag. Jetzt zeigt man direkt hin.
+
+   Sie kommt mit einem kurzen Aufsetzen herein — die Bewegung erklärt in einem
+   Wimpernschlag, dass die Spitze den gemeinten Punkt meint und nicht die
+   Mitte des Tropfens.
+   ========================================================================== */
+.nadel {
+  width: 30px;
+  height: 42px;
+  cursor: pointer;
+  transform-origin: 50% 100%;   /* an der Spitze, dort steht sie auf */
+  animation: nadel-rein 260ms cubic-bezier(0.2, 1.5, 0.4, 1);
 }
-.fadenkreuz::before, .fadenkreuz::after {
-  content: "";
-  position: absolute;
-  background: #fff;
-  box-shadow: 0 0 3px rgba(0, 0, 0, 0.9);
+.nadel svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.nadel .koerper {
+  fill: var(--gruen);
+  stroke: #fff;
+  stroke-width: 1.6;
+  filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.45));
 }
-.fadenkreuz::before { left: 50%; top: 0; width: 1px; height: 100%; margin-left: -0.5px; }
-.fadenkreuz::after  { top: 50%; left: 0; height: 1px; width: 100%; margin-top: -0.5px; }
+.nadel .auge { fill: #fff; }
+
+@keyframes nadel-rein {
+  0%   { transform: translateY(-10px) scale(0.6); opacity: 0; }
+  100% { transform: translateY(0)     scale(1);   opacity: 1; }
+}
+
+/* Die Sprechblase an der Nadel: die Koordinaten und der Weg zum Anlegen. */
+.nadel-blase .maplibregl-popup-content { padding: 9px 11px 10px; }
+.nadel-koord {
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-weak);
+  cursor: pointer;
+  text-align: center;
+  margin-bottom: 7px;
+}
+@media (hover: hover) { .nadel-koord:hover { color: var(--text); } }
+
+.nadel-knopf {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  border: 0;
+  border-radius: 20px;
+  background: var(--gruen);
+  color: var(--auf-akzent);
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  padding: 9px 15px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+@media (hover: hover) { .nadel-knopf:hover { filter: brightness(1.08); } }
+
+/* Wer "Bewegung reduzieren" eingestellt hat, bekommt sie ohne das Aufsetzen. */
+@media (prefers-reduced-motion: reduce) {
+  .nadel { animation: none; }
+}
 
 /* ==========================================================================
    Statusmeldung (lädt / Fehler / Hinweis)
@@ -2504,7 +2550,8 @@ body.detail-offen .unten { right: 404px; }
 
 /* Die Leiste, die beim Setzen des Parkplatzes unten erscheint. Solange sie
    offen ist, verschwindet die Detail-Leiste: Sie deckt am Handy fast die
-   ganze Karte ab, und das Fadenkreuz läge darunter. */
+   ganze Karte ab — man käme an die Stelle, die man zeigen will, nicht heran.
+   Die Leiste sagt nur noch, was zu tun ist; gewählt wird an der Nadel. */
 .park-leiste {
   width: 100%;
   max-width: 460px;
@@ -2517,32 +2564,14 @@ body.detail-offen .unten { right: 404px; }
   box-shadow: 0 8px 28px var(--sch2);
 }
 .park-leiste[hidden] { display: none; }
-.park-knoepfe .haupt {
-  padding: 11px;
-  border: 0;
-  border-radius: 14px;
-  background: var(--gruen);
-  color: var(--auf-akzent);
-  font: inherit;
-  font-weight: 600;
-  font-size: 14px;
-  cursor: pointer;
-}
-.park-knoepfe .haupt:disabled { opacity: 0.6; cursor: progress; }
 .park-knoepfe .zweit { margin-bottom: 0; }
 .park-text { margin: 0; font-size: 13px; line-height: 1.45; }
-.park-koord {
-  margin: 7px 0 0;
-  font-size: 13px;
-  font-variant-numeric: tabular-nums;
-  color: var(--text-weak);
-}
 .park-knoepfe { display: flex; gap: 9px; margin-top: 11px; }
 .park-knoepfe button { flex: 1; margin: 0; }
 
 /* Solange der Parkplatz gesetzt wird, hat nichts anderes unten etwas
-   verloren: Die Detail-Leiste würde die Karte verdecken, und „Spot hier
-   anlegen" hieße jetzt etwas ganz anderes als sonst. */
+   verloren — die Detail-Leiste würde genau die Karte verdecken, auf die man
+   jetzt zeigen soll. */
 body.parkplatz-modus #detail,
 body.parkplatz-modus .knopf-zeile { display: none; }
 
@@ -5131,13 +5160,9 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   .detail { max-height: calc(76dvh - var(--tab-h)); }
 }
 
-/* Auf der Karte ist das Fadenkreuz die Mitte des Bildschirms — mit der Leiste
-   darunter liegt die optische Mitte etwas höher. */
-.fadenkreuz { top: calc(50% - var(--tab-h) / 2); }
-
 /* Solange ein Bereich offen ist, gehört die Karte nicht bedient. Ihre Knöpfe
-   haben eigene Ebenen und lägen sonst über der Seite — der Knopf „Spot hier
-   anlegen" mitten in der Merkliste.
+   haben eigene Ebenen und lägen sonst über der Seite — der Positionsknopf
+   mitten in der Merkliste.
 
    Das Spot-Blatt steht bewusst NICHT in dieser Liste: Es soll sich auch über
    der Entdecken-Seite und über der Merkliste öffnen lassen. Dafür braucht es
@@ -5146,7 +5171,6 @@ body.bereich-offen .ecke,
 body.bereich-offen .suche,
 body.bereich-offen .karten-chips,
 body.bereich-offen .unten,
-body.bereich-offen .fadenkreuz,
 body.bereich-offen #filter-hinweis,
 body.bereich-offen .kein-netz,
 body.bereich-offen .neue-fassung { display: none; }
@@ -6477,7 +6501,6 @@ body.bereich-offen.detail-offen::after {
   .ecke.links { left: calc(88px + max(12px, env(safe-area-inset-left))); }
   .suche { left: calc(164px + env(safe-area-inset-left)); }
   .unten { left: calc(88px + max(12px, env(safe-area-inset-left))); }
-  .fadenkreuz { left: calc(50% + 44px); top: 50%; }
 
   /* Der Inhalt der Bereiche bleibt in einer lesbaren Spalte, mittig. */
   .schirm > * { max-width: 760px; margin-left: auto; margin-right: auto; }
@@ -6549,7 +6572,6 @@ body.bereich-offen.detail-offen::after {
 </div>
 
 <div id="karte"></div>
-<div class="fadenkreuz"></div>
 
 <!-- Einführung beim allerersten Start. Der Inhalt wird von intro.js gebaut;
      versteckt bleibt sie, wenn das Gerät sie schon einmal gesehen hat. -->
@@ -6773,10 +6795,11 @@ body.bereich-offen.detail-offen::after {
 <div class="unten">
   <div class="status" id="status"></div>
 
+  <!-- Hier stand bis 2026-08-24 "Spot hier anlegen". Der Knopf legte den Spot
+       in der Bildmitte an, wo das Fadenkreuz stand — ohne das Kreuz hätte er
+       auf eine Stelle gezeigt, die niemand sieht. Angelegt wird jetzt an der
+       Nadel: auf der Karte gedrückt halten. -->
   <div class="knopf-zeile">
-    <button class="breit" id="knopf-spot-anlegen">
-      <span class="plus">+</span> Spot hier anlegen
-    </button>
     <button class="rund" id="knopf-position" title="Meine Position">➤</button>
   </div>
 
@@ -6952,6 +6975,7 @@ body.bereich-offen.detail-offen::after {
 <script src="app.js"></script>
 <script src="foto-ort.js"></script>
 <script src="spot-form.js"></script>
+<script src="nadel.js"></script>
 <!-- Nach spot-form.js, weil das Detail dessen Feldliste GRUPPEN mitbenutzt. -->
 <script src="wetter.js"></script>
 <!-- Die Wanderroute: zeichnet die Linie auf die Karte und baut den Block in

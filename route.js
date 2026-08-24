@@ -354,12 +354,17 @@ ${punkte}
   // ==========================================================================
   // 4. DEN PARKPLATZ SETZEN
   //
-  // Über das Fadenkreuz, genau wie beim Anlegen eines Spots. Ein Antippen der
-  // Karte wäre die kürzere Geste, würde aber mit den Spots und den
-  // OSM-Punkten in Streit geraten, die alle schon auf Klicks hören.
+  // Mit derselben Geste wie beim Anlegen eines Spots: auf der Stelle gedrückt
+  // halten. Bis 2026-08-24 schob man stattdessen die Karte unter ein festes
+  // Fadenkreuz. Das Kreuz gibt es nicht mehr, und eine zweite Art, auf eine
+  // Stelle zu zeigen, wäre auch vorher schon eine zuviel gewesen.
+  //
+  // Die Nadel macht die Arbeit (nadel.js) — sie wird nur kurz ausgeliehen:
+  // ihr Knopf heißt in diesem Modus "Hier ist der Parkplatz". Die Koordinaten
+  // stehen in ihrer Sprechblase, deshalb braucht die Leiste hier keine mehr.
   //
   // Solange der Modus läuft, verschwindet die Detail-Leiste. Sie deckt am
-  // Handy fast die ganze Karte ab — das Fadenkreuz läge darunter.
+  // Handy fast die ganze Karte ab — man käme an die Karte gar nicht heran.
   // ==========================================================================
 
   let leiste = null;
@@ -371,31 +376,23 @@ ${punkte}
     leiste.className = 'park-leiste';
     leiste.hidden = true;
     leiste.innerHTML =
-      '<p class="park-text">Schieb die Karte, bis das Fadenkreuz auf dem ' +
-      '<b>Parkplatz</b> liegt — dort, wo dein Auto stehen bleibt.</p>' +
-      '<p class="park-koord" id="park-koord"></p>' +
+      '<p class="park-text">Halt auf dem <b>Parkplatz</b> gedrückt — dort, wo ' +
+      'dein Auto stehen bleibt. Dann steht die Nadel dort, und du tippst auf ' +
+      '<b>Hier ist der Parkplatz</b>.</p>' +
       '<div class="park-knoepfe">' +
       '<button type="button" class="zweit" id="park-ab">Abbrechen</button>' +
-      '<button type="button" class="haupt" id="park-ok">Hier ist der Parkplatz</button>' +
       '</div>';
 
-    // Sie gehört in die Leiste unten links, zu den anderen Kartenknöpfen —
-    // dort stapelt sie sich über der Fußzeile, statt sie zu verdecken.
+    // Sie gehört in die Spalte unten links, zu den anderen Kartenknöpfen.
     (document.querySelector('.unten') || document.body).prepend(leiste);
     return leiste;
-  }
-
-  function koordSchreiben() {
-    const el = document.getElementById('park-koord');
-    if (!el) return;
-    const c = karte.getCenter();
-    el.textContent = `${c.lat.toFixed(5)}, ${c.lng.toFixed(5)}`;
   }
 
   function modusBeenden() {
     if (leiste) leiste.hidden = true;
     document.body.classList.remove('parkplatz-modus');
-    karte.off('move', koordSchreiben);
+    window.WILDSPOT_NADEL.zielAus();
+    window.WILDSPOT_NADEL.weg();
   }
 
   function modusStarten(spot) {
@@ -403,18 +400,22 @@ ${punkte}
     leiste.hidden = false;
     document.body.classList.add('parkplatz-modus');
 
-    koordSchreiben();
-    karte.on('move', koordSchreiben);
-
     // Weit genug herauszoomen, dass Spot und möglicher Parkplatz zusammen ins
     // Bild passen: Ein Parkplatz liegt selten näher als ein paar hundert Meter.
     if (karte.getZoom() > 15) karte.easeTo({ zoom: 14.5, duration: 500 });
 
+    window.WILDSPOT_NADEL.ziel({
+      text: 'Hier ist der Parkplatz',
+      gewaehlt: (lat, lng) => {
+        // Der Modus ist mit der Wahl vorbei — die Nadel hat sich selbst schon
+        // abgemeldet, hier bleibt die Leiste zu schließen.
+        if (leiste) leiste.hidden = true;
+        document.body.classList.remove('parkplatz-modus');
+        speichern(spot, lat, lng);
+      },
+    });
+
     document.getElementById('park-ab').onclick = modusBeenden;
-    document.getElementById('park-ok').onclick = () => {
-      const c = karte.getCenter();
-      speichern(spot, c.lat, c.lng);
-    };
   }
 
   async function speichern(spot, lat, lng) {

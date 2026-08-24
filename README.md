@@ -245,7 +245,7 @@ die Karte soll den Platz haben, nicht die Bedienung.
 | **Ebenen-Knopf (oben links)** | Kartenstil wählen und Datenebenen ein- und ausblenden (Spots, Bergseen, Wasserfälle, **Gipfel**, Wasserstellen, Unterkünfte) |
 | **Filter-Knopf (darunter)** | Klappt das Filterblatt mit allen 28 Filtern auf; die Zahl darin sagt, wie viele gesetzt sind |
 | **Zahnrad (oben rechts)** | Konto, E-Mail-Adresse, Abmelden, Rechtshinweis |
-| **+ Spot hier anlegen** | Legt einen Spot am Fadenkreuz an |
+| **Auf die Karte gedrückt halten** | Setzt dort eine Nadel mit den Koordinaten und dem Knopf **+ Spot anlegen**. Am Rechner geht auch die rechte Maustaste. Die Nadel geht bei jedem Tippen daneben wieder weg |
 | **➤ unten rechts** | Springt zu deiner eigenen Position |
 
 Ein grüner Punkt am Zahnrad heißt: du bist angemeldet. Die Tafeln schließen
@@ -513,6 +513,7 @@ oder `https`. Eine direkt geöffnete Datei zählt für sie nicht dazu — der
 | `spot-detail.js` | Die Leiste rechts: Angaben, Bewertungen, Kommentare |
 | `wetter.js` | Wetter und Nachttemperatur am Spot (Open-Meteo) |
 | `route.js` | Die Wanderroute Parkplatz → Spot: Linie, Gehzeit, Höhenmeter |
+| `nadel.js` | Gedrückt halten → Nadel an der Stelle. Der Weg zum Anlegen eines Spots; die Route leiht sie sich fürs Setzen des Parkplatzes |
 | `teilen.js` | Der Teilen-Knopf und das Öffnen geteilter Spot-Links |
 | `suche.js` | Die Suchleiste über Spots, OSM-Punkte und Orte |
 | `foto-ort.js` | Liest die Koordinaten aus einem Handyfoto (EXIF) |
