@@ -832,10 +832,21 @@ body.hat-plus .stil-plus img { filter: none; }
   width: 30px;
   height: 42px;
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
   transform-origin: 50% 100%;   /* an der Spitze, dort steht sie auf */
   animation: nadel-rein 260ms cubic-bezier(0.2, 1.5, 0.4, 1);
 }
 .nadel svg { width: 100%; height: 100%; display: block; overflow: visible; }
+
+/* MapLibre macht jeden Marker mit tabindex="0" anspringbar. Am Handy heißt
+   das: Wer die Nadel oder den Knopf antippt, bekommt hinterher den blauen
+   Standardrahmen des Browsers um das Angetippte gemalt — er bleibt stehen,
+   bis man woanders hintippt, und sieht aus wie ein Fehler.
+   :focus-visible trennt Finger von Tastatur: Der Finger bekommt nichts, wer
+   sich mit der Tabulatortaste bewegt, weiterhin einen Rahmen — nur in Grün
+   statt im Systemblau. */
+.nadel:focus { outline: none; }
+.nadel:focus-visible { outline: 2px solid var(--gruen); outline-offset: 3px; border-radius: 6px; }
 .nadel .koerper {
   fill: var(--gruen);
   stroke: #fff;
@@ -853,6 +864,7 @@ body.hat-plus .stil-plus img { filter: none; }
 .nadel-blase .maplibregl-popup-content { padding: 9px 11px 10px; }
 .nadel-koord {
   font-size: 12px;
+  -webkit-tap-highlight-color: transparent;
   font-variant-numeric: tabular-nums;
   color: var(--text-weak);
   cursor: pointer;
@@ -877,8 +889,13 @@ body.hat-plus .stil-plus img { filter: none; }
   padding: 9px 15px;
   cursor: pointer;
   white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
 }
 @media (hover: hover) { .nadel-knopf:hover { filter: brightness(1.08); } }
+
+/* Wie bei der Nadel: Der Finger hinterlässt keinen Rahmen, die Tastatur schon. */
+.nadel-knopf:focus { outline: none; }
+.nadel-knopf:focus-visible { outline: 2px solid var(--gruen); outline-offset: 2px; }
 
 /* Wer "Bewegung reduzieren" eingestellt hat, bekommt sie ohne das Aufsetzen. */
 @media (prefers-reduced-motion: reduce) {
