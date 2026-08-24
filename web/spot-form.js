@@ -1,8 +1,9 @@
 // ============================================================================
 // Einen Spot anlegen
 //
-// Die Position ist immer die Kartenmitte — das Fadenkreuz. Wer den Spot
-// woanders haben will, schiebt vorher die Karte.
+// Die Position ist die Stelle, an der die Nadel steht — dort, wo man auf der
+// Karte gedrückt gehalten hat. Wer sie woanders haben will, schließt das
+// Formular und hält an der richtigen Stelle.
 //
 // Die Felder unten sind 1:1 die Liste aus KONZEPT.md, Abschnitt 3. Sie stehen
 // hier als Daten, nicht als HTML: eine neue Auswahlmöglichkeit ist damit eine
@@ -165,7 +166,6 @@ const spotSpeichern  = document.getElementById('spot-speichern');
 const spotName       = document.getElementById('spot-name');
 const spotBeschreib  = document.getElementById('spot-beschreibung');
 const spotTitel      = document.getElementById('spot-titel');
-const knopfAnlegen   = document.getElementById('knopf-spot-anlegen');
 const ausFotoKasten  = document.getElementById('aus-foto');
 const ortFotoKnopf   = document.getElementById('ort-foto-knopf');
 const ortFotoDatei   = document.getElementById('ort-foto-datei');
@@ -280,15 +280,18 @@ function spotMeldungSetzen(text, art = 'info') {
   spotMeldung.className = 'login-meldung' + (text ? ' sichtbar ' + art : '');
 }
 
-knopfAnlegen.onclick = () => {
+// Aufgerufen von der Nadel (nadel.js): Man hält auf der Karte gedrückt, die
+// Nadel setzt sich, und der Knopf in ihrer Sprechblase landet hier. Die
+// Koordinaten kommen von dort mit — diese Funktion sucht sie sich nicht
+// selbst. Vorher las sie die Kartenmitte aus, weil dort das Fadenkreuz stand;
+// seit man die Stelle direkt antippt, wäre das die falsche Stelle.
+function spotAnlegenAn(lat, lng) {
   // Ohne Konto geht es nicht weiter — die Datenbank hängt jeden Spot an einen
   // Nutzer. Statt einer Fehlermeldung gleich das Anmeldefenster.
   if (!window.WILDCAMP_AUTH.nutzer) {
     window.WILDCAMP_AUTH.anmeldenZeigen();
     return;
   }
-
-  const c = karte.getCenter();
 
   bearbeiteId = null;
   spotTitel.textContent = 'Neuer Spot';
@@ -297,15 +300,17 @@ knopfAnlegen.onclick = () => {
   ortAusFotoZuruecksetzen();
   ausFotoKasten.hidden = false;
   spotPosition.textContent =
-    `Position: ${c.lat.toFixed(5)}, ${c.lng.toFixed(5)} — das Fadenkreuz auf der Karte.`;
+    `Position: ${lat.toFixed(5)}, ${lng.toFixed(5)} — die Stelle, auf die du gedrückt hast.`;
 
-  spotKoordinaten = { lat: c.lat, lng: c.lng };
+  spotKoordinaten = { lat, lng };
   spotMeldungSetzen('');
   spotHg.hidden = false;
   spotName.focus();
 
-  hoeheVorschlagen(c.lat, c.lng);
-};
+  hoeheVorschlagen(lat, lng);
+}
+
+window.WILDSPOT_SPOT_ANLEGEN = spotAnlegenAn;
 
 // ============================================================================
 // 3b. EINEN BESTEHENDEN SPOT BEARBEITEN
@@ -313,9 +318,9 @@ knopfAnlegen.onclick = () => {
 // Aufgerufen aus der Detail-Leiste. Die Werte kommen von dort mit — der Spot
 // ist zum Anzeigen ohnehin schon geladen, ein zweites Mal holen wäre unnötig.
 //
-// Die Position bleibt, wie sie ist: Sie wurde einmal am Fadenkreuz gesetzt,
-// und ein Spot, der beim Bearbeiten heimlich zur aktuellen Kartenmitte
-// wandert, wäre die unangenehmste Überraschung, die diese App bieten könnte.
+// Die Position bleibt, wie sie ist: Sie wurde einmal beim Anlegen gesetzt,
+// und ein Spot, der beim Bearbeiten heimlich woandershin wandert, wäre die
+// unangenehmste Überraschung, die diese App bieten könnte.
 // ============================================================================
 
 function spotBearbeiten(spot, lat, lng) {
@@ -402,16 +407,10 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' && !spotHg.hidden) spotFensterSchliessen();
 });
 
-// Der Knopf heißt anders, je nachdem ob jemand angemeldet ist.
-function spotKnopfAnpassen(nutzer) {
-  knopfAnlegen.innerHTML = nutzer
-    ? '<span class="plus">+</span> Spot hier anlegen'
-    : '<span class="plus">+</span> Spot anlegen — anmelden';
-}
-window.spotKnopfAnpassen = spotKnopfAnpassen;
-
-// Falls die Anmeldung schon durch war, bevor diese Datei geladen wurde.
-spotKnopfAnpassen(window.WILDCAMP_AUTH.nutzer);
+// Bis 2026-08-24 stand unten ein Knopf "Spot hier anlegen", dessen Beschriftung
+// sich nach dem Anmeldestand richtete. Den Knopf gibt es nicht mehr — angelegt
+// wird an der Nadel. Ob jemand angemeldet ist, fragt spotAnlegenAn() beim
+// Antippen selbst ab und öffnet notfalls die Anmeldung.
 
 // ============================================================================
 // 3c. DEN ORT AUS EINEM FOTO ÜBERNEHMEN

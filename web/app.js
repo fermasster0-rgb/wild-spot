@@ -6,8 +6,8 @@
 //   2. Sie holt die Wasserstellen aus deiner Supabase-Datenbank — aber immer
 //      nur die im sichtbaren Ausschnitt, nie alle 55.000.
 //   3. Sie findet auf Knopfdruck deine eigene Position.
-//   4. Das Fadenkreuz markiert die Kartenmitte. Genau dort wird
-//      später ein neuer Spot angelegt.
+//   4. Wer auf einer Stelle gedrückt hält, bekommt dort eine Nadel — und an
+//      der legt er den Spot an (nadel.js).
 //
 // Die Zugangsdaten stehen in config.js.
 // ============================================================================
@@ -1834,11 +1834,8 @@ async function spotsLaden() {
 }
 
 // Bei An- und Abmeldung sofort neu laden statt auf die nächste Bewegung warten.
-auth.beiWechsel.push((nutzer) => {
+auth.beiWechsel.push(() => {
   spotsLaden();
-  // spot-form.js wird nach dieser Datei geladen. Beim allerersten Ereignis
-  // kann die Funktion deshalb noch fehlen — dann holt sie es selbst nach.
-  if (typeof spotKnopfAnpassen === 'function') spotKnopfAnpassen(nutzer);
 });
 
 // ============================================================================
@@ -1987,14 +1984,12 @@ function kreis(lng, lat, meter) {
 // 10. (frei)
 //
 // Hier stand bis 2026-08-24 die Anzeige der Kartenmitte: Breite, Länge und
-// Zoom, laufend bei jeder Bewegung neu geschrieben, zum Kopieren anklickbar.
-// Sie ist ersatzlos entfernt. Wer einen Platz meint, zeigt auf die Karte —
-// er liest keine Dezimalgrade ab. Der Zoom war ohnehin nur eine Zahl über
-// eine Ansicht, die man bereits sieht.
+// Zoom, laufend bei jeder Bewegung neu geschrieben. Am selben Tag ging auch
+// das Fadenkreuz, das sie erklärte.
 //
-// Das Fadenkreuz bleibt: Es zeigt weiterhin die Stelle, an der "Spot hier
-// anlegen" den neuen Platz setzt. Die Koordinaten dieser Stelle holt sich
-// spot-form.js direkt von der Karte.
+// Beides zeigte auf die Bildmitte, weil dort der Spot angelegt wurde. Seit
+// man auf die Stelle gedrückt hält, ist die Bildmitte nichts Besonderes mehr
+// — die Koordinaten stehen an der Nadel (nadel.js).
 // ============================================================================
 
 // ============================================================================
