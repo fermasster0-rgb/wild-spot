@@ -1591,7 +1591,6 @@ async function punkteLaden() {
   if (zoom < WELTSICHT) {
     for (const gruppe of OSM_EBENEN) karte.getSource(gruppe)?.setData(leer());
     letzteBbox = null;
-    status('');
     return;
   }
 
@@ -1613,9 +1612,6 @@ async function punkteLaden() {
   const lade = [sicht[0] - dx, sicht[1] - dy, sicht[2] + dx, sicht[3] + dy];
 
   laeuft = true;
-  status(modus === 'nur-seen'
-    ? 'Bergseen und Wasserfälle werden geladen …'
-    : 'Karte wird geladen …');
 
   try {
     const zeilen = await punkteAbfragen(lade, modus === 'nur-seen' ? WEITSICHT_ARTEN : null);
@@ -1649,28 +1645,18 @@ async function punkteLaden() {
     letzteBbox = lade;
     letzterModus = modus;
 
-    // Wie die Ebenen in der Meldung heißen sollen, in dieser Reihenfolge.
-    const NAMEN = {
-      seen: 'Bergseen', wasserfall: 'Wasserfälle',
-      wasser: 'Wasserstellen', unterstand: 'Unterkünfte',
-      gipfel: 'Gipfel',
-    };
-
-    const teile = [];
-    for (const gruppe of ['seen', 'wasserfall', 'gipfel', 'wasser', 'unterstand']) {
-      if (nach[gruppe].length) teile.push(`${nach[gruppe].length} ${NAMEN[gruppe]}`);
-    }
-
-    if (modus === 'nur-seen') {
-      status(teile.length
-        ? teile.join(' und ') + '. Näher heranzoomen für Wasser und Unterkünfte.'
-        : 'Näher heranzoomen, dann erscheinen Wasserstellen und Unterkünfte.',
-        { dauer: 2500 });
-    } else {
-      status(teile.length
-        ? teile.join(', ') + ' in diesem Ausschnitt.'
-        : 'In diesem Ausschnitt ist nichts eingetragen.', { dauer: 2500 });
-    }
+    // Hier stand bis 2026-08-24 eine Meldung nach jedem Laden: erst "Karte
+    // wird geladen …", dann die Zählung ("14 Bergseen, 3 Gipfel in diesem
+    // Ausschnitt") und bei weitem Zoom der Hinweis, näher heranzugehen.
+    //
+    // Sie kam bei jedem Verschieben und jedem Zoomen wieder, also im Minuten-
+    // takt, und stand jedes Mal unten im Bild. Wer eine Karte bewegt, schaut
+    // auf die Karte — was geladen wurde, sieht er dort bereits: Die Punkte
+    // erscheinen ja. Eine Meldung, die nur bestätigt, was ohnehin zu sehen
+    // ist, ist reines Blinken.
+    //
+    // Was blieb: alles, was schiefgehen kann. Fehler und der Offline-Fall
+    // melden sich weiterhin — die sieht man der Karte nämlich nicht an.
 
   } catch (err) {
     letzteBbox = null;
