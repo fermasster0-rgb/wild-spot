@@ -247,7 +247,6 @@ die Karte soll den Platz haben, nicht die Bedienung.
 | **Zahnrad (oben rechts)** | Konto, E-Mail-Adresse, Abmelden, Rechtshinweis |
 | **+ Spot hier anlegen** | Legt einen Spot am Fadenkreuz an |
 | **➤ unten rechts** | Springt zu deiner eigenen Position |
-| **Zahlen unten links** | Koordinaten des Fadenkreuzes — anklicken kopiert sie |
 
 Ein grüner Punkt am Zahnrad heißt: du bist angemeldet. Die Tafeln schließen
 sich mit `Esc`, mit einem Klick auf die Karte oder auf denselben Knopf.

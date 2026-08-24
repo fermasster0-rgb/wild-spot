@@ -6,7 +6,7 @@
 //   2. Sie holt die Wasserstellen aus deiner Supabase-Datenbank — aber immer
 //      nur die im sichtbaren Ausschnitt, nie alle 55.000.
 //   3. Sie findet auf Knopfdruck deine eigene Position.
-//   4. Sie zeigt unten die Koordinaten der Kartenmitte. Genau dort wird
+//   4. Das Fadenkreuz markiert die Kartenmitte. Genau dort wird
 //      später ein neuer Spot angelegt.
 //
 // Die Zugangsdaten stehen in config.js.
@@ -1052,7 +1052,6 @@ karte.on('load', () => {
   ebenenAnwenden();
   punkteLaden();
   spotsLaden();
-  mitteAnzeigen();
 });
 
 function leer() {
@@ -1985,30 +1984,18 @@ function kreis(lng, lat, meter) {
 }
 
 // ============================================================================
-// 10. KOORDINATEN DER KARTENMITTE
+// 10. (frei)
 //
-// Das Fadenkreuz zeigt genau hierher. Beim Anlegen eines Spots wird das
-// später die Position des neuen Platzes sein.
+// Hier stand bis 2026-08-24 die Anzeige der Kartenmitte: Breite, Länge und
+// Zoom, laufend bei jeder Bewegung neu geschrieben, zum Kopieren anklickbar.
+// Sie ist ersatzlos entfernt. Wer einen Platz meint, zeigt auf die Karte —
+// er liest keine Dezimalgrade ab. Der Zoom war ohnehin nur eine Zahl über
+// eine Ansicht, die man bereits sieht.
+//
+// Das Fadenkreuz bleibt: Es zeigt weiterhin die Stelle, an der "Spot hier
+// anlegen" den neuen Platz setzt. Die Koordinaten dieser Stelle holt sich
+// spot-form.js direkt von der Karte.
 // ============================================================================
-
-const mitteEl = document.getElementById('mitte');
-
-function mitteAnzeigen() {
-  const c = karte.getCenter();
-  mitteEl.textContent = `${c.lat.toFixed(5)}, ${c.lng.toFixed(5)}  ·  Zoom ${karte.getZoom().toFixed(1)}`;
-  mitteEl.dataset.koord = `${c.lat.toFixed(5)}, ${c.lng.toFixed(5)}`;
-}
-
-karte.on('move', mitteAnzeigen);
-
-mitteEl.onclick = async () => {
-  try {
-    await navigator.clipboard.writeText(mitteEl.dataset.koord);
-    status('Koordinaten kopiert: ' + mitteEl.dataset.koord, { dauer: 2000 });
-  } catch {
-    status('Kopieren hat nicht geklappt — der Browser erlaubt es hier nicht.', { warnung: true, dauer: 3000 });
-  }
-};
 
 // ============================================================================
 // 11. RECHTSHINWEIS BEIM ERSTEN START
