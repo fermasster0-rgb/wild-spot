@@ -818,34 +818,9 @@ body.hat-plus .stil-plus img { filter: none; }
 @media (hover: hover) { .rund:hover { background: var(--t2); } }
 .rund:disabled { opacity: 0.5; cursor: progress; }
 
-/* ==========================================================================
-   Fußzeile — Koordinaten der Kartenmitte, Zoom, Attribution
-   ========================================================================== */
-.fuss {
-  background: var(--glas);
-  border: 1px solid var(--glas-rand);
-  border-radius: 17px;
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  backdrop-filter: blur(20px) saturate(180%);
-  padding: 8px 13px;
-  font-size: 12px;
-  color: var(--text-weak);
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  justify-content: space-between;
-  box-shadow: 0 4px 20px var(--sch1);
-}
-.fuss .mitte {
-  font-variant-numeric: tabular-nums;
-  color: var(--text);
-  cursor: pointer;
-}
-.fuss .quelle { text-align: right; line-height: 1.35; font-size: 11px; }
-.fuss a { color: var(--text-weak); }
-
-/* Fadenkreuz in der Kartenmitte — zeigt, worauf sich die Koordinaten beziehen.
-   Später ist das der Punkt, an dem ein neuer Spot angelegt wird. */
+/* Fadenkreuz in der Kartenmitte — der Punkt, an dem "Spot hier anlegen" den
+   neuen Platz setzt. Deshalb bleibt es, auch seit die Koordinatenzeile weg
+   ist: Es zeigt nicht Zahlen an, sondern die Stelle, die der Knopf meint. */
 .fadenkreuz {
   position: absolute;
   left: 50%; top: 50%;
@@ -2056,8 +2031,6 @@ body.detail-offen .unten { right: 404px; }
    Schmale Bildschirme — Handy hochkant
    ========================================================================== */
 @media (max-width: 520px) {
-  .fuss { flex-direction: column; align-items: flex-start; gap: 4px; }
-  .fuss .quelle { text-align: left; }
   /* Fürs Antippen mit dem Daumen. */
   .rund { width: 52px; height: 52px; }
   .werkzeug { width: 48px; height: 48px; }
@@ -5872,10 +5845,8 @@ body.bereich-offen.detail-offen::after {
   line-height: 1.25;
 }
 /* Der Name ist mit Bedacht gewählt: ".unten" heißt schon die Spalte mit den
-   Kartenknöpfen (die versteckt wird, sobald ein Bereich offen ist), und
-   ".fuss" die Fußzeile der Karte (die aus Glas ist und runde Ecken hat).
-   Beide Namen hat diese Zeile schon getragen — einmal war sie unsichtbar,
-   einmal sah sie aus wie eine Pille. */
+   Kartenknöpfen, die versteckt wird, sobald ein Bereich offen ist. Diesen
+   Namen hat die Zeile schon einmal getragen und war prompt unsichtbar. */
 .gipfelkachel .wer-oben {
   position: relative;
   display: block;
@@ -6809,19 +6780,11 @@ body.bereich-offen.detail-offen::after {
     <button class="rund" id="knopf-position" title="Meine Position">➤</button>
   </div>
 
-  <!-- Knapp gehalten: die Koordinaten sind das, was man hier wirklich braucht.
-       Die vollständige Quellenangabe steht in der Einstellungen-Tafel. -->
-  <div class="fuss">
-    <span class="mitte" id="mitte" title="Anklicken zum Kopieren">–</span>
-    <!-- Maptoolkit steht zuerst: Die Standardkarte ist deren Stil, und ihre
-         Lizenz verlangt die Nennung ausdrücklich. -->
-    <span class="quelle">
-      © <a href="https://www.maptoolkit.org" target="_blank" rel="noopener">Maptoolkit</a>,
-      <a href="https://basemap.at" target="_blank" rel="noopener">basemap.at</a>,
-      <a href="https://www.esri.com" target="_blank" rel="noopener">Esri</a>,
-      <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>
-    </span>
-  </div>
+  <!-- Hier stand bis 2026-08-24 eine Fußzeile mit den Koordinaten der
+       Kartenmitte, dem Zoom und den Kartenquellen. Beides half beim Anschauen
+       der Karte niemandem: Zahlen liest man nicht, und die Quellen stehen
+       vollständig in der Einstellungen-Tafel unter "Rechtliches". Die Leiste
+       hat nur Platz und Blick weggenommen. -->
 </div>
 
 <!-- Spot-Detail: Merkmale, Bewertungen, Kommentare (KONZEPT.md, Screen 2 und 4).
