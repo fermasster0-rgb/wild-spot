@@ -2253,14 +2253,9 @@ body.detail-offen .unten { right: 404px; }
      ein fertig ausgespieltes Bild fühlt sich länger an, als es ist. */
   animation: start-weg 280ms ease-in 1240ms forwards;
 }
-#start svg { width: min(62vw, 260px); height: auto; overflow: visible; }
-
-/* Der Wald steht schon da, bevor gebaut wird — er blendet nur sanft auf und
-   bleibt Kulisse. Er soll dem Zelt nicht die Aufmerksamkeit nehmen. */
-#start .wald {
-  opacity: 0;
-  animation: start-wald 420ms ease-out 60ms forwards;
-}
+/* Ohne Wald ringsum darf das Zeichen die Bühne haben. Die viewBox sitzt
+   eng am Zelt, deshalb ist hier die Breite fast die Breite des Zelts. */
+#start svg { width: min(46vw, 200px); height: auto; overflow: visible; }
 
 /* Alle drei Linien starten unsichtbar. */
 #start .zelt path {
@@ -2294,7 +2289,6 @@ body.detail-offen .unten { right: 404px; }
   animation: start-steht 380ms ease-out 1020ms;
 }
 
-@keyframes start-wald     { to { opacity: 0.5; } }
 @keyframes start-zeichnen { to { stroke-dashoffset: 0; } }
 @keyframes start-weg      { to { opacity: 0; visibility: hidden; } }
 
@@ -2307,13 +2301,12 @@ body.detail-offen .unten { right: 404px; }
 /* Wer im System "Bewegung reduzieren" eingestellt hat, bekommt keine
    Animation, sondern nur einen kurzen ruhigen Moment mit dem fertigen Zelt. */
 @media (prefers-reduced-motion: reduce) {
-  #start .wald, #start .zelt, #start .zelt path {
+  #start .zelt, #start .zelt path {
     animation: none;
     opacity: 1;
     transform: none;
     stroke-dashoffset: 0;
   }
-  #start .wald { opacity: 0.5; }
   #start { animation: start-weg 200ms ease-in 420ms forwards; }
 }
 
@@ -6538,44 +6531,27 @@ body.bereich-offen.detail-offen::after {
      Der Start. Steht bewusst als Erstes im Dokument: So ist er sofort da,
      noch bevor Karte und Skripte geladen sind.
 
-     Gezeichnet ist alles im selben Strich wie das App-Symbol — dieselbe
-     Farbe, dieselbe Strichstärke, dieselben runden Enden. Die Tannen sind
-     nur Zickzack-Linien: Ein Wald muss hier nicht botanisch stimmen, er muss
-     in einer Sekunde als Wald zu erkennen sein.
+     Zu sehen ist nur das Zeichen der App — dieselbe Farbe, dieselbe
+     Strichstärke, dieselben runden Enden wie im App-Symbol. Bis 2026-08-24
+     stand ringsum ein Wald aus sechs Tannen; er nahm dem Zelt den Platz und
+     die Aufmerksamkeit, ohne selbst etwas zu erzählen.
+
+     Die viewBox ist eng um das Zelt gelegt. Sie steht weiterhin im Raster
+     des alten Bildes (0 0 240 130), damit die Zahlen in der Positionierung
+     und in transform-origin unverändert stimmen — beschnitten wird nur der
+     leere Rand.
 
      Entfernt wird das Ganze von dem kleinen Skript am Ende der Seite.
      ========================================================================== -->
 <div id="start" aria-hidden="true">
-  <svg viewBox="0 0 240 130" fill="none" stroke="#7bb661" stroke-width="1.7"
+  <svg viewBox="95 62 50 47" fill="none" stroke="#7bb661" stroke-width="1.7"
        stroke-linecap="round" stroke-linejoin="round">
-
-    <!-- Eine Tanne, einmal gezeichnet und sechsmal benutzt. -->
-    <defs>
-      <g id="tanne">
-        <path d="M0 20 6 8l6 12"/>
-        <path d="M2 13 6 4l4 9"/>
-        <path d="M6 20v4"/>
-      </g>
-    </defs>
-
-    <g class="wald">
-      <!-- Der Boden. Leicht wellig, damit es nach Gelände aussieht und nicht
-           nach Tisch. -->
-      <path d="M8 106q34-5 62 0t70 1q36-4 92 2"/>
-
-      <!-- Links und rechts je drei Tannen, verschieden groß und leicht
-           versetzt. Die Lücke in der Mitte ist der Platz fürs Zelt. -->
-      <use href="#tanne" transform="translate(14,82) scale(1.05)"/>
-      <use href="#tanne" transform="translate(38,76) scale(1.3)"/>
-      <use href="#tanne" transform="translate(64,84) scale(0.92)"/>
-      <use href="#tanne" transform="translate(158,84) scale(0.98)"/>
-      <use href="#tanne" transform="translate(182,74) scale(1.35)"/>
-      <use href="#tanne" transform="translate(210,80) scale(1.12)"/>
-    </g>
 
 
     <!-- Das Zelt: exakt die Pfade des App-Symbols, nur größer gerechnet.
-         Bei scale(2.4) liegt die Grundlinie (y=20) genau auf dem Boden.
+         Bei scale(2.4) liegt die Grundlinie (y=20) auf y=106 — der Zeile, auf
+         der früher der Waldboden lag und an der das Zelt bis heute verankert
+         ist (siehe transform-origin im CSS).
 
          Zwei Gruppen, und das ist kein Zufall: Ein transform aus dem CSS
          ERSETZT das transform-Attribut, es kommt nicht dazu. Stünden Bewegung
