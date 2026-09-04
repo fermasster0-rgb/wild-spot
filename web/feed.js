@@ -718,9 +718,36 @@
     leute:      'entdecken-leute',
   };
 
+  // Was oben auf der Seite steht, wenn diese Tafel offen ist. Jede Zeile sagt
+  // etwas über den Inhalt darunter — keine benennt die Tafel noch einmal, die
+  // in der Leiste unten ohnehin markiert ist.
+  //
+  // Bei "spots" trägt screens.js die Zahl nach, sobald sie da ist. Bis dahin
+  // steht der Satz ohne Zahl — richtiger als eine Null, die gleich wieder
+  // springt.
+  const TAFEL_TITEL = {
+    spots:      'Plätze für die Nacht draußen',
+    alle:       'Was Leute draußen erlebt haben',
+    folge:      'Was Leute draußen erlebt haben',
+    aktivitaet: 'Was sich zuletzt getan hat',
+    leute:      'Wer hier unterwegs ist',
+  };
+
   function reiterSetzen(welcher) {
     if (!TAFELN[welcher]) welcher = 'spots';
     const istFeed = welcher === 'alle' || welcher === 'folge';
+
+    const titel = $('entdecken-titel');
+    if (titel) {
+      // Die Spots-Tafel behält ihre bereits gesetzte Zahl. Sie beim
+      // Zurückwechseln wegzuwerfen und neu holen zu lassen, ließe die
+      // Überschrift bei jedem Reitertippen kurz zappeln.
+      if (welcher === 'spots' && titel.dataset.zahlDa === 'ja') {
+        titel.innerHTML = titel.dataset.mitZahl || TAFEL_TITEL.spots;
+      } else {
+        titel.textContent = TAFEL_TITEL[welcher] || TAFEL_TITEL.spots;
+      }
+    }
 
     for (const k of document.querySelectorAll('#entdecken-reiter [data-tafel]')) {
       // „Ich folge" ist kein eigener Reiter mehr, sondern ein Umschalter im

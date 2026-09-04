@@ -237,15 +237,17 @@
     const frost   = n.kalt <= 0;
     const klar    = n.wolken < 25;
 
+    // Kurz halten: Der Satz steht neben einer großen Zahl und darf nicht in
+    // eine dritte Zeile laufen — sonst kippt die Karte optisch nach rechts.
     if (n.code >= 95)  return ['Gewitter — heute nicht.', 'schlecht'];
-    if (n.regen >= 4)  return ['Nass. Zelt und Schlafsack trocknen bis morgen nicht.', 'schlecht'];
-    if (nass)          return ['Es regnet in der Nacht. Machbar, aber ungemütlich.', 'mau'];
-    if (stuermisch)    return ['Zu windig. Ein Zelt steht darin nicht ruhig.', 'mau'];
-    if (frost && klar) return ['Klar und frostig — schöner Himmel, harte Nacht.', 'mau'];
-    if (frost)         return ['Unter null. Nur mit dem richtigen Schlafsack.', 'mau'];
-    if (klar && n.kalt >= 8)  return ['Klar, trocken, mild. So gut wird es selten.', 'gut'];
-    if (klar)          return ['Klar und trocken — Sternenhimmel.', 'gut'];
-    if (n.wolken >= 80) return ['Trocken, aber bedeckt. Vom Himmel wenig zu sehen.', 'okay'];
+    if (n.regen >= 4)  return ['Nass. Nichts trocknet bis morgen.', 'schlecht'];
+    if (nass)          return ['Regen in der Nacht. Ungemütlich.', 'mau'];
+    if (stuermisch)    return ['Zu windig für ein ruhiges Zelt.', 'mau'];
+    if (frost && klar) return ['Schöner Himmel, harte Nacht.', 'mau'];
+    if (frost)         return ['Unter null — Schlafsack prüfen.', 'mau'];
+    if (klar && n.kalt >= 8)  return ['So gut wird es selten.', 'gut'];
+    if (klar)          return ['Sternenhimmel, trocken.', 'gut'];
+    if (n.wolken >= 80) return ['Trocken, aber bedeckt.', 'okay'];
     return ['Trocken und ruhig.', 'gut'];
   }
 
@@ -338,15 +340,20 @@
 
     const grad = (t) => `${Math.round(t)}°`;
 
-    const wo = wahl.weil === 'nah' && wahl.km != null
-      ? `${sicher(s.name)} · ${wahl.km < 10 ? wahl.km.toFixed(1) : Math.round(wahl.km)} km von hier`
-      : sicher(s.name);
+    // Der Name steht allein in seiner Zeile. Die Entfernung hing bis zum
+    // 2026-09-04 mit einem Mittelpunkt daran und schob den halben Namen in
+    // eine zweite fette Zeile — ein Ortsname ist keine Angabe, sondern eine
+    // Überschrift, und Überschriften umbricht man nicht wegen einer Zahl.
+    const wo = sicher(s.name);
 
     const angaben = [];
+    if (wahl.weil === 'nah' && wahl.km != null) {
+      angaben.push(`${wahl.km < 10 ? wahl.km.toFixed(1) : Math.round(wahl.km)} km von hier`);
+    }
+    if (Number.isFinite(s.elevation_m)) angaben.push(`${zahl(s.elevation_m)} m`);
     if (dunkel) angaben.push(`dunkel ab ${dunkel}`);
     if (kommend.wind >= 10) angaben.push(`Wind ${Math.round(kommend.wind)} km/h`);
     if (kommend.regen >= 0.2) angaben.push(`${kommend.regen.toFixed(1)} mm Regen`);
-    if (Number.isFinite(s.elevation_m)) angaben.push(`${zahl(s.elevation_m)} m`);
 
     const ueberschrift = jetzt < BIS ? 'Diese Nacht' : 'Heute Nacht';
 
@@ -360,7 +367,12 @@
            </span>
          </span>
          <span class="heute-wo">${wo}</span>
-         ${angaben.length ? `<span class="heute-klein">${angaben.join(' · ')}</span>` : ''}
+         ${angaben.length
+            // Höchstens drei. Alle fünf hintereinander liefen über zwei
+            // Zeilen, und die vierte Angabe hat noch nie jemanden zum
+            // Losfahren gebracht. Die Reihenfolge oben ist die Rangfolge.
+            ? `<span class="heute-klein">${angaben.slice(0, 3).join(' · ')}</span>`
+            : ''}
        </button>`
       + (beste
         ? `<p class="heute-aussicht">Die beste Nacht der Woche wäre dort
@@ -368,11 +380,13 @@
              ${himmel(beste.code, beste.wolken).toLowerCase()}.</p>`
         : '');
 
+    // Kurz genug für eine Zeile. Der lange Satz ("… — und wie die Nacht dort
+    // wird") sagte nur noch einmal, was die Karte darunter ohnehin zeigt.
     const unter = $('entdecken-heute-unter');
     if (unter) {
       unter.textContent = wahl.weil === 'nah'
-        ? 'Der nächste Platz von hier — und wie die Nacht dort wird'
-        : 'Ein Platz aus der Karte — und wie die Nacht dort wird';
+        ? 'Am nächsten Platz von hier'
+        : 'An einem Platz aus der Karte';
     }
 
     kasten.querySelector('.heute-karte')?.addEventListener('click', () => {

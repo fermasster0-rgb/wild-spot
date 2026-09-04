@@ -1548,13 +1548,26 @@ body.detail-offen .unten { right: 404px; }
   line-height: 1.3;
   word-break: break-word;
 }
+/* Die Zeile unter dem Namen: erst die Kennzahlen des Platzes, dahinter die
+   Koordinaten zum Kopieren (spot-detail.js, kopfzeileSetzen). */
 .detail-kopf .koord {
-  font-size: 12px;
-  color: var(--text-weak);
+  display: block;
+  font-size: 12.5px;
+  color: var(--text-lese);
   font-variant-numeric: tabular-nums;
   cursor: pointer;
+  line-height: 1.45;
 }
-@media (hover: hover) { .detail-kopf .koord:hover { color: var(--text); } }
+/* Die Zahlen treten hinter die Angaben zurück: eine Spur kleiner, blasser,
+   und auf einem Handy in der Zeile darunter — sie sind das Nachschlagewerk,
+   nicht die Auskunft. */
+.detail-kopf .koord-zahl {
+  display: block;
+  margin-top: 1px;
+  font-size: 11.5px;
+  color: var(--text-weak);
+}
+@media (hover: hover) { .detail-kopf .koord:hover .koord-zahl { color: var(--text); } }
 
 #detail-zu {
   position: absolute;
@@ -1856,6 +1869,10 @@ body.detail-offen .unten { right: 404px; }
 .schnitt .zahl { font-size: 22px; font-weight: 600; line-height: 1; }
 .schnitt .sterne { font-size: 15px; letter-spacing: 1px; }
 .schnitt .anzahl { font-size: 12px; color: var(--text-weak); }
+/* Steht der Satz ohne Sterne da (noch keine Bewertung), darf er die ganze
+   Zeile haben und eine Spur lesbarer sein — er ist dann der einzige Inhalt
+   des Kastens und außerdem eine Aufforderung. */
+.schnitt .anzahl.allein { font-size: 12.5px; line-height: 1.5; }
 
 /* Hinkommen: zwei Kacheln nebeneinander, Auto und zu Fuß. Gleich groß, weil
    keiner der beiden Wege der wichtigere ist — welcher zählt, hängt am Spot. */
@@ -3148,6 +3165,21 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   color: var(--text-weak);
 }
 
+/* Ein Kopf, der nur aus einer Zeile besteht, braucht nicht den Anlauf eines
+   zweizeiligen. Er trägt dafür die Auskunft selbst — siehe Entdecken. */
+.schirm-kopf.schmal { padding-bottom: 10px; }
+/* 21 px, nicht 23: Bei 23 brach "162 Plätze für die Nacht draußen" auf einem
+   390-px-Handy in zwei Zeilen um — und ein zweizeiliger Kopf war genau das,
+   was hier abgeschafft werden sollte. */
+.gross-titel.mittel {
+  font-size: 21px;
+  letter-spacing: -0.025em;
+  line-height: 1.25;
+  text-wrap: balance;
+}
+/* Die Zahl in dieser Zeile ist die Nachricht: 162, nicht "Plätze". */
+.gross-titel.mittel b { font-weight: 800; }
+
 /* Der seitliche Rand aller Blöcke einer Seite. Über eine eigene Klasse, weil
    die Bilderreihen ihn absichtlich durchbrechen. */
 .rand {
@@ -3241,12 +3273,30 @@ body.parkplatz-modus .knopf-zeile { display: none; }
 .spotzeile .kein-bild svg { width: 30px; height: 30px; }
 
 /* Der Name liegt im Bild, auf einem Verlauf. Ohne den Verlauf verschwindet
-   weiße Schrift in jedem hellen Himmel. */
+   weiße Schrift in jedem hellen Himmel.
+
+   Der Verlauf hatte zwei Stufen (transparent → 0.72) auf 26 px Anlauf. Das
+   reichte für einen einzeiligen Namen; bei zwei Zeilen saß die obere schon
+   im durchsichtigen Teil — und genau die langen Namen ("Zeltplatz Hohe Wand
+   Blick in Maiersdorf") sind zweizeilig.
+
+   Jetzt fünf Stufen über 44 px. Mehr Stufen, weil ein Verlauf aus zwei
+   Werten als sichtbares Band über dem Bild liegt: Das Auge nimmt Helligkeit
+   nicht linear wahr, ein gleichmäßiger Verlauf sieht deshalb nach Kante aus.
+   Die Zwischenwerte fangen das ab — der Schleier wird unsichtbar und tut
+   trotzdem seine Arbeit. */
 .spotkarte .auf-bild {
   position: absolute;
   left: 0; right: 0; bottom: 0;
-  padding: 26px 13px 11px;
-  background: linear-gradient(transparent, rgba(0, 0, 0, 0.72));
+  padding: 44px 13px 11px;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.78) 0%,
+    rgba(0, 0, 0, 0.66) 22%,
+    rgba(0, 0, 0, 0.42) 48%,
+    rgba(0, 0, 0, 0.16) 74%,
+    rgba(0, 0, 0, 0) 100%
+  );
 }
 .spotkarte .auf-bild b {
   display: block;
@@ -3518,6 +3568,31 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   padding-right: max(18px, env(safe-area-inset-right));
 }
 .filter-zeile .reihe { flex: 1; min-width: 0; padding-right: 4px; }
+
+/* Der Übergang am rechten Rand.
+
+   Die Chipreihe lässt sich schieben, aber der letzte Chip wurde einfach
+   mitten im Wort abgeschnitten ("Ab 1.500…") — und ein mitten im Wort
+   abgeschnittener Knopf sieht nach Fehler aus, nicht nach "hier geht es
+   weiter". Ein weicher Auslauf in die Seitenfarbe sagt dasselbe wie eine
+   Bildlaufleiste, ohne eine zu sein.
+
+   Er steht fest und blendet sich am Ende der Reihe nicht aus. Das wäre
+   sauberer, kostet aber einen Scroll-Horcher in JavaScript für eine Stelle,
+   an der man ohnehin fast nie ankommt — vier Chips passen nie ganz ins Bild. */
+.filter-zeile {
+  position: relative;
+}
+.filter-zeile::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 34px;
+  height: 100%;
+  pointer-events: none;
+  background: linear-gradient(to right, transparent, var(--bg) 78%);
+}
 
 /* ------------------------------------------- Die Treffer auf Entdecken
 
@@ -7108,9 +7183,19 @@ body.bereich-offen.detail-offen::after {
 <!-- ============================================================ ENTDECKEN -->
 <div class="schirm" id="schirm-entdecken" hidden>
 
-  <div class="schirm-kopf">
-    <h1 class="gross-titel">Entdecken</h1>
-    <p class="unter" id="entdecken-unter">Plätze für die Nacht draußen</p>
+  <!-- Der Kopf sagt, was auf der gerade offenen Tafel steht — er wiederholt
+       nicht das Wort, das unten schon grün in der Leiste leuchtet.
+
+       Bis zum 2026-09-04 standen hier zwei Zeilen: "Entdecken" in 30 px und
+       darunter "12 Plätze für die Nacht draußen". Der große Text war ein
+       Etikett ohne Auskunft (der Reiter unten sagt dasselbe), und die Zahl
+       darunter war die der gerade geladenen Kacheln — nicht die der Karte.
+       Wer 162 Plätze hat, schreibt nicht 12 an die Tür.
+
+       Jetzt eine Zeile, die je nach Tafel etwas Wahres sagt, gefüllt von
+       feed.js (reiterSetzen) und screens.js (die Zahl). -->
+  <div class="schirm-kopf schmal">
+    <h1 class="gross-titel mittel" id="entdecken-titel">Plätze für die Nacht draußen</h1>
   </div>
 
   <!-- Die vier Tafeln dieser Seite: „Spots" ist die Karte in Kachelform,

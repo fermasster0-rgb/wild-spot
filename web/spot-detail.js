@@ -325,6 +325,44 @@ detailEl.addEventListener('click', (e) => {
   e.stopPropagation();
 }, true);
 
+// ----------------------------------------------------------------------------
+// Die Zeile unter dem Namen
+//
+// Hier standen bis zum 2026-09-04 die rohen Koordinaten: "47.61477, 15.13540".
+// Das ist die prominenteste Unterzeile des ganzen Blattes, und sie war für
+// fast jeden unlesbar — eine Zahl aus dem Inneren der Datenbank, an der
+// Stelle, an der man erfährt, was für ein Platz das ist.
+//
+// Jetzt stehen dort die drei Angaben, wegen derer man überhaupt hinsieht:
+// wie hoch, wie weit zu gehen, ob Wasser da ist. Die Koordinaten bleiben —
+// hinten, kleiner, und weiterhin zum Kopieren anklickbar. Wer sie braucht
+// (fürs Navi), braucht sie ganz, deshalb bleiben alle fünf Nachkommastellen.
+// ----------------------------------------------------------------------------
+function kopfzeileSetzen(spot) {
+  if (!detailKoord || !offenerSpot) return;
+
+  const angaben = [];
+  if (Number.isFinite(Number(spot?.elevation_m))) {
+    angaben.push(`${Number(spot.elevation_m).toLocaleString('de-AT')} m`);
+  }
+
+  const gehen = Number(spot?.hike_minutes);
+  if (Number.isFinite(gehen) && gehen > 0) {
+    angaben.push(gehen >= 60
+      ? `${Math.floor(gehen / 60)} h${gehen % 60 ? ' ' + (gehen % 60) : ''} Zustieg`
+      : `${gehen} Min Zustieg`);
+  }
+
+  if (spot?.water_nearby) angaben.push('Wasser');
+  if (spot?.above_treeline) angaben.push('über der Baumgrenze');
+
+  const koord = `${offenerSpot.lat.toFixed(5)}, ${offenerSpot.lng.toFixed(5)}`;
+
+  detailKoord.innerHTML = angaben.length
+    ? `${escapeHtml(angaben.join(' · '))}<span class="koord-zahl">${escapeHtml(koord)}</span>`
+    : escapeHtml(koord);
+}
+
 async function koordinatenKopieren() {
   if (!offenerSpot) return;
   const text = `${offenerSpot.lat.toFixed(5)}, ${offenerSpot.lng.toFixed(5)}`;
@@ -630,23 +668,31 @@ function zeichnen(spot, kommentare, meineSterne, fotos = []) {
   const teile = [];
   const angemeldet = !!window.WILDCAMP_AUTH.nutzer;
 
+  kopfzeileSetzen(spot);
+
   // Wer den Spot angelegt hat, darf ihn ändern — Admins ebenfalls, die
   // Datenbank erlaubt beiden dasselbe (Migration 013). Steht schon hier oben,
   // weil der Parkplatz-Knopf weit vor dem Bereich "Dein Spot" gebraucht wird.
   const meiner = angemeldet && spot.created_by === window.WILDCAMP_AUTH.nutzer.id;
   const darfAendern = meiner || (angemeldet && window.WILDCAMP_AUTH.nutzer.istAdmin === true);
 
-  // -------------------------------------------------- Auf der Karte zeigen --
+  // ------------------------------------------------------------ Knöpfe -----
   //
-  // Nur, wenn das Blatt NICHT über der Karte liegt — also wenn es von der
-  // Entdecken-Seite oder aus der Merkliste heraus geöffnet wurde.
+  // Sie werden hier gebaut, aber erst NACH den Fotos eingesetzt.
   //
-  // Der Grund für diesen Knopf: Wer eine Kachel antippt, will zuerst wissen,
-  // was das für ein Platz ist — Fotos, Wasser, Bewertung. Wo genau er liegt,
-  // ist die Frage danach. Vorher sprang die App sofort zur Karte und riss
-  // einen aus der Liste heraus, in der man gerade gestöbert hat.
+  // Bis zum 2026-09-04 standen sie darüber: zwei gleich große Knöpfe, gut
+  // hundert Pixel, bevor man vom Platz irgendetwas sah. Das widersprach der
+  // eigenen Begründung, die zwei Absätze weiter unten steht ("ein Bild sagt
+  // über einen Zeltplatz mehr als jede Liste") — und dem Grund für den
+  // Karten-Knopf selbst: Wer eine Kachel antippt, will zuerst wissen, WAS
+  // das für ein Platz ist. Wo er liegt, ist die Frage danach. Genau in
+  // dieser Reihenfolge stehen die Dinge jetzt auch.
+  const knoepfe = [];
+
+  // Auf der Karte zeigen — nur, wenn das Blatt NICHT über der Karte liegt,
+  // also wenn es von der Entdecken-Seite oder aus der Merkliste kam.
   if (!aufDerKarte()) {
-    teile.push(
+    knoepfe.push(
       '<button type="button" class="zur-karte" id="detail-zur-karte">' +
       '<svg viewBox="0 0 24 24"><path d="M9 4L3 6.5v13L9 17l6 2.5 6-2.5v-13L15 6.5z"/>' +
       '<path d="M9 4v13M15 6.5v13"/></svg>' +
@@ -654,11 +700,10 @@ function zeichnen(spot, kommentare, meineSterne, fotos = []) {
     );
   }
 
-  // ------------------------------------------------- Von hier erzählen -----
-  // Direkt neben der Karte des Platzes: Wer gerade zurück ist und den Spot
-  // aufmacht, ist genau in dem Moment, in dem man davon erzählt.
+  // Von hier erzählen. Wer gerade zurück ist und den Spot aufmacht, ist genau
+  // in dem Moment, in dem man davon erzählt.
   if (angemeldet && window.WILDSPOT_BEITRAG) {
-    teile.push(
+    knoepfe.push(
       '<button type="button" class="zweit" id="detail-erzaehlen" ' +
       'style="display:flex;align-items:center;justify-content:center;gap:8px">' +
       'Von hier erzählen</button>'
@@ -667,6 +712,7 @@ function zeichnen(spot, kommentare, meineSterne, fotos = []) {
 
   // ------------------------------------------------------------- Fotos -----
   // Ganz nach oben: ein Bild sagt über einen Zeltplatz mehr als jede Liste.
+  // Seit 2026-09-04 stimmt das auch — vorher lagen zwei Knöpfe davor.
   if (fotos.length) {
     const ich = window.WILDCAMP_AUTH.nutzer;
     teile.push('<div class="galerie">');
@@ -690,6 +736,10 @@ function zeichnen(spot, kommentare, meineSterne, fotos = []) {
     teile.push('</div>');
   }
 
+  // Jetzt die Knöpfe: Man hat den Platz gesehen und weiß, ob er einen
+  // angeht. Erst dann ist "Wo liegt er?" eine Frage.
+  teile.push(...knoepfe);
+
   // ---------------------------------------------------------- Bewertung -----
   const schnitt = Number(spot.avg_stars) || 0;
   const anzahl = Number(spot.rating_count) || 0;
@@ -702,9 +752,14 @@ function zeichnen(spot, kommentare, meineSterne, fotos = []) {
       `<span class="anzahl">${anzahl} ${anzahl === 1 ? 'Bewertung' : 'Bewertungen'}</span></span>`
     );
   } else {
+    // Keine leeren Sterne. Fünf graue Sterne sehen aus wie eine Bewertung —
+    // und zwar wie die schlechtestmögliche: null von fünf. Wer sie sieht,
+    // liest zuerst die Wertung und erst danach den Text daneben, der sagt,
+    // dass es gar keine gibt. Ein Satz allein sagt dasselbe ohne das
+    // Missverständnis, und er lädt gleich zum Bewerten ein.
     teile.push(
-      `<span class="sterne">${sterne(0)}</span>`,
-      '<span class="anzahl">Noch niemand hat bewertet</span>'
+      '<span class="anzahl allein">Noch nicht bewertet — wenn du dort warst, '
+      + 'sag den anderen, wie die Nacht war.</span>'
     );
   }
   teile.push('</div>');
