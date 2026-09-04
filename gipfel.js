@@ -367,12 +367,15 @@
     // Wer noch keinen gesammelt hat, bekommt keine Null zu lesen. "0
     // gesammelt — das hier fehlt dir noch" ist beides auf einmal: eine
     // leere Bilanz und eine Mahnung. Am Anfang steht deshalb das Angebot.
+    //
+    // Kurz halten: Rechts neben dieser Zeile sitzt der Knopf "Alle ansehen".
+    // Ein längerer Satz brach darunter um und lief in den Knopf hinein.
     if (unter) {
       unter.textContent = !auth.nutzer
-        ? 'Die höchsten Gipfel Österreichs'
+        ? 'Die höchsten Österreichs'
         : meine.size
-          ? `${zahl(meine.size)} gesammelt — das hier fehlt dir noch`
-          : 'Die höchsten Österreichs — such dir einen aus';
+          ? `${zahl(meine.size)} gesammelt — das fehlt dir noch`
+          : 'Die höchsten Österreichs';
     }
   }
 

@@ -900,14 +900,11 @@
       }
     }
 
-    // Die Zeile unter der Überschrift sagt, wie viel überhaupt da ist.
-    const unter = $('entdecken-unter');
-    if (unter) {
-      const wie = (neu.data || []).length;
-      unter.innerHTML = wie
-        ? `${wie === 50 ? 'Über 50' : wie} ${wie === 1 ? 'Platz' : 'Plätze'} für die Nacht draußen`
-        : 'Plätze für die Nacht draußen';
-    }
+    // Die Zahl in der Überschrift kommt aus zahlenbandFuellen — dort wird
+    // ohnehin gezählt, was in der Karte steht. Hier stand bis zum 2026-09-04
+    // die Länge der gerade geladenen Kachelliste: zwölf. Das war die Zahl der
+    // Kacheln auf dem Bildschirm, angeschrieben als wäre es die Zahl der
+    // Plätze in der App.
 
     herzenAuffrischen();
     nahLaden();
@@ -973,6 +970,21 @@
 
     band.hidden = false;
     band.innerHTML = `In der Karte stehen ${aufzaehlung}.${nachsatz}`;
+
+    // Dieselbe Zahl trägt die Überschrift der Seite. Sie wird hier gesetzt,
+    // weil sie hier ohnehin schon geholt wurde — ein zweiter Aufruf für
+    // dieselbe Auskunft wäre eine Anfrage zu viel, unterwegs auf Mobilfunk.
+    const titel = $('entdecken-titel');
+    const wie = Number(z.spots);
+    if (titel && wie) {
+      const satz = `<b>${n(wie)}</b> ${wie === 1 ? 'Platz' : 'Plätze'} für die Nacht draußen`;
+      titel.dataset.mitZahl = satz;
+      titel.dataset.zahlDa = 'ja';
+      // Nur überschreiben, wenn gerade auch die Spots-Tafel offen ist —
+      // sonst stünde plötzlich "162 Plätze" über dem Feed.
+      const spotsOffen = !$('entdecken-spots')?.hidden;
+      if (spotsOffen) titel.innerHTML = satz;
+    }
   }
 
   // In deiner Nähe — nur, wenn der Standort schon bekannt ist. Diese Seite

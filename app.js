@@ -214,16 +214,27 @@ const AT_MITTE = [
   (OESTERREICH[1] + OESTERREICH[3]) / 2,
 ];
 
-// Wie weit die Karte beim Öffnen draußen steht: weit genug, um halb Europa
-// und die Kontinente daneben zu sehen. Von dort zoomt man hinein.
+// Wie weit die Karte beim Öffnen draußen steht: der Alpenraum füllt das Bild.
+//
+// Hier stand bis zum 2026-09-04 die 2.9 — halb Europa plus Nordafrika. Der
+// Gedanke dahinter war richtig (die Spots reichen inzwischen bis Skandinavien,
+// und wer das nicht sieht, sucht dort nicht), die Wirkung war es nicht: Beim
+// Öffnen sah man Mittelmeer, Sahara und Kairo, und irgendwo darin zwei
+// Stecknadelklumpen. Der erste Bildschirm einer Karten-App ist ihr
+// Schaufenster, und dieses zeigte fast nur Gegend ohne einen einzigen Spot.
+//
+// Bei 5.9 stehen rund vierzig Spots gleichzeitig im Bild, von Vorarlberg bis
+// zur Steiermark. Dieselbe App, dieselben Daten — nur sieht man jetzt, dass
+// sie da sind. Wer nach Norwegen will, zoomt hinaus; das kostet eine Geste
+// und ist die seltenere Absicht.
 //
 // Ein fester Zoom und keine bounds — bounds richtet sich nach der
 // Fenstergröße und käme auf jedem Gerät anders heraus.
 //
-// Die eigenen Spots werden auch so weit draußen geladen (spotsLaden fragt
+// Die eigenen Spots werden auch weiter draußen geladen (spotsLaden fragt
 // nach dem sichtbaren Ausschnitt, ohne Zoomgrenze). Nur die OSM-Punkte
 // — Wasser, Klos, Feuerstellen — bleiben bis WELTSICHT aus.
-const START_ZOOM = 2.9;
+const START_ZOOM = 5.9;
 
 // So weit darf man hinaus. Die Spots liegen vorerst alle in Österreich, aber
 // die Karte darum herum zu sehen hilft beim Einordnen — und wenn das Projekt
