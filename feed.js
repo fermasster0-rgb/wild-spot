@@ -52,7 +52,9 @@
     const tage = Math.floor(std / 24);
     if (tage === 1) return 'gestern';
     if (tage < 7)   return `vor ${tage} Tagen`;
+    if (tage < 14)  return 'vor einer Woche';
     if (tage < 31)  return `vor ${Math.floor(tage / 7)} Wochen`;
+    if (tage < 60)  return 'vor einem Monat';
     if (tage < 365) return `vor ${Math.floor(tage / 30)} Monaten`;
     return new Date(zeit).toLocaleDateString('de-AT');
   }

@@ -55,7 +55,9 @@
     const tage = Math.floor(std / 24);
     if (tage === 1) return 'gestern';
     if (tage < 7)   return `vor ${tage} Tagen`;
+    if (tage < 14)  return 'vor einer Woche';
     if (tage < 31)  return `vor ${Math.floor(tage / 7)} Wochen`;
+    if (tage < 60)  return 'vor einem Monat';
     if (tage < 365) return `vor ${Math.floor(tage / 30)} Monaten`;
     return new Date(zeit).toLocaleDateString('de-AT');
   }
@@ -187,7 +189,11 @@
     const { data, error } = await sb.rpc('gipfel_bestenliste', { anzahl: 10 });
     kasten.innerHTML = '';
 
-    if (error || !data || !data.length) {
+    // Erst ab drei. Eine Rangliste mit einem Namen ist keine Rangliste,
+    // sondern die Auskunft, dass genau eine Person je einen Gipfel eingetragen
+    // hat — mit einer großen "1" daneben, die aussieht wie ein Sieg über
+    // niemanden. Unter drei Leuten steht die Überschrift deshalb gar nicht da.
+    if (error || !data || data.length < 3) {
       const block = $('leute-besten-block');
       if (block) block.hidden = true;
       return;
@@ -334,7 +340,16 @@
   let aktivEnde = false;
   let welcheAktivitaet = 'alle';
 
-  async function aktivitaetLaden({ weiter = false, wo = 'aktivitaet-liste', welcher = null } = {}) {
+  // Das zuletzt gezeichnete Bündel. Es wird gemerkt, weil eine Serie nicht an
+  // der Seitengrenze endet: Die Datenbank liefert 30 Ereignisse auf einmal,
+  // eine Einspielung von 148 Plätzen läuft also über fünf Seiten. Ohne dieses
+  // Gedächtnis stünde fünfmal "hat 30 Plätze eingetragen" untereinander —
+  // die Zusammenfassung hätte das Problem nur kleiner gemacht, nicht gelöst.
+  let letztesBuendel = null;
+
+  async function aktivitaetLaden({
+    weiter = false, wo = 'aktivitaet-liste', welcher = null, runde = 0,
+  } = {}) {
     const kasten = $(wo);
     if (!kasten || aktivLaeuft) return;
     aktivLaeuft = true;
@@ -342,6 +357,7 @@
     if (!weiter) {
       aktivAelteste = null;
       aktivEnde = false;
+      letztesBuendel = null;
       kasten.innerHTML =
         '<div class="platzhalter" style="height:56px;margin-bottom:8px"></div>'.repeat(5);
     }
@@ -375,10 +391,141 @@
       return;
     }
 
-    for (const a of liste) kasten.appendChild(aktivitaetZeile(a));
+    for (const g of buendeln(liste)) {
+      // Setzt diese Gruppe das Bündel fort, das schon dasteht? Dann wächst
+      // dessen Zahl, statt dass eine zweite Zeile dazukommt.
+      if (letztesBuendel && letztesBuendel.schluessel === schluessel(g.erste)) {
+        letztesBuendel.alle.push(...g.alle);
+        letztesBuendel.länge += g.länge;
+        const neu = buendelZeile(letztesBuendel);
+        letztesBuendel.knoten.replaceWith(neu);
+        letztesBuendel.knoten = neu;
+        continue;
+      }
+
+      if (g.länge > 1) {
+        const knoten = buendelZeile(g);
+        kasten.appendChild(knoten);
+        letztesBuendel = { ...g, schluessel: schluessel(g.erste), knoten };
+      } else {
+        kasten.appendChild(aktivitaetZeile(g.erste));
+        letztesBuendel = null;
+      }
+    }
 
     if (liste.length) aktivAelteste = liste[liste.length - 1].zeit;
     if (liste.length < 30) aktivEnde = true;
+
+    // Besteht die geladene Seite fast nur aus einer Serie, bleiben ein oder
+    // zwei Zeilen übrig — die Seite sähe leerer aus als vor dem
+    // Zusammenfassen. Dann wird von selbst weitergeladen, bis genug dasteht.
+    // Höchstens vier Runden: Ist danach immer noch nichts anderes da, gibt es
+    // eben nichts anderes, und dann soll die Liste das auch zeigen.
+    const zeilen = kasten.querySelectorAll('.aktivzeile').length;
+    if (zeilen < 8 && !aktivEnde && (runde || 0) < 4) {
+      await aktivitaetLaden({ weiter: true, wo, welcher, runde: (runde || 0) + 1 });
+    }
+  }
+
+  // Was eine Serie ausmacht: dieselbe Person, dieselbe Art, derselbe Tag.
+  const schluessel = (a) =>
+    `${a.user_id}|${a.art}|${String(a.zeit || '').slice(0, 10)}`;
+
+  // ==========================================================================
+  // Serien zusammenfassen
+  //
+  // Die 162 Plätze der Karte sind nicht einzeln über Monate entstanden,
+  // sondern in wenigen Sitzungen recherchiert und dann eingespielt. Im
+  // Aktivitätsstrom stand deshalb am 2026-09-04 dreißigmal untereinander
+  // "wildspot-redaktion hat … eingetragen · vor einer Woche". Das ist alles
+  // wahr und liest sich trotzdem wie ein Maschinenprotokoll — und es
+  // verdeckte jedes einzelne Ereignis, das von einem Menschen kam.
+  //
+  // Ab drei gleichartigen Ereignissen derselben Person am selben Tag wird
+  // daraus eine Zeile. Nicht, um etwas zu verstecken: Die Zahl steht groß
+  // dabei, und drei Namen stehen daneben. Zusammengefasst ist es sogar die
+  // bessere Auskunft — "hat an einem Tag 30 Plätze eingetragen" sagt mehr
+  // über diese Karte als dreißig Zeilen, die man wegscrollt.
+  // ==========================================================================
+  const BUENDEL_AB = 3;
+
+  function buendeln(liste) {
+    const tag = (z) => String(z || '').slice(0, 10);
+    const gruppen = [];
+
+    for (const a of liste) {
+      const letzte = gruppen[gruppen.length - 1];
+      const passt = letzte
+        && letzte.erste.user_id === a.user_id
+        && letzte.erste.art === a.art
+        && tag(letzte.erste.zeit) === tag(a.zeit);
+
+      if (passt) { letzte.alle.push(a); letzte.länge++; }
+      else gruppen.push({ erste: a, alle: [a], länge: 1 });
+    }
+
+    // Eine Gruppe aus zwei bleibt zwei Zeilen: "hat 2 Plätze eingetragen"
+    // spart nichts und nimmt dafür beide Namen weg.
+    const fertig = [];
+    for (const g of gruppen) {
+      if (g.länge < BUENDEL_AB) {
+        for (const a of g.alle) fertig.push({ erste: a, alle: [a], länge: 1 });
+      } else fertig.push(g);
+    }
+    return fertig;
+  }
+
+  function buendelZeile(g) {
+    const a = g.erste;
+    const z = el('div');
+    z.className = 'aktivzeile art-' + sicher(a.art) + ' gebuendelt';
+
+    const wort = {
+      spot:      ['Platz eingetragen', 'Plätze eingetragen'],
+      gipfel:    ['Gipfel gesammelt', 'Gipfel gesammelt'],
+      bewertung: ['Platz bewertet', 'Plätze bewertet'],
+      kommentar: ['Platz besucht', 'Plätze besucht'],
+      beitrag:   ['Beitrag geschrieben', 'Beiträge geschrieben'],
+    }[a.art] || ['Ereignis', 'Ereignisse'];
+
+    // Drei Namen als Kostprobe. Sie sind der Grund, warum die Zusammen-
+    // fassung keine Verschleierung ist: Man sieht, worum es ging.
+    const namen = g.alle
+      .map((x) => x.titel)
+      .filter(Boolean)
+      .slice(0, 3)
+      .map((t) => sicher(t));
+
+    z.innerHTML =
+      `<button type="button" class="wer" aria-label="Profil">
+         ${kopfbild(a.username, a.avatar_path, 38)}
+         <span class="zeichen">${ART_ZEICHEN[a.art] || ''}</span>
+       </button>
+       <div class="was">
+         <p class="kopf"><b class="name">${sicher(a.username)}</b> hat
+           <b>${zahl(g.länge)}</b> ${g.länge === 1 ? wort[0] : wort[1]}</p>
+         ${namen.length ? `<p class="text">${namen.join(' · ')}${
+             g.länge > namen.length ? ' und weitere' : ''}</p>` : ''}
+         <p class="wann">${sicher(vorWie(a.zeit))}</p>
+       </div>`;
+
+    z.querySelector('.wer').addEventListener('click', () => profilOeffnen(a.user_id));
+
+    // Angetippt öffnet sich der erste der zusammengefassten Plätze — man
+    // landet dort, wo man sonst mit dem ersten Klick auch gelandet wäre.
+    const ziel = z.querySelector('.was');
+    if (a.ziel_id) {
+      ziel.style.cursor = 'pointer';
+      ziel.addEventListener('click', () => {
+        if (a.art === 'gipfel' && window.WILDSPOT_GIPFEL) {
+          window.WILDSPOT_GIPFEL.oeffnen(a.ziel_id, a.titel);
+        } else if (typeof window.spotDetailOeffnen === 'function') {
+          window.spotDetailOeffnen(a.ziel_id, a.titel, Number(a.lat), Number(a.lng));
+        }
+      });
+    }
+
+    return z;
   }
 
   function aktivitaetZeile(a) {

@@ -39,7 +39,7 @@
 // App-Dateien weg und holt sie frisch — sonst würde am Handy ewig die alte
 // Fassung kleben. Die Kartenkacheln bleiben davon unberührt, die sind ja
 // nicht veraltet.
-const VERSION = '2026-08-24-13-19';
+const VERSION = '2026-09-04-14-26';
 
 const CACHE_APP    = `wildspot-app-${VERSION}`;
 const CACHE_KARTEN = 'wildspot-karten';   // ohne Version: bleibt über Updates
@@ -82,6 +82,11 @@ const APP_DATEIEN = [
   './feed.js',
   './gipfel.js',
   './leute.js',
+  // "Heute Nacht" auf der Entdecken-Seite. Sein Inhalt braucht Netz, die
+  // Datei gehört trotzdem in den Speicher: Fehlt sie, holt der Browser sie
+  // bei jedem Start neu und wartet dabei — für eine Datei, die sich ohne
+  // Empfang von selbst versteckt.
+  './heute.js',
   // Die Verwaltung. Liegt für alle mit im Speicher — sie ist ohne
   // Admin-Recht ohnehin wirkungslos, und ein Nachladen unterwegs würde
   // offline scheitern.
