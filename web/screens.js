@@ -69,7 +69,9 @@
     if (tage <= 0)  return 'heute';
     if (tage === 1) return 'gestern';
     if (tage < 7)   return `vor ${tage} Tagen`;
+    if (tage < 14)  return 'vor einer Woche';
     if (tage < 31)  return `vor ${Math.floor(tage / 7)} Wochen`;
+    if (tage < 60)  return 'vor einem Monat';
     if (tage < 365) return `vor ${Math.floor(tage / 30)} Monaten`;
     return new Date(zeit).toLocaleDateString('de-AT');
   }
@@ -880,10 +882,16 @@
     }
 
     // -------------------------------------------------- Am besten bewertet
+    //
+    // Erst ab drei Plätzen. Eine Bestenliste mit einem einzigen Eintrag ist
+    // keine Rangfolge, sondern die Auskunft, dass genau eine Bewertung
+    // abgegeben wurde — und der eine Platz stand als "Spot der Woche" schon
+    // oben auf derselben Seite. Zweimal derselbe Name auf einer Seite lässt
+    // eine Karte mit 162 Plätzen kleiner aussehen, als sie ist.
     if (bestListe) {
       bestListe.innerHTML = '';
       const liste = besteListe.slice(0, 8);
-      if (!liste.length) {
+      if (liste.length < 3) {
         $('entdecken-best-block').hidden = true;
       } else {
         liste.forEach((s, i) => {
@@ -909,14 +917,29 @@
     // Dateien, weil sie mit der Spotliste nichts zu tun haben.
     if (window.WILDSPOT_GIPFEL) window.WILDSPOT_GIPFEL.entdeckenFuellen();
 
+    // Heute Nacht — der Block, der morgen etwas anderes sagt (heute.js).
+    if (window.WILDSPOT_HEUTE) window.WILDSPOT_HEUTE.fuellen();
+
     // War schon ein Filter gesetzt — etwa auf der Karte —, gehört die
     // Trefferliste auch beim ersten Öffnen dieser Seite gleich dazu.
     trefferAuffrischen();
   }
 
-  // Das Zahlenband ganz oben: wie viel überhaupt drin ist. Bei einer jungen
-  // App sind das kleine Zahlen — gerade deshalb gehören sie hin. Eine App,
+  // Das Zahlenband am Ende der Seite: wie viel überhaupt drin ist. Eine App,
   // die verschweigt, wie groß sie ist, wirkt größer und enttäuscht mehr.
+  //
+  // Bis zum 2026-09-04 stand hier zusätzlich, wie viele LEUTE dabei sind. Das
+  // war gut gemeint und in der Wirkung das Gegenteil: "4 Leute sind dabei,
+  // zusammen mit 1 Nacht draußen" ist der Satz, nach dem man die App zumacht.
+  // Andrew Chen nennt das die Anti-Netzwerkwirkung — wer sieht, dass niemand
+  // da ist, geht, und macht die Lage damit für den Nächsten schlechter.
+  //
+  // Weggelassen wird die Zahl trotzdem nicht für immer, sondern nur, solange
+  // sie nichts trägt. Ab MENSCHEN_AB steht sie wieder da. Was bis dahin
+  // dasteht, ist genauso wahr und deutlich mehr wert: Diese Karte kennt
+  // 45.000 Wasserstellen und 823 Schutzgebiete. Das hat keine Zeltplatz-App.
+  const MENSCHEN_AB = 25;
+
   async function zahlenbandFuellen() {
     const band = $('entdecken-band');
     if (!band) return;
@@ -927,16 +950,29 @@
 
     const n = (w) => Number(w || 0).toLocaleString('de-AT');
 
-    // Ein Satz statt fünf Kacheln. Dieselbe Auskunft, ein Fünftel Platz —
-    // und sie steht am Ende der Seite, wo sie niemandem im Weg ist.
+    const teile = [
+      `<b>${n(z.spots)}</b> ${Number(z.spots) === 1 ? 'Platz' : 'Plätze'} für die Nacht`,
+      `<b>${n(z.fotos)}</b> ${Number(z.fotos) === 1 ? 'Foto' : 'Fotos'}`,
+      `<b>${n(z.gipfel_frei)}</b> Gipfel zum Sammeln`,
+    ];
+    // Wasser und Schutzgebiete kommen aus db/034 und fehlen, solange die
+    // Datei noch nicht eingespielt ist. Dann bleibt der Satz eben kürzer.
+    if (Number(z.wasser))  teile.push(`<b>${n(z.wasser)}</b> Wasserstellen`);
+    if (Number(z.gebiete)) teile.push(`<b>${n(z.gebiete)}</b> Schutzgebiete`);
+
+    const letzter = teile.pop();
+    const aufzaehlung = teile.join(', ') + ' und ' + letzter;
+
+    // Der Nachsatz ist die ehrliche Antwort auf die Frage, die sich beim
+    // Lesen stellt: Wer hat das alles eingetragen? Er macht aus der Jugend
+    // der App keine Ausrede, sondern ihr Versprechen.
+    const nachsatz = Number(z.leute) >= MENSCHEN_AB
+      ? ` <b>${n(z.leute)}</b> Leute sind dabei.`
+      : ' Von Hand zusammengetragen — aus Alpenvereinskarten, Geodaten und '
+        + 'eigenen Touren. Keine Werbeplätze, keine gekauften Einträge.';
+
     band.hidden = false;
-    band.innerHTML =
-      `In Wild Spot stehen gerade <b>${n(z.spots)}</b> ${
-        Number(z.spots) === 1 ? 'Spot' : 'Spots'} und <b>${n(z.fotos)}</b> ${
-        Number(z.fotos) === 1 ? 'Foto' : 'Fotos'}, dazu <b>${n(z.gipfel_frei)}</b> ` +
-      `Gipfel zum Sammeln. <b>${n(z.leute)}</b> ${
-        Number(z.leute) === 1 ? 'Person ist' : 'Leute sind'} dabei, zusammen mit ` +
-      `<b>${n(z.naechte)}</b> ${Number(z.naechte) === 1 ? 'Nacht' : 'Nächten'} draußen.`;
+    band.innerHTML = `In der Karte stehen ${aufzaehlung}.${nachsatz}`;
   }
 
   // In deiner Nähe — nur, wenn der Standort schon bekannt ist. Diese Seite

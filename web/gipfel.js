@@ -364,15 +364,26 @@
 
     for (const g of data) reihe.appendChild(gipfelKachel(g));
 
+    // Wer noch keinen gesammelt hat, bekommt keine Null zu lesen. "0
+    // gesammelt — das hier fehlt dir noch" ist beides auf einmal: eine
+    // leere Bilanz und eine Mahnung. Am Anfang steht deshalb das Angebot.
     if (unter) {
-      unter.textContent = auth.nutzer
-        ? `${zahl(meine.size)} gesammelt — das hier fehlt dir noch`
-        : 'Die höchsten Gipfel Österreichs';
+      unter.textContent = !auth.nutzer
+        ? 'Die höchsten Gipfel Österreichs'
+        : meine.size
+          ? `${zahl(meine.size)} gesammelt — das hier fehlt dir noch`
+          : 'Die höchsten Österreichs — such dir einen aus';
     }
   }
 
   // Eine stehende Kachel wie bei den Spots, nur ohne Foto: Gipfel haben keins,
   // und ein gekauftes Bergbild wäre gelogen. Stattdessen die Höhe groß.
+  //
+  // Die letzte Zeile sagte bis zum 2026-09-04 "noch niemand oben". Bei zwölf
+  // Kacheln nebeneinander stand das zwölfmal da — eine Reihe aus lauter
+  // Absagen, und die Auskunft ("hier ist niemand") war die einzige, die man
+  // mitnahm. "noch frei" sagt dasselbe und liest sich wie ein Angebot: ein
+  // Gipfel, den man sich holen kann. Gelogen ist daran nichts.
   function gipfelKachel(g) {
     const k = el('button');
     k.type = 'button';
@@ -388,7 +399,7 @@
        <span class="name">${sicher(g.name)}</span>
        <span class="wer-oben">${Number(g.sammler) > 0
           ? zahl(g.sammler) + (Number(g.sammler) === 1 ? ' war oben' : ' waren oben')
-          : 'noch niemand oben'}</span>`;
+          : 'noch frei'}</span>`;
     k.addEventListener('click', () => oeffnen(g.id, g.name));
     return k;
   }

@@ -3734,6 +3734,90 @@ body.parkplatz-modus .knopf-zeile { display: none; }
 }
 
 /* ==========================================================================
+   Heute Nacht (heute.js)
+
+   Die Temperatur steht groß und links, weil sie die eine Zahl ist, wegen der
+   man hinsieht — alles andere daneben erklärt sie nur. Der Farbstreifen am
+   linken Rand sagt in einem Blick, ob die Nacht taugt: grün gut, gelb mau,
+   kupfer lass es. Er ist bewusst ein Streifen und keine Ampel als Zeichen —
+   ein rotes Rundlicht neben einer Zeltempfehlung liest sich wie ein Verbot,
+   und verboten ist hier gar nichts, es ist nur nass.
+   ========================================================================== */
+.heute-karte {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: 1px solid var(--rand);
+  border-left: 4px solid var(--text-weak);
+  border-radius: 18px;
+  background: var(--flaeche);
+  padding: 15px 16px 14px;
+  cursor: pointer;
+  font: inherit;
+  color: var(--text);
+  box-shadow: 0 1px 2px var(--sch1);
+  animation: heute-auf 0.5s ease both;
+}
+@keyframes heute-auf {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .heute-karte { animation: none; }
+}
+.heute-karte.gut     { border-left-color: var(--gruen); }
+.heute-karte.okay    { border-left-color: var(--blau); }
+.heute-karte.mau     { border-left-color: var(--stern); }
+.heute-karte.schlecht{ border-left-color: var(--kupfer); }
+.heute-karte:active  { transform: scale(0.995); }
+
+.heute-oben { display: flex; align-items: center; gap: 14px; }
+
+.heute-grad {
+  font-size: 42px;
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+
+.heute-was { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.heute-was b { font-size: 15.5px; font-weight: 750; letter-spacing: -0.01em; }
+.heute-was > span {
+  font-size: 13.5px;
+  line-height: 1.4;
+  color: var(--text-lese);
+}
+
+.heute-wo {
+  display: block;
+  margin-top: 12px;
+  padding-top: 11px;
+  border-top: 1px solid var(--t2);
+  font-size: 14px;
+  font-weight: 650;
+  color: var(--text);
+}
+.heute-klein {
+  display: block;
+  margin-top: 3px;
+  font-size: 12.5px;
+  color: var(--text-weak);
+  font-variant-numeric: tabular-nums;
+}
+
+.heute-aussicht {
+  margin: 10px 2px 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-weak);
+}
+.heute-aussicht b { color: var(--text); font-weight: 700; }
+
+.heute-laedt { height: 132px; border-radius: 18px; }
+
+/* ==========================================================================
    Die Merkliste
    ========================================================================== */
 .listen-reiter {
@@ -7157,6 +7241,18 @@ body.bereich-offen.detail-offen::after {
        scrollen. -->
   <div id="entdecken-standard">
 
+  <!-- Heute Nacht (heute.js). Der einzige Block der Seite, der morgen etwas
+       anderes sagt als heute — er rechnet aus Stundenwerten die kommende
+       Nacht an einem echten Platz aus. Anfangs versteckt: Ohne Netz gibt es
+       kein Wetter, und dann soll auch keine Überschrift dastehen. -->
+  <div class="block" id="entdecken-heute-block" hidden>
+    <div class="rand">
+      <h2 class="abschnitt-titel">Heute Nacht</h2>
+      <p class="abschnitt-unter" id="entdecken-heute-unter">Wie die Nacht draußen wird</p>
+    </div>
+    <div class="rand" id="entdecken-heute"></div>
+  </div>
+
   <!-- Der Spot, der heute oben steht. -->
   <div class="block" id="entdecken-held-block">
     <div class="rand">
@@ -7787,6 +7883,10 @@ body.bereich-offen.detail-offen::after {
 <script src="gipfel.js"></script>
 <!-- Leute suchen, folgen, und der Aktivitätsstrom. -->
 <script src="leute.js"></script>
+<!-- Heute Nacht: das Wetter der kommenden Nacht an einem echten Platz. Nach
+     screens.js, weil sein Block auf der Entdecken-Seite sitzt und von dort
+     angestoßen wird. -->
+<script src="heute.js"></script>
 
 <!-- ==========================================================================
      Das Admin-Fenster. Liegt leer im Dokument und wird von admin.js gefüllt,
