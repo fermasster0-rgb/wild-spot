@@ -401,6 +401,63 @@
     return knopf;
   }
 
+  // Der große Bildeinstieg der Startseite (Redesign 2026-11-10, Look B).
+  // Oben im Bild das Label und der Name, unten ein heller Streifen wie im
+  // App Store: Mini-Foto, warum dieser Spot hier steht, die wichtigsten
+  // Fakten und „Ansehen". Die ganze Fläche ist ein Knopf.
+  function heroKachel(s, warum) {
+    const knopf = el('button');
+    knopf.type = 'button';
+    knopf.className = 'ws-hero';
+    const fakten = [];
+    const hoehe = meter(s.elevation_m);
+    if (hoehe) fakten.push(hoehe);
+    const zeit = gehzeit(s.hike_minutes);
+    if (zeit) fakten.push(zeit + ' Zustieg');
+    if (Number(s.rating_count) > 0 && fakten.length < 2) {
+      fakten.push('★ ' + (Number(s.avg_stars) || 0).toLocaleString('de-AT', { minimumFractionDigits: 1, maximumFractionDigits: 1 }));
+    }
+    knopf.innerHTML =
+      `${bildHtml(s.foto_pfad)}
+       <span class="ws-hero-oben">
+         <span class="label">Heute empfohlen</span>
+         <span class="name">${sicher(s.name)}</span>
+       </span>
+       <span class="ws-hero-unten">
+         <span class="mini">${bildHtml(s.foto_pfad)}</span>
+         <span class="wo"><b>${sicher(warum)}</b><span>${sicher(fakten.join(' · ') || 'Noch keine Angaben')}</span></span>
+         <span class="ansehen">Ansehen</span>
+       </span>`;
+    knopf.setAttribute('aria-label', `Heute empfohlen: ${s.name} ansehen`);
+    knopf.addEventListener('click', () => spotOeffnen(s));
+    return knopf;
+  }
+
+  // Kopf der Startseite: Datum und Profil-Knopf. Darf mehrfach laufen.
+  function kopfFuellen() {
+    const datum = $('entdecken-datum');
+    if (datum) {
+      datum.textContent = new Date().toLocaleDateString('de-AT', { weekday: 'long', day: 'numeric', month: 'long' });
+    }
+    const profil = $('entdecken-profil');
+    if (profil && !profil.dataset.verdrahtet) {
+      profil.dataset.verdrahtet = 'ja';
+      profil.addEventListener('click', () => bereichZeigen('profil'));
+    }
+  }
+
+  // Die Nachtkachel hört auf heute.js: Dort wird die kommende Nacht an einem
+  // echten Platz ohnehin ausgerechnet — hier wird der Wert nur gezeigt.
+  window.addEventListener('wildspot-heute', (e) => {
+    const k = $('kachel-nacht');
+    const w = e.detail;
+    if (!k || !w || !Number.isFinite(w.grad)) return;
+    k.querySelector('.wert').textContent = `${w.grad} °C`;
+    k.querySelector('.wofuer').textContent = 'kälteste Stunde heute Nacht';
+    k.title = w.spotName;
+    k.hidden = false;
+  });
+
   // Die liegende Zeile für Listen.
   function zeile(s, { platz = null, unten = null } = {}) {
     const knopf = el('button');
@@ -831,14 +888,15 @@
 
   async function entdeckenFuellen() {
     chipsBauen();
+    kopfFuellen();
 
-    const heldBlock = $('entdecken-held');
+    const heldBlock = $('entdecken-hero');
     const neuReihe  = $('entdecken-neu');
     const bestListe = $('entdecken-best');
 
     if (heldBlock) {
       heldBlock.innerHTML =
-        '<div class="platzhalter" style="height:280px;margin:0 18px;border-radius:16px"></div>';
+        '<div class="platzhalter" style="height:430px;border-radius:28px"></div>';
     }
     if (neuReihe)  warten(neuReihe, 3, 218);
     if (bestListe) bestListe.innerHTML =
@@ -858,11 +916,20 @@
     if (heldBlock) {
       heldBlock.innerHTML = '';
       if (held) {
-        heldBlock.appendChild(kachel(held, { gross: true }));
+        heldBlock.appendChild(heroKachel(held, besteListe[0] ? 'Top bewertet' : 'Neu in der Karte'));
+      } else if (neu.error && best.error) {
+        // Datenbank nicht erreichbar (z. B. pausiert oder kein Netz): ein
+        // klarer Satz statt endloser grauer Platzhalter. Die Karte selbst
+        // funktioniert weiter — dorthin führt der Knopf.
+        heldBlock.innerHTML =
+          '<div class="ws-hero-leer"><b>Gerade keine Verbindung zur Spot-Datenbank</b>' +
+          'Die Karte, Wasserstellen und gespeicherte Gebiete gehen trotzdem.' +
+          '<button type="button" class="ws-knopf" id="entdecken-zur-karte">Zur Karte</button></div>';
+        $('entdecken-zur-karte')?.addEventListener('click', () => bereichZeigen('karte'));
       } else {
         heldBlock.innerHTML =
-          '<div class="rand"><p class="abschnitt-unter">Noch kein Spot in der Karte. ' +
-          'Auf der Karte auf <b>+ Spot hier anlegen</b> tippen — deiner wäre der erste.</p></div>';
+          '<div class="ws-hero-leer"><b>Noch kein Spot in der Karte</b>' +
+          'Auf der Karte auf „+ Spot hier anlegen" tippen — deiner wäre der erste.</div>';
       }
     }
 
@@ -974,6 +1041,12 @@
     // Dieselbe Zahl trägt die Überschrift der Seite. Sie wird hier gesetzt,
     // weil sie hier ohnehin schon geholt wurde — ein zweiter Aufruf für
     // dieselbe Auskunft wäre eine Anfrage zu viel, unterwegs auf Mobilfunk.
+    const kAnzahl = $('kachel-anzahl');
+    if (kAnzahl && Number(z.spots)) {
+      kAnzahl.querySelector('.wert').textContent = n(z.spots);
+      kAnzahl.hidden = false;
+    }
+
     const titel = $('entdecken-titel');
     const wie = Number(z.spots);
     if (titel && wie) {

@@ -338,6 +338,149 @@ html[data-thema="nacht"] .ws-knopf.zweit { background: rgba(155, 224, 122, 0.14)
 }
 .ws-chip[aria-pressed="true"] { background: var(--ws-text); color: var(--ws-grund); border-color: transparent; }
 
+/* ---------------------------------------------- Startseite (Look B) ------ */
+.ws-kopf {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 14px;
+}
+.ws-kopf-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.ws-datum {
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ws-text-neben);
+}
+.ws-titel {
+  margin: 0;
+  font-size: 34px;
+  line-height: 1.05;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  color: var(--ws-text);
+}
+.ws-unter {
+  margin: 4px 0 0;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--ws-text-neben);
+}
+.ws-unter b { color: var(--ws-text); }
+.ws-profil {
+  flex: none;
+  width: 44px; height: 44px;
+  border-radius: 22px;
+  border: 0;
+  background: var(--ws-gruen-hell);
+  color: var(--ws-gruen-aktiv);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+html[data-thema="nacht"] .ws-profil { background: rgba(155, 224, 122, 0.14); }
+.ws-profil svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; }
+
+/* Die vier Reiter als ruhige Segmentleiste statt Unterstrich-Reihe. */
+#entdecken-reiter {
+  margin: 0 max(18px, env(safe-area-inset-left)) 14px;
+  padding: 3px;
+  gap: 2px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--t2);
+}
+#entdecken-reiter button {
+  flex: 1 1 0;
+  padding: 8px 6px;
+  border-radius: 999px;
+  font-size: 13.5px;
+}
+#entdecken-reiter button::after { display: none; }
+#entdecken-reiter button[aria-selected="true"] {
+  background: var(--ws-karte);
+  box-shadow: 0 1px 3px rgba(17, 21, 17, 0.12);
+  font-weight: 700;
+}
+
+#entdecken-suche { min-height: 50px; padding: 0 18px; font-size: 15.5px; box-shadow: var(--ws-schatten-karte); border-color: transparent; }
+
+/* Heute empfohlen — der große Bildeinstieg. */
+.ws-hero {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 430px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--ws-r-hero);
+  overflow: hidden;
+  background: var(--flaeche-tief);
+  box-shadow: var(--ws-schatten-hero);
+  text-align: left;
+  font: inherit;
+  color: #fff;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.25s cubic-bezier(0.3, 1.3, 0.5, 1);
+}
+.ws-hero:active { transform: scale(0.985); }
+.ws-hero > img, .ws-hero .kein-bild { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.ws-hero::before {
+  content: "";
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0.42) 0%, rgba(0,0,0,0) 34%, rgba(0,0,0,0) 56%, rgba(0,0,0,0.55) 100%);
+  z-index: 1;
+}
+.ws-hero-oben {
+  position: absolute; left: 22px; right: 22px; top: 22px; z-index: 2;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.ws-hero-oben .label { font-size: 12.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.92; }
+.ws-hero-oben .name { font-size: 29px; line-height: 1.06; font-weight: 800; letter-spacing: -0.03em; text-wrap: balance; }
+.ws-hero-unten {
+  position: absolute; left: 12px; right: 12px; bottom: 12px; z-index: 2;
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 10px 10px 12px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.9);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  backdrop-filter: blur(16px) saturate(160%);
+  color: #111511;
+}
+html[data-thema="nacht"] .ws-hero-unten { background: rgba(22, 28, 23, 0.82); color: #f2f5ee; }
+.ws-hero-unten .mini { width: 46px; height: 46px; flex: none; border-radius: 12px; overflow: hidden; background: var(--flaeche-tief); }
+.ws-hero-unten .mini img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ws-hero-unten .wo { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.ws-hero-unten .wo b { font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ws-hero-unten .wo span { font-size: 12.5px; opacity: 0.72; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ws-hero-unten .ansehen {
+  flex: none; height: 34px; padding: 0 15px; border-radius: 17px;
+  display: inline-flex; align-items: center;
+  background: var(--ws-gruen-hell); color: #2f6b1f; font-size: 14px; font-weight: 700;
+}
+html[data-thema="nacht"] .ws-hero-unten .ansehen { background: rgba(155, 224, 122, 0.16); color: #9be07a; }
+.ws-hero-leer {
+  min-height: 200px;
+  border-radius: var(--ws-r-hero);
+  background: var(--ws-karte);
+  box-shadow: var(--ws-schatten-karte);
+  display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 12px;
+  padding: 24px;
+  color: var(--ws-text-neben);
+  font-size: 15px; line-height: 1.45;
+}
+.ws-hero-leer b { color: var(--ws-text); font-size: 18px; }
+
+.ws-kacheln { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.ws-kacheln:not(:has(.ws-kachel:not([hidden]))) { display: none; }
+.ws-kachel[hidden] { display: none; }
+.ws-kachel-zeichen { width: 22px; height: 22px; fill: none; stroke: var(--ws-gruen-aktiv); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.ws-kachel-zeichen.nacht { stroke: #5b4fb5; }
+html[data-thema="nacht"] .ws-kachel-zeichen.nacht { stroke: #c9bdf7; }
+
 /* --------------------------------------------------------------------------
    iOS 26: die installierte App ist länger als der sichtbare Bildschirm
 
@@ -7321,8 +7464,19 @@ body.bereich-offen.detail-offen::after {
 
        Jetzt eine Zeile, die je nach Tafel etwas Wahres sagt, gefüllt von
        feed.js (reiterSetzen) und screens.js (die Zahl). -->
-  <div class="schirm-kopf schmal">
-    <h1 class="gross-titel mittel" id="entdecken-titel">Plätze für die Nacht draußen</h1>
+  <!-- Redesign 2026-11-10 (Look B): oben wie im App Store — Datum klein,
+       darunter groß „Entdecken", rechts der Weg zum eigenen Profil. Die Zeile
+       mit der Zahl („162 Plätze …") bleibt als Untertitel erhalten; feed.js
+       und screens.js schreiben weiter in #entdecken-titel. -->
+  <div class="schirm-kopf ws-kopf">
+    <div class="ws-kopf-text">
+      <span class="ws-datum" id="entdecken-datum"></span>
+      <h1 class="ws-titel" id="entdecken-ueberschrift">Entdecken</h1>
+      <p class="ws-unter" id="entdecken-titel">Plätze für die Nacht draußen</p>
+    </div>
+    <button class="ws-profil" id="entdecken-profil" type="button" aria-label="Profil">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>
+    </button>
   </div>
 
   <!-- Die vier Tafeln dieser Seite: „Spots" ist die Karte in Kachelform,
@@ -7453,6 +7607,29 @@ body.bereich-offen.detail-offen::after {
        scrollen. -->
   <div id="entdecken-standard">
 
+  <!-- Heute empfohlen: der große Bildeinstieg (Look B, wie die Heute-Seite
+       im App Store). Es ist derselbe Spot wie früher „Spot der Woche" — der
+       am besten bewertete, sonst der neueste —, nur steht er jetzt als erstes
+       da und die Überschrift liegt im Bild. -->
+  <div class="block" id="entdecken-held-block">
+    <div class="rand"><div id="entdecken-hero" class="ws-hero-platz"></div></div>
+  </div>
+
+  <!-- Zwei Kacheln: wie kalt die Nacht wird und wie viel in der Karte steht.
+       Beide Werte stammen aus Abfragen, die die Seite ohnehin macht. -->
+  <div class="block rand ws-kacheln" id="entdecken-kacheln">
+    <div class="ws-kachel" id="kachel-nacht" hidden>
+      <svg viewBox="0 0 24 24" aria-hidden="true" class="ws-kachel-zeichen nacht"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>
+      <span class="wert">–</span>
+      <span class="wofuer">kälteste Stunde heute Nacht</span>
+    </div>
+    <div class="ws-kachel" id="kachel-anzahl" hidden>
+      <svg viewBox="0 0 24 24" aria-hidden="true" class="ws-kachel-zeichen"><path d="M12 3 3 20h18z"/><path d="M12 3v11"/><path d="m8.4 20 3.6-6 3.6 6"/></svg>
+      <span class="wert">–</span>
+      <span class="wofuer">Plätze für die Nacht draußen</span>
+    </div>
+  </div>
+
   <!-- Heute Nacht (heute.js). Der einzige Block der Seite, der morgen etwas
        anderes sagt als heute — er rechnet aus Stundenwerten die kommende
        Nacht an einem echten Platz aus. Anfangs versteckt: Ohne Netz gibt es
@@ -7463,15 +7640,6 @@ body.bereich-offen.detail-offen::after {
       <p class="abschnitt-unter" id="entdecken-heute-unter">Wie die Nacht draußen wird</p>
     </div>
     <div class="rand" id="entdecken-heute"></div>
-  </div>
-
-  <!-- Der Spot, der heute oben steht. -->
-  <div class="block" id="entdecken-held-block">
-    <div class="rand">
-      <h2 class="abschnitt-titel">Spot der Woche</h2>
-      <p class="abschnitt-unter">Der am besten bewertete Platz in der Karte</p>
-    </div>
-    <div id="entdecken-held"></div>
   </div>
 
   <!-- Neu dazugekommen -->

@@ -357,6 +357,11 @@
 
     const ueberschrift = jetzt < BIS ? 'Diese Nacht' : 'Heute Nacht';
 
+    // Für die Nachtkachel oben auf der Startseite (screens.js). Ein Ereignis
+    // statt eines zweiten Wetterabrufs: der Wert ist hier schon gerechnet.
+    window.WILDSPOT_HEUTE.nachtWert = { grad: Math.round(kommend.kalt), spotName: s.name };
+    window.dispatchEvent(new CustomEvent('wildspot-heute', { detail: window.WILDSPOT_HEUTE.nachtWert }));
+
     kasten.innerHTML =
       `<button class="heute-karte ${wie}" type="button">
          <span class="heute-oben">
