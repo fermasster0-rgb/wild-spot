@@ -7050,7 +7050,11 @@ body.bereich-offen.detail-offen::after {
   #karte { left: 88px; }
   .schirm { left: 88px; }
   .ecke.links { left: calc(88px + max(12px, env(safe-area-inset-left))); }
-  .suche { left: calc(164px + env(safe-area-inset-left)); }
+  .suche,
+  body .suche { left: calc(164px + env(safe-area-inset-left)); }
+  /* Die Chip-Reihe über der Karte (Redesign) rückt ebenso ein — sonst lag
+     der Filterknopf unter der Leiste links. */
+  .karte-chips { left: calc(88px + max(12px, env(safe-area-inset-left))); }
   .unten { left: calc(88px + max(12px, env(safe-area-inset-left))); }
 
   /* Der Inhalt der Bereiche bleibt in einer lesbaren Spalte, mittig. */
