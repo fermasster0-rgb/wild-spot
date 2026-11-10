@@ -1358,9 +1358,34 @@ for (const gruppe of [...OSM_EBENEN, 'spots']) {
     ebenen[gruppe] = !ebenen[gruppe];
     knopf.setAttribute('aria-pressed', String(ebenen[gruppe]));
     ebenenAnwenden();
+    window.dispatchEvent(new CustomEvent('wildspot-ebene', { detail: { gruppe, an: ebenen[gruppe] } }));
     if (!ebenen[gruppe]) return;
     if (gruppe === 'spots') spotsLaden(); else punkteLaden();
   };
+}
+
+// Für die Chip-Reihe über der Karte (Redesign 2026-11-10). Beide Wege gehen
+// über den Schalter im Ebenen-Menü — so gibt es nur einen Stand, und Menü und
+// Chips können nie etwas Verschiedenes anzeigen.
+window.WILDSPOT_EBENE_AN = (gruppe) => Boolean(ebenen[gruppe]);
+window.WILDSPOT_EBENE_SETZEN = (gruppe, an) => {
+  if (!(gruppe in ebenen) || ebenen[gruppe] === Boolean(an)) return;
+  document.getElementById('knopf-' + gruppe)?.onclick();
+};
+
+{
+  const chips = document.querySelectorAll('#karte-chips [data-ebene]');
+  const auffrischen = () => {
+    for (const c of chips) c.setAttribute('aria-pressed', String(Boolean(ebenen[c.dataset.ebene])));
+  };
+  for (const c of chips) {
+    c.addEventListener('click', (e) => {
+      e.stopPropagation();
+      window.WILDSPOT_EBENE_SETZEN(c.dataset.ebene, !ebenen[c.dataset.ebene]);
+    });
+  }
+  window.addEventListener('wildspot-ebene', auffrischen);
+  auffrischen();
 }
 
 // ----------------------------------------------------------------------------

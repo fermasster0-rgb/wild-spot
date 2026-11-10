@@ -479,6 +479,55 @@ html[data-thema="nacht"] .ws-hero-unten .ansehen { background: rgba(155, 224, 12
 .ws-kachel[hidden] { display: none; }
 .ws-kachel-zeichen { width: 22px; height: 22px; fill: none; stroke: var(--ws-gruen-aktiv); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .ws-kachel-zeichen.nacht { stroke: #5b4fb5; }
+
+/* ---------------------------------------- Kartenansicht (Apple-Karten) --- */
+/* Weiße, schwebende Pillen statt kleiner Glasknöpfe: 50 Pixel hoch, weicher
+   Schatten. Über einer bunten Karte liest sich Weiß besser als Glas. Die
+   Regeln stehen hier oben, die Grundformen weiter unten; die Selektoren
+   tragen deshalb das Elternelement mit, damit sie sicher gewinnen. */
+body .werkzeug {
+  width: 50px; height: 50px;
+  border-radius: 25px;
+  background: var(--panel);
+  box-shadow: 0 8px 24px rgba(17, 21, 17, 0.16);
+}
+body .suche {
+  top: max(12px, env(safe-area-inset-top));
+  left:  calc(74px + env(safe-area-inset-left));
+  right: calc(74px + env(safe-area-inset-right));
+}
+body .suche-feld {
+  height: 50px;
+  padding: 0 16px;
+  gap: 10px;
+  background: var(--panel);
+  box-shadow: 0 8px 24px rgba(17, 21, 17, 0.16);
+}
+body .suche-feld input { font-size: 16px; }
+body .suche-feld svg { width: 18px; height: 18px; }
+html[data-thema="nacht"] body .werkzeug,
+html[data-thema="nacht"] body .suche-feld { box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45); }
+
+.karte-chips {
+  position: absolute;
+  top: calc(max(12px, env(safe-area-inset-top)) + 62px);
+  left: max(12px, env(safe-area-inset-left));
+  right: 0;
+  z-index: 24;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-right: 12px;
+}
+.karte-chips::-webkit-scrollbar { display: none; }
+body .karte-chips .filter-knopf { position: static; flex: none; min-height: 36px; background: var(--panel); box-shadow: 0 4px 14px rgba(17, 21, 17, 0.14); }
+.karte-chip { background: var(--panel); border-color: transparent; box-shadow: 0 4px 14px rgba(17, 21, 17, 0.14); }
+html[data-thema="nacht"] .karte-chip,
+html[data-thema="nacht"] body .karte-chips .filter-knopf { box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4); }
+.karte-chip[aria-pressed="true"] { background: var(--ws-text); color: var(--ws-grund); }
+/* Wenn die Karte nicht der offene Bereich ist, liegen die Chips sowieso
+   unter einer Seite — keine Sonderregel nötig. */
 html[data-thema="nacht"] .ws-kachel-zeichen.nacht { stroke: #c9bdf7; }
 
 /* --------------------------------------------------------------------------
@@ -7160,13 +7209,23 @@ body.bereich-offen.detail-offen::after {
      nach Gruppen sortiert, alle auf einen Blick. Die Zahl im Knopf sagt,
      wie viele gerade gesetzt sind — sonst sucht man später den Spot, den man
      selbst weggefiltert hat. -->
-<button class="filter-knopf" id="knopf-filter" aria-pressed="false" title="Filter">
-  <svg viewBox="0 0 24 24" aria-hidden="true">
-    <path d="M3 5.5h18M6.5 12h11M10 18.5h4"/>
-  </svg>
-  <span class="wort">Filter</span>
-  <span class="zaehler" id="filter-anzahl" hidden>0</span>
-</button>
+<!-- Redesign 2026-11-10 (Apple-Karten-Stil): der Filterknopf steht jetzt am
+     Anfang einer Chip-Reihe. Die vier Chips daneben sind Abkürzungen für die
+     häufigsten Ebenen-Schalter — sie schalten genau dieselben Schalter wie
+     das Ebenen-Menü (app.js, WILDSPOT_EBENE_SETZEN), das Menü bleibt. -->
+<div class="karte-chips" id="karte-chips">
+  <button class="filter-knopf" id="knopf-filter" aria-pressed="false" title="Filter">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M3 5.5h18M6.5 12h11M10 18.5h4"/>
+    </svg>
+    <span class="wort">Filter</span>
+    <span class="zaehler" id="filter-anzahl" hidden>0</span>
+  </button>
+  <button class="ws-chip karte-chip" type="button" data-ebene="spots" aria-pressed="true">Spots</button>
+  <button class="ws-chip karte-chip" type="button" data-ebene="wasser" aria-pressed="false">Wasser</button>
+  <button class="ws-chip karte-chip" type="button" data-ebene="seen" aria-pressed="false">Bergseen</button>
+  <button class="ws-chip karte-chip" type="button" data-ebene="unterstand" aria-pressed="false">Hütten</button>
+</div>
 
 <div class="ecke rechts">
   <button class="werkzeug" id="knopf-einstellungen" aria-expanded="false" title="Einstellungen">
