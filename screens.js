@@ -1918,7 +1918,7 @@
     // Uhr über einer dunklen App.
     const meta = document.getElementById('theme-color');
     if (meta) {
-      meta.setAttribute('content', wert === 'nacht' ? '#12140f' : '#edebe5');
+      meta.setAttribute('content', wert === 'nacht' ? '#0b0f0c' : '#f4f5f1');
     }
 
     // Die Karte hört darauf und färbt ihren Untergrund um (app.js).

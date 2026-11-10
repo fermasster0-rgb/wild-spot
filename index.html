@@ -14,7 +14,7 @@
      welches Symbol sie trägt und dass sie ohne Adresszeile im Vollbild läuft.
      Zusammen mit sw.js macht das die Installation möglich. -->
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#edebe5" id="theme-color">
+<meta name="theme-color" content="#f4f5f1" id="theme-color">
 
 <!-- Das Thema muss stehen, BEVOR das Blatt gezeichnet wird. Läge es unten bei
      den Skripten, sähe man beim Start eine Zehntelsekunde die helle App und
@@ -69,35 +69,38 @@
    -------------------------------------------------------------------------- */
 :root {
   /* Flächen */
-  --bg:          #edebe5;   /* der Grund: warmes Papier, kein kaltes Grau */
+  /* Redesign 2026-11-10 (Look B, hell und klar wie der App Store): kühleres,
+     ruhigeres Hellgrau statt Papierbeige, Grünschwarz als Schrift, sattes
+     Waldgrün als einziger Akzent. */
+  --bg:          #f4f5f1;   /* der Grund */
   --flaeche:     #ffffff;   /* Karten, Tafeln, Blätter — sie liegen darauf */
-  --flaeche-tief:#e4e1d8;   /* wo noch etwas darunter liegt: Bildplatzhalter */
-  --panel:       rgba(255, 255, 255, 0.93);   /* schwebt über der Karte */
-  --rand:        rgba(28, 26, 24, 0.13);
+  --flaeche-tief:#e9ebe4;   /* wo noch etwas darunter liegt: Bildplatzhalter */
+  --panel:       rgba(255, 255, 255, 0.94);   /* schwebt über der Karte */
+  --rand:        rgba(17, 21, 17, 0.1);
 
   /* Milchglas. Alles, was über etwas anderem schwebt und es durchscheinen
      lässt: die Leiste unten, die Knöpfe auf der Karte, das Suchfeld.
      Bewusst als eigener Wert und nicht als --panel mit weniger Deckkraft —
      unter Glas liegt immer ein Bild, unter einem Panel meistens nichts. */
-  --glas:      rgba(252, 251, 248, 0.72);
-  --glas-rand: rgba(28, 26, 24, 0.09);
+  --glas:      rgba(255, 255, 255, 0.72);
+  --glas-rand: rgba(17, 21, 17, 0.08);
 
   /* Genau die Farbe, die --glas über --bg ergibt. Sie ist der Untergrund für
      den Streifen, den das Handy unterhalb der Seite selbst malt — siehe die
      Regel für <html> weiter unten. Reines Weiß wäre dort eine Spur zu hell
      und würde als feine Kante sichtbar. */
-  --unterkante: #f8f7f3;
+  --unterkante: #f4f5f1;   /* seit 2026-11-10 = Grund: die Statusleiste nimmt die Seitenfarbe an */
 
   /* Schrift */
-  --text:      #1c1a18;   /* warmes Schwarz, kein reines #000 */
-  --text-lese: #33302c;   /* Fließtext: eine Spur weicher */
-  --text-weak: #736554;   /* Nebensachen: warmes Braungrau statt Grau */
+  --text:      #111511;   /* Grünschwarz, kein reines #000 */
+  --text-lese: #2a2f28;   /* Fließtext: eine Spur weicher */
+  --text-weak: #5c6356;   /* Nebensachen */
 
   /* Akzente */
-  --gruen:       #4f6814;   /* Oliv — die Hauptfarbe der App */
-  --auf-akzent:  #ffffff;   /* was auf dem Oliv steht */
-  --akzent-weich:rgba(79, 104, 20, 0.11);
-  --akzent-rand: rgba(79, 104, 20, 0.42);
+  --gruen:       #2f6b1f;   /* Waldgrün — die Hauptfarbe der App */
+  --auf-akzent:  #ffffff;   /* was auf dem Grün steht */
+  --akzent-weich:#e7ecdf;
+  --akzent-rand: rgba(47, 107, 31, 0.4);
   --akzent-hell: #dbf0ae;   /* nur auf Fotos, deshalb hell in beiden Themen */
   /* Der zweite Akzent: Neuigkeiten, Route, Marken. War lange ein sattes
      Signal-Orange (#ee6b17). Neben dem Oliv war das der falsche Ton — Oliv ist
@@ -129,15 +132,15 @@
   /* Vier Stufen Tönung, für Füllungen, Trennlinien und Zustände.
      Sie sind der Grund, warum das Umschalten überhaupt funktioniert:
      dieselbe Stufe bedeutet in beiden Themen dasselbe. */
-  --t1: rgba(28, 26, 24, 0.055);
-  --t2: rgba(28, 26, 24, 0.085);
-  --t3: rgba(28, 26, 24, 0.13);
-  --t4: rgba(28, 26, 24, 0.2);
+  --t1: rgba(17, 21, 17, 0.05);
+  --t2: rgba(17, 21, 17, 0.08);
+  --t3: rgba(17, 21, 17, 0.12);
+  --t4: rgba(17, 21, 17, 0.19);
 
   /* Schatten. Am Tag fast unsichtbar — auf hellem Grund reicht eine Andeutung,
      alles andere sieht nach Schmutz aus. */
-  --sch1: rgba(40, 34, 26, 0.1);
-  --sch2: rgba(40, 34, 26, 0.16);
+  --sch1: rgba(17, 21, 17, 0.08);
+  --sch2: rgba(17, 21, 17, 0.16);
   --ueber: rgba(28, 26, 24, 0.45);   /* hinter Fenstern */
 
   /* Zustände */
@@ -167,29 +170,46 @@
 
   /* Die Karte außerhalb Österreichs und hinter allem: dieselbe Farbe wie
      der Grund, sonst blitzt beim Ziehen ein fremder Ton auf. */
-  --karte-grund: #e4e1d8;
+  --karte-grund: #e9ebe4;
+
+  /* ----------------------------------------------------- Redesign-Bausteine
+     Namen mit ws- gehören zum neuen Look (Schritt 1, 2026-11-10). Sie zeigen
+     auf die Grundwerte oben, damit Tag und Nacht automatisch mitgehen. */
+  --ws-grund:        var(--bg);
+  --ws-karte:        var(--flaeche);
+  --ws-text:         var(--text);
+  --ws-text-neben:   var(--text-weak);
+  --ws-gruen:        var(--gruen);
+  --ws-gruen-hell:   var(--akzent-weich);
+  --ws-gruen-aktiv:  #2f6b1f;
+  --ws-glas:         var(--glas);
+  --ws-glas-rand:    var(--glas-rand);
+  --ws-schatten-hero:  0 20px 44px rgba(17, 21, 17, 0.18);
+  --ws-schatten-karte: 0 1px 2px rgba(17, 21, 17, 0.05), 0 8px 24px rgba(17, 21, 17, 0.06);
+  --ws-r-hero:  28px;
+  --ws-r-karte: 22px;
 
   color-scheme: light;
 }
 
 /* --------------------------------------------------------------- Nacht --- */
 html[data-thema="nacht"] {
-  --bg:          #12140f;
-  --flaeche:     #191d14;
-  --flaeche-tief:#0d0f0a;
-  --panel:       rgba(20, 23, 17, 0.92);
+  --bg:          #0b0f0c;
+  --flaeche:     #161c17;
+  --flaeche-tief:#0a0d0a;
+  --panel:       rgba(18, 24, 19, 0.93);
   --rand:        rgba(255, 255, 255, 0.14);
 
-  --glas:      rgba(22, 26, 18, 0.72);
-  --glas-rand: rgba(255, 255, 255, 0.11);
-  --unterkante: #151811;
+  --glas:      rgba(22, 30, 24, 0.72);
+  --glas-rand: rgba(255, 255, 255, 0.12);
+  --unterkante: #0b0f0c;
 
-  --text:      #f2f4ee;
+  --text:      #f2f5ee;
   --text-lese: #d6dbcd;
-  --text-weak: #a8b09c;
+  --text-weak: #a3ad9b;
 
-  --gruen:       #7bb661;
-  --auf-akzent:  #10140c;
+  --gruen:       #9be07a;
+  --auf-akzent:  #0b120d;
   --akzent-weich:rgba(123, 182, 97, 0.14);
   --akzent-rand: rgba(123, 182, 97, 0.45);
   --akzent-hell: #b8e8a0;
@@ -231,7 +251,11 @@ html[data-thema="nacht"] {
   --schimmer-1: rgba(123, 182, 97, 0.16);
   --schimmer-2: rgba(56, 225, 208, 0.07);
 
-  --karte-grund: #141812;
+  --karte-grund: #0e130f;
+
+  --ws-gruen-aktiv: #9be07a;
+  --ws-schatten-hero:  0 24px 50px rgba(0, 0, 0, 0.55);
+  --ws-schatten-karte: 0 1px 0 rgba(255, 255, 255, 0.04), 0 10px 28px rgba(0, 0, 0, 0.4);
 
   /* Sagt dem Browser, dass die Seite dunkel ist. Damit werden Rollbalken,
      das Kalendersymbol im Datumsfeld und der Datumswähler selbst dunkel
@@ -251,6 +275,68 @@ html, body {
 }
 
 body { background: var(--bg); }
+
+/* --------------------------------------------------------------------------
+   Bausteine des neuen Looks (Redesign Schritt 1, 2026-11-10)
+
+   Wenige, klar benannte Teile statt vieler Einzelregeln: eine Karte, eine
+   Kachel, ein Knopf, ein Chip. Wie bei Apple liegt der Wert in der
+   Gleichmäßigkeit — jeder Bildschirm benutzt dieselben Radien, Abstände und
+   Schatten, deshalb wirkt das Ganze aus einem Guss.
+   -------------------------------------------------------------------------- */
+.ws-karte {
+  background: var(--ws-karte);
+  border-radius: var(--ws-r-karte);
+  box-shadow: var(--ws-schatten-karte);
+}
+.ws-kachel {
+  background: var(--ws-karte);
+  border-radius: var(--ws-r-karte);
+  box-shadow: var(--ws-schatten-karte);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.ws-kachel .wert  { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; color: var(--ws-text); line-height: 1.1; }
+.ws-kachel .wofuer { font-size: 12px; line-height: 1.35; color: var(--ws-text-neben); }
+.ws-knopf {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--ws-gruen);
+  color: var(--auf-akzent);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+.ws-knopf.zweit { background: var(--ws-gruen-hell); color: var(--ws-gruen-aktiv); }
+html[data-thema="nacht"] .ws-knopf.zweit { background: rgba(155, 224, 122, 0.14); }
+.ws-chip {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid var(--rand);
+  background: var(--ws-karte);
+  color: var(--ws-text);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.ws-chip[aria-pressed="true"] { background: var(--ws-text); color: var(--ws-grund); border-color: transparent; }
 
 /* --------------------------------------------------------------------------
    iOS 26: die installierte App ist länger als der sichtbare Bildschirm

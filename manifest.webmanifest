@@ -11,8 +11,8 @@
   "display": "standalone",
   "orientation": "any",
 
-  "background_color": "#12140f",
-  "theme_color": "#12140f",
+  "background_color": "#f4f5f1",
+  "theme_color": "#f4f5f1",
 
   "categories": ["travel", "navigation", "lifestyle"],
 
