@@ -77,6 +77,7 @@ const APP_DATEIEN = [
   './wetter.js',
   './route.js',
   './blatt-hilfen.js',
+  './wegweiser.js',
   './teilen.js',
   './plus.js',
   './screens.js',

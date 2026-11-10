@@ -545,6 +545,44 @@ html[data-thema="nacht"] body .karte-chips .filter-knopf { box-shadow: 0 4px 14p
 }
 .blatt-kachel .wert { font-size: 17px; font-weight: 800; letter-spacing: -0.01em; color: var(--ws-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .blatt-haupt { width: 100%; min-height: 48px; font-size: 15.5px; }
+
+/* ------------------------------------------------- Wegweiser (route.js) --- */
+.weg-chip {
+  position: fixed;
+  z-index: 40;
+  left: 0; right: 0;
+  top: calc(max(12px, env(safe-area-inset-top)) + 116px);
+  width: fit-content;
+  margin: 0 auto;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: var(--panel);
+  color: var(--ws-text);
+  font-size: 14.5px;
+  font-weight: 700;
+  box-shadow: 0 10px 28px rgba(17, 21, 17, 0.2);
+  animation: weg-chip-rein 0.35s cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+.weg-chip[hidden] { display: none; }
+@keyframes weg-chip-rein { from { opacity: 0; transform: translateY(-8px) scale(0.92); } }
+.weg-p {
+  width: 26px; height: 26px;
+  border-radius: 8px;
+  background: #1f5fae;
+  border: 2.5px solid #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  color: #fff;
+  font: 800 14px/21px system-ui, -apple-system, sans-serif;
+  text-align: center;
+}
+@media (prefers-reduced-motion: reduce) { .weg-chip { animation: none; } }
+/* Wegweiser-Modus: das Blatt fährt auf gut 40 % ein, damit die Route darüber
+   ganz zu sehen ist. Scrollen im Blatt geht weiter. */
+@media (max-width: 760px) {
+  body.weg-modus .detail { max-height: 42vh; max-height: 42dvh; }
+  /* Der Chip sitzt dann direkt über dem Blatt statt oben am Zelt. */
+  body.weg-modus .weg-chip { top: auto; bottom: calc(42dvh + var(--tab-h) + 12px); }
+}
 .blatt-haupt svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 2.1; stroke-linecap: round; stroke-linejoin: round; }
 html[data-thema="nacht"] .ws-kachel-zeichen.nacht { stroke: #c9bdf7; }
 
@@ -7504,6 +7542,7 @@ body.bereich-offen.detail-offen::after {
 <!-- Die Wanderroute: zeichnet die Linie auf die Karte und baut den Block in
      der Detail-Leiste. Muss vor spot-detail.js stehen, das sie aufruft. -->
 <script src="blatt-hilfen.js"></script>
+<script src="wegweiser.js"></script>
 <script src="route.js"></script>
 <script src="spot-detail.js"></script>
 <!-- Teilen: der Knopf im Kopf der Leiste und das Öffnen geteilter Links.

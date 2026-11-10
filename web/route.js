@@ -37,7 +37,14 @@
   // Wasser ist blau, die eigene Position grün, die Wanderwege von basemap.at
   // sind selbst schon rot gestrichelt — eine durchgezogene, breite Linie in
   // dieser Farbe ist trotzdem eindeutig als "unsere" zu erkennen.
-  const FARBE = '#e2603c';
+  //
+  // Redesign 2026-11-10: Waldgrün mit weißem Saum statt Rotorange. Grün ist
+  // seither die einzige Akzentfarbe der App; der weiße Saum hält die Linie
+  // auf jeder Grundkarte lesbar — auf Fels und Schnee ebenso wie auf Wald.
+  const FARBE = '#2f7d25';
+  const FARBE_NACHT = '#7bd35c';
+  const linienFarbe = () =>
+    document.documentElement.dataset.thema === 'nacht' ? FARBE_NACHT : FARBE;
 
   const LEER = { type: 'FeatureCollection', features: [] };
 
@@ -71,8 +78,8 @@
       filter: ['==', ['geometry-type'], 'LineString'],
       layout: { 'line-cap': 'round', 'line-join': 'round' },
       paint: {
-        'line-color': 'rgba(0, 0, 0, 0.45)',
-        'line-width': ['interpolate', ['linear'], ['zoom'], 10, 5, 14, 8, 17, 12],
+        'line-color': 'rgba(255, 255, 255, 0.85)',
+        'line-width': ['interpolate', ['linear'], ['zoom'], 10, 6, 14, 9, 17, 13],
       },
     }, vor);
 
@@ -83,8 +90,8 @@
       filter: ['==', ['geometry-type'], 'LineString'],
       layout: { 'line-cap': 'round', 'line-join': 'round' },
       paint: {
-        'line-color': FARBE,
-        'line-width': ['interpolate', ['linear'], ['zoom'], 10, 2.5, 14, 4.5, 17, 7],
+        'line-color': linienFarbe(),
+        'line-width': ['interpolate', ['linear'], ['zoom'], 10, 3, 14, 5, 17, 7.5],
       },
     }, vor);
 
@@ -97,7 +104,7 @@
       source: 'route',
       filter: ['==', ['geometry-type'], 'Point'],
       paint: {
-        'circle-color': FARBE,
+        'circle-color': linienFarbe(),
         'circle-radius': ['interpolate', ['linear'], ['zoom'], 10, 4, 14, 7, 17, 10],
         'circle-stroke-width': 2.5,
         'circle-stroke-color': '#ffffff',
@@ -111,8 +118,57 @@
   // 2. ZEICHNEN UND WEGRÄUMEN
   // ==========================================================================
 
+  // Jeder neue Auftrag (zeichnen, ausblenden, animieren) zählt hoch. Eine
+  // laufende Animation prüft vor jedem Bild, ob sie noch die aktuelle ist —
+  // so kann ein Spot-Wechsel mitten im Wachsen nie eine zweite Linie oder
+  // eine Linie am falschen Spot hinterlassen.
+  let auftrag = 0;
+
+  // Der Parkplatz als „P"-Schild. Ein HTML-Element statt Kartenschrift: Text
+  // auf der Karte bräuchte eine Schriftart von einem fremden Server, ein
+  // Element nicht — es funktioniert auch offline.
+  let pMarke = null;
+  function parkplatzSetzen(spot) {
+    const da = Number.isFinite(spot?.parking_lat) && Number.isFinite(spot?.parking_lng);
+    if (!da) { pMarke?.remove(); pMarke = null; return; }
+    if (!pMarke) {
+      const el = document.createElement('div');
+      el.className = 'weg-p';
+      el.textContent = 'P';
+      el.setAttribute('aria-label', 'Parkplatz');
+      pMarke = new maplibregl.Marker({ element: el });
+    }
+    pMarke.setLngLat([spot.parking_lng, spot.parking_lat]).addTo(karte);
+  }
+
+  function linieSetzen(koordinaten) {
+    karte.getSource('route').setData(koordinaten && koordinaten.length > 1
+      ? { type: 'FeatureCollection', features: [{ type: 'Feature', geometry: { type: 'LineString', coordinates: koordinaten }, properties: {} }] }
+      : LEER);
+  }
+
+  // Der Chip mit Gehzeit · Höhenmetern · Strecke, über dem Blatt.
+  let chip = null;
+  function chipZeigen(spot) {
+    if (!chip) {
+      chip = document.createElement('div');
+      chip.className = 'weg-chip';
+      chip.hidden = true;
+      document.body.appendChild(chip);
+    }
+    const teile = [];
+    if (Number.isFinite(Number(spot.route_minutes)) && spot.route_minutes !== null) teile.push(dauer(spot.route_minutes));
+    if (Number.isFinite(Number(spot.route_ascent_m)) && spot.route_ascent_m !== null) teile.push(`${Math.round(spot.route_ascent_m)} Hm ↑`);
+    if (Number.isFinite(Number(spot.route_distance_m)) && spot.route_distance_m !== null) teile.push(strecke(spot.route_distance_m));
+    chip.textContent = teile.join(' · ');
+    chip.hidden = teile.length === 0;
+  }
+  function chipWeg() { if (chip) chip.hidden = true; }
+
   // Nimmt den ganzen Spot, wie er aus der Datenbank kommt.
   window.routeZeichnen = function routeZeichnen(spot) {
+    auftrag++;
+    if (gezeichnet !== spot) { chipWeg(); document.body.classList.remove('weg-modus'); }
     gezeichnet = spot || null;
 
     if (!ebenenSicherstellen()) {
@@ -121,31 +177,71 @@
       return;
     }
 
-    const merkmale = [];
-
-    if (Array.isArray(spot?.route_line) && spot.route_line.length > 1) {
-      merkmale.push({
-        type: 'Feature',
-        geometry: { type: 'LineString', coordinates: spot.route_line },
-        properties: {},
-      });
-    }
-
-    if (Number.isFinite(spot?.parking_lat) && Number.isFinite(spot?.parking_lng)) {
-      merkmale.push({
-        type: 'Feature',
-        geometry: { type: 'Point', coordinates: [spot.parking_lng, spot.parking_lat] },
-        properties: {},
-      });
-    }
-
-    karte.getSource('route').setData({ type: 'FeatureCollection', features: merkmale });
+    linieSetzen(Array.isArray(spot?.route_line) ? spot.route_line : null);
+    parkplatzSetzen(spot);
   };
 
   window.routeAusblenden = function routeAusblenden() {
+    auftrag++;
     gezeichnet = null;
+    chipWeg();
+    document.body.classList.remove('weg-modus');
+    parkplatzSetzen(null);
     if (karte.getSource('route')) karte.getSource('route').setData(LEER);
   };
+
+  // Der Wegweiser (Redesign 2026-11-10): Kamera auf die Route, dann wächst
+  // die Linie in 1,5 s vom Parkplatz zum Spot, danach der Chip mit den
+  // Werten. Ohne berechnete Route passiert nichts — es wird nie ein Weg
+  // geraten. Wer am Gerät „Bewegung reduzieren" eingestellt hat, bekommt die
+  // Linie sofort ganz.
+  const WACHSEN_MS = 1500;
+  window.routeAnimieren = function routeAnimieren(spot) {
+    const linie = spot?.route_line;
+    if (!Array.isArray(linie) || linie.length < 2) return;
+    if (!ebenenSicherstellen()) {
+      karte.once('idle', () => window.routeAnimieren(spot));
+      return;
+    }
+    const meiner = ++auftrag;
+    gezeichnet = spot;
+    parkplatzSetzen(spot);
+    chipWeg();
+    // Das Blatt fährt ein, damit die ganze Route sichtbar wird.
+    document.body.classList.add('weg-modus');
+
+    const ruhig = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    insBildHolen();
+    if (ruhig) { linieSetzen(linie); chipZeigen(spot); return; }
+
+    const W = window.WILDSPOT_WEGWEISER;
+    const laengen = W.streckenLaengen(linie);
+    linieSetzen(null);
+
+    let gestartet = false;
+    const starten = () => {
+      if (gestartet || meiner !== auftrag) return;
+      gestartet = true;
+      const anfang = performance.now();
+      const bild = (jetzt) => {
+        if (meiner !== auftrag) return;   // ein neuer Auftrag hat übernommen
+        const t = Math.min(1, (jetzt - anfang) / WACHSEN_MS);
+        linieSetzen(W.teilLinie(linie, W.sanft(t), laengen));
+        if (t < 1) requestAnimationFrame(bild);
+        else chipZeigen(spot);
+      };
+      requestAnimationFrame(bild);
+    };
+    karte.once('moveend', starten);
+    // Falls die Karte schon passend lag und gar nicht fährt.
+    setTimeout(starten, 800);
+  };
+
+  // Tag/Nacht: die Linienfarbe mitziehen.
+  window.addEventListener('wildspot-thema', () => {
+    if (karte.getLayer('route-linie')) karte.setPaintProperty('route-linie', 'line-color', linienFarbe());
+    if (karte.getLayer('route-parkplatz')) karte.setPaintProperty('route-parkplatz', 'circle-color', linienFarbe());
+  });
 
   // Die ganze Route ins Bild holen. Nur auf Knopfdruck: eine Karte, die von
   // selbst wegspringt, sobald man einen Spot antippt, verliert einen jedes Mal.
@@ -162,9 +258,12 @@
     // Rechts liegt am großen Bildschirm die Detail-Leiste, unten am Handy das
     // Blatt. Der Rand hält die Route aus beiden heraus.
     const schmal = window.innerWidth <= 760;
+    // Im Wegweiser-Modus ist das Blatt auf gut 40 % eingefahren (siehe
+    // body.weg-modus im Stil) — die Route darf dann den oberen Rest nutzen.
+    const blattAnteil = document.body.classList.contains('weg-modus') ? 0.6 : 0.62;
     karte.fitBounds([[w, s], [o, n]], {
       padding: schmal
-        ? { top: 60, bottom: Math.round(window.innerHeight * 0.62), left: 40, right: 40 }
+        ? { top: 130, bottom: Math.round(window.innerHeight * blattAnteil), left: 40, right: 40 }
         : { top: 70, bottom: 70, left: 70, right: 440 },
       duration: 700,
       maxZoom: 16,

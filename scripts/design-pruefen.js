@@ -156,5 +156,54 @@ async (page) => {
     await mit.ctx.close();
   }
 
+  // ---------------------------------------------------------------- Task 6
+  async function mitTestroute(reduziert) {
+    const s = await seite(390, 844);
+    if (reduziert) await s.p.emulateMedia({ reducedMotion: 'reduce' });
+    await s.p.route('**/rest/v1/spots_with_rating?*', async (route) => {
+      const antwort = await route.fetch();
+      let daten = await antwort.json();
+      const ergaenzen = (x) => (x && x.id === LUENERSEE[0])
+        ? { ...x, route_line: TESTROUTE, parking_lat: 47.0402, parking_lng: 9.7305, route_minutes: 75, route_ascent_m: 320, route_descent_m: 20, route_distance_m: 2400 }
+        : x;
+      daten = Array.isArray(daten) ? daten.map(ergaenzen) : ergaenzen(daten);
+      await route.fulfill({ response: antwort, json: daten });
+    });
+    await s.p.evaluate((x) => window.spotDetailOeffnen(...x), LUENERSEE);
+    await s.p.waitForTimeout(3500);
+    return s;
+  }
+  const linienPunkte = (p) => p.evaluate(() => {
+    const d = karte.getSource('route')?.serialize().data;
+    const l = (d?.features || []).find((f) => f.geometry.type === 'LineString');
+    return l ? l.geometry.coordinates.length : 0;
+  });
+  {
+    const { ctx, p } = await mitTestroute(false);
+    const fehler = [];
+    p.on('pageerror', (e) => fehler.push(e.message));
+    await p.click('#blatt-weg');
+    // Kamera braucht bis ~0,8 s, dann wächst die Linie 1,5 s lang.
+    const proben = [];
+    for (const ms of [900, 600, 600, 900]) { await p.waitForTimeout(ms); proben.push(await linienPunkte(p)); }
+    const chip = await p.evaluate(() => document.querySelector('.weg-chip:not([hidden])')?.textContent || '');
+    pruef('T6 Linie wächst', proben[0] < proben[proben.length - 1] && proben[proben.length - 1] === TESTROUTE.length, proben);
+    pruef('T6 Chip mit Werten', /1 h 15 min/.test(chip) && /320/.test(chip), chip);
+    // Während einer neuen Animation einen anderen Spot öffnen: keine Ausnahme.
+    await p.click('#blatt-weg').catch(() => {});
+    await p.waitForTimeout(1000);
+    await p.evaluate(() => window.spotDetailOeffnen('00000000-0000-0000-0000-000000000000', 'Test', 47.2, 11.4)).catch(() => {});
+    await p.waitForTimeout(2500);
+    pruef('T6 Wechsel ohne Fehler', fehler.length === 0, fehler.slice(0, 2));
+    await ctx.close();
+
+    const red = await mitTestroute(true);
+    await red.p.click('#blatt-weg');
+    await red.p.waitForTimeout(1200);
+    const sofort = await linienPunkte(red.p);
+    pruef('T6 Bewegung reduziert: sofort ganz', sofort === TESTROUTE.length, sofort);
+    await red.ctx.close();
+  }
+
   return ergebnis;
 }
