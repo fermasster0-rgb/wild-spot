@@ -1,0 +1,37 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; overflow: hidden; background: #edebe5; font-family: "Inter", sans-serif; }
+    #karte-titel { position: absolute; left: 80px; right: 80px; top: 130px; text-align: center;
+      color: #1b1b17; font-size: 70px; font-weight: 900; letter-spacing: -0.04em; line-height: 1.05; }
+    #karte-titel b { color: #4f6814; }
+    #karte-handy { position: absolute; left: 150px; top: 420px; width: 780px; height: 1340px;
+      border-radius: 76px; background: #10130d; padding: 18px; box-shadow: 0 40px 90px rgba(30,39,24,0.28); }
+    #karte-schirm { position: relative; width: 100%; height: 100%; border-radius: 60px; overflow: hidden; background: #dfe6d2; }
+    .karte-bild { position: absolute; left: 0; top: 0; width: 100%; height: 100%; object-fit: cover; object-position: top; }
+    #karte-nadel { position: absolute; left: 345px; top: 520px; width: 54px; height: 76px; }
+  </style>
+  <div id="root" data-composition-id="karte" data-width="1080" data-height="1920">
+    <div id="karte-titel" class="clip" data-start="0" data-duration="7.5">Die Karte für Plätze, an denen man <b>wirklich übernachten</b> kann</div>
+    <div id="karte-handy" class="clip" data-start="0" data-duration="7.5">
+      <div id="karte-schirm">
+        <img id="karte-oe" class="karte-bild" src="assets/screens/karte-oesterreich.png" alt="" />
+        <img id="karte-berg" class="karte-bild" src="assets/screens/karte-berge.png" alt="" />
+        <svg id="karte-nadel" viewBox="0 0 54 76">
+          <path d="M27 74 C27 74 4 44 4 26 A23 23 0 1 1 50 26 C50 44 27 74 27 74 Z" fill="#ee6b17" stroke="#fff" stroke-width="4"/>
+          <circle cx="27" cy="26" r="8" fill="#fff"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    tl.fromTo("#karte-handy", { y: 900 }, { y: 0, duration: 0.6, ease: "power4.out" }, 0);
+    tl.fromTo("#karte-titel", { opacity: 0, y: -30 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, 0.3);
+    // Hineinzoomen nach Salzburg: Österreich wird größer, die Bergkarte übernimmt
+    tl.fromTo("#karte-oe", { scale: 1, transformOrigin: "62% 30%" }, { scale: 1.8, duration: 1.2, ease: "power2.inOut" }, 2.0);
+    tl.fromTo("#karte-berg", { opacity: 0, scale: 0.6, transformOrigin: "50% 30%" }, { opacity: 1, scale: 1, duration: 1.2, ease: "power2.inOut" }, 2.0);
+    tl.fromTo("#karte-nadel", { y: -260, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "bounce.out" }, 4.0);
+    tl.fromTo("#karte-handy", { scale: 1 }, { scale: 1.06, transformOrigin: "50% 60%", duration: 1.6, ease: "power2.inOut" }, 5.4);
+    window.__timelines["karte"] = tl;
+  </script>
+</template>

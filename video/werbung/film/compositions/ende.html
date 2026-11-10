@@ -1,0 +1,37 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; overflow: hidden; background: linear-gradient(180deg, #1e2718, #10130d); font-family: "Inter", sans-serif; color: #fff8ee; }
+    #ende-claim { position: absolute; left: 90px; right: 90px; top: 700px; text-align: center;
+      font-size: 96px; font-weight: 900; letter-spacing: -0.045em; line-height: 1.04; }
+    #ende-claim b { color: #7bb661; }
+    #ende-marke { position: absolute; left: 0; right: 0; top: 620px; text-align: center; }
+    #ende-zelt { width: 300px; height: 300px; }
+    #ende-name { font-size: 130px; font-weight: 900; letter-spacing: -0.05em; margin-top: 30px; }
+    #ende-link { font-size: 40px; font-weight: 700; color: #7bb661; margin-top: 30px; }
+    #ende-klein { position: absolute; left: 90px; right: 90px; top: 1500px; text-align: center; font-size: 34px; color: #b9bfae; line-height: 1.4; }
+  </style>
+  <div id="root" data-composition-id="ende" data-width="1080" data-height="1920">
+    <div id="ende-claim" class="clip" data-start="0" data-duration="2.9">Schlaf dort, wo andere <b>schon gut geschlafen</b> haben</div>
+    <div id="ende-marke" class="clip" data-start="2.9" data-duration="3.1">
+      <svg id="ende-zelt" viewBox="0 0 24 24" fill="none" stroke="#7bb661" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <path id="ende-p1" d="M12 3 3 20h18L12 3Z" pathLength="1" stroke-dasharray="1" />
+        <path id="ende-p2" d="M12 3v11" pathLength="1" stroke-dasharray="1" />
+        <path id="ende-p3" d="m8.4 20 3.6-6 3.6 6" pathLength="1" stroke-dasharray="1" />
+      </svg>
+      <div id="ende-name">Wild Spot</div>
+      <div id="ende-link">fermasster0-rgb.github.io/wild-spot</div>
+    </div>
+    <div id="ende-klein" class="clip" data-start="3.0" data-duration="3.0">Wildcampen ist Ländersache – Regeln beachten.</div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    tl.fromTo("#ende-claim", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, 0.05);
+    tl.fromTo("#ende-p1", { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 0.6, ease: "power2.inOut" }, 2.95);
+    tl.fromTo("#ende-p2", { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 0.3, ease: "power2.out" }, 3.4);
+    tl.fromTo("#ende-p3", { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 0.3, ease: "power2.out" }, 3.5);
+    tl.fromTo("#ende-name", { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: 0.45, ease: "power3.out" }, 3.5);
+    tl.fromTo("#ende-link", { opacity: 0 }, { opacity: 1, duration: 0.3 }, 3.6);
+    tl.fromTo("#ende-klein", { opacity: 0 }, { opacity: 1, duration: 0.3 }, 3.1);
+    window.__timelines["ende"] = tl;
+  </script>
+</template>

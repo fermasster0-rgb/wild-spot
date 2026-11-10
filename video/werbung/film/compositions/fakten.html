@@ -1,0 +1,43 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; overflow: hidden; background: #4f6814; font-family: "Inter", sans-serif; color: #fff8ee; }
+    #fakten-titel { position: absolute; left: 90px; right: 90px; top: 220px; font-size: 96px; font-weight: 900; letter-spacing: -0.04em; }
+    #fakten-chips { position: absolute; left: 90px; right: 90px; top: 400px; display: flex; flex-direction: column; gap: 28px; align-items: flex-start; }
+    .fakten-chip { background: #edebe5; color: #1b1b17; border-radius: 999px; padding: 26px 48px; font-size: 58px; font-weight: 700; letter-spacing: -0.02em; }
+    .fakten-chip b { color: #ee6b17; }
+    #fakten-zahl-block { position: absolute; left: 90px; right: 90px; top: 1260px; }
+    #fakten-zahl { font-size: 220px; font-weight: 900; letter-spacing: -0.06em; line-height: 1; }
+    #fakten-was { font-size: 52px; font-weight: 700; margin-top: 18px; line-height: 1.2; }
+  </style>
+  <div id="root" data-composition-id="fakten" data-width="1080" data-height="1920">
+    <div id="fakten-titel" class="clip" data-start="0" data-duration="6.5">Was zählt:</div>
+    <div id="fakten-chips" class="clip" data-start="0" data-duration="6.5">
+      <div id="fakten-c1" class="fakten-chip"><b>●</b> Wasser in der Nähe</div>
+      <div id="fakten-c2" class="fakten-chip">Untergrund</div>
+      <div id="fakten-c3" class="fakten-chip">Wind</div>
+      <div id="fakten-c4" class="fakten-chip">Handyempfang</div>
+      <div id="fakten-c5" class="fakten-chip">Gehzeit</div>
+    </div>
+    <div id="fakten-zahl-block" class="clip" data-start="2.4" data-duration="4.1">
+      <div id="fakten-zahl">64.000</div>
+      <div id="fakten-was">Quellen, Brunnen, Hütten – dazu 1.417 Bergseen und 1.777 Wasserfälle</div>
+    </div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    tl.fromTo("#fakten-titel", { x: -60, opacity: 0 }, { x: 0, opacity: 1, duration: 0.3, ease: "power3.out" }, 0.05);
+    ["#fakten-c1", "#fakten-c2", "#fakten-c3", "#fakten-c4", "#fakten-c5"].forEach((id, i) => {
+      tl.fromTo(id, { x: 1100 }, { x: 0, duration: 0.35, ease: "back.out(1.4)" }, 0.25 + i * 0.28);
+    });
+    const zahl = { n: 0 };
+    tl.fromTo(zahl, { n: 0 }, {
+      n: 64000, duration: 1.2, ease: "power2.out",
+      onUpdate: () => {
+        const el = document.querySelector("#fakten-zahl");
+        if (el) el.textContent = Math.round(zahl.n).toLocaleString("de-AT").replace(/\s/g, ".");
+      },
+    }, 2.5);
+    tl.fromTo("#fakten-was", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.35, ease: "power3.out" }, 3.0);
+    window.__timelines["fakten"] = tl;
+  </script>
+</template>

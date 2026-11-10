@@ -1,0 +1,27 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; overflow: hidden; background: #edebe5; font-family: "Inter", sans-serif; }
+    #entdecken-titel { position: absolute; left: 80px; right: 80px; top: 260px; color: #1b1b17;
+      font-size: 96px; font-weight: 900; letter-spacing: -0.045em; line-height: 1.02; }
+    #entdecken-titel b { color: #ee6b17; }
+    #entdecken-karte { position: absolute; left: 40px; top: 760px; width: 1000px; border-radius: 40px; overflow: hidden;
+      box-shadow: 0 30px 80px rgba(30,39,24,0.22); background: #edebe5; }
+    #entdecken-bild { display: block; width: 1000px; }
+    #entdecken-ring { position: absolute; left: 470px; top: 462px; width: 316px; height: 112px; border-radius: 999px;
+      border: 8px solid #ee6b17; }
+  </style>
+  <div id="root" data-composition-id="entdecken" data-width="1080" data-height="1920">
+    <div id="entdecken-titel" class="clip" data-start="0" data-duration="3.5">Spots mit <b>Wasser dabei</b>. Am See. In deiner Nähe.</div>
+    <div id="entdecken-karte" class="clip" data-start="0" data-duration="3.5">
+      <img id="entdecken-bild" src="assets/screens/entdecken-kopf.png" alt="" />
+      <div id="entdecken-ring"></div>
+    </div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    tl.fromTo("#entdecken-karte", { y: 700, rotation: 0 }, { y: 0, duration: 0.5, ease: "power4.out" }, 0);
+    tl.fromTo("#entdecken-titel", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.35, ease: "power3.out" }, 0.2);
+    tl.fromTo("#entdecken-ring", { scale: 1.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.35, ease: "back.out(2)" }, 1.2);
+    window.__timelines["entdecken"] = tl;
+  </script>
+</template>
