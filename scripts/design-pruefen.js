@@ -59,5 +59,36 @@ async (page) => {
     await breit.ctx.close();
   }
 
+  // ---------------------------------------------------------------- Task 3
+  {
+    const { ctx, p } = await seite(390, 844);
+    await p.locator('#tableiste').getByText('Entdecken', { exact: true }).click();
+    await p.waitForTimeout(4000);
+    const r = await p.evaluate(() => {
+      const q = (s) => document.querySelector(s);
+      const box = (s) => q(s) ? q(s).getBoundingClientRect() : null;
+      return {
+        titel: q('#entdecken-ueberschrift')?.textContent.trim() || null,
+        suche: box('#entdecken-suche'),
+        hero: box('#entdecken-hero'),
+        anzahl: q('#kachel-anzahl .wert')?.textContent.trim() || null,
+      };
+    });
+    pruef('T3 Titel Entdecken', r.titel === 'Entdecken', r.titel);
+    pruef('T3 Suche über Hero', !!(r.suche && r.hero && r.suche.bottom < r.hero.top), r.suche && r.hero && [Math.round(r.suche.bottom), Math.round(r.hero.top)]);
+    pruef('T3 Hero hoch', !!(r.hero && r.hero.height >= 380), r.hero && Math.round(r.hero.height));
+    pruef('T3 Kachel Anzahl', /\d/.test(r.anzahl || ''), r.anzahl);
+    await ctx.close();
+
+    // Ohne Datenbank: die Startseite darf nicht ewig Platzhalter zeigen.
+    const ohne = await seite(390, 844);
+    await ohne.p.route('**/rest/v1/rpc/spots_entdecken**', (route) => route.abort());
+    await ohne.p.locator('#tableiste').getByText('Entdecken', { exact: true }).click();
+    await ohne.p.waitForTimeout(8000);
+    const leer = await ohne.p.evaluate(() => document.querySelector('#entdecken-hero')?.innerText || '');
+    pruef('T3 Leerzustand ohne DB', /keine Verbindung/i.test(leer), leer.slice(0, 80));
+    await ohne.ctx.close();
+  }
+
   return ergebnis;
 }
