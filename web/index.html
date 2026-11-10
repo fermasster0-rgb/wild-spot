@@ -36,13 +36,14 @@
 
 <!-- Das iPhone kennt das Manifest nur halb und braucht seine eigenen Angaben. -->
 <meta name="apple-mobile-web-app-capable" content="yes">
-<!-- Statusleiste "black" (2026-11-10). Mit "black-translucent" zeichnet
-     iOS 26 oben einen verschwommenen Schleier über die Seite und lässt unten
-     einen schwarzen Streifen, den keine Seite füllen kann. Mit "black" sind
-     beide weg; dafür meldet iOS 26 die Seite ein Stück zu lang — das gleicht
-     das Skript "ios-hoehe" ganz unten aus. Wirkt erst, wenn die App neu zum
-     Home-Bildschirm hinzugefügt wird. -->
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<!-- Statusleiste (2026-11-10): bewusst KEINE Angabe "apple-mobile-web-app-
+     status-bar-style". Ohne sie gibt iOS 26 der Statusleiste die Farbe der
+     Seite (Antwort von Apple auf WebKit-Bug 317153) — tagsüber hell, im
+     Nachtmodus dunkel. "black-translucent" brachte oben einen Schleier und
+     unten einen schwarzen Streifen, "black" einen schwarzen Balken über dem
+     hellen Look. Dass iOS die Seite ohne die Angabe zu lang meldet (WebKit-
+     Bug 316008), gleicht das Skript "ios-hoehe" ganz unten aus. Wirkt erst,
+     wenn die App neu zum Home-Bildschirm hinzugefügt wird. -->
 <meta name="apple-mobile-web-app-title" content="Wild Spot">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" href="icon-192.png" sizes="192x192">
