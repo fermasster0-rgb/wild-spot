@@ -180,6 +180,12 @@
       // ---- Die wichtigste Zahl zuerst: wie kalt wird die kommende Nacht ----
       const nachts = t.temperature_2m_min?.[0];
       if (Number.isFinite(nachts)) {
+        // Für die Kachel „Nacht" oben im Spot-Blatt (spot-detail.js). Die
+        // Koordinaten reisen mit, damit eine späte Antwort nicht im Blatt
+        // eines anderen Spots landet.
+        window.dispatchEvent(new CustomEvent('wildspot-wetter-nacht', {
+          detail: { lat, lng, grad: Math.round(nachts) },
+        }));
         const frostig = nachts <= 3;
         zeilen.push(
           `<div class="wetter-nacht${frostig ? ' frostig' : ''}">`,

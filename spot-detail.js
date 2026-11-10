@@ -710,6 +710,14 @@ function zeichnen(spot, kommentare, meineSterne, fotos = []) {
     );
   }
 
+  // ------------------------------------------- Kacheln + Hauptknopf -----
+  // Redesign 2026-11-10 (Apple-Karten-Stil): drei Kacheln mit dem, was man
+  // vor dem Losgehen wissen will, und darunter EIN grüner Knopf. Mit
+  // berechneter Route zeichnet er den Weg auf der Karte („Weg zum Spot"),
+  // sonst öffnet er die Anfahrt in Google Maps — derselbe Link wie unten
+  // bei „Hinkommen".
+  teile.push(blattOberteilHtml(spot));
+
   // ------------------------------------------------------------- Fotos -----
   // Ganz nach oben: ein Bild sagt über einen Zeltplatz mehr als jede Liste.
   // Seit 2026-09-04 stimmt das auch — vorher lagen zwei Knöpfe davor.
@@ -991,6 +999,16 @@ function zeichnen(spot, kommentare, meineSterne, fotos = []) {
 
   verdrahten(spot, meineSterne, fotos.length, meiner);
 
+  // „Weg zum Spot": die Karte fährt auf die Route, und der Weg wächst vom
+  // Parkplatz zum Zelt (route.js, routeAnimieren). Liegt das Blatt über
+  // Entdecken oder der Merkliste, geht es vorher zur Karte.
+  document.getElementById('blatt-weg')?.addEventListener('click', () => {
+    if (typeof window.WILDSPOT_BEREICH === 'function' && window.WILDSPOT_BEREICH_JETZT?.() !== 'karte') {
+      window.WILDSPOT_BEREICH('karte', { blattBehalten: true });
+    }
+    if (typeof window.routeAnimieren === 'function') window.routeAnimieren(spot);
+  });
+
   // Erst jetzt, wo der Platzhalter im Dokument steht, die Vorhersage holen.
   // Die Seehöhe kommt mit, damit das Wettermodell auf die richtige Höhe
   // rechnet (Wirkung ist klein, siehe wetter.js).
@@ -1019,6 +1037,47 @@ function zeichnen(spot, kommentare, meineSterne, fotos = []) {
 // braucht keinen Schlüssel. Eine eigene Wanderroute direkt auf dieser Karte
 // ist trotzdem möglich — dafür braucht es einen Routendienst auf
 // OpenStreetMap-Basis (siehe KONZEPT.md, Abschnitt 9).
+function anfahrtAdresse(lat, lng) {
+  const ziel = `${lat.toFixed(6)},${lng.toFixed(6)}`;
+  return 'https://www.google.com/maps/dir/?api=1' +
+         `&destination=${encodeURIComponent(ziel)}&travelmode=driving`;
+}
+
+// Der obere Teil des Blatts: Kacheln Höhe · Zustieg · Nacht und der
+// Hauptknopf. Die Nacht-Kachel füllt sich, sobald wetter.js die Vorhersage
+// hat (Ereignis 'wildspot-wetter-nacht').
+function blattOberteilHtml(spot) {
+  const H = window.WILDSPOT_BLATT;
+  const minuten = H.zustiegMinuten(spot);
+  const kachel = (titel, wert, id) =>
+    `<div class="blatt-kachel"${id ? ` id="${id}"` : ''}><span class="titel">${titel}</span>` +
+    `<span class="wert">${escapeHtml(wert)}</span></div>`;
+
+  const knopf = H.hatRoute(spot)
+    ? '<button type="button" class="ws-knopf blatt-haupt" id="blatt-weg">' +
+      '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/>' +
+      '<path d="M8 19h7a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h7"/></svg>Weg zum Spot</button>'
+    : `<a class="ws-knopf blatt-haupt" id="blatt-anfahrt" href="${anfahrtAdresse(offenerSpot.lat, offenerSpot.lng)}" ` +
+      'target="_blank" rel="noopener">' +
+      '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 15.5h15M6 15.5l1.6-5.2A2 2 0 019.5 9h5a2 2 0 011.9 1.3l1.6 5.2"/>' +
+      '<path d="M4.5 15.5v2.8M19.5 15.5v2.8"/></svg>Anfahrt</a>';
+
+  return '<div class="blatt-oben">' +
+    '<div class="blatt-kacheln">' +
+    kachel('Höhe', H.hoeheText(spot.elevation_m)) +
+    kachel('Zustieg', minuten === null ? '–' : H.dauerText(minuten)) +
+    kachel('Nacht', '–', 'blatt-nacht') +
+    '</div>' + knopf + '</div>';
+}
+
+window.addEventListener('wildspot-wetter-nacht', (e) => {
+  const d = e.detail;
+  if (!offenerSpot || !d) return;
+  if (Math.abs(d.lat - offenerSpot.lat) > 1e-6 || Math.abs(d.lng - offenerSpot.lng) > 1e-6) return;
+  const wert = document.querySelector('#blatt-nacht .wert');
+  if (wert) wert.textContent = `${d.grad} °C`;
+});
+
 function hinkommenHtml(lat, lng) {
   const ziel = `${lat.toFixed(6)},${lng.toFixed(6)}`;
 
