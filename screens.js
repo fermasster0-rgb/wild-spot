@@ -405,6 +405,14 @@
   // Oben im Bild das Label und der Name, unten ein heller Streifen wie im
   // App Store: Mini-Foto, warum dieser Spot hier steht, die wichtigsten
   // Fakten und „Ansehen". Die ganze Fläche ist ein Knopf.
+  // Entwurf B: oben im Bild ein Satz, warum genau dieser Spot heute vorne
+  // steht; der Name selbst steht im Streifen unten. Nur wahre Aussagen —
+  // der Satz folgt aus dem Grund, aus dem der Spot ausgewählt wurde.
+  const HERO_SATZ = {
+    'Top bewertet': 'Am besten bewertet<br>von allen Spots',
+    'Neu in der Karte': 'Gerade neu<br>in der Karte',
+  };
+
   function heroKachel(s, warum) {
     const knopf = el('button');
     knopf.type = 'button';
@@ -421,11 +429,11 @@
       `${bildHtml(s.foto_pfad)}
        <span class="ws-hero-oben">
          <span class="label">Heute empfohlen</span>
-         <span class="name">${sicher(s.name)}</span>
+         <span class="name">${HERO_SATZ[warum] || sicher(s.name)}</span>
        </span>
        <span class="ws-hero-unten">
          <span class="mini">${bildHtml(s.foto_pfad)}</span>
-         <span class="wo"><b>${sicher(warum)}</b><span>${sicher(fakten.join(' · ') || 'Noch keine Angaben')}</span></span>
+         <span class="wo"><b>${sicher(s.name)}</b><span>${sicher(fakten.join(' · ') || 'Noch keine Angaben')}</span></span>
          <span class="ansehen">Ansehen</span>
        </span>`;
     knopf.setAttribute('aria-label', `Heute empfohlen: ${s.name} ansehen`);

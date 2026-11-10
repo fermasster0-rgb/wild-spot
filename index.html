@@ -371,17 +371,29 @@ html[data-thema="nacht"] .ws-knopf.zweit { background: rgba(155, 224, 122, 0.14)
 .ws-unter b { color: var(--ws-text); }
 .ws-profil {
   flex: none;
-  width: 44px; height: 44px;
-  border-radius: 22px;
+  width: 40px; height: 40px;
+  border-radius: 20px;
   border: 0;
-  background: var(--ws-gruen-hell);
-  color: var(--ws-gruen-aktiv);
+  background: #2f6b1f;
+  color: #fff;
   display: grid;
   place-items: center;
   cursor: pointer;
 }
-html[data-thema="nacht"] .ws-profil { background: rgba(155, 224, 122, 0.14); }
-.ws-profil svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; }
+html[data-thema="nacht"] .ws-profil { background: #9be07a; color: #0b0f0c; }
+.ws-profil svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; }
+
+/* Entwurf B: Kopf → Bild → Kacheln, erst dann Reiter, Suche und Filter.
+   Der Block gehört zur Spots-Tafel; in Feed/Aktivität/Leute und während
+   Filtertreffer stehen, verschwindet er. Der Untertitel mit der Zahl fällt in
+   der Spots-Tafel weg — die Zahl steht schon in der Kachel. */
+.ws-kopf { padding-bottom: 16px; }
+#entdecken-oben { margin-bottom: 22px; }
+#entdecken-oben #entdecken-held-block { margin: 0 0 12px; }
+#entdecken-oben .ws-kacheln { margin: 0; }
+body:has(#entdecken-spots[hidden]) #entdecken-oben,
+body:has(#entdecken-treffer-block:not([hidden])) #entdecken-oben { display: none; }
+body:has(#entdecken-spots:not([hidden])) .ws-unter { display: none; }
 
 /* Die vier Reiter als ruhige Segmentleiste statt Unterstrich-Reihe. */
 #entdecken-reiter {
@@ -612,6 +624,36 @@ html.ios-fix body {
   overflow: hidden;
 }
 html.ios-fix body { transform: translateZ(0); }
+
+/* Oben: iOS 26 legt hinter Uhrzeit und Akku eine Unschärfe über alles, was
+   darunter liegt — auf der Karte sah das verwaschen aus. Ein fester Streifen
+   in Seitenfarbe genau so hoch wie die Statusleiste: Unscharf gemachte
+   Einfarbigkeit bleibt einfarbig. Tagsüber hell, nachts dunkel (var(--bg)).
+   Ohne Statusleiste (Browser, PC) ist er 0 px hoch. */
+.status-band {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: env(safe-area-inset-top, 0px);
+  background: var(--bg);
+  z-index: 65;
+  pointer-events: none;
+}
+
+/* Unten: Als installierte App zeichnet iOS 26 unter der Seite einen etwa
+   62 pt hohen Streifen in der Seitenfarbe selbst darüber (WebKit-Bug 301994,
+   offen) — dort kann keine Webseite zeichnen. Damit das gewollt aussieht:
+   die Leiste sitzt knapp darüber, und die Karte läuft weich in die
+   Streifenfarbe aus statt mit harter Kante. */
+html.ios-app { --tab-abstand: 6px; }
+html.ios-app body::after {
+  content: "";
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  height: 34px;
+  background: linear-gradient(to bottom, transparent, var(--bg));
+  z-index: 66;
+  pointer-events: none;
+}
 
 /* --------------------------------------------------------------------------
    Warum das <html> eine ANDERE Farbe hat als der Rest
@@ -7085,6 +7127,7 @@ body.bereich-offen.detail-offen::after {
 </head>
 
 <body>
+<div class="status-band" aria-hidden="true"></div>
 
 <!-- ==========================================================================
      Der Start. Steht bewusst als Erstes im Dokument: So ist er sofort da,
@@ -7610,6 +7653,36 @@ body.bereich-offen.detail-offen::after {
     </button>
   </div>
 
+  <!-- Look B (2026-11-10, auf Ferdinands Wunsch nachgeschärft): Bild und
+       Kacheln stehen direkt unter „Entdecken“, wie im Entwurf — Reiter, Suche
+       und Filter folgen darunter. Sichtbar nur in der Spots-Tafel und nicht,
+       solange Filtertreffer angezeigt werden (siehe #entdecken-oben im Stil). -->
+  <div id="entdecken-oben">
+  <!-- Heute empfohlen: der große Bildeinstieg (Look B, wie die Heute-Seite
+       im App Store). Es ist derselbe Spot wie früher „Spot der Woche" — der
+       am besten bewertete, sonst der neueste —, nur steht er jetzt als erstes
+       da und die Überschrift liegt im Bild. -->
+  <div class="block" id="entdecken-held-block">
+    <div class="rand"><div id="entdecken-hero" class="ws-hero-platz"></div></div>
+  </div>
+
+  <!-- Zwei Kacheln: wie kalt die Nacht wird und wie viel in der Karte steht.
+       Beide Werte stammen aus Abfragen, die die Seite ohnehin macht. -->
+  <div class="block rand ws-kacheln" id="entdecken-kacheln">
+    <div class="ws-kachel" id="kachel-nacht" hidden>
+      <svg viewBox="0 0 24 24" aria-hidden="true" class="ws-kachel-zeichen nacht"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>
+      <span class="wert">–</span>
+      <span class="wofuer">kälteste Stunde heute Nacht</span>
+    </div>
+    <div class="ws-kachel" id="kachel-anzahl" hidden>
+      <svg viewBox="0 0 24 24" aria-hidden="true" class="ws-kachel-zeichen"><path d="M12 3 3 20h18z"/><path d="M12 3v11"/><path d="m8.4 20 3.6-6 3.6 6"/></svg>
+      <span class="wert">–</span>
+      <span class="wofuer">Plätze für die Nacht draußen</span>
+    </div>
+  </div>
+
+  </div>
+
   <!-- Die vier Tafeln dieser Seite: „Spots" ist die Karte in Kachelform,
        „Feed" die Beiträge, „Aktivität" der Strom aller Ereignisse, „Leute"
        die Suche nach anderen.
@@ -7737,29 +7810,6 @@ body.bereich-offen.detail-offen::after {
        einen Filter setzt, will die Treffer sehen und nicht daran vorbei
        scrollen. -->
   <div id="entdecken-standard">
-
-  <!-- Heute empfohlen: der große Bildeinstieg (Look B, wie die Heute-Seite
-       im App Store). Es ist derselbe Spot wie früher „Spot der Woche" — der
-       am besten bewertete, sonst der neueste —, nur steht er jetzt als erstes
-       da und die Überschrift liegt im Bild. -->
-  <div class="block" id="entdecken-held-block">
-    <div class="rand"><div id="entdecken-hero" class="ws-hero-platz"></div></div>
-  </div>
-
-  <!-- Zwei Kacheln: wie kalt die Nacht wird und wie viel in der Karte steht.
-       Beide Werte stammen aus Abfragen, die die Seite ohnehin macht. -->
-  <div class="block rand ws-kacheln" id="entdecken-kacheln">
-    <div class="ws-kachel" id="kachel-nacht" hidden>
-      <svg viewBox="0 0 24 24" aria-hidden="true" class="ws-kachel-zeichen nacht"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>
-      <span class="wert">–</span>
-      <span class="wofuer">kälteste Stunde heute Nacht</span>
-    </div>
-    <div class="ws-kachel" id="kachel-anzahl" hidden>
-      <svg viewBox="0 0 24 24" aria-hidden="true" class="ws-kachel-zeichen"><path d="M12 3 3 20h18z"/><path d="M12 3v11"/><path d="m8.4 20 3.6-6 3.6 6"/></svg>
-      <span class="wert">–</span>
-      <span class="wofuer">Plätze für die Nacht draußen</span>
-    </div>
-  </div>
 
   <!-- Heute Nacht (heute.js). Der einzige Block der Seite, der morgen etwas
        anderes sagt als heute — er rechnet aus Stundenwerten die kommende
@@ -8481,6 +8531,7 @@ body.bereich-offen.detail-offen::after {
     if (!alsApp || !istIOS) return;
 
     const wurzel = document.documentElement;
+    wurzel.classList.add('ios-app');   // installierte App auf iPhone/iPad
     const sonde = document.createElement('div');
     sonde.style.cssText = 'position:fixed;top:0;bottom:0;left:0;width:0;visibility:hidden;pointer-events:none;' +
       'padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)';
