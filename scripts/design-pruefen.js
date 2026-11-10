@@ -90,5 +90,29 @@ async (page) => {
     await ohne.ctx.close();
   }
 
+  // ---------------------------------------------------------------- Task 4
+  {
+    const { ctx, p } = await seite(390, 844);
+    const vorher = await p.evaluate(() => (typeof window.WILDSPOT_EBENE_AN === 'function') ? window.WILDSPOT_EBENE_AN('wasser') : 'fehlt');
+    await p.locator('#karte-chips [data-ebene="wasser"]').click({ timeout: 3000 }).catch(() => {});
+    await p.waitForTimeout(500);
+    const r = await p.evaluate(() => ({
+      an: (typeof window.WILDSPOT_EBENE_AN === 'function') ? window.WILDSPOT_EBENE_AN('wasser') : 'fehlt',
+      panel: document.getElementById('knopf-wasser')?.getAttribute('aria-pressed'),
+      chip: document.querySelector('#karte-chips [data-ebene="wasser"]')?.getAttribute('aria-pressed') || null,
+      sucheTop: Math.round(document.querySelector('.suche-feld').getBoundingClientRect().top),
+      sucheH: Math.round(document.querySelector('.suche-feld').getBoundingClientRect().height),
+      chipsTop: document.getElementById('karte-chips') ? Math.round(document.getElementById('karte-chips').getBoundingClientRect().top) : null,
+      sucheUnten: Math.round(document.querySelector('.suche-feld').getBoundingClientRect().bottom),
+    }));
+    pruef('T4 Chip schaltet Ebene', vorher !== 'fehlt' && r.an === !vorher, [vorher, r.an]);
+    pruef('T4 Panel gleich', r.panel === String(r.an), r.panel);
+    pruef('T4 Chip zeigt Stand', r.chip === String(r.an), r.chip);
+    pruef('T4 Suche oben', r.sucheTop >= 12, r.sucheTop);
+    pruef('T4 Suche 50 hoch', r.sucheH === 50, r.sucheH);
+    pruef('T4 Chips unter Suche', r.chipsTop !== null && r.chipsTop > r.sucheUnten, [r.chipsTop, r.sucheUnten]);
+    await ctx.close();
+  }
+
   return ergebnis;
 }
