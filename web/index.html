@@ -3042,9 +3042,14 @@ body.parkplatz-modus .knopf-zeile { display: none; }
 
      Im Browser meldet das Handy null — dann bleibt es bei null, und es wird
      kein einziger Pixel verschenkt. */
-  --tab-inhalt: 48px;
-  --tab-luft: min(2px, env(safe-area-inset-bottom));
-  --tab-h: calc(var(--tab-inhalt) + var(--tab-luft));
+  /* Seit dem Redesign (2026-11-10) schwebt die Leiste als Glas-Pille über
+     dem Inhalt — mit 18 Pixeln Abstand zum Wischbalken. --tab-h ist deshalb
+     nicht mehr die Höhe der Leiste, sondern der ganze Platz, den Inhalte
+     unten freihalten müssen: Pille + Abstand + sicherer Bereich. */
+  --tab-inhalt: 64px;
+  --tab-abstand: 18px;
+  --tab-luft: env(safe-area-inset-bottom, 0px);
+  --tab-h: calc(var(--tab-inhalt) + var(--tab-abstand) + var(--tab-luft));
 }
 
 /* ---------------------------------------------------------------------------
@@ -3098,34 +3103,36 @@ body.parkplatz-modus .knopf-zeile { display: none; }
    Sie reichen bis ganz nach unten und halten sich den Platz stattdessen mit
    padding frei — siehe .schirm.
    -------------------------------------------------------------------------- */
+/* Redesign 2026-11-10: die Leiste schwebt als Glas-Pille, wie in iOS 26.
+   Sie berührt keinen Rand mehr — dadurch kann unten auch kein Streifen mehr
+   „an ihr kleben", egal wie das Handy seinen Rand rechnet. */
 .tableiste {
   position: fixed;
-  left: 0; right: 0; bottom: 0;
+  left: 16px; right: 16px;
+  bottom: calc(var(--tab-abstand) + var(--tab-luft));
+  height: var(--tab-inhalt);
   z-index: 70;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-
-  /* Die Glasfläche ragt 30 Pixel unter den Bildschirmrand hinaus. Zu sehen
-     ist davon nichts — aber falls das Handy als App seinen unteren Rand
-     anders rechnet als der Browser, bleibt darunter garantiert kein heller
-     Streifen stehen. Der Trick kostet nichts und nimmt die letzte Quelle
-     für eine Kante weg. */
-  margin-bottom: -30px;
-  padding-bottom: calc(var(--tab-luft) + 30px);
+  align-items: center;
+  padding: 0 6px;
+  border-radius: 999px;
 
   background: var(--glas);
   /* saturate hebt die Farben unter dem Glas an. Ohne das wirkt jedes Foto
      darunter ausgewaschen und die Leiste wie schmutziges Fensterglas. */
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   backdrop-filter: blur(20px) saturate(180%);
-  border-top: 1px solid var(--glas-rand);
+  border: 1px solid var(--glas-rand);
+  box-shadow: 0 14px 34px rgba(17, 21, 17, 0.16);
 }
+html[data-thema="nacht"] .tableiste { box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5); }
 
 /* Wo es kein Milchglas gibt — ältere Android-Browser —, wäre die Leiste
    halbdurchsichtig und der Text darunter läge lesbar im Weg. Dort also
    doch deckend. */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .tableiste { background: var(--flaeche); border-top-color: var(--rand); }
+  .tableiste { background: var(--flaeche); border-color: var(--rand); }
 }
 
 .tab {
@@ -3135,7 +3142,7 @@ body.parkplatz-modus .knopf-zeile { display: none; }
   align-items: center;
   justify-content: center;
   gap: 2px;
-  height: var(--tab-inhalt);
+  height: calc(var(--tab-inhalt) - 8px);
   padding: 0 2px;
   border: 0;
   background: none;
@@ -3206,7 +3213,7 @@ body.parkplatz-modus .knopf-zeile { display: none; }
    Leiste in voller Höhe nähme davon ein Achtel — also rückt alles zusammen
    und Zeichen und Wort stellen sich nebeneinander statt übereinander. */
 @media (max-height: 500px) and (orientation: landscape) {
-  :root { --tab-inhalt: 40px; }
+  :root { --tab-inhalt: 48px; --tab-abstand: 8px; }
   .tab { flex-direction: row; gap: 6px; font-size: 11px; }
   .tab svg { width: 19px; height: 19px; }
   .tab[aria-selected="true"] svg { transform: none; }
@@ -3217,14 +3224,17 @@ body.parkplatz-modus .knopf-zeile { display: none; }
    dort ist unten kein Daumen, sondern nur weiter Weg für die Maus. */
 @media (min-width: 900px) {
   :root { --tab-h: 0px; }
-  .tableiste {
-    top: 0; bottom: 0; right: auto;
+  .tableiste,
+  html[data-thema="nacht"] .tableiste {
+    top: 0; bottom: 0; left: 0; right: auto;
     width: 88px;
+    height: auto;
     grid-template-columns: 1fr;
     grid-template-rows: repeat(5, auto);
     align-content: center;
     gap: 6px;
-    border-top: 0;
+    border: 0;
+    border-radius: 0;
     border-right: 1px solid var(--rand);
     padding: 0 8px;
     box-shadow: 1px 0 12px var(--sch1);
