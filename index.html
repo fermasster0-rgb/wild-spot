@@ -36,7 +36,14 @@
 
 <!-- Das iPhone kennt das Manifest nur halb und braucht seine eigenen Angaben. -->
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<!-- "black" statt "black-translucent" (2026-11-10): Mit der durchsichtigen
+     Statusleiste macht iOS die installierte App genau um die Höhe der
+     Statusleiste zu kurz — die Seite beginnt hinter der Uhr, endet aber
+     ~60 Punkte vor dem unteren Rand, und darunter bleibt ein leerer Streifen.
+     Mit "black" beginnt die Seite unter der Statusleiste und reicht bis ganz
+     nach unten. Wirkt erst, wenn die App neu zum Home-Bildschirm hinzugefügt
+     wird – iOS liest diese Angabe nur beim Installieren. -->
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="apple-mobile-web-app-title" content="Wild Spot">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" href="icon-192.png" sizes="192x192">
