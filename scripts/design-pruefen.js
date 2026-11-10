@@ -75,7 +75,8 @@ async (page) => {
       };
     });
     pruef('T3 Titel Entdecken', r.titel === 'Entdecken', r.titel);
-    pruef('T3 Suche über Hero', !!(r.suche && r.hero && r.suche.bottom < r.hero.top), r.suche && r.hero && [Math.round(r.suche.bottom), Math.round(r.hero.top)]);
+    // Seit 2026-11-10 abends wie Entwurf B: das Bild direkt unter dem Kopf, die Suche darunter.
+    pruef('T3 Hero über Suche', !!(r.suche && r.hero && r.hero.bottom < r.suche.top), r.suche && r.hero && [Math.round(r.hero.bottom), Math.round(r.suche.top)]);
     pruef('T3 Hero hoch', !!(r.hero && r.hero.height >= 380), r.hero && Math.round(r.hero.height));
     pruef('T3 Kachel Anzahl', /\d/.test(r.anzahl || ''), r.anzahl);
     await ctx.close();
