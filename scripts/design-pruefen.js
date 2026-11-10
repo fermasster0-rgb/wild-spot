@@ -205,5 +205,49 @@ async (page) => {
     await red.ctx.close();
   }
 
+  // ------------------------------------------- Abschluss-Review (Fixes) ---
+  {
+    // 1) Empfohlener Spot ohne Foto: der Streifen unten muss lesbar bleiben.
+    const s = await seite(390, 844);
+    await s.p.route('**/rest/v1/rpc/spots_entdecken**', async (route) => {
+      const antwort = await route.fetch();
+      const daten = (await antwort.json()).map((x) => ({ ...x, foto_pfad: null }));
+      await route.fulfill({ response: antwort, json: daten });
+    });
+    await s.p.locator('#tableiste').getByText('Entdecken', { exact: true }).click();
+    await s.p.waitForTimeout(4500);
+    const lesbar = await s.p.evaluate(() => {
+      const b = document.querySelector('.ws-hero-unten .wo b');
+      if (!b) return 'kein Streifen';
+      const r = b.getBoundingClientRect();
+      const el = document.elementFromPoint(r.left + 5, r.top + r.height / 2);
+      return !!el && (el === b || b.contains(el));
+    });
+    pruef('R1 Hero ohne Foto: Streifen lesbar', lesbar === true, lesbar);
+    await s.ctx.close();
+
+    // 2) Tablet 820 px: Leiste darf das Spot-Fenster nicht überdecken.
+    const t = await seite(820, 1180);
+    await t.p.evaluate((x) => window.spotDetailOeffnen(...x), LUENERSEE);
+    await t.p.waitForTimeout(3500);
+    const lage = await t.p.evaluate(() => ({
+      blattUnten: Math.round(document.getElementById('detail').getBoundingClientRect().bottom),
+      leisteOben: Math.round(document.getElementById('tableiste').getBoundingClientRect().top),
+    }));
+    pruef('R2 Tablet: Blatt endet über der Leiste', lage.blattUnten <= lage.leisteOben, lage);
+    await t.ctx.close();
+
+    // 3) Nachts bleibt die Route dunkelgrün (die Karte selbst bleibt hell).
+    const n = await mitTestroute(false);
+    await n.p.evaluate(() => { document.documentElement.dataset.thema = 'nacht'; window.dispatchEvent(new CustomEvent('wildspot-thema')); });
+    await n.p.waitForTimeout(400);
+    const farbe = await n.p.evaluate(() => {
+      const f = karte.getLayer('route-linie') ? karte.getPaintProperty('route-linie', 'line-color') : null;
+      return typeof f === 'string' ? f : JSON.stringify(f);
+    });
+    pruef('R3 Route nachts dunkelgrün', farbe === '#2f7d25', farbe);
+    await n.ctx.close();
+  }
+
   return ergebnis;
 }
