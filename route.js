@@ -41,10 +41,12 @@
   // Redesign 2026-11-10: Waldgrün mit weißem Saum statt Rotorange. Grün ist
   // seither die einzige Akzentfarbe der App; der weiße Saum hält die Linie
   // auf jeder Grundkarte lesbar — auf Fels und Schnee ebenso wie auf Wald.
+  //
+  // Bewusst in beiden Themen dasselbe Dunkelgrün: Der Nachtmodus färbt die
+  // App dunkel, die Kartenkacheln aber bleiben hell — ein helles Grün mit
+  // weißem Saum ginge darauf unter (Abschluss-Review 2026-11-10).
   const FARBE = '#2f7d25';
-  const FARBE_NACHT = '#7bd35c';
-  const linienFarbe = () =>
-    document.documentElement.dataset.thema === 'nacht' ? FARBE_NACHT : FARBE;
+  const linienFarbe = () => FARBE;
 
   const LEER = { type: 'FeatureCollection', features: [] };
 
@@ -237,11 +239,6 @@
     setTimeout(starten, 800);
   };
 
-  // Tag/Nacht: die Linienfarbe mitziehen.
-  window.addEventListener('wildspot-thema', () => {
-    if (karte.getLayer('route-linie')) karte.setPaintProperty('route-linie', 'line-color', linienFarbe());
-    if (karte.getLayer('route-parkplatz')) karte.setPaintProperty('route-parkplatz', 'circle-color', linienFarbe());
-  });
 
   // Die ganze Route ins Bild holen. Nur auf Knopfdruck: eine Karte, die von
   // selbst wegspringt, sobald man einen Spot antippt, verliert einen jedes Mal.

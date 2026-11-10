@@ -451,7 +451,10 @@ html[data-thema="nacht"] .ws-profil { background: rgba(155, 224, 122, 0.14); }
   color: #111511;
 }
 html[data-thema="nacht"] .ws-hero-unten { background: rgba(22, 28, 23, 0.82); color: #f2f5ee; }
-.ws-hero-unten .mini { width: 46px; height: 46px; flex: none; border-radius: 12px; overflow: hidden; background: var(--flaeche-tief); }
+/* position: relative — sonst füllt der Platzhalter eines Spots ohne Foto
+   (.kein-bild ist absolut, inset 0) den ganzen hellen Streifen aus. */
+.ws-hero-unten .mini { position: relative; width: 46px; height: 46px; flex: none; border-radius: 12px; overflow: hidden; background: var(--flaeche-tief); }
+.ws-hero-unten .mini .kein-bild svg { width: 22px; height: 22px; }
 .ws-hero-unten .mini img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .ws-hero-unten .wo { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .ws-hero-unten .wo b { font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -7046,6 +7049,13 @@ body.bereich-offen.detail-offen::after {
    ein Foto über die volle Breite eines Monitors ist kein Blickfang mehr,
    sondern eine Wand.
    ========================================================================== */
+/* Tablet (761–899 px): das Spot-Fenster ist hier schon ein Seitenpanel, die
+   Leiste aber noch die schwebende Pille unten. Das Panel endet deshalb über
+   ihr. Ab 900 px ist --tab-h 0 — dort ändert sich nichts. */
+@media (min-width: 761px) {
+  .detail { bottom: calc(var(--tab-h) + 12px); }
+}
+
 @media (min-width: 900px) {
   #karte { left: 88px; }
   .schirm { left: 88px; }
