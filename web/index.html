@@ -528,6 +528,24 @@ html[data-thema="nacht"] body .karte-chips .filter-knopf { box-shadow: 0 4px 14p
 .karte-chip[aria-pressed="true"] { background: var(--ws-text); color: var(--ws-grund); }
 /* Wenn die Karte nicht der offene Bereich ist, liegen die Chips sowieso
    unter einer Seite — keine Sonderregel nötig. */
+
+/* -------------------------------------- Spot-Blatt (Apple-Karten-Stil) --- */
+.blatt-oben { display: flex; flex-direction: column; gap: 12px; margin: 4px 0 16px; }
+.blatt-kacheln { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.blatt-kachel {
+  display: flex; flex-direction: column; gap: 2px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  background: var(--t1);
+  min-width: 0;
+}
+.blatt-kachel .titel {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+  color: var(--ws-text-neben);
+}
+.blatt-kachel .wert { font-size: 17px; font-weight: 800; letter-spacing: -0.01em; color: var(--ws-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.blatt-haupt { width: 100%; min-height: 48px; font-size: 15.5px; }
+.blatt-haupt svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 2.1; stroke-linecap: round; stroke-linejoin: round; }
 html[data-thema="nacht"] .ws-kachel-zeichen.nacht { stroke: #c9bdf7; }
 
 /* --------------------------------------------------------------------------
@@ -7485,6 +7503,7 @@ body.bereich-offen.detail-offen::after {
 <script src="wetter.js"></script>
 <!-- Die Wanderroute: zeichnet die Linie auf die Karte und baut den Block in
      der Detail-Leiste. Muss vor spot-detail.js stehen, das sie aufruft. -->
+<script src="blatt-hilfen.js"></script>
 <script src="route.js"></script>
 <script src="spot-detail.js"></script>
 <!-- Teilen: der Knopf im Kopf der Leiste und das Öffnen geteilter Links.

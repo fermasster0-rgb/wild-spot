@@ -114,5 +114,47 @@ async (page) => {
     await ctx.close();
   }
 
+  // ---------------------------------------------------------------- Task 5
+  // Lünersee hat (Stand 2026-11-10) keine berechnete Route → „Anfahrt".
+  // Für den Weg-Fall wird die Antwort der Datenbank NUR im Browser um eine
+  // Test-Route ergänzt (route_line + Parkplatz); in der Datenbank ändert sich nichts.
+  const LUENERSEE = ['00b2d44c-1a5f-46b0-8b85-4e946657b677', 'Lünersee', 47.0485614328005, 9.73884919463683];
+  const TESTROUTE = [[9.7305, 47.0402], [9.7330, 47.0431], [9.7352, 47.0458], [9.7388, 47.0485]];
+  {
+    const { ctx, p } = await seite(390, 844);
+    await p.evaluate((s) => window.spotDetailOeffnen(...s), LUENERSEE);
+    await p.waitForTimeout(3500);
+    const r = await p.evaluate(() => ({
+      anfahrt: document.getElementById('blatt-anfahrt')?.getAttribute('href') || null,
+      weg: !!document.getElementById('blatt-weg'),
+      kacheln: [...document.querySelectorAll('.blatt-kachel .titel')].map((e) => e.textContent),
+      zustieg: document.querySelectorAll('.blatt-kachel .wert')[1]?.textContent || null,
+    }));
+    pruef('T5 ohne Route: Anfahrt', /google\.com\/maps/.test(r.anfahrt || '') && !r.weg, r.anfahrt);
+    pruef('T5 drei Kacheln', r.kacheln.join('|') === 'Höhe|Zustieg|Nacht', r.kacheln);
+    pruef('T5 Zustieg befüllt', !!r.zustieg && r.zustieg !== '–', r.zustieg);
+    await ctx.close();
+
+    const mit = await seite(390, 844);
+    await mit.p.route('**/rest/v1/spots_with_rating?*', async (route) => {
+      const antwort = await route.fetch();
+      let daten = await antwort.json();
+      const ergaenzen = (s) => (s && s.id === LUENERSEE[0])
+        ? { ...s, route_line: TESTROUTE, parking_lat: 47.0402, parking_lng: 9.7305, route_minutes: 75, route_ascent_m: 320, route_descent_m: 20, route_distance_m: 2400 }
+        : s;
+      daten = Array.isArray(daten) ? daten.map(ergaenzen) : ergaenzen(daten);
+      await route.fulfill({ response: antwort, json: daten });
+    });
+    await mit.p.evaluate((s) => window.spotDetailOeffnen(...s), LUENERSEE);
+    await mit.p.waitForTimeout(3500);
+    const m = await mit.p.evaluate(() => ({
+      weg: !!document.getElementById('blatt-weg'),
+      zustieg: document.querySelectorAll('.blatt-kachel .wert')[1]?.textContent || null,
+    }));
+    pruef('T5 mit Route: Weg zum Spot', m.weg, m.weg);
+    pruef('T5 Zustieg aus Route', m.zustieg === '1 h 15 min', m.zustieg);
+    await mit.ctx.close();
+  }
+
   return ergebnis;
 }
