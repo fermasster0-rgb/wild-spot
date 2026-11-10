@@ -30,6 +30,24 @@ beim ersten Öffnen das Gefühl geben: „die will ich behalten".
 5. Die anderen Ideen (Morph-Übergänge Karte→Detail, „Heute Nacht" mit Mondphase, Vollbild-Fotos mit
    Ken-Burns, Morph-Start) kommen **später**, nicht in diesem Schritt.
 6. Vorgehen in zwei Schritten (siehe Umfang), damit früh etwas Sichtbares da ist.
+7. **Statusleiste:** soll hell sein, aber im Nachtmodus nicht hell über der dunklen App. Umgesetzt
+   (online seit 2026-11-10): die Angabe `apple-mobile-web-app-status-bar-style` ist ganz entfernt –
+   laut Apple (WebKit-Bug 317153) nimmt die Statusleiste dann die Seitenfarbe an. Das Zu-lang-Melden
+   ohne die Angabe (WebKit-Bug 316008) gleicht das Skript „ios-hoehe" aus. Gerätetest steht aus.
+
+## Vom Planer entschieden (nach der Prüfung, Ferdinand kann kippen)
+
+- **„Weg zum Spot":** Beim Öffnen eines Spots wird die Route wie heute still gezeichnet, ohne
+  Kamerasprung. Erst der grüne Knopf „Weg zum Spot" fährt die Kamera auf die Route und startet die
+  Wachs-Animation. Ohne berechnete Route wird der Hauptknopf zu „Anfahrt" (Google Maps, vorhandener
+  Link); Komoot bleibt als kleiner Nebenlink.
+- **Veröffentlichen:** Schritt 1 geht wie üblich sofort online. Dafür gehört zu Schritt 1 ein
+  Prüfdurchgang: alle noch nicht umgestalteten Bildschirme (Merkliste, Plus, Profil, Detail-Inhalt,
+  Formulare, Verwaltung) müssen mit den neuen Tokens bei Tag und Nacht ordentlich aussehen und
+  funktionieren.
+- Karten-Filter-Chips sind Abkürzungen für die vorhandenen Ebenen-Schalter; das volle Ebenen-Panel
+  bleibt. Kachel „Zustieg" = berechnete Routenzeit, sonst die beim Spot gespeicherte Gehzeit. Am PC
+  darf die Tableiste eine linke Spalte bleiben.
 
 ## Umfang
 
@@ -93,10 +111,11 @@ beim ersten Öffnen das Gefühl geben: „die will ich behalten".
 ## Bekannte Fallen (iOS 26, installierte App)
 
 - Mit `apple-mobile-web-app-status-bar-style="black-translucent"` legt iOS 26 oben einen Schleier über
-  die Seite und lässt unten einen schwarzen Streifen, den die Seite nicht füllen kann. Aktuell
-  online: Statusleiste `black` + Skript „ios-hoehe" am Ende von `index.html`, das die Seite um das zu
-  viel Gemeldete kürzt (Klasse `ios-fix`, Variable `--vp-fix`, Messzeile 12 s). **Ergebnis auf dem
-  Gerät steht noch aus.** Die schwebende Tableiste muss mit diesem Mechanismus zusammenspielen
+  die Seite und lässt unten einen schwarzen Streifen, den die Seite nicht füllen kann; mit `black`
+  rutschte die Tableiste unter den Rand. Aktuell online: keine Statusleisten-Angabe + Skript
+  „ios-hoehe" am Ende von `index.html`, das die Seite um das zu viel Gemeldete kürzt (Klasse
+  `ios-fix`, Variable `--vp-fix`, Messzeile 12 s – vor dem Abschluss wieder entfernen). **Ergebnis auf
+  dem Gerät steht noch aus.** Die schwebende Tableiste muss mit diesem Mechanismus zusammenspielen
   (fixed relativ zu `body`, wenn `ios-fix` aktiv) und darf nie unter den Rand rutschen.
 - Statusleisten-Änderungen wirken erst nach Neu-Hinzufügen zum Home-Bildschirm.
 - `backdrop-filter` (Glas) braucht auf iOS die `-webkit-`-Variante.
