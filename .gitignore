@@ -5,3 +5,4 @@ node_modules/
 
 # Screenshots aus den Prüfläufen — nur für den Blick daneben, nicht fürs Repo
 pruefbilder/
+.superpowers/
