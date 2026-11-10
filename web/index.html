@@ -253,6 +253,34 @@ html, body {
 body { background: var(--bg); }
 
 /* --------------------------------------------------------------------------
+   iOS 26: die installierte App hört vor dem unteren Bildschirmrand auf
+
+   Mit durchsichtiger Statusleiste (black-translucent) beginnt die Seite
+   hinter der Uhr, aber iOS 26 lässt alles, was "fixed" am Rand klebt,
+   ~60 Punkte vor der Unterkante enden. Darunter blieb ein leerer Streifen.
+
+   Eine undurchsichtige Statusleiste ("black") verschiebt das Problem nur:
+   Dann ist die Seite zu lang und die untere Leiste verschwindet unter dem
+   Rand (am 2026-11-10 ausprobiert und wieder zurückgenommen).
+
+   Darum wird die Lücke gemessen (Skript ganz unten, nur iPhone/iPad als
+   installierte App) und html und body um genau so viel nach unten
+   verlängert. transform auf body macht ihn zum Bezugsrahmen für alle
+   fixed-Elemente — die untere Leiste, die Karte und jedes Fenster rutschen
+   dadurch automatisch mit bis an die echte Unterkante.
+   -------------------------------------------------------------------------- */
+html.ios-luecke,
+html.ios-luecke body {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  bottom: calc(-1 * var(--vp-gap, 0px));
+  height: auto;
+  width: 100%;
+  overflow: hidden;
+}
+html.ios-luecke body { transform: translateZ(0); }
+
+/* --------------------------------------------------------------------------
    Warum das <html> eine ANDERE Farbe hat als der Rest
 
    Als installierte App füllt die Seite nicht immer den ganzen Bildschirm.
@@ -8040,6 +8068,50 @@ body.bereich-offen.detail-offen::after {
     for (const geste of ['gesturestart', 'gesturechange', 'gestureend']) {
       document.addEventListener(geste, (e) => e.preventDefault(), { passive: false });
     }
+  })();
+</script>
+
+<!-- Misst die Lücke unten, die iOS 26 der installierten App lässt (siehe
+     "html.ios-luecke" im Stil). Ein unsichtbares fixed-Element von oben bis
+     unten zeigt, wo iOS die Seite tatsächlich enden lässt; der Rest bis zur
+     echten Bildschirmhöhe ist die Lücke. Nur auf iPhone/iPad als installierte
+     App — im Browser, am Android-Handy und am PC passiert gar nichts. -->
+<script>
+  (() => {
+    const alsApp = window.navigator.standalone === true ||
+      window.matchMedia('(display-mode: standalone)').matches;
+    const istIOS = window.CSS && CSS.supports('-webkit-touch-callout', 'none');
+    if (!alsApp || !istIOS) return;
+
+    const sonde = document.createElement('div');
+    sonde.style.cssText = 'position:fixed;top:0;bottom:0;left:0;width:0;visibility:hidden;pointer-events:none';
+    document.documentElement.appendChild(sonde);
+    const wurzel = document.documentElement;
+
+    const messen = () => {
+      // Die Sonde hängt am html, nicht am gestreckten body — sie misst also
+      // immer den echten Rahmen von iOS, auch wenn die Verlängerung schon läuft.
+      const kurz = Math.min(screen.width, screen.height);
+      const lang = Math.max(screen.width, screen.height);
+      const hoch = window.innerHeight >= window.innerWidth;
+      const breiteSoll = hoch ? kurz : lang;
+      const hoeheSoll = hoch ? lang : kurz;
+      const luecke = Math.round(hoeheSoll - sonde.getBoundingClientRect().bottom);
+      if (Math.abs(window.innerWidth - breiteSoll) <= 1 && luecke > 0 && luecke < 160) {
+        wurzel.style.setProperty('--vp-gap', luecke + 'px');
+        wurzel.classList.add('ios-luecke');
+      } else {
+        wurzel.style.setProperty('--vp-gap', '0px');
+      }
+    };
+    messen();
+    window.addEventListener('resize', messen);
+    window.addEventListener('pageshow', messen);
+    window.addEventListener('orientationchange', () => setTimeout(messen, 300));
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') setTimeout(messen, 100);
+    });
+    setTimeout(messen, 500);
   })();
 </script>
 
