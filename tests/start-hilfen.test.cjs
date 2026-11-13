@@ -80,3 +80,13 @@ test('startBereich: Rückkehr nach 29 min → null, nach 30 min → entdecken', 
   assert.equal(S.startBereich({ los: null, bereiche: B, online: true, versteckt: 0, jetzt: 29 * 60000 }), null);
   assert.equal(S.startBereich({ los: null, bereiche: B, online: true, versteckt: 0, jetzt: 30 * 60000 }), 'entdecken');
 });
+
+test('startBereich: Rückkehr nach 40 min mit offenem Spot-Blatt → null (Spot bleibt)', () => {
+  assert.equal(S.startBereich({ los: null, bereiche: B, online: true, versteckt: 0, jetzt: 40 * 60000, blattOffen: true }), null);
+});
+
+test('spotsZusammenfuehren: doppelte IDs nur einmal, erste Fassung gewinnt', () => {
+  const m = S.spotsZusammenfuehren([[spot(1), spot(2)], [spot(2, { name: 'anders' }), spot(3)], null]);
+  assert.deepEqual(m.map((s) => s.id), [1, 2, 3]);
+  assert.equal(m[1].name, 'S2');
+});

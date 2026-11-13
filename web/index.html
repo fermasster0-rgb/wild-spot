@@ -7138,7 +7138,10 @@ body.bereich-offen.detail-offen::after {
 .ws-punkte i.an { width: 18px; background: var(--ws-gruen-aktiv); }
 
 .ws-reihe-kopf { margin: 0 0 10px; }
-.ws-reihe { gap: 12px; scroll-snap-type: x mandatory; scroll-padding-left: max(18px, env(safe-area-inset-left)); }
+/* pan-y dazu: Die Startseite besteht fast nur aus Reihen. Mit dem alten
+   pan-x (.reihe) ließ sich die Seite nicht scrollen, wenn der Daumen auf
+   einer Karte aufsetzte. */
+.ws-reihe { gap: 12px; scroll-snap-type: x mandatory; scroll-padding-left: max(18px, env(safe-area-inset-left)); touch-action: pan-x pan-y; }
 
 .ws-reihenkarte {
   position: relative;

@@ -76,12 +76,30 @@
   // Karte: Sie geht mit gespeicherten Gebieten auch offline, die Startseite
   // nicht. Kommt die App nach kurzer Zeit aus dem Hintergrund zurück, bleibt
   // alles, wie es war (null) — erst nach einer halben Stunde ist es ein
-  // neues Öffnen.
-  function startBereich({ los, bereiche, online, versteckt, jetzt }) {
-    if (versteckt !== null && versteckt !== undefined && jetzt - versteckt < RUECKKEHR_MS) return null;
+  // neues Öffnen. Außer es ist ein Spot offen: Wer mit „Anfahrt" in Google
+  // Maps zum Platz gefahren ist, will ihn bei der Ankunft noch vor sich haben.
+  function startBereich({ los, bereiche, online, versteckt, jetzt, blattOffen = false }) {
+    const rueckkehr = versteckt !== null && versteckt !== undefined;
+    if (rueckkehr && (blattOffen || jetzt - versteckt < RUECKKEHR_MS)) return null;
     if (los && (bereiche || []).includes(los)) return los;
     return online ? 'entdecken' : 'karte';
   }
 
-  return { kategorienBauen, karussellWaehlen, startBereich };
+  // Mehrere Abfragen zu einer Liste: Die Datenbank liefert je Abfrage
+  // höchstens 50 bzw. 100 Spots, deshalb wird pro Kategorie gezielt gefragt
+  // und hier zusammengelegt. Jeder Spot nur einmal.
+  function spotsZusammenfuehren(listen) {
+    const gesehen = new Set();
+    const alle = [];
+    for (const liste of listen || []) {
+      for (const sp of liste || []) {
+        if (!sp || gesehen.has(sp.id)) continue;
+        gesehen.add(sp.id);
+        alle.push(sp);
+      }
+    }
+    return alle;
+  }
+
+  return { kategorienBauen, karussellWaehlen, startBereich, spotsZusammenfuehren };
 });
