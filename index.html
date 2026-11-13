@@ -645,6 +645,9 @@ html.ios-fix body { transform: translateZ(0); }
   background: var(--bg);
   z-index: 65;
   pointer-events: none;
+  /* Seit 2026-11-13 aus — Ferdinand wollte den Balken oben weg. Die Karte
+     läuft jetzt bis unter die Uhr. Zurückholen: diese Zeile löschen. */
+  display: none;
 }
 
 /* Unten: Als installierte App zeichnet iOS 26 unter der Seite einen etwa
