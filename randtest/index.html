@@ -13,6 +13,14 @@
 <title>Randtest</title>
 <style>
   html, body { margin: 0; height: 100%; }
+  /* Trick 1: Färbt iOS den Streifen unten mit der Farbe von <html>? */
+  html { background: #2c4a24; }
+  /* Trick 2: Kann ein Element über die gemeldete Unterkante hinaus zeichnen? */
+  .lila {
+    position: fixed; left: 0; width: 50%;
+    bottom: calc(-1 * env(safe-area-inset-top)); height: env(safe-area-inset-top);
+    background: #c400ff; z-index: 9;
+  }
   body {
     background: linear-gradient(180deg, #2f6fb5 0%, #5aa0d8 30%, #7bb661 55%, #2c4a24 100%);
     font: 16px/1.45 -apple-system, system-ui, sans-serif;
@@ -40,10 +48,12 @@
 <body>
   <div class="rot"></div>
   <div class="gelb"></div>
+  <div class="lila"></div>
   <div class="text">
     <b>Randtest</b>
     1. Siehst du ganz oben über der Uhrzeit einen <b style="display:inline;font-size:16px;color:#ff6b6b">roten</b> Strich und Blau bis zum Rand?<br>
-    2. Siehst du unten die Leiste und darunter einen <b style="display:inline;font-size:16px;color:#ffd400">gelben</b> Strich am Rand?
+    2. Siehst du unten die Leiste und darunter einen <b style="display:inline;font-size:16px;color:#ffd400">gelben</b> Strich am Rand?<br>
+    3. Test 2: Ist der Streifen unter Gelb jetzt dunkelgrün statt weiß? Ist links darin ein <b style="display:inline;font-size:16px;color:#d966ff">lila</b> Block?
     <div class="werte" id="werte"></div>
   </div>
   <div class="leiste">Leiste unten</div>
