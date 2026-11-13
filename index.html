@@ -43,7 +43,17 @@
      unten einen schwarzen Streifen, "black" einen schwarzen Balken über dem
      hellen Look. Dass iOS die Seite ohne die Angabe zu lang meldet (WebKit-
      Bug 316008), gleicht das Skript "ios-hoehe" ganz unten aus. Wirkt erst,
-     wenn die App neu zum Home-Bildschirm hinzugefügt wird. -->
+     wenn die App neu zum Home-Bildschirm hinzugefügt wird.
+
+     2026-11-13: doch wieder "black-translucent". Ohne die Angabe beginnt die
+     App unter der Uhrzeit, und iOS malt darüber einen Balken (nachts fast
+     schwarz). Am iPhone mit der Testseite /randtest2/ geprüft (beide
+     Zustände, erstes und zweites Öffnen): Mit "black-translucent" reicht die
+     Seite bis ganz nach oben, die Leiste unten bleibt sichtbar (das Skript
+     "ios-hoehe" kürzt, wenn iOS die Unterkante zu tief rechnet), und der
+     Streifen ganz unten, in den keine Seite zeichnen kann, bekommt die Farbe
+     von <html> (--unterkante = Seitenfarbe) statt Weiß. -->
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Wild Spot">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" href="icon-192.png" sizes="192x192">
