@@ -5750,10 +5750,11 @@ html[data-thema="nacht"] .tableiste { box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5)
 .unten { bottom: calc(var(--tab-h) + 12px); }
 
 @media (max-width: 760px) {
-  .detail { bottom: var(--tab-h); }
+  /* Seit 2026-11-13 liegt das Blatt am Handy unten auf, die Leiste weicht
+     (siehe „zwei Stufen" weiter unten). */
   /* Das Spot-Blatt darf nicht mehr die ganze Höhe nehmen: die Leiste unten
      und die Suche oben bleiben erreichbar. */
-  .detail { max-height: calc(76dvh - var(--tab-h)); }
+
 }
 
 /* Solange ein Bereich offen ist, gehört die Karte nicht bedient. Ihre Knöpfe
@@ -7078,6 +7079,83 @@ body.bereich-offen.detail-offen::after {
 
 /* Gipfel bekommen einen goldenen Rand — dieselbe Farbe wie auf der Karte. */
 .aktivzeile.art-gipfel { border-color: color-mix(in srgb, #d9a520 55%, var(--rand)); }
+
+/* ==========================================================================
+   Feinschliff 2026-11-13: das Spot-Blatt hat am Handy zwei Stufen
+
+   Wie in Apple Karten. Auf der Karte geht es zuerst nur halb auf — oben
+   bleibt der Spot zu sehen, unten steht das Wichtigste. Hochziehen zeigt
+   alles. Die Lage steckt ganz im transform: Das Blatt ist immer fast so hoch
+   wie der Bildschirm und wird für die halbe Stufe nach unten geschoben, bis
+   46 % der Höhe sichtbar sind. So gleitet es zwischen den Stufen, statt in
+   der Höhe zu springen (spot-detail.js, Abschnitt 2b).
+
+   Solange ein Blatt offen ist, rutscht die Leiste unten weg — das Blatt
+   braucht den Platz, und zwei Ebenen übereinander am unteren Rand sind eine
+   zu viel.
+   ========================================================================== */
+@keyframes blatt-rein { from { transform: translateY(100%); } }
+
+@media (max-width: 760px) {
+  .detail {
+    top: calc(env(safe-area-inset-top, 0px) + 8px);
+    bottom: 0;
+    max-height: none;
+    border-radius: 26px 26px 0 0;
+    box-shadow: 0 -8px 32px rgba(17, 21, 17, 0.18);
+    transform: translateY(calc(100% - 46dvh));
+    transition: transform 0.45s cubic-bezier(0.2, 0.85, 0.25, 1);
+    animation: blatt-rein 0.45s cubic-bezier(0.2, 0.85, 0.25, 1);
+    will-change: transform;
+  }
+  .detail.stufe-voll { transform: translateY(0); }
+  /* Halb liest man nicht weiter — erst hochziehen. */
+  .detail.stufe-halb .detail-koerper { overflow-y: hidden; }
+  .detail-koerper { padding-bottom: calc(28px + env(safe-area-inset-bottom, 0px)); }
+  .detail.wischt-zurueck { transition: transform 0.45s cubic-bezier(0.2, 0.85, 0.25, 1); }
+
+  /* Der Griff bekommt eine Fläche, die ein Daumen auch trifft. */
+  .detail-griff { width: 44px; height: 5px; top: 8px; }
+  .detail-griff::before { content: ""; position: absolute; inset: -12px -40px; }
+  .detail-kopf { cursor: pointer; }
+  .detail-kopf h2 { font-size: 22px; font-weight: 800; letter-spacing: -0.025em; line-height: 1.15; }
+
+  /* Die Leiste weicht, solange das Blatt offen ist. */
+  .tableiste { transition: transform 0.4s cubic-bezier(0.2, 0.85, 0.25, 1), opacity 0.25s; }
+  body.detail-offen .tableiste {
+    transform: translateY(calc(100% + 48px));
+    opacity: 0;
+    pointer-events: none;
+  }
+  body.bereich-offen.detail-offen::after { bottom: 0; }
+
+  /* Wegweiser: das Blatt steht dann in der halben Stufe (route.js). */
+  body.weg-modus .detail { max-height: none; }
+  body.weg-modus .weg-chip { bottom: calc(46dvh + 12px); }
+
+  /* Die Fotos laufen als Streifen zum Seitwärtswischen durch — in der halben
+     Stufe schauen sie unten hervor und sagen: hier geht es weiter. */
+  .galerie {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    margin: 0 -16px 14px;
+    padding: 0 16px;
+    scroll-padding: 16px;
+    scrollbar-width: none;
+    overscroll-behavior-x: contain;
+    touch-action: pan-x pan-y;
+  }
+  .galerie::-webkit-scrollbar { display: none; }
+  .galerie .foto-feld { flex: none; width: 210px; scroll-snap-align: start; }
+  .galerie .foto,
+  .galerie .foto-feld:first-child .foto { aspect-ratio: 4 / 3; border-radius: 14px; }
+  .galerie .foto-feld:only-child { width: 100%; }
+}
+@media (max-width: 760px) and (prefers-reduced-motion: reduce) {
+  .detail, .detail.wischt-zurueck, .tableiste { transition: none; animation: none; }
+}
 
 /* ==========================================================================
    Am Rechner

@@ -209,8 +209,9 @@
     gezeichnet = spot;
     parkplatzSetzen(spot);
     chipWeg();
-    // Das Blatt fährt ein, damit die ganze Route sichtbar wird.
+    // Das Blatt fährt auf die halbe Stufe, damit die ganze Route sichtbar wird.
     document.body.classList.add('weg-modus');
+    if (typeof window.spotBlattStufe === 'function') window.spotBlattStufe('halb');
 
     const ruhig = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     insBildHolen();
@@ -255,9 +256,9 @@
     // Rechts liegt am großen Bildschirm die Detail-Leiste, unten am Handy das
     // Blatt. Der Rand hält die Route aus beiden heraus.
     const schmal = window.innerWidth <= 760;
-    // Im Wegweiser-Modus ist das Blatt auf gut 40 % eingefahren (siehe
-    // body.weg-modus im Stil) — die Route darf dann den oberen Rest nutzen.
-    const blattAnteil = document.body.classList.contains('weg-modus') ? 0.6 : 0.62;
+    // Am Handy steht das Blatt dann in der halben Stufe und deckt 46 % ab —
+    // die Route darf den oberen Rest nutzen.
+    const blattAnteil = 0.5;
     karte.fitBounds([[w, s], [o, n]], {
       padding: schmal
         ? { top: 130, bottom: Math.round(window.innerHeight * blattAnteil), left: 40, right: 40 }
