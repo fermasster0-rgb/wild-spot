@@ -796,7 +796,9 @@ function zeichnen(spot, kommentare, meineSterne, fotos = []) {
 
   // Von hier erzählen. Wer gerade zurück ist und den Spot aufmacht, ist genau
   // in dem Moment, in dem man davon erzählt.
-  if (angemeldet && window.WILDSPOT_BEITRAG) {
+  // Nur mit sichtbarer Gemeinschaft — der Beitrag landete sonst in einem
+  // Feed, den niemand sieht (config.js, gemeinschaft).
+  if (angemeldet && window.WILDSPOT_BEITRAG && window.WILDCAMP_CONFIG?.gemeinschaft) {
     knoepfe.push(
       '<button type="button" class="zweit" id="detail-erzaehlen" ' +
       'style="display:flex;align-items:center;justify-content:center;gap:8px">' +

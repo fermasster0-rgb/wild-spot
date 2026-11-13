@@ -1736,7 +1736,8 @@
       folgen.innerHTML =
         '<button type="button" data-folge="follower"><b id="z-follower">…</b> Follower</button>' +
         '<button type="button" data-folge="folge"><b id="z-folge">…</b> gefolgt</button>';
-      rand.appendChild(folgen);
+      // Follower gehören zur Gemeinschaft — ohne sie (config.js) keine Zeile.
+      if (window.WILDCAMP_CONFIG?.gemeinschaft) rand.appendChild(folgen);
 
       for (const k of folgen.querySelectorAll('[data-folge]')) {
         k.addEventListener('click', () => {
