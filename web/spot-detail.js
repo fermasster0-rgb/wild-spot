@@ -194,32 +194,60 @@ document.addEventListener('keydown', (e) => {
 });
 
 // ============================================================================
-// 2b. NACH UNTEN WISCHEN SCHLIESST DAS BLATT
+// 2b. DAS BLATT HAT ZWEI STUFEN (Feinschliff 2026-11-13)
 //
-// Am Handy ist das Detail ein Blatt von unten. Dort erwartet man, dass man es
-// wegwischen kann, statt das kleine × oben rechts treffen zu müssen. Am
-// Rechner ist es eine Leiste rechts — da gibt es nichts wegzuwischen, deshalb
-// gilt das alles nur unterhalb von 760 Pixeln Breite (dieselbe Grenze wie im
-// Stylesheet, an der aus der Leiste das Blatt wird).
+// Am Handy ist das Detail ein Blatt von unten, wie in Apple Karten. Auf der
+// Karte geht es zuerst nur bis zur Hälfte auf: oben bleibt der Spot sichtbar,
+// unten steht das Wichtigste. Hochziehen zeigt alles, nach unten wischen
+// schließt. Über einer Liste (Startseite, Merkliste) gibt es oben nichts zu
+// sehen — dort geht es gleich ganz auf.
 //
-// Zwei Stellen dürfen ziehen:
-//   • Greifbalken und Kopf — immer, das ist der offensichtliche Griff.
-//   • der Inhalt darunter — aber nur, wenn er schon ganz oben steht. Sonst
-//     wäre jeder Versuch, nach oben zurückzuscrollen, ein Schließen.
+// Am Rechner ist es eine Leiste rechts — da gibt es weder Stufen noch etwas
+// wegzuwischen. Deshalb gilt das alles nur unterhalb von 760 Pixeln Breite
+// (dieselbe Grenze wie im Stylesheet).
+//
+// Wer ziehen darf:
+//   • Griff und Kopf — immer, das ist der offensichtliche Griff.
+//   • der Inhalt — in der halben Stufe immer (dort scrollt er nicht), in der
+//     vollen nur, wenn er ganz oben steht. Sonst wäre jeder Versuch, nach
+//     oben zurückzuscrollen, ein Schließen.
 // ============================================================================
 
 const BLATT_BREITE = window.matchMedia('(max-width: 760px)');
 
-const WISCH_START    = 8;    // Pixel, bis feststeht: ziehen oder doch scrollen
-const WISCH_SCHWELLE = 100;  // so weit unten losgelassen → zu
-const WISCH_TEMPO    = 0.55; // px pro ms — ein kurzer Schnipser genügt auch
+const WISCH_START = 8;    // Pixel, bis feststeht: ziehen oder doch scrollen
 
-let wischStartY = 0, wischStartX = 0, wischStartZeit = 0;
-let wischWeg    = 0;      // wie weit das Blatt gerade unten steht
+let blattStufe = 'halb';  // 'halb' | 'voll'
+let wischStartY = 0, wischStartX = 0;
+let wischBasis = 0;       // wo das Blatt beim Anfassen stand (translateY)
+let wischY = 0;           // wo es gerade steht
+let wischLetztY = 0, wischLetztZeit = 0, wischTempo = 0;
 let wischAktiv  = false;  // der Finger zieht das Blatt gerade
 let wischPruef  = false;  // noch unklar, ob gezogen oder gescrollt wird
 let wischGezogen = false; // gerade gezogen → der folgende Klick zählt nicht
 let wischSchliesst = false;
+
+function stufeSetzen(stufe) {
+  blattStufe = stufe === 'voll' ? 'voll' : 'halb';
+  detailEl.classList.toggle('stufe-halb', blattStufe === 'halb');
+  detailEl.classList.toggle('stufe-voll', blattStufe === 'voll');
+  // In der halben Stufe scrollt der Inhalt nicht — er beginnt also oben.
+  if (blattStufe === 'halb') detailKoerper.scrollTop = 0;
+}
+window.spotBlattStufe = stufeSetzen;
+
+// Wo das Blatt gerade steht, in Pixeln von seiner ganz offenen Lage aus.
+function blattVersatz() {
+  const t = getComputedStyle(detailEl).transform;
+  if (!t || t === 'none') return 0;
+  return new DOMMatrixReadOnly(t).m42;
+}
+
+// Der Weg von ganz offen bis zur halben Stufe. Ganz offen steht das Blatt bei
+// offsetTop (Transformationen zählen dort nicht), halb zeigt es 46 % der Höhe.
+function halbHoehe() {
+  return Math.max(0, window.innerHeight * 0.54 - detailEl.offsetTop);
+}
 
 function wischZuruecksetzen() {
   detailEl.classList.remove('wischt', 'wischt-zurueck', 'wischt-zu');
@@ -228,7 +256,7 @@ function wischZuruecksetzen() {
   wischPruef = false;
   wischSchliesst = false;
   wischGezogen = false;
-  wischWeg = 0;
+  wischY = 0;
 }
 
 // Das Blatt nach unten hinausgleiten lassen und danach richtig schließen.
@@ -259,14 +287,15 @@ detailEl.addEventListener('touchstart', (e) => {
   // In Textfeldern und Auswahllisten hat der Finger etwas anderes zu tun.
   if (e.target.closest('textarea, input, select, a[href]')) return;
 
-  // Aus dem Inhalt heraus nur, wenn er schon ganz oben steht.
   const imKopf = !!e.target.closest('.detail-kopf, .detail-griff');
-  if (!imKopf && detailKoerper.scrollTop > 0) return;
+  if (!imKopf && blattStufe === 'voll' && detailKoerper.scrollTop > 0) return;
 
-  wischStartY = e.touches[0].clientY;
+  wischStartY = wischLetztY = e.touches[0].clientY;
   wischStartX = e.touches[0].clientX;
-  wischStartZeit = Date.now();
-  wischWeg = 0;
+  wischLetztZeit = Date.now();
+  wischTempo = 0;
+  wischBasis = blattVersatz();
+  wischY = wischBasis;
   wischPruef = true;
   wischGezogen = false;
 }, { passive: true });
@@ -274,13 +303,17 @@ detailEl.addEventListener('touchstart', (e) => {
 detailEl.addEventListener('touchmove', (e) => {
   if (!wischPruef && !wischAktiv) return;
 
-  const dy = e.touches[0].clientY - wischStartY;
+  const y = e.touches[0].clientY;
+  const dy = y - wischStartY;
   const dx = e.touches[0].clientX - wischStartX;
 
   if (wischPruef) {
     if (Math.abs(dy) < WISCH_START && Math.abs(dx) < WISCH_START) return;
-    // Nach oben oder quer: das ist Lesen, nicht Schließen.
-    if (dy <= 0 || Math.abs(dx) > Math.abs(dy)) { wischPruef = false; return; }
+    // Quer ist Wischen durch die Fotos, kein Ziehen am Blatt.
+    if (Math.abs(dx) > Math.abs(dy)) { wischPruef = false; return; }
+    // In der vollen Stufe ist ein Zug nach oben aus dem Inhalt Lesen.
+    const imKopf = !!e.target.closest('.detail-kopf, .detail-griff');
+    if (dy < 0 && blattStufe === 'voll' && !imKopf) { wischPruef = false; return; }
     wischPruef = false;
     wischAktiv = true;
     detailEl.classList.add('wischt');
@@ -288,30 +321,38 @@ detailEl.addEventListener('touchmove', (e) => {
 
   // Solange gezogen wird, darf der Inhalt nicht mitscrollen.
   e.preventDefault();
-  wischWeg = Math.max(0, dy - WISCH_START);
-  detailEl.style.transform = `translateY(${wischWeg}px)`;
+  const jetzt = Date.now();
+  wischTempo = (y - wischLetztY) / Math.max(1, jetzt - wischLetztZeit);
+  wischLetztY = y;
+  wischLetztZeit = jetzt;
+  // Nach oben nicht über ganz offen hinaus.
+  wischY = Math.max(0, wischBasis + dy - Math.sign(dy) * WISCH_START);
+  detailEl.style.transform = `translateY(${wischY}px)`;
 }, { passive: false });
 
 function wischLoslassen() {
   if (!wischAktiv) { wischPruef = false; return; }
   wischAktiv = false;
-  wischGezogen = wischWeg > 4;
+  const weg = wischY - wischBasis;
+  wischGezogen = Math.abs(weg) > 4;
   // Die Sperre gilt nur für den Klick, den der Browser gleich nach dem
   // Loslassen nachschiebt — danach muss wieder alles anklickbar sein.
   if (wischGezogen) setTimeout(() => { wischGezogen = false; }, 400);
 
-  const tempo = wischWeg / Math.max(1, Date.now() - wischStartZeit);
-  if (wischWeg > WISCH_SCHWELLE || tempo > WISCH_TEMPO) {
-    detailWegwischen();
-    return;
-  }
+  // Ein Finger, der vor dem Loslassen stehen geblieben ist, schnipst nicht.
+  const tempo = Date.now() - wischLetztZeit > 120 ? 0 : wischTempo;
+  const ziel = window.WILDSPOT_BLATT.stufeNachZug({
+    von: blattStufe, weg, tempo, halbHoehe: halbHoehe(),
+  });
 
-  // Zu wenig — das Blatt schnappt an seinen Platz zurück.
+  if (ziel === 'zu') { detailWegwischen(); return; }
+
+  // An die neue (oder alte) Stufe weich einrasten.
   detailEl.classList.remove('wischt');
   detailEl.classList.add('wischt-zurueck');
   detailEl.style.transform = '';
-  wischWeg = 0;
-  setTimeout(() => detailEl.classList.remove('wischt-zurueck'), 240);
+  stufeSetzen(ziel);
+  setTimeout(() => detailEl.classList.remove('wischt-zurueck'), 460);
 }
 
 detailEl.addEventListener('touchend', wischLoslassen);
@@ -324,6 +365,15 @@ detailEl.addEventListener('click', (e) => {
   e.preventDefault();
   e.stopPropagation();
 }, true);
+
+// Antippen von Griff oder Kopf wechselt zwischen halb und ganz — wie in
+// Apple Karten. Knöpfe und die Koordinaten (Kopieren) behalten ihre Aufgabe.
+detailEl.addEventListener('click', (e) => {
+  if (!BLATT_BREITE.matches || detailEl.hidden) return;
+  if (!e.target.closest('.detail-kopf, .detail-griff')) return;
+  if (e.target.closest('button, a, .koord')) return;
+  stufeSetzen(blattStufe === 'voll' ? 'halb' : 'voll');
+});
 
 // ----------------------------------------------------------------------------
 // Die Zeile unter dem Namen
@@ -467,6 +517,9 @@ async function spotDetailOeffnen(id, name, lat, lng) {
   detailKoord.textContent = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
   detailKoerper.innerHTML = '<p class="detail-leer">Wird geladen …</p>';
   wischZuruecksetzen();   // ein vorher angeschobenes Blatt sitzt wieder gerade
+  // Neu aufgehend: auf der Karte halb, über einer Liste ganz. Ist schon ein
+  // Spot offen, bleibt die Stufe, die man gewählt hat.
+  if (detailEl.hidden) stufeSetzen(aufDerKarte() ? 'halb' : 'voll');
   detailEl.hidden = false;
   document.body.classList.add('detail-offen');
   detailKoerper.scrollTop = 0;
