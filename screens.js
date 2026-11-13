@@ -121,6 +121,7 @@
     }
 
     aktiv = name;
+    if (name === 'entdecken') karussellStarten(); else karussellAnhalten();
 
     for (const b of BEREICHE) {
       const schirm = $('schirm-' + b);
@@ -411,9 +412,20 @@
   const HERO_SATZ = {
     'Top bewertet': 'Am besten bewertet<br>von allen Spots',
     'Neu in der Karte': 'Gerade neu<br>in der Karte',
+    // Die übrigen Karten im Karussell (Feinschliff 2026-11-13): Der Satz
+    // folgt aus der Reihe, aus der der Spot kommt — also aus echten Angaben.
+    'AM WASSER': 'Am Bergsee<br>übernachten',
+    'HOCH HINAUS': 'Über der<br>Baumgrenze schlafen',
+    'SCHNELL DA': 'Kurzer Weg<br>vom Auto',
+    'NEU': 'Gerade neu<br>in der Karte',
+  };
+  const ETIKETT_TEXT = {
+    'HEUTE EMPFOHLEN': 'Heute empfohlen', 'AM WASSER': 'Am Wasser',
+    'HOCH HINAUS': 'Hoch hinaus', 'SCHNELL DA': 'Schnell da', 'NEU': 'Neu',
   };
 
-  function heroKachel(s, warum) {
+  function heroKachel(s, warum, etikett = 'HEUTE EMPFOHLEN') {
+    const label = ETIKETT_TEXT[etikett] || 'Heute empfohlen';
     const knopf = el('button');
     knopf.type = 'button';
     knopf.className = 'ws-hero';
@@ -428,15 +440,15 @@
     knopf.innerHTML =
       `${bildHtml(s.foto_pfad)}
        <span class="ws-hero-oben">
-         <span class="label">Heute empfohlen</span>
-         <span class="name">${HERO_SATZ[warum] || sicher(s.name)}</span>
+         <span class="label">${sicher(label)}</span>
+         <span class="name">${HERO_SATZ[warum] || HERO_SATZ[etikett] || sicher(s.name)}</span>
        </span>
        <span class="ws-hero-unten">
          <span class="mini">${bildHtml(s.foto_pfad)}</span>
          <span class="wo"><b>${sicher(s.name)}</b><span>${sicher(fakten.join(' · ') || 'Noch keine Angaben')}</span></span>
          <span class="ansehen">Ansehen</span>
        </span>`;
-    knopf.setAttribute('aria-label', `Heute empfohlen: ${s.name} ansehen`);
+    knopf.setAttribute('aria-label', `${label}: ${s.name} ansehen`);
     knopf.addEventListener('click', () => spotOeffnen(s));
     return knopf;
   }
@@ -830,6 +842,11 @@
 
     const chips = [...gewaehlteChips];
 
+    // Die Filterzeile steht nur noch da, wenn ein Filter (etwa von der Karte)
+    // gesetzt ist — dann muss man ihn hier auch sehen und lösen können.
+    const filterZeile = document.querySelector('#schirm-entdecken .filter-zeile');
+    if (filterZeile) filterZeile.hidden = !chips.length;
+
     // Ohne Filter ist die Seite wieder die gewohnte.
     if (!chips.length) {
       block.hidden = true;
@@ -894,6 +911,149 @@
     herzenAuffrischen();
   }
 
+  // ------------------------------------------------------------------------
+  // Feinschliff 2026-11-13: Reihen und Karussell
+  // ------------------------------------------------------------------------
+
+  // Die mittlere Karte der Reihen: Foto oben, Name und Eckdaten darunter.
+  function reihenKarte(s) {
+    const knopf = el('button');
+    knopf.type = 'button';
+    knopf.className = 'ws-reihenkarte';
+    const eck = [meter(s.elevation_m), gehzeit(s.hike_minutes) && gehzeit(s.hike_minutes) + ' Zustieg']
+      .filter(Boolean).join(' · ');
+    knopf.innerHTML =
+      `<span class="bild">${bildHtml(s.foto_pfad)}</span>
+       <span class="name">${sicher(s.name)}</span>
+       <span class="eck">${sicher(eck || (Number(s.hike_minutes) === 0 ? 'Direkt am Auto' : ''))}</span>`;
+    const herz = el('button');
+    herz.type = 'button';
+    herz.className = 'merken-knopf';
+    herz.dataset.merken = s.id;
+    herz.setAttribute('aria-pressed', String(gemerkteIds.has(s.id)));
+    herz.setAttribute('aria-label', 'Merken');
+    herz.innerHTML = '<svg viewBox="0 0 24 24"><path d="M12 20s-7-4.5-7-9.2A4 4 0 0112 8.4 4 4 0 0119 10.8c0 4.7-7 9.2-7 9.2z"/></svg>';
+    herz.addEventListener('click', (e) => { e.stopPropagation(); merkenUmschalten(s.id); });
+    knopf.querySelector('.bild').appendChild(herz);
+    knopf.addEventListener('click', () => spotOeffnen(s));
+    return knopf;
+  }
+
+  function reiheBlock(titel, inhalt) {
+    const block = el('div');
+    block.className = 'block';
+    const kopf = el('div');
+    kopf.className = 'rand ws-reihe-kopf';
+    kopf.innerHTML = `<h2 class="abschnitt-titel">${sicher(titel)}</h2>`;
+    const reihe = el('div');
+    reihe.className = 'reihe ws-reihe';
+    for (const k of inhalt) reihe.appendChild(k);
+    block.append(kopf, reihe);
+    return block;
+  }
+
+  // „Gut zu wissen": die drei Texte, die früher unten aufklappten. Inhalt
+  // bleibt, wo er war (#lesen-…); hier steht nur der Eingang dazu.
+  function wissenReihe() {
+    const karten = [];
+    for (const knopf of document.querySelectorAll('#entdecken-lesen-block [data-lesen]')) {
+      const art = knopf.querySelector('.art')?.textContent || '';
+      const titel = knopf.querySelector('h4')?.textContent || '';
+      const k = el('button');
+      k.type = 'button';
+      k.className = 'ws-wissen-karte';
+      k.innerHTML = `<span class="art">${sicher(art)}</span><b>${sicher(titel)}</b>`;
+      k.addEventListener('click', () => lesenOeffnen(knopf.dataset.lesen));
+      karten.push(k);
+    }
+    return karten.length ? reiheBlock('Gut zu wissen', karten) : null;
+  }
+
+  // Die Lesefläche. Ein eigenes Vollbild, damit man in Ruhe liest und mit
+  // einem Tipp wieder dort ist, wo man war.
+  function lesenOeffnen(art) {
+    const quelle = $('lesen-' + art);
+    const knopf = document.querySelector(`#entdecken-lesen-block [data-lesen="${art}"]`);
+    if (!quelle) return;
+    let blatt = $('lesen-blatt');
+    if (!blatt) {
+      blatt = el('div');
+      blatt.id = 'lesen-blatt';
+      blatt.setAttribute('role', 'dialog');
+      blatt.setAttribute('aria-modal', 'true');
+      document.body.appendChild(blatt);
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !blatt.hidden) lesenSchliessen(); });
+    }
+    blatt.innerHTML =
+      '<div class="lesen-kopf"><button type="button" id="lesen-blatt-zu" aria-label="Schließen">×</button></div>' +
+      `<span class="art">${sicher(knopf?.querySelector('.art')?.textContent || '')}</span>` +
+      `<h2>${sicher(knopf?.querySelector('h4')?.textContent || '')}</h2>` +
+      `<div class="lesetext">${quelle.innerHTML}</div>`;
+    blatt.hidden = false;
+    blatt.scrollTop = 0;
+    $('lesen-blatt-zu').addEventListener('click', lesenSchliessen);
+  }
+  function lesenSchliessen() {
+    const blatt = $('lesen-blatt');
+    if (blatt) blatt.hidden = true;
+  }
+  window.WILDSPOT_LESEN = lesenOeffnen;
+
+  // Das Karussell wischt alle vier Sekunden weiter. Wer selbst wischt, hat
+  // sechs Sekunden Ruhe. Es läuft nur, solange die Startseite zu sehen ist —
+  // ein Zähler, der hinter der Karte weitertickt, kostet Akku und bringt nichts.
+  const KARUSSELL_TAKT = 4000;
+  const KARUSSELL_PAUSE = 6000;
+  let karussellUhr = null;
+  let karussellRuhe = 0;
+
+  function karussellIndex(k) {
+    const erste = k.firstElementChild;
+    if (!erste) return 0;
+    const schritt = erste.getBoundingClientRect().width + 12;
+    return Math.round(k.scrollLeft / schritt);
+  }
+
+  function karussellAnhalten() {
+    if (karussellUhr) clearInterval(karussellUhr);
+    karussellUhr = null;
+  }
+
+  function karussellStarten() {
+    karussellAnhalten();
+    const k = $('entdecken-karussell');
+    if (!k || k.children.length < 2) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    karussellUhr = setInterval(() => {
+      if (document.hidden || aktiv !== 'entdecken') return;
+      if (Date.now() - karussellRuhe < KARUSSELL_PAUSE) return;
+      const n = (karussellIndex(k) + 1) % k.children.length;
+      k.scrollTo({ left: k.children[n].offsetLeft - k.children[0].offsetLeft, behavior: 'smooth' });
+    }, KARUSSELL_TAKT);
+  }
+
+  function karussellBauen(ziel, auswahl) {
+    ziel.innerHTML = '';
+    const k = el('div');
+    k.className = 'ws-karussell';
+    k.id = 'entdecken-karussell';
+    for (const { spot, etikett } of auswahl) {
+      k.appendChild(heroKachel(spot, etikett === 'HEUTE EMPFOHLEN' ? auswahl.warum : null, etikett));
+    }
+    const punkte = el('div');
+    punkte.className = 'ws-punkte';
+    punkte.setAttribute('aria-hidden', 'true');
+    punkte.innerHTML = auswahl.map((_, i) => `<i${i ? '' : ' class="an"'}></i>`).join('');
+    const ruhe = () => { karussellRuhe = Date.now(); };
+    for (const t of ['pointerdown', 'touchstart', 'wheel']) k.addEventListener(t, ruhe, { passive: true });
+    k.addEventListener('scroll', () => {
+      const i = karussellIndex(k);
+      punkte.querySelectorAll('i').forEach((p, j) => p.classList.toggle('an', i === j));
+    }, { passive: true });
+    ziel.append(k, punkte);
+    karussellStarten();
+  }
+
   async function entdeckenFuellen() {
     chipsBauen();
     kopfFuellen();
@@ -906,14 +1066,14 @@
       heldBlock.innerHTML =
         '<div class="platzhalter" style="height:430px;border-radius:28px"></div>';
     }
-    if (neuReihe)  warten(neuReihe, 3, 218);
-    if (bestListe) bestListe.innerHTML =
-      '<div class="platzhalter" style="height:94px;margin-bottom:8px"></div>'.repeat(3);
+    const reihenEl = $('entdecken-reihen');
+    if (reihenEl) reihenEl.innerHTML = '';
 
-    // Die drei Listen auf einmal holen. Nacheinander wäre dreimal die
-    // Wartezeit für dasselbe Ergebnis.
+    // Alle Spots auf einmal (für die Kategorie-Reihen) und die bestbewerteten.
+    // Nacheinander wäre zweimal die Wartezeit für dasselbe Ergebnis. Die
+    // Abfrage liefert pro Spot schon Foto, Höhe, See, Baumgrenze und Gehzeit.
     const [neu, best] = await Promise.all([
-      sb.rpc('spots_entdecken', { sortierung: 'neu',  anzahl: 12 }),
+      sb.rpc('spots_entdecken', { sortierung: 'neu',  anzahl: 500 }),
       sb.rpc('spots_entdecken', { sortierung: 'best', anzahl: 10 }),
     ]);
 
@@ -923,8 +1083,14 @@
 
     if (heldBlock) {
       heldBlock.innerHTML = '';
-      if (held) {
-        heldBlock.appendChild(heroKachel(held, besteListe[0] ? 'Top bewertet' : 'Neu in der Karte'));
+      const START = window.WILDSPOT_START;
+      const kategorien = START ? START.kategorienBauen(neu.data || [], held ? [held.id] : []) : [];
+      const auswahl = START ? START.karussellWaehlen(held, kategorien) : [];
+      auswahl.warum = besteListe[0] ? 'Top bewertet' : 'Neu in der Karte';
+      if (held && auswahl.length) {
+        karussellBauen(heldBlock, auswahl);
+      } else if (held) {
+        heldBlock.appendChild(heroKachel(held, auswahl.warum));
       } else if (neu.error && best.error) {
         // Datenbank nicht erreichbar (z. B. pausiert oder kein Netz): ein
         // klarer Satz statt endloser grauer Platzhalter. Die Karte selbst
@@ -942,18 +1108,22 @@
       }
     }
 
-    // ---------------------------------------------------- Neu dazugekommen
-    if (neuReihe) {
-      neuReihe.innerHTML = '';
-      const liste = (neu.data || []).filter((s) => !held || s.id !== held.id).slice(0, 10);
-      if (!liste.length) {
-        $('entdecken-neu-block').hidden = true;
-      } else {
-        for (const s of liste) {
-          // Was in der letzten Woche dazugekommen ist, bekommt eine Marke.
-          const frisch = (Date.now() - new Date(s.created_at).getTime()) < 7 * 86400000;
-          neuReihe.appendChild(kachel(s, { marke: frisch ? 'Neu' : '' }));
+    // ------------------------------------------------- Kategorie-Reihen
+    // Bergseen, Hoch oben, dann „Gut zu wissen", dann Ohne langen Zustieg und
+    // Neu. Welche Spots wohin gehören, entscheidet start-hilfen.js — nur aus
+    // echten Angaben, und eine Reihe erst ab drei Spots.
+    if (reihenEl && window.WILDSPOT_START) {
+      const kat = window.WILDSPOT_START.kategorienBauen(neu.data || [], held ? [held.id] : []);
+      kat.forEach((k, i) => {
+        reihenEl.appendChild(reiheBlock(k.titel, k.spots.map(reihenKarte)));
+        if (i === 1 || (i === kat.length - 1 && kat.length < 2)) {
+          const w = wissenReihe();
+          if (w) reihenEl.appendChild(w);
         }
+      });
+      if (!kat.length && !(neu.error && best.error)) {
+        const w = wissenReihe();
+        if (w) reihenEl.appendChild(w);
       }
     }
 
@@ -961,18 +1131,14 @@
     //
     // Erst ab drei Plätzen. Eine Bestenliste mit einem einzigen Eintrag ist
     // keine Rangfolge, sondern die Auskunft, dass genau eine Bewertung
-    // abgegeben wurde — und der eine Platz stand als "Spot der Woche" schon
-    // oben auf derselben Seite. Zweimal derselbe Name auf einer Seite lässt
-    // eine Karte mit 162 Plätzen kleiner aussehen, als sie ist.
+    // abgegeben wurde.
     if (bestListe) {
       bestListe.innerHTML = '';
-      const liste = besteListe.slice(0, 8);
+      const liste = besteListe.filter((s) => s.foto_pfad).slice(0, 8);
       if (liste.length < 3) {
         $('entdecken-best-block').hidden = true;
       } else {
-        liste.forEach((s, i) => {
-          bestListe.appendChild(zeile(s, { platz: i + 1 }));
-        });
+        for (const s of liste) bestListe.appendChild(reihenKarte(s));
       }
     }
 
@@ -986,12 +1152,9 @@
     nahLaden();
     zahlenbandFuellen();
 
-    // Die Gipfel und die Leute bauen sich selbst — beide liegen in eigenen
-    // Dateien, weil sie mit der Spotliste nichts zu tun haben.
-    if (window.WILDSPOT_GIPFEL) window.WILDSPOT_GIPFEL.entdeckenFuellen();
-
-    // Heute Nacht — der Block, der morgen etwas anderes sagt (heute.js).
-    if (window.WILDSPOT_HEUTE) window.WILDSPOT_HEUTE.fuellen();
+    // Gipfel und „Heute Nacht" stehen seit 2026-11-13 nicht mehr auf der
+    // Startseite (Ferdinand: „so wie es da ist, passt es"). Ihr Code bleibt
+    // in gipfel.js und heute.js, wird hier nur nicht mehr aufgerufen.
 
     // War schon ein Filter gesetzt — etwa auf der Karte —, gehört die
     // Trefferliste auch beim ersten Öffnen dieser Seite gleich dazu.
@@ -1099,7 +1262,7 @@
 
       const reihe = $('entdecken-nah');
       reihe.innerHTML = '';
-      for (const s of data) reihe.appendChild(kachel(s));
+      for (const s of data.filter((x) => x.foto_pfad)) reihe.appendChild(reihenKarte(s));
 
       const unter = $('entdecken-nah-unter');
       if (unter && data[0] && data[0].entfernung_km != null &&
@@ -1159,12 +1322,7 @@
   // Die Artikel auf der Entdecken-Seite auf- und zuklappen.
   for (const knopf of document.querySelectorAll('[data-lesen]')) {
     knopf.addEventListener('click', () => {
-      const text = $('lesen-' + knopf.dataset.lesen);
-      if (!text) return;
-      text.hidden = !text.hidden;
-      if (!text.hidden) {
-        setTimeout(() => text.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 60);
-      }
+      lesenOeffnen(knopf.dataset.lesen);
     });
   }
 
@@ -1737,8 +1895,7 @@
       'Wildcampen in Österreich', 'Was erlaubt ist, was geduldet, was teuer wird',
       () => { bereichZeigen('entdecken');
               setTimeout(() => {
-                const t = $('lesen-recht');
-                if (t) { t.hidden = false; t.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+                lesenOeffnen('recht');
               }, 120); },
     ));
 
