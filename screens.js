@@ -2014,8 +2014,18 @@
       const alsApp = window.matchMedia('(display-mode: standalone)').matches ||
                      window.navigator.standalone === true;
 
+      // Höhenwerte fürs iPhone (2026-11-13, zur Fehlersuche am Streifen unten).
+      const sonde = el('div');
+      sonde.style.cssText = 'position:fixed;top:0;bottom:0;width:0;visibility:hidden';
+      document.documentElement.appendChild(sonde);
+      const fest = Math.round(sonde.getBoundingClientRect().bottom);
+      sonde.remove();
+      const vv = window.visualViewport ? Math.round(window.visualViewport.height) : '-';
+      const gekuerzt = document.documentElement.style.getPropertyValue('--vp-fix') || '0px';
+
       t.textContent = `${nummer} · ${alsApp ? 'als App' : 'im Browser'} · ` +
-                      `Rand unten ${unten} px · zum Auffrischen tippen`;
+                      `Rand unten ${unten} px · inner ${window.innerHeight} · vv ${vv} · ` +
+                      `screen ${screen.height} · fixed ${fest} · gekürzt ${gekuerzt} · zum Auffrischen tippen`;
     })();
 
     // ------------------------------------------------------------- Fußzeile
