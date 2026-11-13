@@ -7096,6 +7096,25 @@ body.bereich-offen.detail-offen::after {
    ========================================================================== */
 @keyframes blatt-rein { from { transform: translateY(100%); } }
 
+/* Der Pin auf dem offenen Spot (spot-detail.js, pinSetzen). Grün mit weißem
+   Rand, damit er auf jeder Grundkarte — hell, Gelände, Luftbild — heraussticht. */
+.spot-pin { width: 40px; height: 50px; display: flex; flex-direction: column; align-items: center; pointer-events: none; transform-origin: 50% 100%; }
+.spot-pin-kopf {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--ws-gruen, #2f6b1f); border: 3px solid #fff;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.32);
+  display: grid; place-items: center;
+}
+.spot-pin-kopf svg { width: 20px; height: 20px; fill: none; stroke: #fff; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.spot-pin-kopf svg path:last-child { fill: #fff; }
+.spot-pin-spitze { width: 12px; height: 12px; margin-top: -8px; background: var(--ws-gruen, #2f6b1f); transform: rotate(45deg); border-right: 3px solid #fff; border-bottom: 3px solid #fff; }
+html[data-thema="nacht"] .spot-pin-kopf, html[data-thema="nacht"] .spot-pin-spitze { background: #3f8a2a; }
+.spot-pin.ploppt > * { animation: pin-plopp 0.45s cubic-bezier(0.3, 1.5, 0.5, 1) both; transform-origin: 50% 100%; }
+.spot-pin.ploppt .spot-pin-spitze { animation-name: pin-plopp-spitze; }
+@keyframes pin-plopp { from { transform: scale(0.2) translateY(10px); opacity: 0; } }
+@keyframes pin-plopp-spitze { from { transform: rotate(45deg) scale(0.2); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .spot-pin.ploppt > * { animation: none; } }
+
 @media (max-width: 760px) {
   .detail {
     top: calc(env(safe-area-inset-top, 0px) + 8px);

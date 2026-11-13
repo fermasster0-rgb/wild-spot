@@ -167,6 +167,7 @@ function detailSchliessen() {
   detailEl.hidden = true;
   document.body.classList.remove('detail-offen');
   offenerSpot = null;
+  pinWeg();
 
   // Die Wanderroute gehört zu diesem einen Spot — sie darf nicht auf der
   // Karte liegen bleiben, wenn die Leiste zu ist.
@@ -537,7 +538,14 @@ async function spotDetailOeffnen(id, name, lat, lng) {
   // erst nach dem Laden — der Knopf muss vom ersten Moment an stimmen.
   merkenAnmelden(id);
 
-  freilegen(lat, lng);
+  // Auf der Karte: hinfliegen und markieren. Über einer Liste bleibt die
+  // Karte, wo sie ist — sie ist dort gar nicht zu sehen.
+  if (aufDerKarte()) {
+    zumSpotFliegen(lat, lng);
+    pinSetzen(lat, lng);
+  } else {
+    pinWeg();
+  }
 
   const auth = window.WILDCAMP_AUTH;
 
@@ -618,20 +626,53 @@ if (merkenKnopf) {
   });
 }
 
-// Den Spot ins Sichtbare schieben, falls die Leiste genau darüber liegt.
-// Nur dann — eine Karte, die bei jedem Antippen wegspringt, nervt.
-function freilegen(lat, lng) {
-  const p = karte.project([lng, lat]);
+// Zum Spot fliegen (Feinschliff 2026-11-13, wie Apple Karten): Wer einen
+// Spot antippt, will sehen, wo er liegt. Die Karte zoomt heran und rückt ihn
+// in die Mitte des Stücks Karte, das zwischen Suchleiste und halbem Blatt frei
+// bleibt. Wer schon näher dran ist, wird nicht herausgezogen (zielZoom).
+// Am Rechner liegt das Blatt rechts — dort rückt der Spot nach links.
+function zumSpotFliegen(lat, lng) {
+  if (!karte) return;
+  const H = window.WILDSPOT_BLATT;
   const schmal = window.innerWidth <= 760;
-
+  let offset;
   if (schmal) {
-    // Am Handy deckt das Blatt die unteren drei Viertel ab.
-    const grenze = window.innerHeight * 0.24;
-    if (p.y > grenze) karte.easeTo({ center: [lng, lat], offset: [0, -window.innerHeight * 0.26], duration: 400 });
+    const oben = document.getElementById('karte-chips') || document.getElementById('suche');
+    const obenFrei = oben ? oben.getBoundingClientRect().bottom : 110;
+    offset = [0, H.spotVersatzY({
+      hoehe: window.innerHeight, obenFrei, blattOben: window.innerHeight * 0.54,
+    })];
   } else {
-    const grenze = window.innerWidth - 404;
-    if (p.x > grenze) karte.easeTo({ center: [lng, lat], offset: [-200, 0], duration: 400 });
+    offset = [-200, 0];
   }
+  const ziel = { center: [lng, lat], zoom: H.zielZoom(karte.getZoom()), offset };
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) karte.jumpTo(ziel);
+  else karte.flyTo({ ...ziel, duration: 800, essential: true });
+}
+
+// Der große grüne Pin auf dem angetippten Spot. Ohne ihn sieht man zwischen
+// zwanzig gleichen Zelten nicht, welches gerade offen ist. Es gibt immer nur
+// einen; er geht mit dem Blatt.
+let spotPin = null;
+function pinSetzen(lat, lng) {
+  if (!karte || typeof maplibregl === 'undefined') return;
+  if (!spotPin) {
+    const el = document.createElement('div');
+    el.className = 'spot-pin';
+    el.setAttribute('aria-hidden', 'true');
+    el.innerHTML = '<span class="spot-pin-kopf"><svg viewBox="0 0 24 24"><path d="M3 20 12 4l9 16"/>' +
+      '<path d="M12 20l-3.5-6h7z"/></svg></span><span class="spot-pin-spitze"></span>';
+    spotPin = new maplibregl.Marker({ element: el, anchor: 'bottom' });
+  }
+  spotPin.setLngLat([lng, lat]).addTo(karte);
+  // Bei jedem neuen Spot einmal aufploppen lassen.
+  const el = spotPin.getElement();
+  el.classList.remove('ploppt');
+  void el.offsetWidth;
+  el.classList.add('ploppt');
+}
+function pinWeg() {
+  if (spotPin) spotPin.remove();
 }
 
 // ============================================================================
@@ -1236,16 +1277,10 @@ function verdrahten(spot, meineSterne, anzahlFotos, meiner) {
       // erfüllt und wäre ab hier nur noch ein Knopf, der nichts mehr tut.
       zurKarte.remove();
 
-      // Erst fliegen, dann freilegen: Das Aufklappen der Leiste schiebt die
-      // Karte selbst noch zur Seite, und mitten im Flug bricht das ihn ab.
-      if (karte) {
-        karte.flyTo({
-          center: [lng, lat],
-          zoom: Math.max(karte.getZoom(), 14),
-          duration: 900,
-        });
-        karte.once('moveend', () => freilegen(lat, lng));
-      }
+      // Auf der Karte steht das Blatt halb, damit man den Spot darüber sieht.
+      stufeSetzen('halb');
+      zumSpotFliegen(lat, lng);
+      pinSetzen(lat, lng);
     };
   }
 
