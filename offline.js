@@ -109,6 +109,8 @@
       if (!hatController) { hatController = true; return; }
       if (laedtNeu) return;
       laedtNeu = true;
+      // Das Zelt lief eben schon — beim Neuladen nicht noch einmal zeigen.
+      try { sessionStorage.setItem('wildspot-ohne-start', '1'); } catch (e) {}
       window.location.reload();
     });
   }
