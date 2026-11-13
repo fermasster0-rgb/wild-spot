@@ -3472,21 +3472,31 @@ html[data-thema="nacht"] .tableiste { box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5)
    Die Farbe allein reicht dafür nicht: Oliv auf Milchglas ist auf einem
    hellen Foto darunter kaum vom Grau der anderen zu unterscheiden. Eine
    Fläche sieht man auch mit dem Daumen davor. */
-.tab::before {
-  content: "";
+/* Seit 2026-11-13 EINE Pille für die ganze Leiste statt einer pro Bereich.
+   Vorher saß hinter jedem Zeichen eine eigene Fläche, die beim Umschalten
+   an der neuen Stelle aufploppte und an der alten verblasste — und sie saß
+   zu hoch, das Zeichen war unten angeschnitten. Jetzt liegt eine Fläche
+   hinter Zeichen UND Wort und gleitet zum neuen Bereich (wie bei iOS).
+   Platziert wird sie vom kleinen Skript direkt nach der Leiste. */
+.tab { z-index: 1; }
+.tab-pille {
   position: absolute;
-  top: 3px;
-  left: 50%;
-  width: 54px;
-  height: 26px;
-  margin-left: -27px;
+  left: 0; top: 0;
+  width: 0; height: 0;
   border-radius: 999px;
   background: var(--gruen);
   opacity: 0;
-  transform: scale(0.7);
-  transition: opacity 0.18s, transform 0.22s cubic-bezier(0.3, 1.3, 0.5, 1);
+  pointer-events: none;
+  z-index: 0;
+  transition: transform 0.42s cubic-bezier(0.3, 1.2, 0.4, 1),
+              width 0.42s cubic-bezier(0.3, 1.2, 0.4, 1),
+              opacity 0.2s;
 }
-.tab[aria-selected="true"]::before { opacity: 0.15; transform: none; }
+.tab-pille.da { opacity: 0.15; }
+.tab-pille.ohne-gleiten { transition: none; }
+@media (prefers-reduced-motion: reduce) {
+  .tab-pille { transition: opacity 0.2s; }
+}
 
 .tab[aria-selected="true"] { color: var(--gruen); }
 .tab[aria-selected="true"] svg { stroke-width: 2.1; }
@@ -3495,7 +3505,6 @@ html[data-thema="nacht"] .tableiste { box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5)
 /* Auf schmalen Handys stünden 54 Pixel Pille bei fünf Bereichen Kante an
    Kante. Dann lieber etwas schmaler. */
 @media (max-width: 360px) {
-  .tab::before { width: 46px; margin-left: -23px; }
   .tab { font-size: 9px; }
 }
 
@@ -3543,6 +3552,7 @@ html[data-thema="nacht"] .tableiste { box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5)
   .tab { height: 64px; border-radius: 18px; font-size: 10.5px; }
   .tab[aria-selected="true"] { background: var(--akzent-weich); }
   .tab .neu-punkt { top: 12px; }
+  .tab-pille { display: none; }
 }
 
 /* ==========================================================================
@@ -8685,7 +8695,36 @@ html[data-thema="nacht"] .spot-pin-kopf, html[data-thema="nacht"] .spot-pin-spit
     </svg>
     Profil
   </button>
+
+  <span class="tab-pille" aria-hidden="true"></span>
 </nav>
+
+<!-- Setzt die grüne Pille hinter den gewählten Bereich und lässt sie beim
+     Umschalten hinübergleiten. Hört auf aria-selected — damit ist egal, wer
+     den Bereich wechselt (Tippen, Link, Rückkehr zur Startseite). -->
+<script>
+  (() => {
+    const leiste = document.getElementById('tableiste');
+    const pille = leiste && leiste.querySelector('.tab-pille');
+    if (!pille) return;
+    const setzen = (gleiten) => {
+      const tab = leiste.querySelector('.tab[aria-selected="true"]');
+      if (!tab || !tab.offsetWidth) { pille.classList.remove('da'); return; }
+      pille.classList.toggle('ohne-gleiten', !gleiten);
+      const rand = 3;   // Luft zwischen Pille und Leistenkante
+      pille.style.width = (tab.offsetWidth - 2 * rand) + 'px';
+      pille.style.height = (leiste.clientHeight - 2 * rand) + 'px';
+      pille.style.transform = 'translate(' + (tab.offsetLeft + rand) + 'px,' + rand + 'px)';
+      pille.classList.add('da');
+      if (!gleiten) { void pille.offsetWidth; pille.classList.remove('ohne-gleiten'); }
+    };
+    new MutationObserver(() => setzen(true))
+      .observe(leiste, { subtree: true, attributes: true, attributeFilter: ['aria-selected'] });
+    window.addEventListener('resize', () => setzen(false));
+    window.addEventListener('load', () => setzen(false));
+    setzen(false);
+  })();
+</script>
 
 <!-- Die beiden Dateien für alles oben stehen bewusst HIER und nicht bei den
      anderen Skripten weiter oben: Sie suchen ihre Elemente beim Start über
