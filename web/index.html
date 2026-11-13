@@ -8772,9 +8772,8 @@ html[data-thema="nacht"] .spot-pin-kopf, html[data-thema="nacht"] .spot-pin-spit
      sichtbare Rahmen wirklich ist. Ist die Rechnung größer, wird um den
      Unterschied gekürzt.
 
-     Dazu blendet die App für 12 Sekunden eine kleine Messzeile ein (nur als
-     installierte App auf dem iPhone). Sie zeigt die Werte, falls der
-     Ausgleich auf einem Gerät nicht passt — antippen blendet sie aus. -->
+     Die frühere Messzeile (grüne Zahlen in der Mitte) ist seit 2026-11-13
+     entfernt, weil sie bei jedem Start störte. -->
 <script>
   (() => {
     const alsApp = window.navigator.standalone === true ||
@@ -8789,14 +8788,11 @@ html[data-thema="nacht"] .spot-pin-kopf, html[data-thema="nacht"] .spot-pin-spit
       'padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)';
     wurzel.appendChild(sonde);
 
-    let werte = '';
     const messen = () => {
       const r = sonde.getBoundingClientRect();
-      const cs = getComputedStyle(sonde);
       const rechnung = Math.round(r.bottom);
       const innen = window.innerHeight;
       const vv = window.visualViewport ? Math.round(window.visualViewport.height) : innen;
-      const ch = wurzel.clientHeight;
       const sichtbar = Math.min(innen, vv);
       const zuLang = rechnung - sichtbar;
       if (zuLang > 2 && zuLang < 160) {
@@ -8806,18 +8802,7 @@ html[data-thema="nacht"] .spot-pin-kopf, html[data-thema="nacht"] .spot-pin-spit
         wurzel.style.setProperty('--vp-fix', '0px');
         wurzel.classList.remove('ios-fix');
       }
-      werte = 'fixed ' + rechnung + ' · inner ' + innen + ' · vv ' + vv + ' · client ' + ch +
-        ' · screen ' + screen.height + ' · oben ' + cs.paddingTop + ' · unten ' + cs.paddingBottom +
-        ' · gekürzt ' + (zuLang > 2 && zuLang < 160 ? zuLang : 0);
-      if (zeile) zeile.textContent = werte;
     };
-
-    const zeile = document.createElement('div');
-    zeile.style.cssText = 'position:fixed;left:8px;right:8px;top:50%;z-index:99999;padding:8px 10px;border-radius:10px;' +
-      'background:rgba(0,0,0,.78);color:#9be07a;font:12px/1.4 ui-monospace,Menlo,monospace;text-align:center;';
-    zeile.addEventListener('click', () => zeile.remove());
-    document.body.appendChild(zeile);
-    setTimeout(() => zeile.remove(), 12000);
 
     messen();
     window.addEventListener('resize', messen);
