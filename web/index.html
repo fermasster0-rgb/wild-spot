@@ -7422,6 +7422,17 @@ html[data-thema="nacht"] .spot-pin-kopf, html[data-thema="nacht"] .spot-pin-spit
     </g>
   </svg>
 </div>
+<!-- Lädt die App nur neu, weil gerade eine neue Fassung übernommen hat
+     (offline.js setzt dafür ein Merkzeichen), kommt das Zelt nicht noch
+     einmal. Sonst sah man es beim Öffnen nach jedem Update zweimal. -->
+<script>
+  try {
+    if (sessionStorage.getItem('wildspot-ohne-start')) {
+      sessionStorage.removeItem('wildspot-ohne-start');
+      document.getElementById('start').remove();
+    }
+  } catch (e) {}
+</script>
 
 <div id="karte"></div>
 
