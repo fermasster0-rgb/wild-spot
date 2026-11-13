@@ -8847,8 +8847,10 @@ html[data-thema="nacht"] .spot-pin-kopf, html[data-thema="nacht"] .spot-pin-spit
     const wurzel = document.documentElement;
     wurzel.classList.add('ios-app');   // installierte App auf iPhone/iPad
     const sonde = document.createElement('div');
-    sonde.style.cssText = 'position:fixed;top:0;bottom:0;left:0;width:0;visibility:hidden;pointer-events:none;' +
-      'padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)';
+    // Ohne padding (2026-11-13): Mit Abstand oben maß die Sonde am iPhone
+    // 911 statt 852, obwohl die Leiste korrekt an 852 hing — die App wurde
+    // dann grundlos um 59 px gekürzt, und unten blieb ein Streifen.
+    sonde.style.cssText = 'position:fixed;top:0;bottom:0;left:0;width:0;visibility:hidden;pointer-events:none';
     wurzel.appendChild(sonde);
 
     const messen = () => {
