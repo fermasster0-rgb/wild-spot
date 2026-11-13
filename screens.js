@@ -934,6 +934,7 @@
           'Die Karte, Wasserstellen und gespeicherte Gebiete gehen trotzdem.' +
           '<button type="button" class="ws-knopf" id="entdecken-zur-karte">Zur Karte</button></div>';
         $('entdecken-zur-karte')?.addEventListener('click', () => bereichZeigen('karte'));
+        if (window.WILDSPOT_START_OHNE_DATEN) window.WILDSPOT_START_OHNE_DATEN();
       } else {
         heldBlock.innerHTML =
           '<div class="ws-hero-leer"><b>Noch kein Spot in der Karte</b>' +
@@ -2020,18 +2021,25 @@
     if (aktiv === 'profil') profilFuellen();
   });
 
-  // Wo es losgeht: immer die Karte. Sie ist das Herz der App — wer sie
-  // öffnet, steht meistens draußen und will sehen, was um ihn herum ist.
+  // Wo es losgeht: auf der Startseite (Ferdinand, 2026-11-13: „wenn man
+  // die App neu öffnet, soll man immer zuerst auf der Startseite sein").
+  // Vorher war es die Karte; davor der zuletzt offene Bereich, was nach einem
+  // Blick ins Profil beim nächsten Öffnen wieder im Profil landete.
   //
-  // Vorher wurde der zuletzt offene Bereich wiederhergestellt (aus
-  // SPEICHER_TAB). Das führte dazu, dass man nach einem Blick ins Profil
-  // beim nächsten Öffnen wieder im Profil landete. Gemerkt wird der Bereich
-  // weiterhin (bereichZeigen schreibt ihn), nur der Start hängt nicht mehr
-  // daran.
+  // Zwei Ausnahmen, beide in start-hilfen.js entschieden: Ohne Netz geht es
+  // auf die Karte — sie läuft mit gespeicherten Gebieten auch offline, die
+  // Startseite nicht. Und ein Kurzbefehl (?los=) gewinnt immer.
   //
-  // Ein geteilter Link auf einen Spot ändert daran nichts — der gehört
-  // ohnehin auf die Karte, teilen.js öffnet dann das Blatt dazu.
-  let anfang = 'karte';
+  // Ein geteilter Link auf einen Spot gehört auf die Karte — teilen.js
+  // öffnet dort das Blatt dazu. Über der Startseite wäre er ein Blatt ohne
+  // Ort.
+  const START = window.WILDSPOT_START;
+  let anfang = START
+    ? START.startBereich({ los: null, bereiche: BEREICHE, online: navigator.onLine, versteckt: null, jetzt: Date.now() })
+    : 'karte';
+  try {
+    if (new URLSearchParams(location.search).get('spot')) anfang = 'karte';
+  } catch (e) {}
 
   // Die Kurzbefehle der installierten App (manifest.webmanifest, "shortcuts").
   //
@@ -2046,4 +2054,32 @@
   } catch (e) {}
 
   bereichZeigen(anfang, { merken: false });
+
+  // Wer schon etwas angetippt hat, dem nimmt der Rückfall unten nichts mehr
+  // weg — er gilt nur für die ersten Sekunden nach dem Öffnen.
+  let schonBedient = false;
+  document.addEventListener('pointerdown', () => { schonBedient = true; }, { once: true, capture: true });
+
+  // Ohne Datenbank bleibt die Startseite leer. Dann gleich die Karte, statt
+  // jemanden draußen vor einem Satz „keine Verbindung" stehen zu lassen.
+  window.WILDSPOT_START_OHNE_DATEN = () => {
+    if (!schonBedient && aktiv === 'entdecken') bereichZeigen('karte', { merken: false });
+  };
+
+  // Eine installierte App bleibt beim Wechseln oft im Speicher und wird nie
+  // neu geladen. Kommt sie nach einer halben Stunde zurück, zählt das als
+  // neues Öffnen; nach kurzem Wegschauen bleibt alles, wie es war.
+  let verstecktSeit = null;
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) { verstecktSeit = Date.now(); return; }
+    if (!START || verstecktSeit === null) return;
+    const ziel = START.startBereich({
+      los: null, bereiche: BEREICHE, online: navigator.onLine,
+      versteckt: verstecktSeit, jetzt: Date.now(),
+    });
+    verstecktSeit = null;
+    if (!ziel) return;
+    if (typeof window.spotDetailSchliessen === 'function') window.spotDetailSchliessen();
+    bereichZeigen(ziel, { merken: false });
+  });
 })();
