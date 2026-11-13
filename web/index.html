@@ -7081,6 +7081,142 @@ body.bereich-offen.detail-offen::after {
 .aktivzeile.art-gipfel { border-color: color-mix(in srgb, #d9a520 55%, var(--rand)); }
 
 /* ==========================================================================
+   Feinschliff 2026-11-13: Startseite mit Karussell und Reihen
+
+   Oben ein großes Fenster, das alle vier Sekunden von selbst weiterwischt
+   (screens.js, karussellStarten). Darunter je Kategorie eine Reihe mittlerer
+   Karten zum Seitwärtswischen — Foto oben, Name und Eckdaten darunter, wie
+   in den großen Reise-Apps. Die alten Ausklapp-Texte sind eine eigene Reihe
+   „Gut zu wissen" und öffnen sich als Lesefläche.
+   ========================================================================== */
+/* Was die Startseite seit 2026-11-13 nicht mehr zeigt. Die Elemente bleiben
+   im Code; ihre eigenen display-Regeln würden hidden sonst überstimmen. */
+#entdecken-reiter[hidden], #entdecken-kacheln[hidden],
+#schirm-entdecken .filter-zeile[hidden], #entdecken-gipfel-block[hidden],
+#entdecken-lesen-block[hidden], #entdecken-neu-block[hidden] { display: none !important; }
+
+#entdecken-hero > .ws-hero-leer,
+#entdecken-hero > .platzhalter {
+  margin-left: max(18px, env(safe-area-inset-left));
+  margin-right: max(18px, env(safe-area-inset-right));
+}
+.ws-karussell {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  padding: 2px max(18px, env(safe-area-inset-right)) 14px max(18px, env(safe-area-inset-left));
+  scroll-padding-left: max(18px, env(safe-area-inset-left));
+  overscroll-behavior-x: contain;
+  touch-action: pan-x pan-y;
+}
+.ws-karussell::-webkit-scrollbar { display: none; }
+.ws-karussell > .ws-hero {
+  flex: 0 0 auto;
+  width: calc(100% - 2 * max(18px, env(safe-area-inset-left)));
+  max-width: 560px;
+  height: 360px;
+  border-radius: 26px;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+.ws-punkte { display: flex; justify-content: center; gap: 6px; margin: 0 0 4px; }
+.ws-punkte i {
+  display: block; width: 6px; height: 6px; border-radius: 3px;
+  background: var(--t3);
+  transition: width 0.3s ease, background-color 0.3s ease;
+}
+.ws-punkte i.an { width: 18px; background: var(--ws-gruen-aktiv); }
+
+.ws-reihe-kopf { margin: 0 0 10px; }
+.ws-reihe { gap: 12px; scroll-snap-type: x mandatory; scroll-padding-left: max(18px, env(safe-area-inset-left)); }
+
+.ws-reihenkarte {
+  position: relative;
+  display: block;
+  width: 168px;
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: left;
+  font: inherit;
+  color: var(--ws-text);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.ws-reihenkarte .bild {
+  position: relative;
+  display: block;
+  width: 168px;
+  height: 120px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--flaeche-tief);
+}
+.ws-reihenkarte .bild img,
+.ws-reihenkarte .bild .kein-bild { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ws-reihenkarte .name {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-top: 8px;
+  font-size: 14px;
+  font-weight: 650;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+.ws-reihenkarte .eck { display: block; margin-top: 2px; font-size: 12.5px; color: var(--ws-text-neben); font-variant-numeric: tabular-nums; }
+.ws-reihenkarte:active .bild { transform: scale(0.98); }
+.ws-reihenkarte .bild { transition: transform 0.2s ease; }
+.ws-reihenkarte .merken-knopf { position: absolute; top: 8px; right: 8px; }
+
+.ws-wissen-karte {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 230px;
+  min-height: 112px;
+  padding: 14px 15px;
+  border: 0;
+  border-radius: 18px;
+  background: var(--ws-karte);
+  box-shadow: var(--ws-schatten-karte);
+  text-align: left;
+  font: inherit;
+  color: var(--ws-text);
+  cursor: pointer;
+}
+.ws-wissen-karte .art { font-size: 11px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--warn-text, #b3581f); }
+.ws-wissen-karte b { font-size: 15.5px; line-height: 1.25; letter-spacing: -0.01em; }
+
+/* Die Lesefläche für „Gut zu wissen": ein ruhiges Vollbild statt eines
+   Kastens, der mitten in der Seite aufklappt. */
+#lesen-blatt {
+  position: fixed;
+  inset: 0;
+  z-index: 75;
+  background: var(--ws-grund);
+  color: var(--ws-text);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: calc(env(safe-area-inset-top, 0px) + 14px) max(20px, env(safe-area-inset-right)) calc(env(safe-area-inset-bottom, 0px) + 40px) max(20px, env(safe-area-inset-left));
+  animation: lesen-rein 0.35s cubic-bezier(0.2, 0.85, 0.25, 1);
+}
+#lesen-blatt[hidden] { display: none; }
+@keyframes lesen-rein { from { transform: translateY(24px); opacity: 0; } }
+#lesen-blatt .lesen-kopf { display: flex; justify-content: flex-end; position: sticky; top: 0; }
+#lesen-blatt-zu {
+  width: 36px; height: 36px; border: 0; border-radius: 50%;
+  background: var(--t2); color: var(--ws-text); font-size: 20px; line-height: 1; cursor: pointer;
+}
+#lesen-blatt .art { font-size: 12px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--warn-text, #b3581f); }
+#lesen-blatt h2 { margin: 6px 0 16px; font-size: 28px; line-height: 1.12; font-weight: 800; letter-spacing: -0.03em; text-wrap: balance; }
+#lesen-blatt .lesetext { display: block; max-width: 62ch; margin: 0; padding: 0; border: 0; background: none; font-size: 16px; line-height: 1.6; }
+@media (prefers-reduced-motion: reduce) { #lesen-blatt { animation: none; } }
+
+/* ==========================================================================
    Feinschliff 2026-11-13: das Spot-Blatt hat am Handy zwei Stufen
 
    Wie in Apple Karten. Auf der Karte geht es zuerst nur halb auf — oben
@@ -7754,18 +7890,25 @@ html[data-thema="nacht"] .spot-pin-kopf, html[data-thema="nacht"] .spot-pin-spit
        Kacheln stehen direkt unter „Entdecken“, wie im Entwurf — Reiter, Suche
        und Filter folgen darunter. Sichtbar nur in der Spots-Tafel und nicht,
        solange Filtertreffer angezeigt werden (siehe #entdecken-oben im Stil). -->
+  <div class="rand block">
+    <button class="such-knopf" id="entdecken-suche">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <span>Ort, Berg oder See suchen</span>
+    </button>
+  </div>
+
   <div id="entdecken-oben">
   <!-- Heute empfohlen: der große Bildeinstieg (Look B, wie die Heute-Seite
        im App Store). Es ist derselbe Spot wie früher „Spot der Woche" — der
        am besten bewertete, sonst der neueste —, nur steht er jetzt als erstes
        da und die Überschrift liegt im Bild. -->
   <div class="block" id="entdecken-held-block">
-    <div class="rand"><div id="entdecken-hero" class="ws-hero-platz"></div></div>
+    <div id="entdecken-hero" class="ws-hero-platz"></div>
   </div>
 
   <!-- Zwei Kacheln: wie kalt die Nacht wird und wie viel in der Karte steht.
        Beide Werte stammen aus Abfragen, die die Seite ohnehin macht. -->
-  <div class="block rand ws-kacheln" id="entdecken-kacheln">
+  <div class="block rand ws-kacheln" id="entdecken-kacheln" hidden>
     <div class="ws-kachel" id="kachel-nacht" hidden>
       <svg viewBox="0 0 24 24" aria-hidden="true" class="ws-kachel-zeichen nacht"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>
       <span class="wert">–</span>
@@ -7790,7 +7933,7 @@ html[data-thema="nacht"] .spot-pin-kopf, html[data-thema="nacht"] .spot-pin-spit
        kam. Ein Reiter ist eine Gliederung und keine Handlung; er darf still
        sein. „Ich folge" ist deshalb auch keinen eigenen Reiter mehr wert,
        sondern ein Umschalter im Feed. -->
-  <div class="tafel-reiter" id="entdecken-reiter">
+  <div class="tafel-reiter" id="entdecken-reiter" hidden>
     <button data-tafel="spots"      aria-selected="true">Spots</button>
     <button data-tafel="alle"       aria-selected="false">Feed</button>
     <button data-tafel="aktivitaet" aria-selected="false">Aktivität</button>
@@ -7864,19 +8007,14 @@ html[data-thema="nacht"] .spot-pin-kopf, html[data-thema="nacht"] .spot-pin-spit
   <!-- Die Suche gehört zu den Spots und steht deshalb IN dieser Tafel: Über
        dem Feed, der Aktivität oder der Leutesuche wäre ein zweites Suchfeld
        gestanden, das etwas ganz anderes sucht. -->
-  <div class="rand block">
-    <button class="such-knopf" id="entdecken-suche">
-      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
-      <span>Ort, Berg oder See suchen</span>
-    </button>
-  </div>
+  <!-- Die Suche steht seit 2026-11-13 ganz oben, über dem Karussell. -->
 
   <!-- Die Filterzeile. Der Knopf steht LINKS und zuerst: Er ist der Eingang
        zu allen 28 Filtern, die vier Chips daneben sind nur die Abkürzung für
        die häufigsten Fragen. Vorher standen acht Chips davor und der Knopf
        ganz rechts außerhalb des Bildes — man musste also erst schieben, um
        zu sehen, dass es überhaupt Filter gibt. -->
-  <div class="block filter-zeile">
+  <div class="block filter-zeile" hidden>
     <button class="filter-knopf flach" id="entdecken-filter" aria-pressed="false">
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path d="M3 5.5h18M6.5 12h11M10 18.5h4"/>
@@ -7908,6 +8046,9 @@ html[data-thema="nacht"] .spot-pin-kopf, html[data-thema="nacht"] .spot-pin-spit
        scrollen. -->
   <div id="entdecken-standard">
 
+  <!-- Die Kategorie-Reihen (screens.js, reihenBauen). -->
+  <div id="entdecken-reihen"></div>
+
   <!-- Heute Nacht (heute.js). Der einzige Block der Seite, der morgen etwas
        anderes sagt als heute — er rechnet aus Stundenwerten die kommende
        Nacht an einem echten Platz aus. Anfangs versteckt: Ohne Netz gibt es
@@ -7921,7 +8062,7 @@ html[data-thema="nacht"] .spot-pin-kopf, html[data-thema="nacht"] .spot-pin-spit
   </div>
 
   <!-- Neu dazugekommen -->
-  <div class="block" id="entdecken-neu-block">
+  <div class="block" id="entdecken-neu-block" hidden>
     <div class="rand">
       <h2 class="abschnitt-titel">Neu dazugekommen</h2>
       <p class="abschnitt-unter">Zuletzt von der Gemeinschaft eingetragen</p>
@@ -7936,7 +8077,7 @@ html[data-thema="nacht"] .spot-pin-kopf, html[data-thema="nacht"] .spot-pin-spit
       <h2 class="abschnitt-titel">In deiner Nähe</h2>
       <p class="abschnitt-unter" id="entdecken-nah-unter">Vom aktuellen Standort aus</p>
     </div>
-    <div class="reihe" id="entdecken-nah"></div>
+    <div class="reihe ws-reihe" id="entdecken-nah"></div>
   </div>
 
   <!-- Bestenliste -->
@@ -7945,12 +8086,12 @@ html[data-thema="nacht"] .spot-pin-kopf, html[data-thema="nacht"] .spot-pin-spit
       <h2 class="abschnitt-titel">Am besten bewertet</h2>
       <p class="abschnitt-unter">Was andere für die beste Nacht gehalten haben</p>
     </div>
-    <div class="rand" id="entdecken-best"></div>
+    <div class="reihe ws-reihe" id="entdecken-best"></div>
   </div>
 
   <!-- Gipfel sammeln. Der eine Teil des Bergsports, den eine Webseite ehrlich
        zählen kann: Ein Gipfel ist ein Punkt, man war oben oder nicht. -->
-  <div class="block" id="entdecken-gipfel-block">
+  <div class="block" id="entdecken-gipfel-block" hidden>
     <div class="rand treffer-kopf">
       <div>
         <h2 class="abschnitt-titel">Gipfel sammeln</h2>
@@ -7965,7 +8106,7 @@ html[data-thema="nacht"] .spot-pin-kopf, html[data-thema="nacht"] .spot-pin-spit
 
   <!-- Zum Lesen. Die Regeln stehen sonst nur im Hinweis beim ersten Start —
        hier kann man sie freiwillig nachlesen, statt sie wegzuklicken. -->
-  <div class="block">
+  <div class="block" id="entdecken-lesen-block" hidden>
     <div class="rand">
       <h2 class="abschnitt-titel">Bevor du losziehst</h2>
       <p class="abschnitt-unter">Drei Dinge, die eine Nacht draußen ausmachen</p>
