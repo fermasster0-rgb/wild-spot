@@ -1069,13 +1069,22 @@
     const reihenEl = $('entdecken-reihen');
     if (reihenEl) reihenEl.innerHTML = '';
 
-    // Alle Spots auf einmal (für die Kategorie-Reihen) und die bestbewerteten.
-    // Nacheinander wäre zweimal die Wartezeit für dasselbe Ergebnis. Die
-    // Abfrage liefert pro Spot schon Foto, Höhe, See, Baumgrenze und Gehzeit.
-    const [neu, best] = await Promise.all([
-      sb.rpc('spots_entdecken', { sortierung: 'neu',  anzahl: 500 }),
+    // Alles gleichzeitig: die neuesten, die bestbewerteten und je Kategorie
+    // eine gezielte Abfrage. Gezielt deshalb, weil die Datenbank pro Abfrage
+    // nur 50 (spots_entdecken) bzw. 100 (spots_filtern) Spots herausgibt —
+    // mit „alle auf einmal" sähen die Reihen nur die 50 neuesten. Gefiltert
+    // wird in der Datenbank, die genaue Grenze (z. B. 30 Minuten) setzt
+    // start-hilfen.js.
+    const [neu, best, seen, hohe, kurze] = await Promise.all([
+      sb.rpc('spots_entdecken', { sortierung: 'neu',  anzahl: 50 }),
       sb.rpc('spots_entdecken', { sortierung: 'best', anzahl: 10 }),
+      sb.rpc('spots_filtern', { chips: ['see', 'bilder'], anzahl: 100 }),
+      sb.rpc('spots_filtern', { chips: ['baum', 'sehrhoch', 'bilder'], anzahl: 100 }),
+      sb.rpc('spots_filtern', { chips: ['kurz', 'bilder'], anzahl: 100 }),
     ]);
+    const kandidaten = window.WILDSPOT_START
+      ? window.WILDSPOT_START.spotsZusammenfuehren([neu.data, seen.data, hohe.data, kurze.data])
+      : (neu.data || []);
 
     // ------------------------------------------------------- Spot der Woche
     const besteListe = (best.data || []).filter((s) => Number(s.rating_count) > 0);
@@ -1084,7 +1093,7 @@
     if (heldBlock) {
       heldBlock.innerHTML = '';
       const START = window.WILDSPOT_START;
-      const kategorien = START ? START.kategorienBauen(neu.data || [], held ? [held.id] : []) : [];
+      const kategorien = START ? START.kategorienBauen(kandidaten, held ? [held.id] : []) : [];
       const auswahl = START ? START.karussellWaehlen(held, kategorien) : [];
       auswahl.warum = besteListe[0] ? 'Top bewertet' : 'Neu in der Karte';
       if (held && auswahl.length) {
@@ -1113,7 +1122,7 @@
     // Neu. Welche Spots wohin gehören, entscheidet start-hilfen.js — nur aus
     // echten Angaben, und eine Reihe erst ab drei Spots.
     if (reihenEl && window.WILDSPOT_START) {
-      const kat = window.WILDSPOT_START.kategorienBauen(neu.data || [], held ? [held.id] : []);
+      const kat = window.WILDSPOT_START.kategorienBauen(kandidaten, held ? [held.id] : []);
       kat.forEach((k, i) => {
         reihenEl.appendChild(reiheBlock(k.titel, k.spots.map(reihenKarte)));
         if (i === 1 || (i === kat.length - 1 && kat.length < 2)) {
@@ -2231,9 +2240,11 @@
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) { verstecktSeit = Date.now(); return; }
     if (!START || verstecktSeit === null) return;
+    const blatt = document.getElementById('detail');
     const ziel = START.startBereich({
       los: null, bereiche: BEREICHE, online: navigator.onLine,
       versteckt: verstecktSeit, jetzt: Date.now(),
+      blattOffen: !!(blatt && !blatt.hidden),
     });
     verstecktSeit = null;
     if (!ziel) return;
