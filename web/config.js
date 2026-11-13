@@ -33,4 +33,11 @@ window.WILDCAMP_CONFIG = {
   // Punkt "Email" ausgeschaltet ist — sonst könnte jemand die Schnittstelle
   // direkt ansprechen. Beides gehört zusammen.
   nurGoogle: false,
+
+  // Die Gemeinschaft: Feed, Aktivität, Leute, Folgen und „Von hier erzählen".
+  // Seit 2026-11-13 ausgeblendet (Ferdinand: „dann lass das mal weg"). Der
+  // Code dafür steckt weiter in feed.js und leute.js — auf true stellen und
+  // in index.html bei #entdecken-reiter das hidden entfernen, dann ist alles
+  // wieder da.
+  gemeinschaft: false,
 };

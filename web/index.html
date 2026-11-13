@@ -534,6 +534,14 @@ html[data-thema="nacht"] body .suche-feld { box-shadow: 0 8px 24px rgba(0, 0, 0,
   overflow-x: auto;
   scrollbar-width: none;
   padding-right: 12px;
+  /* Unten Luft für die Schatten der Chips (overflow schneidet sonst ab),
+     rechts ein weiches Auslaufen statt eines harten Schnitts mitten durch
+     einen Chip — so sieht man, dass es seitlich weitergeht. */
+  padding-top: 2px;
+  padding-bottom: 14px;
+  margin-top: -2px;
+  -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 36px), transparent);
+  mask-image: linear-gradient(90deg, #000 calc(100% - 36px), transparent);
 }
 .karte-chips::-webkit-scrollbar { display: none; }
 body .karte-chips .filter-knopf { position: static; flex: none; min-height: 36px; background: var(--panel); box-shadow: 0 4px 14px rgba(17, 21, 17, 0.14); }
