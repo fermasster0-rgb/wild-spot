@@ -50,5 +50,35 @@
     return Array.isArray(spot && spot.route_line) && spot.route_line.length > 1;
   }
 
-  return { zustiegMinuten, dauerText, hoeheText, hatRoute };
+  // --- Feinschliff 2026-11-13: das Blatt hat zwei Stufen ------------------
+  //
+  // Wohin das Blatt nach einem Zug einrastet. weg ist in Pixeln (positiv =
+  // nach unten), tempo in Pixeln pro Millisekunde, halbHoehe der Weg von
+  // ganz offen bis zur Hälfte. Ein schneller Schnipser zählt mehr als die
+  // Strecke — so fühlt es sich in Apple Karten an: kurz anwerfen genügt.
+  function stufeNachZug({ von, weg, tempo, halbHoehe }) {
+    const SCHNIPSER = 0.5;
+    if (von === 'halb') {
+      if (tempo < -SCHNIPSER || weg < -60) return 'voll';
+      if (tempo > SCHNIPSER || weg > 90) return 'zu';
+      return 'halb';
+    }
+    if (tempo > SCHNIPSER || weg > halbHoehe / 2) return 'halb';
+    return 'voll';
+  }
+
+  // Wie weit die Karte den Spot aus der Bildmitte rücken muss, damit er in
+  // der Mitte des Stücks Karte steht, das zwischen Suchleiste und Blatt frei
+  // bleibt. Das ist der zweite Wert für MapLibres offset.
+  function spotVersatzY({ hoehe, obenFrei, blattOben }) {
+    return Math.round((obenFrei + blattOben) / 2 - hoehe / 2);
+  }
+
+  // Nah genug, um den Platz zu erkennen — aber wer schon näher dran ist,
+  // soll nicht wieder herausgezogen werden.
+  function zielZoom(aktuell) {
+    return Math.max(Number(aktuell) || 0, 14);
+  }
+
+  return { zustiegMinuten, dauerText, hoeheText, hatRoute, stufeNachZug, spotVersatzY, zielZoom };
 });
