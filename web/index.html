@@ -52,8 +52,13 @@
      Seite bis ganz nach oben, die Leiste unten bleibt sichtbar (das Skript
      "ios-hoehe" kürzt, wenn iOS die Unterkante zu tief rechnet), und der
      Streifen ganz unten, in den keine Seite zeichnen kann, bekommt die Farbe
-     von <html> (--unterkante = Seitenfarbe) statt Weiß. -->
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+     von <html> (--unterkante = Seitenfarbe) statt Weiß.
+
+     Noch am selben Abend zurückgenommen: In der echten App blieb unten ein
+     Streifen. Ferdinand hat entschieden: lieber unten frei, oben darf der
+     Balken (in Seitenfarbe) bleiben. Also wieder OHNE die Angabe. Nicht
+     erneut umstellen, ohne dass er es will. -->
+
 <meta name="apple-mobile-web-app-title" content="Wild Spot">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" href="icon-192.png" sizes="192x192">
@@ -8847,10 +8852,8 @@ html[data-thema="nacht"] .spot-pin-kopf, html[data-thema="nacht"] .spot-pin-spit
     const wurzel = document.documentElement;
     wurzel.classList.add('ios-app');   // installierte App auf iPhone/iPad
     const sonde = document.createElement('div');
-    // Ohne padding (2026-11-13): Mit Abstand oben maß die Sonde am iPhone
-    // 911 statt 852, obwohl die Leiste korrekt an 852 hing — die App wurde
-    // dann grundlos um 59 px gekürzt, und unten blieb ein Streifen.
-    sonde.style.cssText = 'position:fixed;top:0;bottom:0;left:0;width:0;visibility:hidden;pointer-events:none';
+    sonde.style.cssText = 'position:fixed;top:0;bottom:0;left:0;width:0;visibility:hidden;pointer-events:none;' +
+      'padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)';
     wurzel.appendChild(sonde);
 
     const messen = () => {
