@@ -36,3 +36,35 @@ test('hatRoute braucht mindestens zwei Punkte', () => {
   assert.equal(H.hatRoute({ route_line: [[15, 47]] }), false);
   assert.equal(H.hatRoute({}), false);
 });
+
+// --- Stufen des Blatts und Kartenversatz (Feinschliff 2026-11-13) ---------
+
+test('stufeNachZug: Schnipser nach oben aus halb → voll', () => {
+  assert.equal(H.stufeNachZug({ von: 'halb', weg: -30, tempo: -0.8, halbHoehe: 330 }), 'voll');
+});
+
+test('stufeNachZug: weit nach unten aus halb → zu', () => {
+  assert.equal(H.stufeNachZug({ von: 'halb', weg: 120, tempo: 0.1, halbHoehe: 330 }), 'zu');
+});
+
+test('stufeNachZug: Schnipser nach unten aus voll → halb', () => {
+  assert.equal(H.stufeNachZug({ von: 'voll', weg: 60, tempo: 0.9, halbHoehe: 330 }), 'halb');
+});
+
+test('stufeNachZug: langsam bis über die Mitte aus voll → halb, davor → voll', () => {
+  assert.equal(H.stufeNachZug({ von: 'voll', weg: 200, tempo: 0.1, halbHoehe: 330 }), 'halb');
+  assert.equal(H.stufeNachZug({ von: 'voll', weg: 100, tempo: 0.1, halbHoehe: 330 }), 'voll');
+});
+
+test('stufeNachZug: kleiner Zug bleibt auf der Stufe', () => {
+  assert.equal(H.stufeNachZug({ von: 'halb', weg: 40, tempo: 0.2, halbHoehe: 330 }), 'halb');
+});
+
+test('spotVersatzY zielt auf die Mitte des freien Kartenstücks', () => {
+  assert.equal(H.spotVersatzY({ hoehe: 844, obenFrei: 110, blattOben: 444 }), -145);
+});
+
+test('zielZoom zoomt nie heraus', () => {
+  assert.equal(H.zielZoom(8), 14);
+  assert.equal(H.zielZoom(16.5), 16.5);
+});
