@@ -40,6 +40,15 @@
 
   let plusBis   = null;    // Date oder null
   let plusTarif = null;
+  let plusGeladen = false;   // ob der Plus-Stand des Angemeldeten schon da ist
+  const PLUS_MERKER = 'wildspot-plus-bis';
+
+  function plusGemerkt() {
+    try {
+      const v = localStorage.getItem(PLUS_MERKER);
+      return !!v && new Date(v).getTime() > Date.now();
+    } catch (e) { return false; }
+  }
 
   function hatPlus() {
     // Wer die App verwaltet, hat Plus. Nicht als Geschenk, sondern aus
@@ -56,6 +65,7 @@
   }
 
   async function plusHolen() {
+    plusGeladen = false;
     if (!auth.nutzer) { plusBis = null; plusTarif = null; return; }
 
     const { data, error } = await sb
@@ -71,6 +81,27 @@
 
     plusBis   = data.plus_until ? new Date(data.plus_until) : null;
     plusTarif = data.plus_tarif || null;
+    plusGeladen = true;
+
+    // Merken, dass dieses Gerät Plus hat — damit beim nächsten Start keine
+    // Werbung aufpoppt, nur weil die Anmeldung noch lädt oder kein Netz da ist.
+    try {
+      if (hatPlus()) {
+        const bis = plusBis && plusBis.getTime() > Date.now()
+          ? plusBis : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+        localStorage.setItem(PLUS_MERKER, bis.toISOString());
+      } else {
+        localStorage.removeItem(PLUS_MERKER);
+      }
+    } catch (e) {}
+
+    // Stand schon ein Angebot offen, bevor klar war, dass Plus da ist: weg damit.
+    if (hatPlus()) {
+      for (const id of ['plus-angebot', 'plus-gross']) {
+        const el = $(id);
+        if (el) el.remove();
+      }
+    }
 
     document.body.classList.toggle('hat-plus', hatPlus());
     plusSeiteAuffrischen();
@@ -498,6 +529,11 @@
   // Die Bedingungen, die für beide gelten.
   function grundsaetzlichErlaubt() {
     if (hatPlus()) return false;
+    // Dieses Gerät hatte zuletzt Plus — auch wenn die Anmeldung noch lädt.
+    if (plusGemerkt()) return false;
+    // Angemeldet, aber der Plus-Stand ist noch unterwegs: lieber gar nichts
+    // zeigen als jemandem, der schon zahlt, Plus zu verkaufen.
+    if (auth.nutzer && !plusGeladen) return false;
 
     // Die Einführung läuft noch, oder sie war noch nie zu Ende.
     try {
